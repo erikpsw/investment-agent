@@ -1,3 +1,12 @@
+import sys
+from pathlib import Path
+
+# 设置包路径，使相对导入正常工作
+app_dir = Path(__file__).parent
+parent_dir = app_dir.parent
+if str(parent_dir) not in sys.path:
+    sys.path.insert(0, str(parent_dir))
+
 import streamlit as st
 
 st.set_page_config(
@@ -7,7 +16,7 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
-from ui.dashboard import render_dashboard
+from investment.ui.dashboard import render_dashboard
 
 
 def main():
@@ -40,19 +49,19 @@ def main():
         render_dashboard()
     
     elif page == "📊 个股分析":
-        from ui.stock_detail import render_stock_detail
+        from investment.ui.stock_detail import render_stock_detail
         render_stock_detail()
     
     elif page == "📄 财报管理":
-        from ui.report_viewer import render_report_viewer
+        from investment.ui.report_viewer import render_report_viewer
         render_report_viewer()
     
     elif page == "🔍 财报搜索":
-        from ui.report_search import render_report_search
+        from investment.ui.report_search import render_report_search
         render_report_search()
     
     elif page == "📈 财务图表":
-        from ui.financial_charts import render_financial_charts
+        from investment.ui.financial_charts import render_financial_charts
         render_financial_charts()
 
 

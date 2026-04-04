@@ -1,10 +1,10 @@
 import plotly.graph_objects as go
 import pandas as pd
-from typing import Any
+from typing import Any, Union, Dict, Tuple
 
 
 def plot_dupont_analysis(
-    data: dict[str, float] | pd.Series,
+    data: Union[Dict[str, float], pd.Series],
     title: str = "杜邦分析",
 ) -> go.Figure:
     """绘制杜邦分析树状图
@@ -92,7 +92,7 @@ def plot_dupont_analysis(
 
 
 def plot_dupont_waterfall(
-    data: dict[str, float] | pd.Series,
+    data: Union[Dict[str, float], pd.Series],
     title: str = "杜邦分析分解",
 ) -> go.Figure:
     """绘制杜邦分析瀑布图
@@ -139,9 +139,9 @@ def plot_dupont_waterfall(
 
 
 def plot_dupont_comparison(
-    current: dict[str, float],
-    previous: dict[str, float],
-    labels: tuple[str, str] = ("本期", "上期"),
+    current: Dict[str, float],
+    previous: Dict[str, float],
+    labels: Tuple[str, str] = ("本期", "上期"),
     title: str = "杜邦分析对比",
 ) -> go.Figure:
     """绘制杜邦分析对比图

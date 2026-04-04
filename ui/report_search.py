@@ -1,7 +1,7 @@
 import streamlit as st
-from ..reports import ReportRAG
-from ..agents.graph import run_report_qa
-from .components import render_search_results, render_disclaimer
+from investment.reports import ReportRAG
+from investment.agents.graph import run_report_qa
+from investment.ui.components import render_search_results, render_disclaimer
 
 
 def render_report_search():

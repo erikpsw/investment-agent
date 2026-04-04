@@ -1,0 +1,74 @@
+{
+  "summary": "公司盈利极强，毛利率超90%，现金流充裕且负债率低，财务稳健但增速小幅放缓。",
+  "revenue": {
+    "value": "1309.04亿",
+    "yoy_change": "+6.32%",
+    "trend": "up"
+  },
+  "profit": {
+    "net_profit": "646.27亿",
+    "yoy_change": "+6.25%",
+    "margin": "52.08%",
+    "trend": "up"
+  },
+  "cash_flow": {
+    "operating": "30.50元/股",
+    "assessment": "healthy"
+  },
+  "highlights": [
+    {
+      "metric": "销售毛利率",
+      "value": "91.29%",
+      "change": "-0.01个百分点",
+      "assessment": "positive",
+      "comment": "维持行业顶尖水平，产品定价权与品牌护城河极深"
+    },
+    {
+      "metric": "净资产收益率",
+      "value": "24.64%",
+      "change": "+6.75个百分点",
+      "assessment": "positive",
+      "comment": "资本回报效率显著提升，股东回报能力优异"
+    },
+    {
+      "metric": "资产负债率",
+      "value": "12.81%",
+      "change": "-1.94个百分点",
+      "assessment": "positive",
+      "comment": "财务结构极度稳健，无偿债压力"
+    },
+    {
+      "metric": "每股经营现金流",
+      "value": "30.50元",
+      "change": "+192.15%",
+      "assessment": "positive",
+      "comment": "三季度回款大幅改善，盈利含金量极高"
+    },
+    {
+      "metric": "存货周转天数",
+      "value": "1330.05天",
+      "change": "+5.14%",
+      "assessment": "neutral",
+      "comment": "符合高端白酒陈酿周期特性，资金占用周期较长"
+    }
+  ],
+  "risks": [
+    {
+      "category": "盈利风险",
+      "description": "营收与净利润同比增速较上半年（约9%）回落至6%区间，需警惕宏观消费疲软对高端白酒需求的压制。",
+      "severity": "medium"
+    },
+    {
+      "category": "运营风险",
+      "description": "存货周转天数持续攀升至1330天以上，若终端动销放缓可能加剧渠道库存压力。",
+      "severity": "low"
+    }
+  ],
+  "outlook": "依托强大品牌壁垒，公司盈利基本盘稳固，现金流充沛。短期增速虽温和放缓，但长期价值确定性高。后续需重点跟踪节假日动销数据及渠道库存健康度。",
+  "recommendation": "持有",
+  "confidence": 0.85,
+  "ticker": "sh600519",
+  "report_period": "2025-12-31",
+  "report_type": "年报",
+  "analysis_date": "2026-04-04T16:18:11.913893"
+}

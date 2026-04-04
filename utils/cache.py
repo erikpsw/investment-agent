@@ -2,12 +2,12 @@ import json
 import hashlib
 import os
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, Optional, Union
 from pathlib import Path
 
 
 class CacheManager:
-    def __init__(self, cache_dir: str | Path | None = None):
+    def __init__(self, cache_dir: Optional[Union[str, Path]] = None):
         if cache_dir is None:
             cache_dir = Path(__file__).parent.parent / "storage" / "cache"
         self.cache_dir = Path(cache_dir)
@@ -17,7 +17,7 @@ class CacheManager:
         hash_key = hashlib.md5(key.encode()).hexdigest()
         return self.cache_dir / f"{hash_key}.json"
 
-    def get(self, key: str, ttl_seconds: int = 300) -> Any | None:
+    def get(self, key: str, ttl_seconds: int = 300) -> Optional[Any]:
         path = self._get_cache_path(key)
         if not path.exists():
             return None

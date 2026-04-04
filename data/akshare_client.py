@@ -56,10 +56,49 @@ class AKShareClient:
             return {"error": str(e)}
 
     def get_financial_indicators(self, stock_code: str) -> pd.DataFrame:
-        """获取主要财务指标"""
+        """获取主要财务指标
+        
+        使用同花顺财务摘要数据，包含 ROE、毛利率、净利率、资产负债率等
+        """
         code = stock_code.replace("sh", "").replace("sz", "")
         try:
-            return ak.stock_financial_analysis_indicator(symbol=code)
+            df = ak.stock_financial_abstract_ths(symbol=code)
+            if df.empty:
+                return pd.DataFrame({"error": ["No data available"]})
+            
+            latest = df.iloc[-1].to_dict()
+            
+            def parse_percent(val):
+                if val is None or val == "False" or val == False:
+                    return None
+                if isinstance(val, str):
+                    return float(val.replace("%", "").replace(",", "")) / 100
+                return float(val)
+            
+            def parse_number(val):
+                if val is None or val == "False" or val == False:
+                    return None
+                if isinstance(val, str):
+                    val = val.replace(",", "").replace("万", "")
+                    try:
+                        return float(val)
+                    except:
+                        return None
+                return float(val)
+            
+            return pd.DataFrame([{
+                "report_date": latest.get("报告期"),
+                "roe": parse_percent(latest.get("净资产收益率")),
+                "gross_margin": parse_percent(latest.get("销售毛利率")),
+                "profit_margin": parse_percent(latest.get("销售净利率")),
+                "debt_ratio": parse_percent(latest.get("资产负债率")),
+                "current_ratio": parse_number(latest.get("流动比率")),
+                "quick_ratio": parse_number(latest.get("速动比率")),
+                "eps": parse_number(latest.get("基本每股收益")),
+                "bvps": parse_number(latest.get("每股净资产")),
+                "revenue_yoy": parse_percent(latest.get("营业总收入同比增长率")),
+                "profit_yoy": parse_percent(latest.get("净利润同比增长率")),
+            }])
         except Exception as e:
             return pd.DataFrame({"error": [str(e)]})
 

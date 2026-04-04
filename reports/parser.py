@@ -1,7 +1,7 @@
 import pdfplumber
 import json
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional, Union, List, Dict
 from dataclasses import dataclass, asdict
 import re
 
@@ -12,21 +12,21 @@ class ParsedReport:
     filename: str
     total_pages: int
     text_content: str
-    tables: list[list[list[str]]]
-    toc: list[dict[str, Any]]
-    metadata: dict[str, Any]
+    tables: List[List[List[str]]]
+    toc: List[Dict[str, Any]]
+    metadata: Dict[str, Any]
 
 
 class ReportParser:
     """财报 PDF 解析器"""
 
-    def __init__(self, parsed_dir: str | Path | None = None):
+    def __init__(self, parsed_dir: Optional[Union[str, Path]] = None):
         if parsed_dir is None:
             parsed_dir = Path(__file__).parent.parent / "storage" / "parsed"
         self.parsed_dir = Path(parsed_dir)
         self.parsed_dir.mkdir(parents=True, exist_ok=True)
 
-    def parse_pdf(self, pdf_path: str | Path) -> ParsedReport:
+    def parse_pdf(self, pdf_path: Union[str, Path]) -> ParsedReport:
         """解析财报 PDF
         
         Args:
@@ -71,7 +71,7 @@ class ReportParser:
             }
         )
 
-    def parse_and_save(self, pdf_path: str | Path) -> str:
+    def parse_and_save(self, pdf_path: Union[str, Path]) -> str:
         """解析并保存为 JSON
         
         Returns:
@@ -87,7 +87,7 @@ class ReportParser:
         
         return str(json_path)
 
-    def load_parsed(self, json_path: str | Path) -> ParsedReport | None:
+    def load_parsed(self, json_path: Union[str, Path]) -> Optional[ParsedReport]:
         """加载已解析的数据"""
         json_path = Path(json_path)
         if not json_path.exists():
@@ -163,7 +163,7 @@ class ReportParser:
         
         return financial_tables
 
-    def _extract_toc_items(self, text: str | None) -> list[dict[str, Any]]:
+    def _extract_toc_items(self, text: Optional[str]) -> List[Dict[str, Any]]:
         """从文本中提取目录项"""
         if not text:
             return []

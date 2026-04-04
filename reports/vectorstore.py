@@ -1,5 +1,5 @@
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional, Union, List, Dict
 import chromadb
 from chromadb.config import Settings
 
@@ -7,7 +7,7 @@ from chromadb.config import Settings
 class ReportVectorStore:
     """财报向量存储，基于 ChromaDB"""
 
-    def __init__(self, persist_dir: str | Path | None = None):
+    def __init__(self, persist_dir: Optional[Union[str, Path]] = None):
         if persist_dir is None:
             persist_dir = Path(__file__).parent.parent / "storage" / "chroma"
         
@@ -83,10 +83,10 @@ class ReportVectorStore:
     def search(
         self,
         query: str,
-        stock_code: str | None = None,
-        report_year: str | None = None,
+        stock_code: Optional[str] = None,
+        report_year: Optional[str] = None,
         n_results: int = 5,
-    ) -> list[dict[str, Any]]:
+    ) -> List[Dict[str, Any]]:
         """语义搜索财报内容
         
         Args:

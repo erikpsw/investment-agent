@@ -2,7 +2,7 @@ from typing import Any, Literal
 from langgraph.graph import StateGraph, END
 from .state import InvestmentState, create_initial_state
 from .technical import get_price_data, analyze_technicals
-from .fundamental import analyze_fundamentals, get_financial_summary
+from .fundamental import analyze_fundamentals, get_financial_summary, ai_report_analysis, pdf_report_analysis
 from .sentiment import analyze_sentiment
 from .risk import assess_risk
 from .report_qa import search_reports, answer_report_question
@@ -14,7 +14,7 @@ def create_investment_graph() -> StateGraph:
     
     工作流：
     1. 获取价格数据
-    2. 并行执行：基本面分析、技术面分析、舆情分析
+    2. 并行执行：基本面分析、技术面分析、舆情分析、AI财报分析、PDF财报分析
     3. 风险评估
     4. 生成综合建议
     """
@@ -24,6 +24,8 @@ def create_investment_graph() -> StateGraph:
     graph.add_node("fundamental", analyze_fundamentals)
     graph.add_node("technical", analyze_technicals)
     graph.add_node("sentiment", analyze_sentiment)
+    graph.add_node("report_analysis", ai_report_analysis)
+    graph.add_node("pdf_analysis", pdf_report_analysis)
     graph.add_node("risk", assess_risk)
     graph.add_node("synthesize", synthesize_recommendation)
     
@@ -32,10 +34,14 @@ def create_investment_graph() -> StateGraph:
     graph.add_edge("fetch_data", "fundamental")
     graph.add_edge("fetch_data", "technical")
     graph.add_edge("fetch_data", "sentiment")
+    graph.add_edge("fetch_data", "report_analysis")
+    graph.add_edge("fetch_data", "pdf_analysis")
     
     graph.add_edge("fundamental", "risk")
     graph.add_edge("technical", "risk")
     graph.add_edge("sentiment", "risk")
+    graph.add_edge("report_analysis", "risk")
+    graph.add_edge("pdf_analysis", "risk")
     
     graph.add_edge("risk", "synthesize")
     graph.add_edge("synthesize", END)

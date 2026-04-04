@@ -4,28 +4,33 @@
 """
 
 import sys
+import os
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).parent))
+# 设置包路径：添加 investment 的父目录到 sys.path
+package_dir = Path(__file__).parent
+parent_dir = package_dir.parent
+sys.path.insert(0, str(parent_dir))
+os.chdir(package_dir)
 
 
 def test_imports():
     """测试所有模块导入"""
     print("测试模块导入...")
     
-    from data import StockFetcher, YFinanceClient, TencentClient, AKShareClient
+    from investment.data import StockFetcher, YFinanceClient, TencentClient, AKShareClient
     print("  ✓ data 模块")
     
-    from reports import ReportDownloader, ReportParser, ReportVectorStore, ReportRAG
+    from investment.reports import ReportDownloader, ReportParser, ReportVectorStore, ReportRAG
     print("  ✓ reports 模块")
     
-    from viz import plot_revenue_trend, plot_profit_margins, plot_dupont_analysis, plot_revenue_composition
+    from investment.viz import plot_revenue_trend, plot_profit_margins, plot_dupont_analysis, plot_revenue_composition
     print("  ✓ viz 模块")
     
-    from agents import InvestmentState, create_investment_graph
+    from investment.agents import InvestmentState, create_investment_graph
     print("  ✓ agents 模块")
     
-    from utils import get_config, CacheManager
+    from investment.utils import get_config, CacheManager
     print("  ✓ utils 模块")
     
     print("\n所有模块导入成功！")
@@ -35,7 +40,7 @@ def test_data_layer():
     """测试数据层"""
     print("\n测试数据层...")
     
-    from data import StockFetcher, TencentClient
+    from investment.data import StockFetcher, TencentClient
     
     tencent = TencentClient()
     print("  测试腾讯 API...")
@@ -56,7 +61,7 @@ def test_visualization():
     print("\n测试可视化...")
     
     import pandas as pd
-    from viz import plot_revenue_trend, plot_dupont_analysis
+    from investment.viz import plot_revenue_trend, plot_dupont_analysis
     
     df = pd.DataFrame({
         "报告期": ["2021", "2022", "2023"],
@@ -76,7 +81,7 @@ def test_agents():
     """测试 Agent 状态"""
     print("\n测试 Agent 状态...")
     
-    from agents.state import create_initial_state
+    from investment.agents.state import create_initial_state
     
     state = create_initial_state("分析贵州茅台", "sh600519")
     print(f"  ✓ 创建状态: ticker={state['ticker']}, market={state['market']}")
@@ -89,7 +94,7 @@ def test_cache():
     """测试缓存"""
     print("\n测试缓存...")
     
-    from utils import CacheManager
+    from investment.utils import CacheManager
     
     cache = CacheManager()
     

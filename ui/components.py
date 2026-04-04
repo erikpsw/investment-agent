@@ -1,9 +1,9 @@
 import streamlit as st
 import pandas as pd
-from typing import Any
+from typing import Any, Dict, List
 
 
-def render_stock_card(data: dict[str, Any]) -> None:
+def render_stock_card(data: Dict[str, Any]) -> None:
     """渲染股票卡片"""
     col1, col2, col3, col4 = st.columns(4)
     
@@ -30,7 +30,7 @@ def render_stock_card(data: dict[str, Any]) -> None:
             st.metric("PE", f"{data['pe_ratio']:.1f}" if data["pe_ratio"] else "N/A")
 
 
-def render_market_indices(indices: list[dict[str, Any]]) -> None:
+def render_market_indices(indices: List[Dict[str, Any]]) -> None:
     """渲染市场指数"""
     cols = st.columns(len(indices))
     
@@ -66,7 +66,7 @@ def render_financial_table(df: pd.DataFrame, title: str = "") -> None:
     st.dataframe(formatted_df, use_container_width=True)
 
 
-def render_analysis_result(result: dict[str, Any]) -> None:
+def render_analysis_result(result: Dict[str, Any]) -> None:
     """渲染分析结果"""
     if "recommendation" in result:
         st.markdown("### 投资建议")
@@ -91,7 +91,7 @@ def render_analysis_result(result: dict[str, Any]) -> None:
                 st.divider()
 
 
-def render_search_results(results: list[dict[str, Any]]) -> None:
+def render_search_results(results: List[Dict[str, Any]]) -> None:
     """渲染搜索结果"""
     if not results:
         st.info("未找到相关内容")
@@ -110,7 +110,7 @@ def render_search_results(results: list[dict[str, Any]]) -> None:
             st.markdown(text)
 
 
-def render_report_list(reports: list[dict[str, Any]]) -> None:
+def render_report_list(reports: List[Dict[str, Any]]) -> None:
     """渲染报告列表"""
     if not reports:
         st.info("暂无已索引的财报")

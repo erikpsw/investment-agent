@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional, Union, List, Dict
 from pathlib import Path
 from .downloader import ReportDownloader
 from .parser import ReportParser
@@ -10,9 +10,9 @@ class ReportRAG:
 
     def __init__(
         self,
-        pdf_dir: str | Path | None = None,
-        parsed_dir: str | Path | None = None,
-        chroma_dir: str | Path | None = None,
+        pdf_dir: Optional[Union[str, Path]] = None,
+        parsed_dir: Optional[Union[str, Path]] = None,
+        chroma_dir: Optional[Union[str, Path]] = None,
     ):
         self.downloader = ReportDownloader(pdf_dir)
         self.parser = ReportParser(parsed_dir)
@@ -77,9 +77,9 @@ class ReportRAG:
     def search(
         self,
         query: str,
-        stock_code: str | None = None,
+        stock_code: Optional[str] = None,
         n_results: int = 5,
-    ) -> list[dict[str, Any]]:
+    ) -> List[Dict[str, Any]]:
         """搜索财报内容
         
         Args:
@@ -99,9 +99,9 @@ class ReportRAG:
     def ask(
         self,
         question: str,
-        stock_code: str | None = None,
+        stock_code: Optional[str] = None,
         llm_client: Any = None,
-    ) -> dict[str, Any]:
+    ) -> Dict[str, Any]:
         """基于 RAG 回答问题
         
         Args:

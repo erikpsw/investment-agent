@@ -1,0 +1,68 @@
+{
+  "summary": "2024年营收与净利润双增超15%，经营现金流大幅改善，主业盈利强劲，基本面稳健。",
+  "key_financials": {
+    "revenue": "1708.99亿元，同比增长15.71%",
+    "net_profit": "862.28亿元，同比增长15.38%",
+    "gross_margin": "92.01%",
+    "net_margin": "50.46%",
+    "roe": "36.02%",
+    "eps": "68.64元/股"
+  },
+  "business_highlights": [
+    "营收与净利润实现双位数稳健增长，盈利能力持续领跑行业",
+    "经营活动现金流净额同比大增38.85%，回款质量与造血能力极强",
+    "直销与批发渠道协同发力，茅台酒毛利率维持在94%以上的高位"
+  ],
+  "revenue_breakdown": [
+    {
+      "segment": "茅台酒",
+      "revenue": "1459.28亿元",
+      "ratio": "85.39%",
+      "growth": "15.28%"
+    },
+    {
+      "segment": "其他系列酒",
+      "revenue": "246.84亿元",
+      "ratio": "14.44%",
+      "growth": "19.65%"
+    }
+  ],
+  "risks": [
+    {
+      "type": "宏观与消费环境",
+      "description": "宏观经济波动及高端消费疲软可能影响终端动销与价格体系",
+      "level": "medium"
+    },
+    {
+      "type": "成本上升",
+      "description": "原材料及人工成本上涨16.20%，略高于营收增速，对毛利率形成一定挤压",
+      "level": "low"
+    },
+    {
+      "type": "政策与监管",
+      "description": "白酒行业面临消费税改革预期及行业监管政策不确定性",
+      "level": "medium"
+    }
+  ],
+  "outlook": "公司将继续锚定年度目标，统筹生产经营与改革发展，推动高质量发展与现代化建设，保持稳健增长态势。",
+  "investment_opinion": "买入",
+  "confidence": 0.85,
+  "ticker": "sh600519",
+  "stock_name": "贵州茅台",
+  "report_title": "贵州茅台2024年年度报告",
+  "pdf_path": "/Users/erik/Desktop/openclaw/workspace-investment/investment/storage/pdfs/600519_贵州茅台2024年年度报告.pdf",
+  "text_length": 157926,
+  "sections_found": [
+    "管理层分析",
+    "公司治理",
+    "财务报告",
+    "会计数据",
+    "财务指标",
+    "主营分析",
+    "资产负债",
+    "利润表",
+    "现金流",
+    "行业分析"
+  ],
+  "analysis_date": "2026-04-04T16:22:30.755339"
+}

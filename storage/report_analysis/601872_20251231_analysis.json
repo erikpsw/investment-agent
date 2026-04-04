@@ -1,0 +1,74 @@
+{
+  "summary": "营收净利双增，盈利能力提升，但流动性指标偏低，非经常性损益贡献较大。",
+  "revenue": {
+    "value": "281.77 亿",
+    "yoy_change": "+9.22%",
+    "trend": "up"
+  },
+  "profit": {
+    "net_profit": "60.12 亿",
+    "yoy_change": "+17.71%",
+    "margin": "21.54%",
+    "trend": "up"
+  },
+  "cash_flow": {
+    "operating": "1.12 元/股",
+    "assessment": "healthy"
+  },
+  "highlights": [
+    {
+      "metric": "净利润同比增长率",
+      "value": "17.71%",
+      "change": "+19.77pct",
+      "assessment": "positive",
+      "comment": "利润增速显著回升，远超营收增速"
+    },
+    {
+      "metric": "扣非净利润同比增长率",
+      "value": "0.18%",
+      "change": "+11.96pct",
+      "assessment": "negative",
+      "comment": "主业增长近乎停滞，依赖非经常性损益"
+    },
+    {
+      "metric": "销售净利率",
+      "value": "21.54%",
+      "change": "+4.23pct",
+      "assessment": "positive",
+      "comment": "盈利能力较上期显著提升"
+    },
+    {
+      "metric": "流动比率",
+      "value": "0.47",
+      "change": "+0.03",
+      "assessment": "negative",
+      "comment": "短期偿债能力较弱，存在流动性压力"
+    },
+    {
+      "metric": "净资产收益率",
+      "value": "14.55%",
+      "change": "+6.44pct",
+      "assessment": "positive",
+      "comment": "股东回报率处于较高水平"
+    }
+  ],
+  "risks": [
+    {
+      "category": "流动性风险",
+      "description": "流动比率和速动比率均低于 0.5，短期偿债压力较大",
+      "severity": "high"
+    },
+    {
+      "category": "盈利质量风险",
+      "description": "扣非净利润增速仅 0.18%，远低于净利润增速，业绩含金量不足",
+      "severity": "medium"
+    }
+  ],
+  "outlook": "公司全年业绩表现强劲，毛利率与净利率双升显示经营效率改善。但需警惕低流动性带来的资金链压力及非经常性损益的不可持续性，建议关注后续现金流回笼情况。",
+  "recommendation": "持有",
+  "confidence": 0.75,
+  "ticker": "sh601872",
+  "report_period": "2025-12-31",
+  "report_type": "年报",
+  "analysis_date": "2026-04-04T16:09:22.142078"
+}

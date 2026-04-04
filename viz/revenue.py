@@ -52,14 +52,12 @@ def plot_revenue_trend(
         title=dict(text=title, font=dict(size=18)),
         xaxis=dict(title="报告期", tickangle=-45),
         yaxis=dict(
-            title="营业收入",
-            titlefont=dict(color="#3366CC"),
+            title=dict(text="营业收入", font=dict(color="#3366CC")),
             tickfont=dict(color="#3366CC"),
             tickformat=".2s",
         ),
         yaxis2=dict(
-            title="净利润",
-            titlefont=dict(color="#DC3912"),
+            title=dict(text="净利润", font=dict(color="#DC3912")),
             tickfont=dict(color="#DC3912"),
             anchor="x",
             overlaying="y",

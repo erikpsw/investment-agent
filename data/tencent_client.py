@@ -1,5 +1,5 @@
 import requests
-from typing import Any
+from typing import Any, Optional, Dict, List
 from datetime import datetime
 
 
@@ -155,7 +155,7 @@ class TencentClient:
         return {"code": code, "name": name, "error": "解析失败", "timestamp": datetime.now().isoformat()}
 
     @staticmethod
-    def _safe_float(value: str) -> float | None:
+    def _safe_float(value: str) -> Optional[float]:
         """安全转换为浮点数"""
         try:
             return float(value) if value else None

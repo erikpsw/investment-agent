@@ -1,4 +1,4 @@
-from typing import Any
+from typing import Any, Optional, List, Dict
 import httpx
 from ..utils.config import get_config
 
@@ -8,9 +8,9 @@ class LLMClient:
 
     def __init__(
         self,
-        base_url: str | None = None,
-        model: str | None = None,
-        api_key: str | None = None,
+        base_url: Optional[str] = None,
+        model: Optional[str] = None,
+        api_key: Optional[str] = None,
     ):
         config = get_config()
         self.base_url = base_url or config.llm_base_url
@@ -129,7 +129,7 @@ class LLMClient:
         self.close()
 
 
-_default_client: LLMClient | None = None
+_default_client: Optional[LLMClient] = None
 
 
 def get_llm_client() -> LLMClient:

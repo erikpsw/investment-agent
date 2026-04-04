@@ -1,0 +1,79 @@
+{
+  "summary": "公司持续亏损且营收下滑，但运营效率与流动性有所改善，核心业务减亏迹象显现。",
+  "revenue": {
+    "value": "8.24 亿元",
+    "yoy_change": "-11.00%",
+    "trend": "down"
+  },
+  "profit": {
+    "net_profit": "-1.93 亿元",
+    "yoy_change": "-2.86%",
+    "margin": "-26.73%",
+    "trend": "down"
+  },
+  "cash_flow": {
+    "operating": "-0.07 元/股",
+    "assessment": "warning"
+  },
+  "highlights": [
+    {
+      "metric": "营业总收入",
+      "value": "8.24 亿元",
+      "change": "-11.00%",
+      "assessment": "negative",
+      "comment": "营收规模收缩，市场需求或竞争加剧"
+    },
+    {
+      "metric": "净利润",
+      "value": "-1.93 亿元",
+      "change": "-2.86%",
+      "assessment": "negative",
+      "comment": "全年持续亏损，盈利能力亟待恢复"
+    },
+    {
+      "metric": "扣非净利润",
+      "value": "-1.75 亿元",
+      "change": "+2.95%",
+      "assessment": "positive",
+      "comment": "核心业务亏损同比收窄，经营质量改善"
+    },
+    {
+      "metric": "营业周期",
+      "value": "511.87 天",
+      "change": "-125.33 天",
+      "assessment": "positive",
+      "comment": "资产周转效率显著提升，资金占用减少"
+    },
+    {
+      "metric": "资产负债率",
+      "value": "49.52%",
+      "change": "-2.94%",
+      "assessment": "positive",
+      "comment": "财务杠杆降低，偿债风险缓解"
+    }
+  ],
+  "risks": [
+    {
+      "category": "盈利风险",
+      "description": "公司连续报告期净利润为负，销售净利率低至 -26.73%，存在持续经营能力不确定性。",
+      "severity": "high"
+    },
+    {
+      "category": "现金流风险",
+      "description": "每股经营现金流为负值，造血能力不足，依赖外部融资可能性大。",
+      "severity": "medium"
+    },
+    {
+      "category": "营收下滑风险",
+      "description": "营业总收入同比下降 11%，市场份额或产品竞争力可能受到冲击。",
+      "severity": "medium"
+    }
+  ],
+  "outlook": "短期业绩承压，但周转效率提升及负债率下降显示管理改善。若核心业务扭亏，估值有望修复，否则仍面临退市或重整压力。",
+  "recommendation": "观望",
+  "confidence": 0.75,
+  "ticker": "sh600343",
+  "report_period": "2025-12-31",
+  "report_type": "年报",
+  "analysis_date": "2026-04-04T16:01:48.639650"
+}

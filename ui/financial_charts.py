@@ -1,13 +1,13 @@
 import streamlit as st
 import pandas as pd
-from ..data import StockFetcher, AKShareClient
-from ..viz import (
+from investment.data import StockFetcher, AKShareClient
+from investment.viz import (
     plot_revenue_trend,
     plot_profit_margins,
     plot_dupont_analysis,
     plot_revenue_composition,
 )
-from .components import render_disclaimer
+from investment.ui.components import render_disclaimer
 
 
 def render_financial_charts():

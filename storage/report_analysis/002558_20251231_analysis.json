@@ -1,0 +1,74 @@
+{
+  "summary": "公司前三季度营收与净利润双高增，毛利率超90%，现金流充裕，财务结构稳健。",
+  "revenue": {
+    "value": "33.68亿",
+    "yoy_change": "+51.84%",
+    "trend": "up"
+  },
+  "profit": {
+    "net_profit": "14.17亿",
+    "yoy_change": "+32.31%",
+    "margin": "42.48%",
+    "trend": "up"
+  },
+  "cash_flow": {
+    "operating": "每股0.96元",
+    "assessment": "healthy"
+  },
+  "highlights": [
+    {
+      "metric": "营业总收入",
+      "value": "33.68亿",
+      "change": "+51.84%",
+      "assessment": "positive",
+      "comment": "营收实现爆发式增长，业务扩张与市场拓展成效显著。"
+    },
+    {
+      "metric": "净利润",
+      "value": "14.17亿",
+      "change": "+32.31%",
+      "assessment": "positive",
+      "comment": "盈利规模大幅扩张，三季度业绩加速释放。"
+    },
+    {
+      "metric": "销售毛利率",
+      "value": "90.62%",
+      "change": "维持高位",
+      "assessment": "positive",
+      "comment": "维持极高盈利水平，核心产品具备强定价权与成本优势。"
+    },
+    {
+      "metric": "每股经营现金流",
+      "value": "0.96元",
+      "change": "较H1大幅改善",
+      "assessment": "positive",
+      "comment": "现金流显著优于每股收益，盈利质量扎实，回款能力强。"
+    },
+    {
+      "metric": "资产负债率",
+      "value": "16.40%",
+      "change": "微升",
+      "assessment": "neutral",
+      "comment": "杠杆水平极低，财务安全垫深厚，偿债压力极小。"
+    }
+  ],
+  "risks": [
+    {
+      "category": "盈利质量风险",
+      "description": "扣非净利润增速(16.50%)显著低于净利润增速(32.31%)，非经常性损益对利润贡献较大，需关注主业盈利持续性。",
+      "severity": "medium"
+    },
+    {
+      "category": "盈利波动风险",
+      "description": "销售净利率较上半年(47.26%)有所回落，需关注期间费用上升或收入结构变化对利润率的潜在侵蚀。",
+      "severity": "low"
+    }
+  ],
+  "outlook": "公司Q3业绩加速释放，高毛利与强现金流支撑基本面。若主业增长可持续且非经常性损益影响可控，全年业绩有望超预期。建议关注后续订单落地及行业政策变化。",
+  "recommendation": "买入",
+  "confidence": 0.85,
+  "ticker": "sz002558",
+  "report_period": "2025-12-31",
+  "report_type": "年报",
+  "analysis_date": "2026-04-04T17:15:03.894554"
+}

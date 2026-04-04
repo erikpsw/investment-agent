@@ -1,6 +1,6 @@
 import plotly.graph_objects as go
 import pandas as pd
-from typing import Any
+from typing import Any, Optional, List, Dict
 
 
 def plot_profit_margins(
@@ -71,8 +71,8 @@ def plot_profit_margins(
 
 
 def plot_profitability_radar(
-    metrics: dict[str, float],
-    industry_avg: dict[str, float] | None = None,
+    metrics: Dict[str, float],
+    industry_avg: Optional[Dict[str, float]] = None,
     title: str = "盈利能力雷达图",
 ) -> go.Figure:
     """绘制盈利能力雷达图
@@ -123,7 +123,7 @@ def plot_profitability_radar(
 def plot_cost_structure(
     df: pd.DataFrame,
     date_col: str = "报告期",
-    columns: list[str] | None = None,
+    columns: Optional[List[str]] = None,
     title: str = "成本结构分析",
 ) -> go.Figure:
     """绘制成本结构堆叠图

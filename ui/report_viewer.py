@@ -1,6 +1,6 @@
 import streamlit as st
-from ..reports import ReportDownloader, ReportParser, ReportRAG
-from .components import render_report_list, render_disclaimer
+from investment.reports import ReportDownloader, ReportParser, ReportRAG
+from investment.ui.components import render_report_list, render_disclaimer
 
 
 def render_report_viewer():
