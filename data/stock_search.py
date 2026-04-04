@@ -112,21 +112,29 @@ class StockSearch:
         if not query or self._stocks is None or self._stocks.empty:
             return []
         
-        query_lower = query.lower()
+        # 检查是否有别名映射
+        alias = self._check_alias(query)
+        search_terms = [query.lower()]
+        if alias:
+            search_terms.append(alias.lower())
         
         df = self._stocks
         if market != "all":
             market_upper = market.upper()
             df = df[df["market"] == market_upper]
         
-        mask = (
-            df["name_lower"].str.contains(query_lower, case=False, na=False, regex=False) |
-            df["code_str"].str.contains(query, case=False, na=False, regex=False) |
-            df["ticker"].str.contains(query_lower, case=False, na=False, regex=False)
-        )
+        # 搜索所有相关词
+        mask = pd.Series([False] * len(df), index=df.index)
+        for term in search_terms:
+            mask = mask | (
+                df["name_lower"].str.contains(term, case=False, na=False, regex=False) |
+                df["code_str"].str.contains(term, case=False, na=False, regex=False) |
+                df["ticker"].str.contains(term, case=False, na=False, regex=False)
+            )
         
         if "pinyin" in df.columns:
-            mask = mask | df["pinyin"].str.contains(query_lower, case=False, na=False, regex=False)
+            for term in search_terms:
+                mask = mask | df["pinyin"].str.contains(term, case=False, na=False, regex=False)
         
         matches = df[mask]
         

@@ -1,26 +1,41 @@
 """
 Investment Agent FastAPI Backend
 """
+import os
 import sys
 from pathlib import Path
 from contextlib import asynccontextmanager
 
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
+# 加载 .env 文件（在其他导入之前）
+try:
+    from dotenv import load_dotenv
+    env_path = Path(__file__).parent.parent / ".env"
+    if env_path.exists():
+        load_dotenv(env_path)
+        print(f"[Startup] Loaded .env from {env_path}")
+except ImportError:
+    pass
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from investment.api.routes import quotes, search, history, financials, analysis, reports, financial_history, report_analysis, pdf_analysis
-from investment.data.stock_search import get_stock_search
+from investment.api.routes import quotes, search, history, financials, analysis, reports, financial_history, report_analysis, pdf_analysis, news, foreign_reports
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Preload search data on startup"""
-    print("Preloading stock search data...")
-    searcher = get_stock_search()
-    searcher._load_data()
-    print(f"Loaded {len(searcher._stocks) if searcher._stocks is not None else 0} stocks")
+    # 检查是否使用 Supabase（如果配置了就不用预加载本地数据）
+    if os.getenv("SUPABASE_URL") and os.getenv("SUPABASE_ANON_KEY"):
+        print("[Startup] Using Supabase for search, skipping local preload")
+    else:
+        print("Preloading stock search data...")
+        from investment.data.stock_search import get_stock_search
+        searcher = get_stock_search()
+        searcher._load_data()
+        print(f"Loaded {len(searcher._stocks) if searcher._stocks is not None else 0} stocks")
     yield
 
 
@@ -48,6 +63,8 @@ app.include_router(reports.router, prefix="/api", tags=["reports"])
 app.include_router(financial_history.router, prefix="/api", tags=["financial-history"])
 app.include_router(report_analysis.router, prefix="/api", tags=["report-analysis"])
 app.include_router(pdf_analysis.router, prefix="/api", tags=["pdf-analysis"])
+app.include_router(news.router, prefix="/api", tags=["news"])
+app.include_router(foreign_reports.router, prefix="/api/foreign", tags=["foreign-reports"])
 
 
 @app.get("/")

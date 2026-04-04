@@ -20,6 +20,7 @@ import {
   AlertCircle,
   TrendingUp,
   RefreshCw,
+  X,
 } from "lucide-react";
 import Link from "next/link";
 import { Header } from "@/components/header";
@@ -36,6 +37,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAnalysisStream } from "@/hooks/use-analysis-stream";
 import { useQuote } from "@/hooks/use-quote";
 import { useFinancials } from "@/hooks/use-market";
+import { ReportDeepAnalysis } from "@/components/analysis/report-deep-analysis";
+import { ReportVisualization } from "@/components/analysis/report-visualization";
 import { cn } from "@/lib/utils";
 
 interface PageProps {
@@ -49,6 +52,8 @@ interface Report {
   time?: string;
   url?: string;
   announcement_url?: string;
+  has_pdf?: boolean;
+  period?: string;
 }
 
 const REPORT_TYPES = [
@@ -77,6 +82,7 @@ export default function AnalysisPage({ params }: PageProps) {
     isRunning,
     error,
     startAnalysis,
+    startReportAnalysis,
     reset,
   } = useAnalysisStream();
 
@@ -85,6 +91,19 @@ export default function AnalysisPage({ params }: PageProps) {
   const [reports, setReports] = useState<Report[]>([]);
   const [reportsLoading, setReportsLoading] = useState(false);
   const [reportsError, setReportsError] = useState<string | null>(null);
+  
+  // Deep analysis state
+  const [deepAnalysisOpen, setDeepAnalysisOpen] = useState(false);
+  const [selectedReport, setSelectedReport] = useState<Report | null>(null);
+  
+  const openDeepAnalysis = (report: Report) => {
+    // Switch to analysis tab and start financial report analysis
+    setActiveTab("analysis");
+    setSelectedReport(report);
+    
+    // Use the dedicated report analysis workflow with PDF URL
+    startReportAnalysis(decodedTicker, report.title, report.period || "", report.url || "");
+  };
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -103,7 +122,7 @@ export default function AnalysisPage({ params }: PageProps) {
     setReportsError(null);
     try {
       const res = await fetch(
-        `http://localhost:8000/api/reports/${encodeURIComponent(decodedTicker)}?report_type=${encodeURIComponent(reportType)}&years=5`
+        `http://localhost:8000/api/reports/${encodeURIComponent(decodedTicker)}?report_type=${encodeURIComponent(reportType)}&years=2`
       );
       if (!res.ok) throw new Error("获取财报列表失败");
       const data = await res.json();
@@ -117,13 +136,40 @@ export default function AnalysisPage({ params }: PageProps) {
   };
 
   const handleStartAnalysis = () => {
-    startAnalysis(decodedTicker, `深度分析 ${quote?.name || decodedTicker}`);
+    if (selectedReport) {
+      // 分析特定财报 - 使用专门的财报分析工作流，传入 PDF URL
+      startReportAnalysis(
+        decodedTicker,
+        selectedReport.title,
+        selectedReport.period || "",
+        selectedReport.url || ""
+      );
+    } else {
+      // 常规分析 - 包含技术面等
+      startAnalysis(decodedTicker, `深度分析 ${quote?.name || decodedTicker}`);
+    }
+  };
+
+  const handleReset = () => {
+    setSelectedReport(null);
+    reset();
   };
 
   return (
     <>
       <Header onSearchClick={() => setSearchOpen(true)} />
       <StockSearch open={searchOpen} onOpenChange={setSearchOpen} />
+      
+      {selectedReport && (
+        <ReportDeepAnalysis
+          open={deepAnalysisOpen}
+          onClose={() => setDeepAnalysisOpen(false)}
+          ticker={decodedTicker}
+          stockName={quote?.name || decodedTicker}
+          reportTitle={selectedReport.title}
+          pdfUrl={selectedReport.url || ""}
+        />
+      )}
 
       <div className="flex-1 flex flex-col h-[calc(100vh-64px)]">
         <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-4">
@@ -157,7 +203,7 @@ export default function AnalysisPage({ params }: PageProps) {
                     </Button>
                   )}
                   {(finalResult || error) && (
-                    <Button variant="outline" onClick={reset}>
+                    <Button variant="outline" onClick={handleReset}>
                       <RotateCcw className="h-4 w-4 mr-2" />
                       重新分析
                     </Button>
@@ -208,18 +254,53 @@ export default function AnalysisPage({ params }: PageProps) {
             <TabsContent value="analysis" className="flex-1 m-0 min-h-0 flex flex-col">
               <ScrollArea className="flex-1" ref={scrollRef}>
                 <div className="max-w-4xl mx-auto p-6 space-y-4">
+                  {/* 显示正在分析的财报 */}
+                  {selectedReport && (isRunning || finalResult || steps.length > 0) && (
+                    <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 flex items-center gap-3">
+                      <FileText className="h-5 w-5 text-primary" />
+                      <div>
+                        <p className="text-sm font-medium">
+                          正在分析: <span className="text-primary">{selectedReport.title}</span>
+                        </p>
+                        {selectedReport.period && (
+                          <p className="text-xs text-muted-foreground">
+                            报告期: {selectedReport.period}
+                          </p>
+                        )}
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="ml-auto"
+                        onClick={() => setSelectedReport(null)}
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+
                   {!isRunning && !finalResult && events.length === 0 && (
                     <Card className="border-dashed">
                       <CardContent className="flex flex-col items-center justify-center py-12">
                         <Bot className="h-12 w-12 text-muted-foreground mb-4" />
                         <h3 className="text-lg font-semibold mb-2">准备就绪</h3>
                         <p className="text-muted-foreground text-center max-w-md mb-4">
-                          点击"开始分析"按钮，AI 将对 {quote?.name || decodedTicker}{" "}
-                          进行多维度深度分析，包括技术面、基本面、市场情绪和风险评估。
+                          {selectedReport ? (
+                            <>
+                              将对 {quote?.name || decodedTicker} 的{" "}
+                              <span className="font-medium text-foreground">{selectedReport.title}</span>{" "}
+                              进行深度分析。
+                            </>
+                          ) : (
+                            <>
+                              点击"开始分析"按钮，AI 将对 {quote?.name || decodedTicker}{" "}
+                              进行多维度深度分析，包括技术面、基本面、市场情绪和风险评估。
+                            </>
+                          )}
                         </p>
                         <Button onClick={handleStartAnalysis}>
                           <Play className="h-4 w-4 mr-2" />
-                          开始分析
+                          {selectedReport ? "分析财报" : "开始分析"}
                         </Button>
                       </CardContent>
                     </Card>
@@ -236,7 +317,7 @@ export default function AnalysisPage({ params }: PageProps) {
                       </CardHeader>
                       <CardContent>
                         <p className="text-destructive">{error}</p>
-                        <Button variant="outline" className="mt-4" onClick={reset}>
+                        <Button variant="outline" className="mt-4" onClick={handleReset}>
                           重试
                         </Button>
                       </CardContent>
@@ -245,6 +326,14 @@ export default function AnalysisPage({ params }: PageProps) {
 
                   {finalResult && (
                     <>
+                      {/* 财报数据可视化 - 展示在最前面 */}
+                      {finalResult.output?.report_data && (
+                        <ReportVisualization
+                          data={finalResult.output.report_data}
+                          reportTitle={selectedReport?.title}
+                        />
+                      )}
+
                       <Card>
                         <CardHeader>
                           <div className="flex items-center justify-between">
@@ -274,7 +363,7 @@ export default function AnalysisPage({ params }: PageProps) {
                         </Card>
                       )}
 
-                      {finalResult.output?.fundamental_analysis && (
+                      {finalResult.output?.fundamental_analysis && !finalResult.output?.report_data && (
                         <Card>
                           <CardHeader>
                             <CardTitle>基本面分析</CardTitle>
@@ -371,8 +460,19 @@ export default function AnalysisPage({ params }: PageProps) {
                             <p className="text-xs font-medium leading-tight mb-1.5 line-clamp-2">
                               {report.title}
                             </p>
-                            <div className="flex gap-1">
-                              {report.url && (
+                            <div className="flex flex-wrap gap-1">
+                              {/* 深度分析按钮 - 始终显示 */}
+                              <Button
+                                variant="default"
+                                size="sm"
+                                className="h-6 text-[10px] px-2"
+                                onClick={() => openDeepAnalysis(report)}
+                              >
+                                <Sparkles className="h-3 w-3 mr-0.5" />
+                                深度分析
+                              </Button>
+                              {/* PDF按钮 - 仅当有PDF时显示 */}
+                              {report.url && report.has_pdf !== false && (
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -383,6 +483,7 @@ export default function AnalysisPage({ params }: PageProps) {
                                   PDF
                                 </Button>
                               )}
+                              {/* 详情按钮 - 链接到交易所/公告页 */}
                               {report.announcement_url && (
                                 <Button
                                   variant="ghost"

@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect, useCallback } from "react";
 import {
   TrendingUp,
   TrendingDown,
@@ -9,6 +10,8 @@ import {
   Building2,
   Newspaper,
   RefreshCw,
+  ExternalLink,
+  Clock,
 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -16,6 +19,16 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn, formatNumber, formatPercent, formatLargeNumber } from "@/lib/utils";
+
+interface NewsItem {
+  title: string;
+  link: string;
+  source: string;
+  published?: string;
+  published_date?: string;
+  summary?: string;
+  thumbnail?: string;
+}
 
 interface Quote {
   ticker: string;
@@ -59,6 +72,40 @@ export function DataSidebar({
   financials,
   financialsLoading,
 }: DataSidebarProps) {
+  const [news, setNews] = useState<NewsItem[]>([]);
+  const [newsLoading, setNewsLoading] = useState(false);
+
+  const fetchNews = useCallback(async () => {
+    if (!ticker) return;
+    setNewsLoading(true);
+    try {
+      const market = ticker.startsWith("sh") || ticker.startsWith("sz") 
+        ? "CN" 
+        : ticker.includes(".HK") 
+        ? "HK" 
+        : "US";
+      const stockName = quote?.name || "";
+      const params = new URLSearchParams({
+        stock_name: stockName,
+        market,
+        limit: "5",
+      });
+      const res = await fetch(`http://localhost:8000/api/news/${ticker}?${params}`);
+      if (res.ok) {
+        const data = await res.json();
+        setNews(data.news || []);
+      }
+    } catch (e) {
+      console.error("Failed to fetch news:", e);
+    } finally {
+      setNewsLoading(false);
+    }
+  }, [ticker, quote?.name]);
+
+  useEffect(() => {
+    fetchNews();
+  }, [fetchNews]);
+
   const isPositive = (quote?.change_percent ?? 0) > 0;
   const isNegative = (quote?.change_percent ?? 0) < 0;
 
@@ -228,15 +275,64 @@ export function DataSidebar({
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm flex items-center gap-2">
-              <Newspaper className="h-4 w-4" />
-              相关资讯
-            </CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm flex items-center gap-2">
+                <Newspaper className="h-4 w-4" />
+                相关资讯
+              </CardTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={fetchNews}
+                disabled={newsLoading}
+              >
+                <RefreshCw className={cn("h-3 w-3", newsLoading && "animate-spin")} />
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
-            <p className="text-xs text-muted-foreground text-center py-4">
-              资讯功能开发中...
-            </p>
+            {newsLoading && news.length === 0 ? (
+              <div className="space-y-2">
+                {[1, 2, 3].map((i) => (
+                  <Skeleton key={i} className="h-12 w-full" />
+                ))}
+              </div>
+            ) : news.length === 0 ? (
+              <p className="text-xs text-muted-foreground text-center py-4">
+                暂无相关资讯
+              </p>
+            ) : (
+              <div className="space-y-3">
+                {news.map((item, i) => (
+                  <a
+                    key={i}
+                    href={item.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block group"
+                  >
+                    <div className="text-xs space-y-1">
+                      <p className="font-medium line-clamp-2 group-hover:text-primary transition-colors">
+                        {item.title}
+                      </p>
+                      <div className="flex items-center gap-2 text-muted-foreground">
+                        {item.source && (
+                          <span className="truncate max-w-[80px]">{item.source}</span>
+                        )}
+                        {item.published_date && (
+                          <span className="flex items-center gap-0.5 shrink-0">
+                            <Clock className="h-3 w-3" />
+                            {formatRelativeTime(item.published_date)}
+                          </span>
+                        )}
+                        <ExternalLink className="h-3 w-3 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>
@@ -270,4 +366,23 @@ function MetricRow({
       <span className="font-medium">{displayValue}</span>
     </div>
   );
+}
+
+function formatRelativeTime(dateStr: string): string {
+  try {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    const diffHours = Math.floor(diffMs / 3600000);
+    const diffDays = Math.floor(diffMs / 86400000);
+
+    if (diffMins < 1) return "刚刚";
+    if (diffMins < 60) return `${diffMins}分钟前`;
+    if (diffHours < 24) return `${diffHours}小时前`;
+    if (diffDays < 7) return `${diffDays}天前`;
+    return date.toLocaleDateString("zh-CN", { month: "short", day: "numeric" });
+  } catch {
+    return "";
+  }
 }

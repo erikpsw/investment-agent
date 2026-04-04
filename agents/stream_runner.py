@@ -646,6 +646,490 @@ class StreamingAnalysisRunner:
         )
 
 
+    async def run_report_analysis_stream(
+        self,
+        ticker: str,
+        report_title: str = "",
+        report_period: str = "",
+        pdf_url: str = ""
+    ) -> AsyncIterator[str]:
+        """运行财报深度分析（专注公司基本面，不含技术分析）
+        
+        Args:
+            ticker: 股票代码
+            report_title: 报告标题（如：2024年度报告）
+            report_period: 报告期间
+            pdf_url: PDF 下载链接（直接使用）
+            
+        Yields:
+            SSE 格式的事件字符串
+        """
+        self._events = []
+        query = f"分析 {ticker} 的 {report_title}" if report_title else f"财报分析 {ticker}"
+        state = create_initial_state(query, ticker)
+        state["report_title"] = report_title
+        state["report_period"] = report_period
+        state["pdf_url"] = pdf_url
+        self._current_state = dict(state)
+        
+        # 财报分析只需要：获取财务数据 + 分析PDF + 公司分析
+        nodes = [
+            ("fetch_financials", self._fetch_financials),
+            ("fetch_pdf", self._fetch_pdf_report),
+            ("company_analysis", self._analyze_company),
+        ]
+        
+        for node_name, node_func in nodes:
+            start_time = datetime.now()
+            
+            self._emit(StreamEvent(
+                event=EventType.NODE_START,
+                timestamp=self._now(),
+                node=node_name,
+            ))
+            
+            for event in self._events:
+                yield event.to_sse()
+            self._events = []
+            
+            try:
+                result = await node_func(self._current_state)
+                duration = int((datetime.now() - start_time).total_seconds() * 1000)
+                
+                output_summary = self._summarize_output(node_name, result)
+                
+                self._emit(StreamEvent(
+                    event=EventType.NODE_END,
+                    timestamp=self._now(),
+                    node=node_name,
+                    output=output_summary,
+                    duration_ms=duration,
+                ))
+                
+                self._current_state.update(result)
+                
+            except Exception as e:
+                self._emit(StreamEvent(
+                    event=EventType.ERROR,
+                    timestamp=self._now(),
+                    node=node_name,
+                    content=str(e),
+                ))
+            
+            for event in self._events:
+                yield event.to_sse()
+            self._events = []
+            
+            await asyncio.sleep(0.05)
+        
+        self._emit(StreamEvent(
+            event=EventType.FINAL,
+            timestamp=self._now(),
+            output={
+                "recommendation": self._current_state.get("recommendation", ""),
+                "confidence": self._current_state.get("confidence", 0),
+                "fundamental_analysis": self._current_state.get("fundamental_analysis", ""),
+                "company_analysis": self._current_state.get("company_analysis", ""),
+                "key_metrics": self._current_state.get("key_metrics", {}),
+                "report_summary": self._current_state.get("report_summary", ""),
+                "report_data": self._current_state.get("report_data", {}),
+            },
+        ))
+        
+        for event in self._events:
+            yield event.to_sse()
+    
+    async def _fetch_pdf_report(self, state: Dict) -> Dict:
+        """获取并解析 PDF 财报 - 使用前端传来的 URL 直接下载"""
+        ticker = state.get("ticker", "")
+        report_title = state.get("report_title", "")
+        pdf_url = state.get("pdf_url", "")
+        
+        self._emit(StreamEvent(
+            event=EventType.TOOL_CALL,
+            timestamp=self._now(),
+            tool="download_pdf",
+            input={"ticker": ticker, "url": pdf_url[:50] + "..." if len(pdf_url) > 50 else pdf_url},
+        ))
+        
+        if not pdf_url:
+            self._emit(StreamEvent(
+                event=EventType.TOOL_RESULT,
+                timestamp=self._now(),
+                tool="download_pdf",
+                output={"status": "no_url"},
+            ))
+            return {
+                "report_summary": "",
+                "messages": [{
+                    "role": "pdf_analyzer",
+                    "content": "未提供财报 PDF 链接，将基于财务数据进行分析",
+                }],
+            }
+        
+        try:
+            from ..agents.tools.pdf_analyzer import (
+                download_pdf, extract_text_from_pdf, get_analysis_path,
+                locate_sections, extract_key_sections
+            )
+            import json
+            
+            # 检查缓存
+            if report_title:
+                analysis_path = get_analysis_path(ticker, report_title)
+                if analysis_path.exists():
+                    cached = json.loads(analysis_path.read_text(encoding="utf-8"))
+                    self._emit(StreamEvent(
+                        event=EventType.TOOL_RESULT,
+                        timestamp=self._now(),
+                        tool="download_pdf",
+                        output={"status": "cached"},
+                    ))
+                    
+                    structured_data = {
+                        "key_financials": cached.get("key_financials", {}),
+                        "revenue_breakdown": cached.get("revenue_breakdown", []),
+                        "business_highlights": cached.get("business_highlights", []),
+                        "risks": cached.get("risks", []),
+                        "outlook": cached.get("outlook", ""),
+                    }
+                    
+                    return {
+                        "report_summary": cached.get("summary", ""),
+                        "pdf_content": "",
+                        "report_data": structured_data,
+                        "messages": [{
+                            "role": "pdf_analyzer",
+                            "content": f"已加载缓存分析: {report_title}",
+                        }],
+                    }
+            
+            # 下载 PDF
+            self._emit(StreamEvent(
+                event=EventType.THINKING,
+                timestamp=self._now(),
+                content=f"正在下载财报 PDF: {report_title or '财报'}...",
+            ))
+            
+            pdf_path = download_pdf(pdf_url, ticker, report_title or "report")
+            if not pdf_path:
+                self._emit(StreamEvent(
+                    event=EventType.TOOL_RESULT,
+                    timestamp=self._now(),
+                    tool="download_pdf",
+                    output={"status": "download_failed"},
+                ))
+                return {
+                    "report_summary": "",
+                    "messages": [{
+                        "role": "pdf_analyzer",
+                        "content": "PDF 下载失败，将基于财务数据进行分析",
+                    }],
+                }
+            
+            # 提取文本
+            self._emit(StreamEvent(
+                event=EventType.THINKING,
+                timestamp=self._now(),
+                content="正在解析 PDF 文本...",
+            ))
+            
+            full_text = extract_text_from_pdf(pdf_path, ticker, report_title or "report")
+            if not full_text:
+                return {
+                    "report_summary": "",
+                    "messages": [{
+                        "role": "pdf_analyzer",
+                        "content": "PDF 解析失败",
+                    }],
+                }
+            
+            # 定位关键章节
+            self._emit(StreamEvent(
+                event=EventType.TOOL_CALL,
+                timestamp=self._now(),
+                tool="locate_sections",
+                input={"text_length": len(full_text)},
+            ))
+            
+            sections = locate_sections(full_text)
+            
+            self._emit(StreamEvent(
+                event=EventType.TOOL_RESULT,
+                timestamp=self._now(),
+                tool="locate_sections",
+                output={"sections_found": list(sections.keys())[:8]},
+            ))
+            
+            # 提取关键内容用于 AI 分析
+            key_content = extract_key_sections(full_text)
+            
+            # AI 探索分析 - 提取结构化数据
+            self._emit(StreamEvent(
+                event=EventType.TOOL_CALL,
+                timestamp=self._now(),
+                tool="ai_extract_data",
+                input={"content_length": len(key_content)},
+            ))
+            
+            self._emit(StreamEvent(
+                event=EventType.THINKING,
+                timestamp=self._now(),
+                content="AI 正在探索财报，提取关键数据...",
+            ))
+            
+            # 获取公司名称
+            price_data = state.get("price_data", {})
+            stock_name = price_data.get("name", ticker)
+            
+            # AI 提取结构化数据
+            structured_data = await self._ai_extract_report_data(
+                ticker, stock_name, report_title, key_content
+            )
+            
+            self._emit(StreamEvent(
+                event=EventType.TOOL_RESULT,
+                timestamp=self._now(),
+                tool="ai_extract_data",
+                output={
+                    "status": "success",
+                    "has_revenue_breakdown": len(structured_data.get("revenue_breakdown", [])) > 0,
+                    "has_financials": bool(structured_data.get("key_financials")),
+                },
+            ))
+            
+            # 缓存分析结果
+            if report_title:
+                cache_data = {
+                    "ticker": ticker,
+                    "report_title": report_title,
+                    "summary": structured_data.get("summary", ""),
+                    **structured_data,
+                    "analysis_date": self._now(),
+                }
+                analysis_path = get_analysis_path(ticker, report_title)
+                analysis_path.write_text(json.dumps(cache_data, ensure_ascii=False, indent=2), encoding="utf-8")
+            
+            return {
+                "report_summary": structured_data.get("summary", ""),
+                "pdf_content": key_content[:3000],
+                "report_data": structured_data,
+                "messages": [{
+                    "role": "pdf_analyzer",
+                    "content": f"已分析财报: {report_title}，提取到 {len(sections)} 个章节",
+                }],
+            }
+            
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            self._emit(StreamEvent(
+                event=EventType.TOOL_RESULT,
+                timestamp=self._now(),
+                tool="download_pdf",
+                output={"status": "error", "error": str(e)},
+            ))
+            return {
+                "report_summary": "",
+                "messages": [{
+                    "role": "pdf_analyzer",
+                    "content": f"财报分析失败: {str(e)}",
+                }],
+            }
+    
+    async def _ai_extract_report_data(
+        self,
+        ticker: str,
+        stock_name: str,
+        report_title: str,
+        content: str
+    ) -> Dict:
+        """AI 探索财报，提取结构化关键数据"""
+        prompt = f"""你是专业的财务分析师。请仔细阅读以下 {stock_name}({ticker}) 的财报内容，搜索并提取关键数据。
+
+## 财报内容
+{content[:15000]}
+
+## 任务
+请从财报中**搜索并提取**以下数据，以 JSON 格式返回：
+
+```json
+{{
+  "summary": "一句话总结公司本期业绩（30字以内）",
+  "key_financials": {{
+    "revenue": "营业收入（含金额和同比增速，如：150.5亿元，同比+25.3%）",
+    "net_profit": "净利润（含金额和同比增速）",
+    "gross_margin": "毛利率",
+    "net_margin": "净利率",
+    "roe": "ROE/净资产收益率",
+    "eps": "每股收益"
+  }},
+  "revenue_breakdown": [
+    {{"segment": "业务/产品名称", "revenue": "金额", "ratio": "占比如25.5%", "growth": "增速如+30%"}}
+  ],
+  "business_highlights": [
+    "亮点1：具体描述",
+    "亮点2：具体描述",
+    "亮点3：具体描述"
+  ],
+  "risks": [
+    {{"type": "风险类型", "description": "具体描述", "level": "high/medium/low"}}
+  ],
+  "outlook": "公司未来展望或发展战略（50字以内）"
+}}
+```
+
+**重要提示**：
+1. 数值必须从财报中准确提取，保留单位
+2. revenue_breakdown 务必提取主要业务/产品的收入构成
+3. 如果某项数据在财报中找不到，设为 null
+4. 只返回 JSON，不要其他内容"""
+
+        try:
+            result_text = self.llm.chat(
+                prompt,
+                system_prompt="你是财报数据提取专家，能准确从长篇财报中定位并提取关键财务数据。",
+                temperature=0.2,
+            )
+            
+            # 解析 JSON
+            content = result_text.strip()
+            if "```json" in content:
+                content = content.split("```json")[1].split("```")[0].strip()
+            elif "```" in content:
+                content = content.split("```")[1].split("```")[0].strip()
+            
+            import json
+            return json.loads(content)
+            
+        except Exception as e:
+            print(f"AI extract error: {e}")
+            return {
+                "summary": "",
+                "key_financials": {},
+                "revenue_breakdown": [],
+                "business_highlights": [],
+                "risks": [],
+                "outlook": "",
+            }
+    
+    async def _analyze_company(self, state: Dict) -> Dict:
+        """公司基本面深度分析"""
+        self._emit(StreamEvent(
+            event=EventType.THINKING,
+            timestamp=self._now(),
+            content="正在进行公司基本面深度分析...",
+        ))
+        
+        ticker = state.get("ticker", "")
+        report_title = state.get("report_title", "")
+        key_metrics = state.get("key_metrics", {})
+        report_summary = state.get("report_summary", "")
+        pdf_content = state.get("pdf_content", "")
+        
+        # 获取公司名称
+        price_data = state.get("price_data", {})
+        stock_name = price_data.get("name", ticker)
+        
+        prompt = f"""请基于以下信息，对 {stock_name}（{ticker}）进行公司基本面深度分析。
+
+## 分析对象
+{f"报告：{report_title}" if report_title else "最新财报"}
+
+## 财务指标
+{self._format_key_metrics(key_metrics)}
+
+## 财报内容摘要
+{report_summary or "暂无"}
+
+{f"## 财报详细内容（节选）" if pdf_content else ""}
+{pdf_content[:3000] if pdf_content else ""}
+
+---
+
+请从以下角度进行**详细**分析：
+
+### 1. 主营业务分析
+- 核心产品/服务是什么？收入构成如何？
+- 业务模式有何特点？
+- 主要客户群体和市场定位
+
+### 2. 财务状况分析
+- 营收规模和增长趋势
+- 利润水平及变化原因
+- 毛利率/净利率分析及行业对比
+
+### 3. 竞争优势分析
+- 公司在行业中的地位
+- 核心竞争力和护城河
+- 与主要竞争对手的对比
+
+### 4. 管理层评估
+- 公司战略规划和执行力
+- 管理层的经营理念
+- 公司治理情况
+
+### 5. 风险因素
+- 行业风险
+- 经营风险
+- 政策风险
+
+### 6. 发展前景
+- 未来增长潜力
+- 行业发展趋势
+- 公司战略展望
+
+**注意：本分析专注于公司基本面，不涉及股价技术分析和短期走势预测。**"""
+
+        try:
+            analysis = self.llm.chat(
+                prompt,
+                system_prompt="你是一位专业的公司分析师，擅长从财务报表中提取关键信息，客观分析公司的商业模式、竞争力和发展前景。请基于数据给出专业、详细、客观的分析。",
+                temperature=0.3,
+            )
+            
+            return {
+                "recommendation": analysis,
+                "fundamental_analysis": analysis,
+                "company_analysis": analysis,
+                "confidence": 0.8,
+            }
+        except Exception as e:
+            return {
+                "errors": [f"公司分析失败: {str(e)}"],
+                "recommendation": f"分析失败: {str(e)}",
+                "confidence": 0.0,
+            }
+    
+    def _format_key_metrics(self, metrics: Dict) -> str:
+        """格式化财务指标"""
+        if not metrics:
+            return "暂无数据"
+        
+        lines = []
+        labels = {
+            "pe_ratio": "市盈率 (PE)",
+            "pb_ratio": "市净率 (PB)",
+            "roe": "ROE",
+            "profit_margin": "净利率",
+            "gross_margin": "毛利率",
+            "revenue": "营收",
+            "net_profit": "净利润",
+            "total_assets": "总资产",
+            "debt_ratio": "资产负债率",
+        }
+        
+        for key, label in labels.items():
+            value = metrics.get(key)
+            if value is not None:
+                if isinstance(value, float) and key in ["roe", "profit_margin", "gross_margin", "debt_ratio"]:
+                    lines.append(f"- {label}: {value*100:.2f}%")
+                else:
+                    lines.append(f"- {label}: {value}")
+        
+        return "\n".join(lines) if lines else "暂无数据"
+
+
 _runner: Optional[StreamingAnalysisRunner] = None
 
 

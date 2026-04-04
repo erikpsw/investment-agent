@@ -1,4 +1,5 @@
 import requests
+import pandas as pd
 from typing import Any, Optional, Dict, List
 from datetime import datetime
 
@@ -153,6 +154,121 @@ class TencentClient:
                         }
         
         return {"code": code, "name": name, "error": "解析失败", "timestamp": datetime.now().isoformat()}
+
+    def get_hk_history(
+        self,
+        ticker: str,
+        period: str = "day",
+        limit: int = 250
+    ) -> pd.DataFrame:
+        """获取港股历史K线数据
+        
+        Args:
+            ticker: 港股代码，如 hk00700
+            period: 周期 day/week/month
+            limit: 获取数据条数
+        
+        Returns:
+            DataFrame with date, open, high, low, close, volume
+        """
+        code = ticker.lower().replace(".hk", "")
+        if not code.startswith("hk"):
+            code = f"hk{code.zfill(5)}"
+        
+        url = f"http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={code},{period},,,{limit},qfq"
+        
+        try:
+            resp = self.session.get(url, timeout=10)
+            data = resp.json()
+            
+            kline_data = data.get("data", {}).get(code, {}).get(period, [])
+            if not kline_data:
+                # 尝试不带 hk 前缀
+                code_num = code.replace("hk", "")
+                kline_data = data.get("data", {}).get(code_num, {}).get(period, [])
+            
+            if not kline_data:
+                return pd.DataFrame()
+            
+            # 解析数据: [date, open, close, high, low, volume, ...]
+            records = []
+            for item in kline_data:
+                if len(item) >= 6:
+                    records.append({
+                        "date": item[0],
+                        "open": self._safe_float(item[1]),
+                        "close": self._safe_float(item[2]),
+                        "high": self._safe_float(item[3]),
+                        "low": self._safe_float(item[4]),
+                        "volume": self._safe_float(item[5]),
+                    })
+            
+            if not records:
+                return pd.DataFrame()
+            
+            df = pd.DataFrame(records)
+            df["date"] = pd.to_datetime(df["date"])
+            df.set_index("date", inplace=True)
+            
+            return df
+            
+        except Exception as e:
+            print(f"[TencentClient] HK history error: {e}")
+            return pd.DataFrame()
+
+    def get_us_history(
+        self,
+        ticker: str,
+        period: str = "day",
+        limit: int = 250
+    ) -> pd.DataFrame:
+        """获取美股历史K线数据
+        
+        Args:
+            ticker: 美股代码，如 AAPL
+            period: 周期 day/week/month
+            limit: 获取数据条数
+        
+        Returns:
+            DataFrame with date, open, high, low, close, volume
+        """
+        code = f"us{ticker.upper()}"
+        
+        url = f"http://web.ifzq.gtimg.cn/appstock/app/fqkline/get?param={code},{period},,,{limit},qfq"
+        
+        try:
+            resp = self.session.get(url, timeout=10)
+            data = resp.json()
+            
+            kline_data = data.get("data", {}).get(code, {}).get(period, [])
+            if not kline_data:
+                return pd.DataFrame()
+            
+            # 解析数据
+            records = []
+            for item in kline_data:
+                if len(item) >= 6:
+                    records.append({
+                        "date": item[0],
+                        "open": self._safe_float(item[1]),
+                        "close": self._safe_float(item[2]),
+                        "high": self._safe_float(item[3]),
+                        "low": self._safe_float(item[4]),
+                        "volume": self._safe_float(item[5]),
+                    })
+            
+            if not records:
+                return pd.DataFrame()
+            
+            df = pd.DataFrame(records)
+            df["date"] = pd.to_datetime(df["date"])
+            df.set_index("date", inplace=True)
+            
+            return df
+            
+        except Exception as e:
+            print(f"[TencentClient] US history error: {e}")
+            return pd.DataFrame()
 
     @staticmethod
     def _safe_float(value: str) -> Optional[float]:

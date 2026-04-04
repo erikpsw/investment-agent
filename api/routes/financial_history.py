@@ -71,8 +71,118 @@ def _save_cache(ticker: str, data: dict):
         pass
 
 
+def _is_hk_stock(ticker: str) -> bool:
+    """判断是否为港股"""
+    return ticker.lower().startswith("hk") or ticker.endswith(".HK")
+
+
+def _is_us_stock(ticker: str) -> bool:
+    """判断是否为美股"""
+    ticker_upper = ticker.upper()
+    if ticker_upper.startswith(("SH", "SZ", "HK")):
+        return False
+    if ticker.replace(".", "").isdigit():
+        return False
+    return True
+
+
+def _fetch_hk_financial_history(ticker: str) -> dict:
+    """获取港股财务历史数据"""
+    code = ticker.lower().replace("hk", "").replace(".hk", "").zfill(5)
+    
+    result = {
+        "ticker": ticker,
+        "name": None,
+        "data": [],
+        "updated_at": datetime.now().isoformat(),
+    }
+    
+    try:
+        # 使用港股财务分析指标
+        df = ak.stock_financial_hk_analysis_indicator_em(symbol=code)
+        if df is None or df.empty:
+            return result
+        
+        # 只取最近8期（约2年）
+        df = df.head(8)
+        
+        # 获取公司名称
+        try:
+            result["name"] = df.iloc[0].get("SECURITY_NAME_ABBR", "")
+        except:
+            pass
+        
+        def safe_float(val):
+            if val is None or pd.isna(val):
+                return None
+            try:
+                return float(val)
+            except:
+                return None
+        
+        for _, row in df.iterrows():
+            report_date = row.get("REPORT_DATE", "")
+            if hasattr(report_date, "strftime"):
+                report_date = report_date.strftime("%Y-%m-%d")
+            else:
+                report_date = str(report_date)[:10]
+            
+            item = {
+                "period": report_date,
+                "revenue": safe_float(row.get("OPERATE_INCOME")),
+                "net_profit": safe_float(row.get("HOLDER_PROFIT")),
+                "gross_profit": safe_float(row.get("GROSS_PROFIT")),
+                "operating_profit": None,
+                "total_assets": None,
+                "total_liabilities": None,
+                "net_assets": None,
+                "operating_cash_flow": None,
+                "eps": safe_float(row.get("BASIC_EPS")),
+                "roe": safe_float(row.get("ROE_AVG")),
+                "gross_margin": safe_float(row.get("GROSS_PROFIT_RATIO")),
+                "net_margin": safe_float(row.get("NET_PROFIT_RATIO")),
+            }
+            
+            # 转换百分比 (数据是百分比数值如 56.21，需要转成 0.5621)
+            for key in ["roe", "gross_margin", "net_margin"]:
+                if item[key] is not None and abs(item[key]) > 1:
+                    item[key] = item[key] / 100
+            
+            result["data"].append(item)
+        
+        # 按日期排序
+        result["data"].sort(key=lambda x: x["period"])
+        
+    except Exception as e:
+        print(f"Error fetching HK financial history for {ticker}: {e}")
+    
+    return result
+
+
+def _fetch_us_financial_history(ticker: str) -> dict:
+    """获取美股财务历史数据（暂时返回空数据，未来可扩展）"""
+    result = {
+        "ticker": ticker,
+        "name": None,
+        "data": [],
+        "updated_at": datetime.now().isoformat(),
+    }
+    
+    # 美股财务数据需要从 SEC EDGAR 获取，比较复杂
+    # 暂时返回空数据，让前端使用其他数据源
+    
+    return result
+
+
 def _fetch_financial_history(ticker: str) -> dict:
     """获取财务历史数据"""
+    # 根据市场类型分发
+    if _is_hk_stock(ticker):
+        return _fetch_hk_financial_history(ticker)
+    elif _is_us_stock(ticker):
+        return _fetch_us_financial_history(ticker)
+    
+    # A股处理
     code = ticker.replace("sh", "").replace("sz", "").replace("SH", "").replace("SZ", "")
     
     result = {
@@ -87,6 +197,8 @@ def _fetch_financial_history(ticker: str) -> dict:
         if df is None or df.empty:
             return result
         
+        df = df.sort_values("报告期", ascending=False)
+        df = df.head(8)  # 只取最近8期（约2年）
         df = df.sort_values("报告期", ascending=True)
         
         def parse_value(val):
@@ -184,7 +296,7 @@ async def get_income_history(ticker: str):
             if df is None or df.empty:
                 return {"data": []}
             
-            df = df.head(20)
+            df = df.head(8)  # 只取最近8期（约2年）
             records = df.to_dict(orient="records")
             return {"data": records}
         except Exception as e:
@@ -209,7 +321,7 @@ async def get_balance_history(ticker: str):
             if df is None or df.empty:
                 return {"data": []}
             
-            df = df.head(20)
+            df = df.head(8)  # 只取最近8期（约2年）
             records = df.to_dict(orient="records")
             return {"data": records}
         except Exception as e:

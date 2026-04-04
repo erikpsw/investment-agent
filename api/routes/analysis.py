@@ -18,6 +18,14 @@ class AnalysisRequest(BaseModel):
     query: Optional[str] = ""
 
 
+class ReportAnalysisRequest(BaseModel):
+    """财报分析请求"""
+    ticker: str
+    report_title: Optional[str] = ""
+    report_period: Optional[str] = ""
+    pdf_url: Optional[str] = ""
+
+
 class ChatRequest(BaseModel):
     """对话请求"""
     message: str
@@ -90,6 +98,51 @@ async def chat_with_analysis(request: ChatRequest):
         return {"reply": response}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+
+@router.post("/analysis/report")
+async def analyze_report(request: ReportAnalysisRequest):
+    """启动财报深度分析并返回 SSE 流
+    
+    专注于公司基本面分析，不包含技术分析。
+    
+    Args:
+        request: 财报分析请求，包含股票代码、报告标题和期间
+        
+    Returns:
+        SSE 事件流
+    """
+    if not request.ticker:
+        raise HTTPException(status_code=400, detail="股票代码不能为空")
+    
+    runner = get_analysis_runner()
+    
+    async def event_generator():
+        try:
+            async for event in runner.run_report_analysis_stream(
+                ticker=request.ticker,
+                report_title=request.report_title or "",
+                report_period=request.report_period or "",
+                pdf_url=request.pdf_url or ""
+            ):
+                yield event
+        except Exception as e:
+            import json
+            error_event = {
+                "event": "error",
+                "content": str(e),
+            }
+            yield f"data: {json.dumps(error_event, ensure_ascii=False)}\n\n"
+    
+    return StreamingResponse(
+        event_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "Connection": "keep-alive",
+            "X-Accel-Buffering": "no",
+        },
+    )
 
 
 @router.get("/analysis/health")

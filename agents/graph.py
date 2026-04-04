@@ -235,3 +235,159 @@ def run_report_qa(question: str, ticker: str = "") -> InvestmentState:
     
     result = app.invoke(initial_state)
     return result
+
+
+def create_financial_report_graph() -> StateGraph:
+    """创建财报深度分析工作流图
+    
+    专注于分析公司基本面，不包含技术面分析：
+    1. 获取财务数据
+    2. 分析 PDF 财报内容
+    3. 生成公司分析报告
+    """
+    graph = StateGraph(InvestmentState)
+    
+    graph.add_node("fetch_financials", get_financial_summary)
+    graph.add_node("analyze_report", pdf_report_analysis)
+    graph.add_node("company_analysis", analyze_company)
+    
+    graph.set_entry_point("fetch_financials")
+    graph.add_edge("fetch_financials", "analyze_report")
+    graph.add_edge("analyze_report", "company_analysis")
+    graph.add_edge("company_analysis", END)
+    
+    return graph
+
+
+def analyze_company(state: InvestmentState) -> dict[str, Any]:
+    """公司基本面深度分析 - 专注于财报内容"""
+    llm = get_llm_client()
+    
+    ticker = state.get("ticker", "")
+    stock_name = state.get("stock_name", "")
+    key_metrics = state.get("key_metrics", {})
+    
+    # 收集所有财报相关信息
+    messages = state.get("messages", [])
+    report_content = "\n\n".join([
+        f"**{m['role']}**:\n{m['content']}"
+        for m in messages
+        if m.get("content") and m.get("role") in ["pdf_analyzer", "report_analyzer", "fundamental_analyst"]
+    ])
+    
+    prompt = f"""请基于以下财报数据，对 {stock_name or ticker} 进行公司基本面深度分析。
+
+## 财务指标
+{_format_metrics(key_metrics)}
+
+## 财报内容
+{report_content or "暂无财报详细内容"}
+
+请从以下几个方面进行详细分析：
+
+### 1. 主营业务分析
+- 核心产品/服务是什么
+- 收入构成和业务模式
+- 主要客户和市场
+
+### 2. 财务状况分析
+- 营收增长情况和趋势
+- 利润水平和变化原因
+- 毛利率/净利率分析
+
+### 3. 竞争优势分析
+- 在行业中的地位
+- 核心竞争力和护城河
+- 与竞争对手的对比
+
+### 4. 管理层评估
+- 公司战略规划
+- 管理层执行力
+- 公司治理情况
+
+### 5. 风险因素
+- 行业风险
+- 经营风险
+- 政策风险
+
+### 6. 发展前景
+- 增长潜力
+- 行业发展趋势
+- 公司未来展望
+
+**注意：此分析专注于公司基本面，不涉及股价技术分析和短期走势预测。**"""
+
+    try:
+        analysis = llm.chat(
+            prompt,
+            system_prompt="你是一位专业的公司分析师，擅长从财务报表中提取关键信息，客观分析公司的商业模式、竞争力和发展前景。请基于数据给出专业、客观的分析。",
+            temperature=0.3,
+        )
+        
+        return {
+            "recommendation": analysis,
+            "fundamental_analysis": analysis,
+            "confidence": 0.8,
+        }
+        
+    except Exception as e:
+        return {
+            "recommendation": f"分析失败: {str(e)}",
+            "confidence": 0.0,
+            "errors": [str(e)],
+        }
+
+
+def _format_metrics(metrics: dict) -> str:
+    """格式化财务指标"""
+    if not metrics:
+        return "暂无数据"
+    
+    lines = []
+    labels = {
+        "pe_ratio": "市盈率 (PE)",
+        "pb_ratio": "市净率 (PB)",
+        "roe": "ROE",
+        "profit_margin": "净利率",
+        "gross_margin": "毛利率",
+        "revenue": "营收",
+        "net_profit": "净利润",
+        "total_assets": "总资产",
+        "debt_ratio": "资产负债率",
+    }
+    
+    for key, label in labels.items():
+        value = metrics.get(key)
+        if value is not None:
+            if isinstance(value, float) and key in ["roe", "profit_margin", "gross_margin", "debt_ratio"]:
+                lines.append(f"- {label}: {value*100:.2f}%")
+            else:
+                lines.append(f"- {label}: {value}")
+    
+    return "\n".join(lines) if lines else "暂无数据"
+
+
+def run_financial_report_analysis(ticker: str, report_title: str = "", report_period: str = "") -> InvestmentState:
+    """运行财报深度分析
+    
+    Args:
+        ticker: 股票代码
+        report_title: 报告标题（如：2024年度报告）
+        report_period: 报告期间（如：2024-12-31）
+        
+    Returns:
+        分析结果状态
+    """
+    graph = create_financial_report_graph()
+    app = graph.compile()
+    
+    query = f"深度分析 {ticker}"
+    if report_title:
+        query = f"分析 {ticker} 的 {report_title}"
+    
+    initial_state = create_initial_state(query, ticker)
+    initial_state["report_period"] = report_period
+    initial_state["report_title"] = report_title
+    
+    result = app.invoke(initial_state)
+    return result

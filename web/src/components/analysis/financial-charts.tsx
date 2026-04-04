@@ -127,10 +127,28 @@ export function FinancialCharts({ ticker, stockName }: FinancialChartsProps) {
 
   const chartData = useMemo(() => {
     if (!data.length) return [];
-    return data.slice(-12).map((item) => ({
-      ...item,
-      shortPeriod: item.period.replace(/\d{4}-/, "").replace("-", "/"),
-    }));
+    return data.slice(-12).map((item) => {
+      // 格式化为 "23Q4" 或 "24H1" 格式
+      const match = item.period.match(/(\d{4})-(\d{2})-(\d{2})/);
+      let shortPeriod = item.period;
+      if (match) {
+        const year = match[1].slice(2); // "2023" -> "23"
+        const month = parseInt(match[2]);
+        const day = parseInt(match[3]);
+        if (month === 12 && day === 31) {
+          shortPeriod = `${year}年报`;
+        } else if (month === 6 && day === 30) {
+          shortPeriod = `${year}H1`;
+        } else if (month === 3 && day === 31) {
+          shortPeriod = `${year}Q1`;
+        } else if (month === 9 && day === 30) {
+          shortPeriod = `${year}Q3`;
+        } else {
+          shortPeriod = `${year}/${month.toString().padStart(2, "0")}`;
+        }
+      }
+      return { ...item, shortPeriod };
+    });
   }, [data]);
 
   const getMaxValue = (key: keyof FinancialHistoryItem) => {
@@ -615,15 +633,33 @@ function BarChartSimple({
   showNegative?: boolean;
 }) {
   const values = data.map((d) => d[dataKey]).filter((v): v is number => v !== null);
-  const minVal = Math.min(...values, 0);
-  const maxVal = Math.max(...values, 1);
+  if (values.length === 0) {
+    return <div className="h-full flex items-center justify-center text-muted-foreground text-sm">暂无数据</div>;
+  }
   
-  // Calculate nice Y-axis range with padding
-  const range = maxVal - minVal;
-  const padding = range * 0.1;
-  const yMin = Math.max(0, minVal - padding);
-  const yMax = maxVal + padding;
-  const yRange = yMax - yMin;
+  const dataMin = Math.min(...values);
+  const dataMax = Math.max(...values);
+  
+  // 简单直接的 Y 轴计算
+  // Y 轴从最小值的 60% 开始，到最大值的 110%
+  let yMin: number;
+  let yMax: number;
+  
+  if (dataMin < 0) {
+    const dataRange = dataMax - dataMin;
+    const padding = dataRange * 0.1;
+    yMin = dataMin - padding;
+    yMax = dataMax + padding;
+  } else if (dataMin === dataMax) {
+    yMin = dataMin * 0.5;
+    yMax = dataMax * 1.2;
+  } else {
+    // 从最小值的 60% 开始，确保最小柱子有一定高度
+    yMin = dataMin * 0.6;
+    yMax = dataMax * 1.08;
+  }
+  
+  const yRange = yMax - yMin || 1;
   
   // Generate Y-axis ticks (4-5 ticks)
   const tickCount = 4;
@@ -633,15 +669,15 @@ function BarChartSimple({
 
   return (
     <div className="h-full flex flex-col">
-      <div className="flex-1 flex">
+      <div className="flex-1 flex min-h-0">
         {/* Y-axis labels */}
-        <div className="w-16 flex flex-col justify-between text-[10px] text-muted-foreground pr-2">
+        <div className="w-16 flex flex-col justify-between text-[10px] text-muted-foreground pr-2 shrink-0">
           {yTicks.slice().reverse().map((tick, i) => (
             <span key={i} className="text-right">{formatValue(tick)}</span>
           ))}
         </div>
         {/* Bars */}
-        <div className="flex-1 flex items-end gap-1 border-l border-b relative">
+        <div className="flex-1 h-full flex items-end gap-1 border-l border-b relative">
           {/* Grid lines */}
           {yTicks.slice(1, -1).map((_, i) => (
             <div
@@ -652,7 +688,7 @@ function BarChartSimple({
           ))}
           {data.map((item, i) => {
             const val = item[dataKey];
-            if (val == null) return <div key={i} className="flex-1" />;
+            if (val == null) return <div key={i} className="flex-1 h-full" />;
             
             const height = ((val - yMin) / yRange) * 100;
             const isNegative = val < 0;
@@ -660,7 +696,7 @@ function BarChartSimple({
             return (
               <div
                 key={i}
-                className="flex-1 flex flex-col items-center justify-end group relative"
+                className="flex-1 h-full flex flex-col items-center justify-end group relative"
               >
                 <div
                   className={cn(
@@ -670,7 +706,6 @@ function BarChartSimple({
                   )}
                   style={{
                     height: `${Math.max(height, 2)}%`,
-                    minHeight: "4px",
                     backgroundColor: isNegative ? "#ef4444" : color,
                   }}
                 />
@@ -705,14 +740,31 @@ function LineChartSimple({
   const allValues = lines.flatMap((line) =>
     data.map((d) => d[line.key]).filter((v): v is number => v !== null)
   );
-  const rawMin = Math.min(...allValues, 0);
-  const rawMax = Math.max(...allValues, 0.01);
-  const rawRange = rawMax - rawMin || 0.01;
+  if (allValues.length === 0) {
+    return <div className="h-full flex items-center justify-center text-muted-foreground text-sm">暂无数据</div>;
+  }
   
-  // Add 10% padding
-  const padding = rawRange * 0.1;
-  const minVal = Math.max(0, rawMin - padding);
-  const maxVal = rawMax + padding;
+  const dataMin = Math.min(...allValues);
+  const dataMax = Math.max(...allValues);
+  
+  // 简单直接的 Y 轴计算
+  let minVal: number;
+  let maxVal: number;
+  
+  if (dataMin < 0) {
+    const dataRange = dataMax - dataMin;
+    const padding = dataRange * 0.1;
+    minVal = dataMin - padding;
+    maxVal = dataMax + padding;
+  } else if (dataMin === dataMax || dataMax - dataMin < 0.001) {
+    minVal = dataMin * 0.9;
+    maxVal = dataMax * 1.1;
+  } else {
+    // 从最小值的 60% 开始
+    minVal = dataMin * 0.6;
+    maxVal = dataMax * 1.08;
+  }
+  
   const range = maxVal - minVal || 0.01;
   
   // Generate Y-axis ticks

@@ -40,7 +40,7 @@ class ReportDownloader:
         self,
         stock_code: str,
         report_type: str = "年报",
-        years: int = 3,
+        years: int = 2,
     ) -> List[Dict[str, Any]]:
         """搜索财报公告
         

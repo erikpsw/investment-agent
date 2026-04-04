@@ -29,13 +29,20 @@ async def get_history(
             if hasattr(idx, 'strftime'):
                 time_str = idx.strftime("%Y-%m-%d")
             
+            # Handle both lowercase and capitalized column names
+            open_val = row.get("Open") or row.get("open") or 0
+            high_val = row.get("High") or row.get("high") or 0
+            low_val = row.get("Low") or row.get("low") or 0
+            close_val = row.get("Close") or row.get("close") or 0
+            volume_val = row.get("Volume") or row.get("volume") or 0
+            
             bars.append(HistoryBar(
                 time=time_str,
-                open=float(row.get("open", 0)),
-                high=float(row.get("high", 0)),
-                low=float(row.get("low", 0)),
-                close=float(row.get("close", 0)),
-                volume=float(row.get("volume", 0)),
+                open=float(open_val),
+                high=float(high_val),
+                low=float(low_val),
+                close=float(close_val),
+                volume=float(volume_val),
             ))
         
         return HistoryResponse(

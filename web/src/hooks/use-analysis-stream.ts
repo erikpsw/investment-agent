@@ -38,6 +38,7 @@ interface UseAnalysisStreamReturn {
   isRunning: boolean;
   error: string | null;
   startAnalysis: (ticker: string, query?: string) => void;
+  startReportAnalysis: (ticker: string, reportTitle?: string, reportPeriod?: string, pdfUrl?: string) => void;
   reset: () => void;
 }
 
@@ -193,6 +194,76 @@ export function useAnalysisStream(): UseAnalysisStreamReturn {
     [reset, processEvent]
   );
 
+  const startReportAnalysis = useCallback(
+    async (ticker: string, reportTitle?: string, reportPeriod?: string, pdfUrl?: string) => {
+      reset();
+      setIsRunning(true);
+
+      const controller = new AbortController();
+      abortRef.current = controller;
+
+      try {
+        const response = await fetch(`${API_BASE}/api/analysis/report`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            ticker,
+            report_title: reportTitle || "",
+            report_period: reportPeriod || "",
+            pdf_url: pdfUrl || "",
+          }),
+          signal: controller.signal,
+        });
+
+        if (!response.ok) {
+          throw new Error(`HTTP error: ${response.status}`);
+        }
+
+        if (!response.body) {
+          throw new Error("No response body");
+        }
+
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+
+        while (true) {
+          const { done, value } = await reader.read();
+
+          if (done) {
+            setIsRunning(false);
+            break;
+          }
+
+          buffer += decoder.decode(value, { stream: true });
+
+          const lines = buffer.split("\n");
+          buffer = lines.pop() || "";
+
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              try {
+                const data = JSON.parse(line.slice(6));
+                processEvent(data as AnalysisEvent);
+              } catch (e) {
+                console.error("Failed to parse SSE data:", line, e);
+              }
+            }
+          }
+        }
+      } catch (err) {
+        if ((err as Error).name === "AbortError") {
+          return;
+        }
+        setError((err as Error).message);
+        setIsRunning(false);
+      }
+    },
+    [reset, processEvent]
+  );
+
   return {
     events,
     steps,
@@ -200,6 +271,7 @@ export function useAnalysisStream(): UseAnalysisStreamReturn {
     isRunning,
     error,
     startAnalysis,
+    startReportAnalysis,
     reset,
   };
 }

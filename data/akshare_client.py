@@ -1,11 +1,205 @@
 import akshare as ak
 import pandas as pd
-from typing import Any
+from typing import Any, Dict, Optional, List
 from datetime import datetime
+from functools import lru_cache
+import threading
 
 
 class AKShareClient:
-    """A股财务数据客户端，基于 AKShare"""
+    """A股/港股/美股数据客户端，基于 AKShare"""
+    
+    def __init__(self):
+        self._hk_cache: Optional[pd.DataFrame] = None
+        self._us_cache: Optional[pd.DataFrame] = None
+        self._cache_lock = threading.Lock()
+        self._cache_time: Dict[str, datetime] = {}
+        self._cache_ttl = 60  # Cache TTL in seconds
+    
+    def _is_cache_valid(self, cache_key: str) -> bool:
+        """Check if cache is still valid"""
+        if cache_key not in self._cache_time:
+            return False
+        elapsed = (datetime.now() - self._cache_time[cache_key]).total_seconds()
+        return elapsed < self._cache_ttl
+    
+    def get_hk_spot(self) -> pd.DataFrame:
+        """获取港股实时行情列表（东方财富数据源）"""
+        with self._cache_lock:
+            if self._hk_cache is not None and self._is_cache_valid("hk"):
+                return self._hk_cache
+        
+        try:
+            df = ak.stock_hk_spot_em()
+            with self._cache_lock:
+                self._hk_cache = df
+                self._cache_time["hk"] = datetime.now()
+            return df
+        except Exception as e:
+            return pd.DataFrame({"error": [str(e)]})
+    
+    def get_hk_quote(self, ticker: str) -> Dict[str, Any]:
+        """获取单只港股实时行情
+        
+        Args:
+            ticker: 港股代码，如 hk00700 或 00700
+        """
+        code = ticker.lower().replace("hk", "").replace(".hk", "").lstrip("0") or "0"
+        
+        try:
+            df = self.get_hk_spot()
+            if "error" in df.columns:
+                return {"ticker": ticker, "error": df["error"].iloc[0]}
+            
+            # 尝试匹配代码
+            mask = df["代码"].astype(str).str.contains(code, regex=False)
+            if mask.any():
+                row = df[mask].iloc[0]
+                return {
+                    "ticker": ticker,
+                    "name": row.get("名称", ""),
+                    "price": self._safe_float(row.get("最新价")),
+                    "change": self._safe_float(row.get("涨跌额")),
+                    "change_percent": self._safe_float(row.get("涨跌幅")),
+                    "prev_close": self._safe_float(row.get("昨收")),
+                    "open": self._safe_float(row.get("今开")),
+                    "high": self._safe_float(row.get("最高")),
+                    "low": self._safe_float(row.get("最低")),
+                    "volume": self._safe_float(row.get("成交量")),
+                    "amount": self._safe_float(row.get("成交额")),
+                    "pe_ratio": self._safe_float(row.get("市盈率-动态")),
+                    "market_cap": self._safe_float(row.get("总市值")),
+                    "timestamp": datetime.now().isoformat(),
+                }
+            
+            return {"ticker": ticker, "error": "股票未找到", "timestamp": datetime.now().isoformat()}
+        except Exception as e:
+            return {"ticker": ticker, "error": str(e), "timestamp": datetime.now().isoformat()}
+    
+    def get_us_spot(self) -> pd.DataFrame:
+        """获取美股实时行情列表（东方财富数据源）"""
+        with self._cache_lock:
+            if self._us_cache is not None and self._is_cache_valid("us"):
+                return self._us_cache
+        
+        try:
+            df = ak.stock_us_spot_em()
+            with self._cache_lock:
+                self._us_cache = df
+                self._cache_time["us"] = datetime.now()
+            return df
+        except Exception as e:
+            return pd.DataFrame({"error": [str(e)]})
+    
+    def get_us_quote(self, ticker: str) -> Dict[str, Any]:
+        """获取单只美股实时行情
+        
+        Args:
+            ticker: 美股代码，如 AAPL、MSFT
+        """
+        code = ticker.upper()
+        
+        try:
+            df = self.get_us_spot()
+            if "error" in df.columns:
+                return {"ticker": ticker, "error": df["error"].iloc[0]}
+            
+            # 尝试匹配代码 (美股代码可能带后缀如 .O 或 .N)
+            mask = df["代码"].astype(str).str.upper().str.startswith(code)
+            if not mask.any():
+                # 尝试精确匹配
+                mask = df["代码"].astype(str).str.upper() == code
+            if not mask.any():
+                # 尝试包含匹配
+                mask = df["代码"].astype(str).str.upper().str.contains(f"^{code}\\.", regex=True)
+            
+            if mask.any():
+                row = df[mask].iloc[0]
+                return {
+                    "ticker": ticker,
+                    "name": row.get("名称", ""),
+                    "price": self._safe_float(row.get("最新价")),
+                    "change": self._safe_float(row.get("涨跌额")),
+                    "change_percent": self._safe_float(row.get("涨跌幅")),
+                    "prev_close": self._safe_float(row.get("昨收")),
+                    "open": self._safe_float(row.get("今开")),
+                    "high": self._safe_float(row.get("最高")),
+                    "low": self._safe_float(row.get("最低")),
+                    "volume": self._safe_float(row.get("成交量")),
+                    "amount": self._safe_float(row.get("成交额")),
+                    "pe_ratio": self._safe_float(row.get("市盈率")),
+                    "market_cap": self._safe_float(row.get("总市值")),
+                    "timestamp": datetime.now().isoformat(),
+                }
+            
+            return {"ticker": ticker, "error": "股票未找到", "timestamp": datetime.now().isoformat()}
+        except Exception as e:
+            return {"ticker": ticker, "error": str(e), "timestamp": datetime.now().isoformat()}
+    
+    def search_hk_stock(self, keyword: str, limit: int = 20) -> List[Dict[str, Any]]:
+        """搜索港股"""
+        try:
+            df = self.get_hk_spot()
+            if "error" in df.columns:
+                return []
+            
+            keyword_lower = keyword.lower()
+            mask = (
+                df["名称"].astype(str).str.lower().str.contains(keyword_lower, na=False) |
+                df["代码"].astype(str).str.contains(keyword, na=False)
+            )
+            
+            results = []
+            for _, row in df[mask].head(limit).iterrows():
+                code = str(row.get("代码", ""))
+                results.append({
+                    "code": f"hk{code.zfill(5)}",
+                    "name": row.get("名称", ""),
+                    "market": "HK",
+                    "display": f"{row.get('名称', '')} (hk{code.zfill(5)})",
+                })
+            return results
+        except Exception:
+            return []
+    
+    def search_us_stock(self, keyword: str, limit: int = 20) -> List[Dict[str, Any]]:
+        """搜索美股"""
+        try:
+            df = self.get_us_spot()
+            if "error" in df.columns:
+                return []
+            
+            keyword_upper = keyword.upper()
+            keyword_lower = keyword.lower()
+            mask = (
+                df["名称"].astype(str).str.lower().str.contains(keyword_lower, na=False) |
+                df["代码"].astype(str).str.upper().str.contains(keyword_upper, na=False)
+            )
+            
+            results = []
+            for _, row in df[mask].head(limit).iterrows():
+                code = str(row.get("代码", "")).split(".")[0]  # Remove .O, .N suffix
+                results.append({
+                    "code": code.upper(),
+                    "name": row.get("名称", ""),
+                    "market": "US",
+                    "display": f"{row.get('名称', '')} ({code.upper()})",
+                })
+            return results
+        except Exception:
+            return []
+    
+    @staticmethod
+    def _safe_float(value) -> Optional[float]:
+        """安全转换为浮点数"""
+        if value is None or value == "" or value == "-":
+            return None
+        try:
+            if isinstance(value, str):
+                value = value.replace(",", "").replace("%", "")
+            return float(value)
+        except (ValueError, TypeError):
+            return None
 
     def get_balance_sheet(self, stock_code: str) -> pd.DataFrame:
         """获取资产负债表
@@ -148,6 +342,135 @@ class AKShareClient:
             return ak.stock_board_industry_cons_em(symbol=industry)
         except Exception as e:
             return pd.DataFrame({"error": [str(e)]})
+
+    def get_hk_history(
+        self,
+        ticker: str,
+        period: str = "daily",
+        start_date: str = None,
+        end_date: str = None,
+        adjust: str = "qfq"
+    ) -> pd.DataFrame:
+        """获取港股历史K线数据
+        
+        Args:
+            ticker: 港股代码，如 hk00700 或 00700
+            period: 周期 daily/weekly/monthly
+            start_date: 开始日期 YYYYMMDD
+            end_date: 结束日期 YYYYMMDD
+            adjust: 复权类型 qfq前复权/hfq后复权/不复权为空
+        
+        Returns:
+            DataFrame with date, open, close, high, low, volume, etc.
+        """
+        code = ticker.lower().replace("hk", "").replace(".hk", "").zfill(5)
+        
+        if start_date is None:
+            # 默认获取最近一年
+            from datetime import timedelta
+            end = datetime.now()
+            start = end - timedelta(days=365)
+            start_date = start.strftime("%Y%m%d")
+            end_date = end.strftime("%Y%m%d")
+        
+        try:
+            df = ak.stock_hk_hist(
+                symbol=code,
+                period=period,
+                start_date=start_date,
+                end_date=end_date,
+                adjust=adjust
+            )
+            
+            if df.empty:
+                return pd.DataFrame()
+            
+            # 标准化列名
+            df.rename(columns={
+                "日期": "date",
+                "开盘": "open",
+                "收盘": "close",
+                "最高": "high",
+                "最低": "low",
+                "成交量": "volume",
+                "成交额": "amount",
+            }, inplace=True)
+            
+            df["date"] = pd.to_datetime(df["date"])
+            df.set_index("date", inplace=True)
+            
+            return df
+            
+        except Exception as e:
+            print(f"[AKShareClient] HK history error: {e}")
+            return pd.DataFrame()
+
+    def get_us_history(
+        self,
+        ticker: str,
+        period: str = "daily",
+        start_date: str = None,
+        end_date: str = None,
+        adjust: str = "qfq"
+    ) -> pd.DataFrame:
+        """获取美股历史K线数据
+        
+        Args:
+            ticker: 美股代码，如 AAPL
+            period: 周期 daily/weekly/monthly
+            start_date: 开始日期 YYYYMMDD
+            end_date: 结束日期 YYYYMMDD
+            adjust: 复权类型 qfq前复权/hfq后复权/不复权为空
+        
+        Returns:
+            DataFrame with date, open, close, high, low, volume, etc.
+        """
+        code = ticker.upper()
+        
+        # AKShare 美股代码格式: 105.AAPL (纳斯达克) 或 106.XXX (纽交所)
+        # 需要先确定交易所前缀
+        exchange_prefixes = ["105.", "106."]  # 纳斯达克, 纽交所
+        
+        if start_date is None:
+            from datetime import timedelta
+            end = datetime.now()
+            start = end - timedelta(days=365)
+            start_date = start.strftime("%Y%m%d")
+            end_date = end.strftime("%Y%m%d")
+        
+        for prefix in exchange_prefixes:
+            try:
+                full_code = f"{prefix}{code}"
+                df = ak.stock_us_hist(
+                    symbol=full_code,
+                    period=period,
+                    start_date=start_date,
+                    end_date=end_date,
+                    adjust=adjust
+                )
+                
+                if not df.empty:
+                    # 标准化列名
+                    df.rename(columns={
+                        "日期": "date",
+                        "开盘": "open",
+                        "收盘": "close",
+                        "最高": "high",
+                        "最低": "low",
+                        "成交量": "volume",
+                        "成交额": "amount",
+                    }, inplace=True)
+                    
+                    df["date"] = pd.to_datetime(df["date"])
+                    df.set_index("date", inplace=True)
+                    
+                    return df
+                    
+            except Exception as e:
+                continue
+        
+        print(f"[AKShareClient] US history error: Could not find {ticker}")
+        return pd.DataFrame()
 
     def _normalize_code(self, code: str) -> str:
         """标准化股票代码为 AKShare 格式"""

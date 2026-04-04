@@ -95,7 +95,7 @@ export function ReportsDialog({
     setError(null);
     try {
       const res = await fetch(
-        `http://localhost:8000/api/reports/${encodeURIComponent(ticker)}?report_type=${encodeURIComponent(reportType)}&years=5`
+        `http://localhost:8000/api/reports/${encodeURIComponent(ticker)}?report_type=${encodeURIComponent(reportType)}&years=2`
       );
       if (!res.ok) throw new Error("获取财报列表失败");
       const data = await res.json();
