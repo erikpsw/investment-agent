@@ -159,6 +159,16 @@ export function InlineSteps({ steps, events, isRunning }: InlineStepsProps) {
                   )}
                 </div>
 
+                {/* 正在执行时显示流式内容 */}
+                {step.status === "running" && step.streamingContent && (
+                  <div className="mt-3 pt-3 border-t">
+                    <div className="text-sm text-muted-foreground whitespace-pre-wrap max-h-48 overflow-y-auto">
+                      {step.streamingContent}
+                      <span className="animate-pulse">▊</span>
+                    </div>
+                  </div>
+                )}
+
                 {isExpanded && hasDetails && (
                   <div className="mt-3 pt-3 border-t space-y-2">
                     {thinkings.map((t, i) => (

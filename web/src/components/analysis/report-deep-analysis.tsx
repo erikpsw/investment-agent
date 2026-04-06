@@ -90,7 +90,7 @@ export function ReportDeepAnalysis({
     setError(null);
 
     try {
-      const res = await fetch("http://localhost:8000/api/pdf-analysis/analyze", {
+      const res = await fetch(`/api/pdf-analysis/analyze`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

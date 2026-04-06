@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useRef, useEffect, useState } from "react";
+import { use, useRef, useEffect, useState, useMemo } from "react";
 import {
   ArrowLeft,
   Play,
@@ -36,10 +36,13 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAnalysisStream } from "@/hooks/use-analysis-stream";
 import { useQuote } from "@/hooks/use-quote";
-import { useFinancials } from "@/hooks/use-market";
+import { useFinancials, useFinancialHistory } from "@/hooks/use-market";
 import { ReportDeepAnalysis } from "@/components/analysis/report-deep-analysis";
 import { ReportVisualization } from "@/components/analysis/report-visualization";
+import { InlineChat } from "@/components/analysis/inline-chat";
+import { DynamicCharts, generateChartsFromFinancials } from "@/components/analysis/dynamic-charts";
 import { cn } from "@/lib/utils";
+import { toSimplified } from "@/lib/chinese-convert";
 
 interface PageProps {
   params: Promise<{ ticker: string }>;
@@ -74,6 +77,12 @@ export default function AnalysisPage({ params }: PageProps) {
 
   const { data: quote, isLoading: quoteLoading } = useQuote(decodedTicker);
   const { data: financials, isLoading: financialsLoading } = useFinancials(decodedTicker);
+  const { data: financialHistory } = useFinancialHistory(decodedTicker);
+  
+  const dynamicCharts = useMemo(() => {
+    if (!financialHistory?.data) return [];
+    return generateChartsFromFinancials(financialHistory.data);
+  }, [financialHistory]);
 
   const {
     events,
@@ -81,6 +90,7 @@ export default function AnalysisPage({ params }: PageProps) {
     finalResult,
     isRunning,
     error,
+    streamingContent,
     startAnalysis,
     startReportAnalysis,
     reset,
@@ -122,7 +132,7 @@ export default function AnalysisPage({ params }: PageProps) {
     setReportsError(null);
     try {
       const res = await fetch(
-        `http://localhost:8000/api/reports/${encodeURIComponent(decodedTicker)}?report_type=${encodeURIComponent(reportType)}&years=2`
+        `/api/reports/${encodeURIComponent(decodedTicker)}?report_type=${encodeURIComponent(reportType)}&years=2`
       );
       if (!res.ok) throw new Error("获取财报列表失败");
       const data = await res.json();
@@ -260,7 +270,7 @@ export default function AnalysisPage({ params }: PageProps) {
                       <FileText className="h-5 w-5 text-primary" />
                       <div>
                         <p className="text-sm font-medium">
-                          正在分析: <span className="text-primary">{selectedReport.title}</span>
+                          正在分析: <span className="text-primary">{toSimplified(selectedReport.title)}</span>
                         </p>
                         {selectedReport.period && (
                           <p className="text-xs text-muted-foreground">
@@ -288,7 +298,7 @@ export default function AnalysisPage({ params }: PageProps) {
                           {selectedReport ? (
                             <>
                               将对 {quote?.name || decodedTicker} 的{" "}
-                              <span className="font-medium text-foreground">{selectedReport.title}</span>{" "}
+                              <span className="font-medium text-foreground">{toSimplified(selectedReport.title)}</span>{" "}
                               进行深度分析。
                             </>
                           ) : (
@@ -332,6 +342,21 @@ export default function AnalysisPage({ params }: PageProps) {
                           data={finalResult.output.report_data}
                           reportTitle={selectedReport?.title}
                         />
+                      )}
+
+                      {/* AI 自动生成的趋势图表 */}
+                      {dynamicCharts.length > 0 && (
+                        <Card>
+                          <CardHeader className="pb-2">
+                            <CardTitle className="text-base flex items-center gap-2">
+                              <TrendingUp className="h-4 w-4" />
+                              财务趋势分析
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <DynamicCharts charts={dynamicCharts} />
+                          </CardContent>
+                        </Card>
                       )}
 
                       <Card>
@@ -384,6 +409,21 @@ export default function AnalysisPage({ params }: PageProps) {
                           </CardContent>
                         </Card>
                       )}
+
+                      {/* AI 追问对话框 */}
+                      <Card>
+                        <CardContent className="pt-4">
+                          <InlineChat
+                            context={{
+                              ticker: decodedTicker,
+                              reportTitle: selectedReport?.title,
+                              reportPeriod: selectedReport?.period,
+                              analysis: finalResult.output?.recommendation,
+                              keyMetrics: finalResult.output?.key_metrics,
+                            }}
+                          />
+                        </CardContent>
+                      </Card>
                     </>
                   )}
                 </div>
@@ -458,7 +498,7 @@ export default function AnalysisPage({ params }: PageProps) {
                               </Badge>
                             </div>
                             <p className="text-xs font-medium leading-tight mb-1.5 line-clamp-2">
-                              {report.title}
+                              {toSimplified(report.title)}
                             </p>
                             <div className="flex flex-wrap gap-1">
                               {/* 深度分析按钮 - 始终显示 */}

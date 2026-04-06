@@ -1,0 +1,33 @@
+{
+  "summary": "HK00700 数据源报错，无法提取有效财务指标，建议重新获取数据。",
+  "revenue": {
+    "value": null,
+    "yoy_change": null,
+    "trend": null
+  },
+  "profit": {
+    "net_profit": null,
+    "yoy_change": null,
+    "margin": null,
+    "trend": null
+  },
+  "cash_flow": {
+    "operating": null,
+    "assessment": null
+  },
+  "highlights": [],
+  "risks": [
+    {
+      "category": "数据风险",
+      "description": "输入数据源异常，无法验证财务真实性及完整性",
+      "severity": "high"
+    }
+  ],
+  "outlook": "因缺乏最新财务数据支持，无法进行准确业绩预测，需等待官方财报发布。",
+  "recommendation": "观望",
+  "confidence": 0.1,
+  "ticker": "hk00700",
+  "report_period": "2025-12-31",
+  "report_type": "年报",
+  "analysis_date": "2026-04-06T14:24:45.250785"
+}

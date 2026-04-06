@@ -17,7 +17,7 @@ export function MarketOverview() {
   const indices = data?.indices || [];
 
   return (
-    <Card>
+    <Card data-testid="market-overview">
       <CardHeader className="pb-2">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">市场概览</CardTitle>

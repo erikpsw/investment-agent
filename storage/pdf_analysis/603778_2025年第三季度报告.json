@@ -1,0 +1,33 @@
+{
+  "ticker": "sh603778",
+  "report_title": "2025年第三季度报告",
+  "summary": "2025 前三季度营收 4.5 亿降 57.79%，净亏 1.51 亿元",
+  "key_financials": {
+    "revenue": "450,002,655.01 元，同比 -57.79%",
+    "net_profit": "-151,047,373.02 元，同比不适用",
+    "gross_margin": null,
+    "net_margin": null,
+    "roe": "-19.17%",
+    "eps": "-0.23 元/股"
+  },
+  "revenue_breakdown": [],
+  "business_highlights": [
+    "经营活动现金流净额同比增长 140.62%，主要系光伏板块回款增加",
+    "营业收入受光伏行业政策及市场需求减少影响大幅下滑",
+    "公司本期净利润为负，主要系收入减少及固定费用较大所致"
+  ],
+  "risks": [
+    {
+      "type": "市场风险",
+      "description": "光伏行业政策影响导致市场需求减少，公司销量下滑",
+      "level": "high"
+    },
+    {
+      "type": "经营风险",
+      "description": "产能利用率较低，固定费用较大影响利润",
+      "level": "medium"
+    }
+  ],
+  "outlook": null,
+  "analysis_date": "2026-04-05T12:48:41.781431"
+}

@@ -34,6 +34,7 @@ export function StockCard({ quote, showDetails = false }: StockCardProps) {
   return (
     <Link href={`/stock/${encodeURIComponent(quote.ticker)}`}>
       <Card
+        data-testid="stock-card"
         className={cn(
           "transition-all hover:shadow-md hover:border-primary/50 cursor-pointer",
           bgColor

@@ -155,41 +155,68 @@ async def _get_us_reports(ticker: str, report_type: str, years: int) -> List[Rep
 
 
 async def _get_hk_reports(ticker: str, report_type: str, years: int) -> List[ReportItem]:
-    """获取港股财报列表"""
+    """获取港股财报列表 - 使用 Playwright 爬取真实 PDF 直链"""
     loop = asyncio.get_event_loop()
     
-    # 映射报告类型
-    indicator_map = {
-        "年报": "年度",
-        "半年报": "中期",
-        "季报": "年度",  # 港股没有季报，使用年度
-        "Q1": "中期",
-        "Q3": "中期",
-    }
-    indicator = indicator_map.get(report_type, "年度")
-    limit = years * 2  # 每年获取几份
+    # 提取股票代码
+    code = ticker.lower().replace("hk", "").replace(".hk", "").zfill(5)
+    limit = years * 4  # 获取更多以便筛选
     
-    # 使用新的方法从财务数据提取报告列表
-    reports = await loop.run_in_executor(
+    # 使用 disclosure crawler 获取 PDF 直链
+    items = await loop.run_in_executor(
         executor,
-        hkex_client.get_available_reports,
-        ticker,
-        indicator,
+        _crawl_hk_pdfs,
+        code,
         limit,
     )
     
+    return items
+
+
+def _crawl_hk_pdfs(code: str, limit: int) -> List[ReportItem]:
+    """调用 disclosure crawler 获取港股 PDF 直链"""
+    import subprocess
+    import sys
+    import os
+    import json
+    
     items = []
-    for r in reports:
-        items.append(ReportItem(
-            stock_code=r.get("ticker", ticker),
-            stock_name=None,
-            title=r.get("title", ""),
-            time=r.get("date"),
-            url=r.get("url"),
-            announcement_url=r.get("announcement_url"),
-            has_pdf=r.get("has_pdf", False),
-            period=r.get("period"),
-        ))
+    
+    try:
+        # 获取爬虫脚本路径
+        script_path = os.path.join(os.path.dirname(__file__), "disclosure_crawler.py")
+        
+        # 使用subprocess运行爬虫脚本
+        result = subprocess.run(
+            [sys.executable, script_path, code, str(limit)],
+            capture_output=True,
+            text=True,
+            timeout=60,
+        )
+        
+        if result.returncode == 0 and result.stdout:
+            data = json.loads(result.stdout)
+            for item in data:
+                # 从日期中提取年份作为period
+                date_str = item.get("date", "")
+                period = ""
+                if date_str:
+                    parts = date_str.split("/")
+                    if len(parts) >= 3:
+                        period = f"20{parts[2].split()[0]}" if len(parts[2]) < 4 else parts[2].split()[0]
+                
+                items.append(ReportItem(
+                    stock_code=code,
+                    stock_name=None,
+                    title=item.get("title", ""),
+                    time=date_str,
+                    url=item.get("url", ""),
+                    announcement_url=item.get("url", ""),
+                    has_pdf=item.get("url", "").endswith(".pdf"),
+                    period=period,
+                ))
+    except Exception as e:
+        print(f"Error crawling HK PDFs: {e}")
     
     return items
 

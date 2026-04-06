@@ -68,11 +68,14 @@ interface FinancialChartsProps {
   stockName?: string;
 }
 
+type ReportFilter = "quarterly" | "annual" | "all";
+
 export function FinancialCharts({ ticker, stockName }: FinancialChartsProps) {
   const [data, setData] = useState<FinancialHistoryItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [activeChart, setActiveChart] = useState("revenue");
+  const [reportFilter, setReportFilter] = useState<ReportFilter>("quarterly");
   
   const [aiAnalysis, setAiAnalysis] = useState<AIAnalysisResult | null>(null);
   const [aiLoading, setAiLoading] = useState(false);
@@ -86,7 +89,7 @@ export function FinancialCharts({ ticker, stockName }: FinancialChartsProps) {
     setLoading(true);
     setError(null);
     try {
-      const url = `http://localhost:8000/api/financial-history/${encodeURIComponent(ticker)}${refresh ? "?refresh=true" : ""}`;
+      const url = `/api/financial-history/${encodeURIComponent(ticker)}${refresh ? "?refresh=true" : ""}`;
       const res = await fetch(url);
       if (!res.ok) throw new Error("获取数据失败");
       const json = await res.json();
@@ -102,14 +105,14 @@ export function FinancialCharts({ ticker, stockName }: FinancialChartsProps) {
     setAiLoading(true);
     setAiError(null);
     try {
-      const res = await fetch(`http://localhost:8000/api/report-analysis/${encodeURIComponent(ticker)}`);
+      const res = await fetch(`/api/report-analysis/${encodeURIComponent(ticker)}`);
       if (res.ok) {
         const json = await res.json();
         setAiAnalysis(json);
         return;
       }
       
-      const analyzeRes = await fetch("http://localhost:8000/api/report-analysis/analyze", {
+      const analyzeRes = await fetch(`/api/report-analysis/analyze`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ticker, report_type: "年报" }),
@@ -127,29 +130,132 @@ export function FinancialCharts({ ticker, stockName }: FinancialChartsProps) {
 
   const chartData = useMemo(() => {
     if (!data.length) return [];
-    return data.slice(-12).map((item) => {
-      // 格式化为 "23Q4" 或 "24H1" 格式
+    
+    // 先筛选季度报告数据
+    let filteredData = data.filter((item) => {
+      const match = item.period.match(/(\d{4})-(\d{2})-(\d{2})/);
+      if (!match) return false;
+      const month = parseInt(match[2]);
+      const day = parseInt(match[3]);
+      return (
+        (month === 3 && day === 31) ||
+        (month === 6 && day === 30) ||
+        (month === 9 && day === 30) ||
+        (month === 12 && day === 31)
+      );
+    });
+    
+    if (reportFilter === "annual") {
+      // 只保留年报 (12-31)
+      filteredData = filteredData.filter((item) => {
+        const match = item.period.match(/(\d{4})-(\d{2})-(\d{2})/);
+        if (!match) return false;
+        const month = parseInt(match[2]);
+        return month === 12;
+      });
+    }
+    
+    // 季度模式显示12期（3年），年报模式显示10期，全部显示最近16期
+    const limit = reportFilter === "quarterly" ? 12 : reportFilter === "annual" ? 10 : 16;
+    const slicedData = filteredData.slice(-limit);
+    
+    // 计算单季度数据（累计数据 -> 单季度数据）
+    return slicedData.map((item, idx) => {
       const match = item.period.match(/(\d{4})-(\d{2})-(\d{2})/);
       let shortPeriod = item.period;
+      let reportType = "";
+      let quarter = 0;
+      let year = "";
+      
       if (match) {
-        const year = match[1].slice(2); // "2023" -> "23"
+        year = match[1];
+        const yearShort = year.slice(2);
         const month = parseInt(match[2]);
         const day = parseInt(match[3]);
+        
         if (month === 12 && day === 31) {
-          shortPeriod = `${year}年报`;
-        } else if (month === 6 && day === 30) {
-          shortPeriod = `${year}H1`;
-        } else if (month === 3 && day === 31) {
-          shortPeriod = `${year}Q1`;
+          shortPeriod = `${yearShort}Q4`;
+          reportType = "q4";
+          quarter = 4;
         } else if (month === 9 && day === 30) {
-          shortPeriod = `${year}Q3`;
+          shortPeriod = `${yearShort}Q3`;
+          reportType = "q3";
+          quarter = 3;
+        } else if (month === 6 && day === 30) {
+          shortPeriod = `${yearShort}Q2`;
+          reportType = "q2";
+          quarter = 2;
+        } else if (month === 3 && day === 31) {
+          shortPeriod = `${yearShort}Q1`;
+          reportType = "q1";
+          quarter = 1;
         } else {
-          shortPeriod = `${year}/${month.toString().padStart(2, "0")}`;
+          shortPeriod = `${yearShort}/${month.toString().padStart(2, "0")}`;
+          reportType = "other";
         }
       }
-      return { ...item, shortPeriod };
+      
+      // 计算单季度收入和利润
+      // Q1 是单季度，Q2/Q3/Q4 需要减去上一季度累计
+      let singleRevenue = item.revenue;
+      let singleNetProfit = item.net_profit;
+      let singleGrossProfit = item.gross_profit;
+      let singleOperatingProfit = item.operating_profit;
+      
+      if (quarter > 1 && reportFilter === "quarterly") {
+        // 找到同年上一季度的数据
+        const prevQuarterMonth = quarter === 2 ? 3 : quarter === 3 ? 6 : quarter === 4 ? 9 : 0;
+        const prevPeriod = `${year}-${prevQuarterMonth.toString().padStart(2, "0")}-${prevQuarterMonth === 6 ? "30" : prevQuarterMonth === 9 ? "30" : "31"}`;
+        const prevData = filteredData.find((d) => d.period === prevPeriod);
+        
+        if (prevData) {
+          singleRevenue = item.revenue != null && prevData.revenue != null 
+            ? item.revenue - prevData.revenue 
+            : item.revenue;
+          singleNetProfit = item.net_profit != null && prevData.net_profit != null 
+            ? item.net_profit - prevData.net_profit 
+            : item.net_profit;
+          singleGrossProfit = item.gross_profit != null && prevData.gross_profit != null 
+            ? item.gross_profit - prevData.gross_profit 
+            : item.gross_profit;
+          singleOperatingProfit = item.operating_profit != null && prevData.operating_profit != null 
+            ? item.operating_profit - prevData.operating_profit 
+            : item.operating_profit;
+        }
+      }
+      
+      // 单季度利润率计算
+      // 优先使用单季度收入和利润计算，否则使用原始利润率
+      let singleGrossMargin = item.gross_margin;
+      let singleNetMargin = item.net_margin;
+      
+      // 如果有单季度收入和利润，重新计算利润率
+      if (singleRevenue && singleRevenue > 0) {
+        if (singleGrossProfit != null) {
+          singleGrossMargin = singleGrossProfit / singleRevenue;
+        }
+        if (singleNetProfit != null) {
+          singleNetMargin = singleNetProfit / singleRevenue;
+        }
+      }
+      
+      return {
+        ...item,
+        shortPeriod,
+        reportType,
+        // 保留原始累计数据
+        cumRevenue: item.revenue,
+        cumNetProfit: item.net_profit,
+        // 单季度数据用于图表
+        revenue: singleRevenue,
+        net_profit: singleNetProfit,
+        gross_profit: singleGrossProfit,
+        operating_profit: singleOperatingProfit,
+        gross_margin: singleGrossMargin,
+        net_margin: singleNetMargin,
+      };
     });
-  }, [data]);
+  }, [data, reportFilter]);
 
   const getMaxValue = (key: keyof FinancialHistoryItem) => {
     const values = chartData
@@ -213,18 +319,27 @@ export function FinancialCharts({ ticker, stockName }: FinancialChartsProps) {
               财务趋势
             </h2>
             <p className="text-sm text-muted-foreground">
-              {stockName || ticker} · 近{chartData.length}期数据
+              {stockName || ticker} · {reportFilter === "quarterly" ? "近3年季度" : reportFilter === "annual" ? "年报" : "全部"}数据
             </p>
           </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => fetchData(true)}
-            disabled={loading}
-          >
-            <RefreshCw className={cn("h-4 w-4 mr-1", loading && "animate-spin")} />
-            刷新
-          </Button>
+          <div className="flex items-center gap-2">
+            <Tabs value={reportFilter} onValueChange={(v) => setReportFilter(v as ReportFilter)}>
+              <TabsList className="h-8">
+                <TabsTrigger value="quarterly" className="text-xs px-2">季度(3年)</TabsTrigger>
+                <TabsTrigger value="annual" className="text-xs px-2">年报</TabsTrigger>
+                <TabsTrigger value="all" className="text-xs px-2">全部</TabsTrigger>
+              </TabsList>
+            </Tabs>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => fetchData(true)}
+              disabled={loading}
+            >
+              <RefreshCw className={cn("h-4 w-4 mr-1", loading && "animate-spin")} />
+              刷新
+            </Button>
+          </div>
         </div>
 
         {/* Key Metrics Cards */}
@@ -319,7 +434,14 @@ export function FinancialCharts({ ticker, stockName }: FinancialChartsProps) {
         {/* Data Table */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-base">历史数据</CardTitle>
+            <CardTitle className="text-base">
+              历史数据
+              {reportFilter === "quarterly" && (
+                <span className="text-xs font-normal text-muted-foreground ml-2">
+                  (单季度数据)
+                </span>
+              )}
+            </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">
@@ -338,7 +460,7 @@ export function FinancialCharts({ ticker, stockName }: FinancialChartsProps) {
                 <tbody>
                   {chartData.slice().reverse().map((item, i) => (
                     <tr key={i} className="border-b last:border-0 hover:bg-muted/50">
-                      <td className="py-2 px-2">{item.period}</td>
+                      <td className="py-2 px-2">{item.shortPeriod}</td>
                       <td className="text-right py-2 px-2">
                         {item.revenue != null ? formatLargeNumber(item.revenue) : "--"}
                       </td>
@@ -805,13 +927,13 @@ function LineChartSimple({
               style={{ bottom: `${((i + 1) / tickCount) * 100}%` }}
             />
           ))}
-          <svg className="w-full h-full" preserveAspectRatio="none">
+          <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
             {lines.map((line) => {
               const points = data
                 .map((d, i) => {
                   const y = getY(d[line.key]);
                   if (y == null) return null;
-                  const x = (i / (data.length - 1)) * 100;
+                  const x = data.length > 1 ? (i / (data.length - 1)) * 100 : 50;
                   return `${x},${y}`;
                 })
                 .filter(Boolean);

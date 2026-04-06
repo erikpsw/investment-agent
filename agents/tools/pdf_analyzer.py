@@ -9,7 +9,7 @@ from typing import Optional, Dict, Any, List, Tuple
 from datetime import datetime
 import httpx
 
-STORAGE_DIR = Path(__file__).parent.parent.parent / "storage"
+STORAGE_DIR = Path(__file__).resolve().parent.parent.parent / "storage"
 PDF_DIR = STORAGE_DIR / "pdfs"
 TEXT_DIR = STORAGE_DIR / "pdf_texts"
 ANALYSIS_DIR = STORAGE_DIR / "pdf_analysis"
@@ -19,6 +19,7 @@ for d in [PDF_DIR, TEXT_DIR, ANALYSIS_DIR]:
 
 
 SECTION_PATTERNS = [
+    # A股年报 - 简体中文
     (r"第[一二三四五六七八九十]+节\s*公司基本情况", "公司概况"),
     (r"第[一二三四五六七八九十]+节\s*会计数据和财务指标摘要", "财务摘要"),
     (r"第[一二三四五六七八九十]+节\s*管理层讨论与分析", "管理层分析"),
@@ -34,27 +35,65 @@ SECTION_PATTERNS = [
     (r"现金流量表", "现金流"),
     (r"风险因素", "风险"),
     (r"行业.*(?:分析|情况)", "行业分析"),
+    # 港股年报 - 繁体中文
+    (r"財務概覽|財務概要|財務摘要", "财务摘要"),
+    (r"財務回顧|財務檢討", "财务回顾"),
+    (r"業務分部|按業務劃分", "业务分部"),
+    (r"收入.*構成|按.*劃分的收入", "收入构成"),
+    (r"管理層討論|管理層分析|董事會報告", "管理层分析"),
+    (r"主席報告|主席致詞|主席致股東|集團主席致股東", "主席报告"),
+    (r"行政總裁報告|行政總裁致詞|集團行政總裁致股東", "CEO报告"),
+    (r"風險管理|風險回顧|風險因素", "风险"),
+    (r"企業管治|公司管治", "公司治理"),
+    (r"綜合損益表|綜合收益表", "利润表"),
+    (r"綜合資產負債表|綜合財務狀況表", "资产负债"),
+    (r"綜合現金流量表", "现金流"),
+    (r"環境、社會及管治|ESG", "ESG"),
+    # 英文
+    (r"Financial Highlights|Financial Summary", "财务摘要"),
+    (r"Financial Review|Financial Performance", "财务回顾"),
+    (r"Business Segments?|Segment.*Results", "业务分部"),
+    (r"Revenue.*(?:Breakdown|by.*Segment)", "收入构成"),
+    (r"Management Discussion|MD&A", "管理层分析"),
+    (r"Chairman.*(?:Statement|Report|Letter)", "主席报告"),
+    (r"CEO.*(?:Statement|Report|Letter)", "CEO报告"),
+    (r"Risk Management|Risk Review", "风险"),
+    (r"Corporate Governance", "公司治理"),
+    (r"Consolidated.*Income Statement", "利润表"),
+    (r"Consolidated.*Balance Sheet|Statement of Financial Position", "资产负债"),
+    (r"Consolidated.*Cash Flow", "现金流"),
 ]
+
+
+def _normalize_ticker(ticker: str) -> str:
+    """标准化股票代码（保留 hk 前缀，去掉 sh/sz 前缀）"""
+    code = ticker.lower()
+    # 去掉 A 股前缀
+    code = code.replace("sh", "").replace("sz", "")
+    # 保留港股前缀但统一格式
+    if not code.startswith("hk") and len(code) == 5 and code.isdigit():
+        code = f"hk{code}"
+    return code
 
 
 def get_pdf_path(ticker: str, report_title: str) -> Path:
     """获取 PDF 本地存储路径"""
     safe_title = re.sub(r'[\\/:*?"<>|]', '_', report_title)[:100]
-    code = ticker.replace("sh", "").replace("sz", "").replace("SH", "").replace("SZ", "")
+    code = _normalize_ticker(ticker)
     return PDF_DIR / f"{code}_{safe_title}.pdf"
 
 
 def get_text_path(ticker: str, report_title: str) -> Path:
     """获取文本缓存路径"""
     safe_title = re.sub(r'[\\/:*?"<>|]', '_', report_title)[:100]
-    code = ticker.replace("sh", "").replace("sz", "").replace("SH", "").replace("SZ", "")
+    code = _normalize_ticker(ticker)
     return TEXT_DIR / f"{code}_{safe_title}.txt"
 
 
 def get_analysis_path(ticker: str, report_title: str) -> Path:
     """获取分析结果缓存路径"""
     safe_title = re.sub(r'[\\/:*?"<>|]', '_', report_title)[:100]
-    code = ticker.replace("sh", "").replace("sz", "").replace("SH", "").replace("SZ", "")
+    code = _normalize_ticker(ticker)
     return ANALYSIS_DIR / f"{code}_{safe_title}.json"
 
 
@@ -176,21 +215,47 @@ def extract_section(text: str, section_name: str, max_chars: int = 8000) -> str:
     return ""
 
 
-def extract_key_sections(text: str, max_total: int = 15000) -> str:
+def extract_key_sections(text: str, max_total: int = 25000) -> str:
     """提取关键章节用于分析"""
-    priority_sections = ["财务摘要", "会计数据", "财务指标", "主营分析", "收入构成", "风险"]
+    priority_sections = [
+        "财务摘要", "财务回顾", "业务分部", "收入构成", 
+        "会计数据", "财务指标", "主营分析", 
+        "主席报告", "CEO报告", "风险",
+    ]
     
     extracted = []
     total_len = 0
     
     for section in priority_sections:
-        content = extract_section(text, section, max_chars=3000)
+        content = extract_section(text, section, max_chars=4000)
         if content and total_len + len(content) < max_total:
             extracted.append(f"【{section}】\n{content}")
             total_len += len(content)
     
+    # 如果没有找到任何章节，尝试智能提取
     if not extracted and text:
-        extracted.append(text[:max_total])
+        # 跳过开头的法律声明，通常在前1000-2000字符
+        start_pos = 0
+        skip_patterns = [
+            r"Hong Kong Exchanges and Clearing Limited",
+            r"免責聲明",
+            r"Important Notice",
+            r"本公告僅供參考",
+        ]
+        for pattern in skip_patterns:
+            match = re.search(pattern, text[:3000], re.IGNORECASE)
+            if match:
+                # 从声明后面开始
+                next_section = re.search(r'\n\n|\r\n\r\n', text[match.end():match.end()+500])
+                if next_section:
+                    start_pos = max(start_pos, match.end() + next_section.end())
+        
+        # 尝试找到摘要或概要部分
+        summary_match = re.search(r'(摘要|概要|Summary|Highlights|表現|業績)', text[start_pos:start_pos+5000])
+        if summary_match:
+            start_pos = start_pos + summary_match.start()
+        
+        extracted.append(text[start_pos:start_pos + max_total])
     
     return "\n\n".join(extracted)
 

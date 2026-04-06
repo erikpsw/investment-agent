@@ -231,9 +231,6 @@ export default function StockDetailPage({ params }: PageProps) {
                 <Button className="w-full" variant="outline">
                   添加到自选
                 </Button>
-                <Button className="w-full" variant="outline">
-                  对比分析
-                </Button>
               </CardContent>
             </Card>
           </div>
@@ -269,3 +266,4 @@ function MetricRow({
     </div>
   );
 }
+

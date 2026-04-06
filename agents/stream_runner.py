@@ -3,6 +3,7 @@ LangGraph 流式执行器 - 支持 SSE 事件输出
 """
 import asyncio
 import json
+import os
 from datetime import datetime
 from typing import Any, AsyncIterator, Dict, List, Optional, Callable
 from dataclasses import dataclass, asdict
@@ -13,6 +14,18 @@ from .state import InvestmentState, create_initial_state
 from .llm import get_llm_client
 from ..data import StockFetcher
 
+# 配置 LangSmith 追踪
+os.environ.setdefault("LANGCHAIN_TRACING_V2", "true")
+try:
+    from langsmith import traceable
+    LANGSMITH_ENABLED = True
+except ImportError:
+    LANGSMITH_ENABLED = False
+    def traceable(*args, **kwargs):
+        def decorator(func):
+            return func
+        return decorator
+
 
 class EventType(str, Enum):
     NODE_START = "node_start"
@@ -20,6 +33,7 @@ class EventType(str, Enum):
     TOOL_CALL = "tool_call"
     TOOL_RESULT = "tool_result"
     THINKING = "thinking"
+    STREAMING = "streaming"  # 流式内容输出
     ERROR = "error"
     FINAL = "final"
 
@@ -51,10 +65,33 @@ class StreamingAnalysisRunner:
         self.llm = get_llm_client()
         self._events: List[StreamEvent] = []
         self._current_state: Dict[str, Any] = {}
+        self._streaming_content: str = ""  # 流式内容缓冲
     
     def _emit(self, event: StreamEvent):
         """发送事件"""
         self._events.append(event)
+    
+    async def _stream_llm_analysis(
+        self,
+        prompt: str,
+        system_prompt: str,
+        node_name: str,
+    ) -> AsyncIterator[tuple[str, str]]:
+        """流式调用 LLM 分析，实时输出内容
+        
+        Yields:
+            (event_type, content) 元组
+            event_type: "chunk" 表示流式内容，"done" 表示完成
+        """
+        full_content = ""
+        try:
+            async for chunk in self.llm.chat_stream(prompt, system_prompt, temperature=0.3):
+                full_content += chunk
+                yield ("chunk", chunk)
+            yield ("done", full_content)
+        except Exception as e:
+            error_msg = f"[LLM 调用失败: {str(e)}]"
+            yield ("done", error_msg)
     
     def _now(self) -> str:
         """当前时间戳"""
@@ -252,8 +289,44 @@ class StreamingAnalysisRunner:
         except Exception as e:
             return {"errors": [f"获取财务数据失败: {str(e)}"]}
     
+    async def _analyze_technical_stream(self, state: Dict) -> AsyncIterator[tuple[str, Any]]:
+        """技术面分析（流式版本）"""
+        yield ("thinking", "正在进行技术面分析：计算均线、RSI、MACD...")
+        
+        price_data = state.get("price_data", {})
+        history_data = state.get("history_data", {})
+        
+        prompt = f"""对以下股票进行技术面分析：
+
+股票代码: {state.get('ticker')}
+当前价格: {price_data.get('price', 'N/A')}
+涨跌幅: {price_data.get('change_percent', 'N/A')}%
+历史数据: {history_data.get('count', 0)} 个交易日
+
+请分析：
+1. 价格趋势
+2. 技术指标信号
+3. 支撑位和压力位
+4. 交易建议
+
+注意：分析仅供参考，不构成投资建议。"""
+
+        full_content = ""
+        async for chunk in self.llm.chat_stream(
+            prompt,
+            system_prompt="你是专业的技术分析师，擅长K线形态和技术指标分析。",
+            temperature=0.3,
+        ):
+            full_content += chunk
+            yield ("chunk", chunk)
+        
+        yield ("result", {
+            "technical_analysis": full_content,
+            "messages": [{"role": "technical_agent", "content": full_content}],
+        })
+
     async def _analyze_technical(self, state: Dict) -> Dict:
-        """技术面分析"""
+        """技术面分析（非流式版本，用于兼容）"""
         self._emit(StreamEvent(
             event=EventType.THINKING,
             timestamp=self._now(),
@@ -291,6 +364,156 @@ class StreamingAnalysisRunner:
             }
         except Exception as e:
             return {"errors": [f"技术分析失败: {str(e)}"]}
+
+    async def _analyze_fundamental_stream(self, state: Dict) -> AsyncIterator[tuple[str, Any]]:
+        """基本面分析（流式版本）"""
+        yield ("thinking", "正在进行基本面分析：评估财务指标、估值水平...")
+        
+        metrics = state.get("key_metrics", {})
+        price_data = state.get("price_data", {})
+        
+        def fmt(val, is_pct=False):
+            if val is None or val == "N/A":
+                return "N/A"
+            try:
+                v = float(val)
+                if is_pct:
+                    return f"{v*100:.2f}%"
+                return f"{v:.2f}"
+            except:
+                return str(val)
+        
+        prompt = f"""对以下股票进行基本面分析：
+
+## 股票信息
+- 代码: {state.get('ticker')}
+- 名称: {price_data.get('name', 'N/A')}
+- 当前价格: {price_data.get('price', 'N/A')} 元
+
+## 核心财务指标
+| 指标 | 数值 | 说明 |
+|------|------|------|
+| 市盈率 (PE) | {fmt(metrics.get('pe_ratio') or price_data.get('pe_ratio'))} | 股价/每股收益 |
+| 市净率 (PB) | {fmt(metrics.get('pb_ratio'))} | 股价/每股净资产 |
+| ROE | {fmt(metrics.get('roe'), True)} | 净利润/净资产 |
+| 毛利率 | {fmt(metrics.get('gross_margin'), True)} | (收入-成本)/收入 |
+| 净利率 | {fmt(metrics.get('profit_margin'), True)} | 净利润/收入 |
+| 资产负债率 | {fmt(metrics.get('debt_ratio'), True)} | 负债/资产 |
+| 流动比率 | {fmt(metrics.get('current_ratio'))} | 流动资产/流动负债 |
+
+请简洁地分析估值、盈利能力、财务健康度和投资价值。"""
+
+        full_content = ""
+        async for chunk in self.llm.chat_stream(
+            prompt,
+            system_prompt="你是专业的基本面分析师，擅长财务分析和企业估值。请简洁输出。",
+            temperature=0.3,
+        ):
+            full_content += chunk
+            yield ("chunk", chunk)
+        
+        yield ("result", {
+            "fundamental_analysis": full_content,
+            "messages": [{"role": "fundamental_agent", "content": full_content}],
+        })
+
+    async def _analyze_sentiment_stream(self, state: Dict) -> AsyncIterator[tuple[str, Any]]:
+        """情绪分析（流式版本）"""
+        yield ("thinking", "正在分析市场情绪和舆论态度...")
+        
+        price_data = state.get("price_data", {})
+        
+        prompt = f"""简要分析以下股票的市场情绪：
+
+股票代码: {state.get('ticker')}
+公司名称: {price_data.get('name', 'N/A')}
+当前涨跌: {price_data.get('change_percent', 'N/A')}%
+
+请简要评估市场情绪（乐观/中性/悲观）和可能的关注点。"""
+
+        full_content = ""
+        async for chunk in self.llm.chat_stream(
+            prompt,
+            system_prompt="你是市场情绪分析专家，请简洁回复。",
+            temperature=0.5,
+        ):
+            full_content += chunk
+            yield ("chunk", chunk)
+        
+        yield ("result", {
+            "sentiment_summary": full_content,
+            "sentiment_score": 0.0,
+            "messages": [{"role": "sentiment_agent", "content": full_content}],
+        })
+
+    async def _assess_risk_stream(self, state: Dict) -> AsyncIterator[tuple[str, Any]]:
+        """风险评估（流式版本）"""
+        yield ("thinking", "正在进行风险评估：识别潜在风险因素...")
+        
+        prompt = f"""简要评估以下股票的风险：
+
+股票: {state.get('ticker')} - {state.get('price_data', {}).get('name', '')}
+
+技术面摘要: {state.get('technical_analysis', '暂无')[:300]}
+基本面摘要: {state.get('fundamental_analysis', '暂无')[:300]}
+
+请简要列出主要风险因素和风险等级。"""
+
+        full_content = ""
+        async for chunk in self.llm.chat_stream(
+            prompt,
+            system_prompt="你是风险管理专家，请简洁回复。",
+            temperature=0.3,
+        ):
+            full_content += chunk
+            yield ("chunk", chunk)
+        
+        yield ("result", {
+            "risk_assessment": full_content,
+            "risk_factors": [],
+            "messages": [{"role": "risk_agent", "content": full_content}],
+        })
+
+    async def _synthesize_stream(self, state: Dict) -> AsyncIterator[tuple[str, Any]]:
+        """综合建议（流式版本）"""
+        yield ("thinking", "正在生成综合投资建议...")
+        
+        prompt = f"""基于以下分析，生成综合投资建议：
+
+股票: {state.get('ticker')} - {state.get('price_data', {}).get('name', '')}
+当前价格: {state.get('price_data', {}).get('price', 'N/A')}
+
+## 技术面分析
+{state.get('technical_analysis', '暂无')[:500]}
+
+## 基本面分析
+{state.get('fundamental_analysis', '暂无')[:500]}
+
+## 风险评估
+{state.get('risk_assessment', '暂无')[:300]}
+
+请给出：
+1. 总体评级（买入/持有/卖出/观望）
+2. 核心投资逻辑（2-3点）
+3. 风险提示
+
+**重要：此分析仅供参考，不构成投资建议。**"""
+
+        full_content = ""
+        async for chunk in self.llm.chat_stream(
+            prompt,
+            system_prompt="你是资深投资顾问，需要综合分析给出客观建议。",
+            temperature=0.3,
+        ):
+            full_content += chunk
+            yield ("chunk", chunk)
+        
+        confidence = self._estimate_confidence(state)
+        
+        yield ("result", {
+            "recommendation": full_content,
+            "confidence": confidence,
+        })
     
     async def _analyze_fundamental(self, state: Dict) -> Dict:
         """基本面分析"""
@@ -531,18 +754,19 @@ class StreamingAnalysisRunner:
         state = create_initial_state(query or f"分析 {ticker}", ticker)
         self._current_state = dict(state)
         
+        # 定义节点：(名称, 函数, 是否流式)
         nodes = [
-            ("fetch_data", self._fetch_price_data),
-            ("fetch_history", self._fetch_history),
-            ("fetch_financials", self._fetch_financials),
-            ("technical", self._analyze_technical),
-            ("fundamental", self._analyze_fundamental),
-            ("sentiment", self._analyze_sentiment),
-            ("risk", self._assess_risk),
-            ("synthesize", self._synthesize),
+            ("fetch_data", self._fetch_price_data, False),
+            ("fetch_history", self._fetch_history, False),
+            ("fetch_financials", self._fetch_financials, False),
+            ("technical", self._analyze_technical_stream, True),  # 流式
+            ("fundamental", self._analyze_fundamental_stream, True),  # 流式
+            ("sentiment", self._analyze_sentiment_stream, True),  # 流式
+            ("risk", self._assess_risk_stream, True),  # 流式
+            ("synthesize", self._synthesize_stream, True),  # 流式
         ]
         
-        for node_name, node_func in nodes:
+        for node_name, node_func, is_streaming in nodes:
             start_time = datetime.now()
             
             self._emit(StreamEvent(
@@ -556,7 +780,29 @@ class StreamingAnalysisRunner:
             self._events = []
             
             try:
-                result = await node_func(self._current_state)
+                if is_streaming:
+                    # 流式节点：实时输出内容
+                    result = {}
+                    async for event_type, content in node_func(self._current_state):
+                        if event_type == "thinking":
+                            yield StreamEvent(
+                                event=EventType.THINKING,
+                                timestamp=self._now(),
+                                content=content,
+                            ).to_sse()
+                        elif event_type == "chunk":
+                            yield StreamEvent(
+                                event=EventType.STREAMING,
+                                timestamp=self._now(),
+                                node=node_name,
+                                content=content,
+                            ).to_sse()
+                        elif event_type == "result":
+                            result = content
+                else:
+                    # 非流式节点
+                    result = await node_func(self._current_state)
+                
                 duration = int((datetime.now() - start_time).total_seconds() * 1000)
                 
                 output_summary = self._summarize_output(node_name, result)
@@ -583,7 +829,7 @@ class StreamingAnalysisRunner:
                 yield event.to_sse()
             self._events = []
             
-            await asyncio.sleep(0.05)
+            await asyncio.sleep(0.01)
         
         self._emit(StreamEvent(
             event=EventType.FINAL,
@@ -679,8 +925,11 @@ class StreamingAnalysisRunner:
             ("company_analysis", self._analyze_company),
         ]
         
+        print(f"[DEBUG] Starting report analysis for {ticker}")
+        
         for node_name, node_func in nodes:
             start_time = datetime.now()
+            print(f"[DEBUG] Starting node: {node_name}")
             
             self._emit(StreamEvent(
                 event=EventType.NODE_START,
@@ -693,7 +942,9 @@ class StreamingAnalysisRunner:
             self._events = []
             
             try:
+                print(f"[DEBUG] Calling node function: {node_name}")
                 result = await node_func(self._current_state)
+                print(f"[DEBUG] Node {node_name} completed")
                 duration = int((datetime.now() - start_time).total_seconds() * 1000)
                 
                 output_summary = self._summarize_output(node_name, result)
@@ -739,11 +990,28 @@ class StreamingAnalysisRunner:
         for event in self._events:
             yield event.to_sse()
     
+    def _is_us_stock(self, ticker: str) -> bool:
+        """判断是否为美股"""
+        ticker_upper = ticker.upper()
+        if ticker_upper.startswith(("SH", "SZ", "HK")):
+            return False
+        if ticker.replace(".", "").isdigit():
+            return False
+        return True
+
     async def _fetch_pdf_report(self, state: Dict) -> Dict:
         """获取并解析 PDF 财报 - 使用前端传来的 URL 直接下载"""
         ticker = state.get("ticker", "")
         report_title = state.get("report_title", "")
         pdf_url = state.get("pdf_url", "")
+        
+        print(f"[PDF] Starting PDF fetch for {ticker}")
+        print(f"[PDF] report_title: {report_title}")
+        print(f"[PDF] pdf_url: {pdf_url[:100] if pdf_url else 'NONE'}...")
+        
+        # 美股使用 SEC 10-K HTM 文件
+        if self._is_us_stock(ticker):
+            return await self._fetch_sec_report(state)
         
         self._emit(StreamEvent(
             event=EventType.TOOL_CALL,
@@ -777,6 +1045,8 @@ class StreamingAnalysisRunner:
             # 检查缓存
             if report_title:
                 analysis_path = get_analysis_path(ticker, report_title)
+                print(f"[PDF] Checking cache at: {analysis_path}", flush=True)
+                print(f"[PDF] Cache exists: {analysis_path.exists()}", flush=True)
                 if analysis_path.exists():
                     cached = json.loads(analysis_path.read_text(encoding="utf-8"))
                     self._emit(StreamEvent(
@@ -883,9 +1153,21 @@ class StreamingAnalysisRunner:
             stock_name = price_data.get("name", ticker)
             
             # AI 提取结构化数据
+            print(f"[PDF] Extracting data with AI, content length: {len(key_content)}")
             structured_data = await self._ai_extract_report_data(
                 ticker, stock_name, report_title, key_content
             )
+            
+            print(f"[PDF] AI extraction result:")
+            print(f"  - summary: {str(structured_data.get('summary', 'NONE'))[:50]}...")
+            rb = structured_data.get('revenue_breakdown') or []
+            bh = structured_data.get('business_highlights') or []
+            risks = structured_data.get('risks') or []
+            kf = structured_data.get('key_financials') or {}
+            print(f"  - revenue_breakdown count: {len(rb)}")
+            print(f"  - business_highlights count: {len(bh)}")
+            print(f"  - risks count: {len(risks)}")
+            print(f"  - key_financials: {list(kf.keys()) if isinstance(kf, dict) else 'invalid'}")
             
             self._emit(StreamEvent(
                 event=EventType.TOOL_RESULT,
@@ -937,18 +1219,200 @@ class StreamingAnalysisRunner:
                 }],
             }
     
+    async def _fetch_sec_report(self, state: Dict) -> Dict:
+        """获取并解析美股 SEC 10-K 报告"""
+        ticker = state.get("ticker", "")
+        report_title = state.get("report_title", "") or "10-K"
+        
+        print(f"[SEC] Starting SEC fetch for {ticker}")
+        
+        self._emit(StreamEvent(
+            event=EventType.TOOL_CALL,
+            timestamp=self._now(),
+            tool="fetch_sec_10k",
+            input={"ticker": ticker},
+        ))
+        
+        try:
+            from ..agents.tools.sec_fetcher import get_sec_report_summary, TEXT_DIR
+            from ..agents.tools.pdf_analyzer import get_analysis_path
+            import json
+            
+            # 检查缓存
+            cache_key = f"{ticker.upper()}_10-K"
+            analysis_path = get_analysis_path(ticker, cache_key)
+            if analysis_path.exists():
+                cached = json.loads(analysis_path.read_text(encoding="utf-8"))
+                self._emit(StreamEvent(
+                    event=EventType.TOOL_RESULT,
+                    timestamp=self._now(),
+                    tool="fetch_sec_10k",
+                    output={"status": "cached"},
+                ))
+                
+                structured_data = {
+                    "key_financials": cached.get("key_financials", {}),
+                    "revenue_breakdown": cached.get("revenue_breakdown", []),
+                    "business_highlights": cached.get("business_highlights", []),
+                    "risks": cached.get("risks", []),
+                    "outlook": cached.get("outlook", ""),
+                }
+                
+                return {
+                    "report_summary": cached.get("summary", ""),
+                    "pdf_content": "",
+                    "report_data": structured_data,
+                    "messages": [{
+                        "role": "sec_analyzer",
+                        "content": f"已加载缓存 SEC 分析: {ticker} 10-K",
+                    }],
+                }
+            
+            self._emit(StreamEvent(
+                event=EventType.THINKING,
+                timestamp=self._now(),
+                content=f"正在从 SEC EDGAR 获取 {ticker} 的 10-K 报告...",
+            ))
+            
+            # 获取 SEC 报告
+            import asyncio
+            loop = asyncio.get_event_loop()
+            report_data = await loop.run_in_executor(None, get_sec_report_summary, ticker)
+            
+            if report_data.get("error"):
+                self._emit(StreamEvent(
+                    event=EventType.TOOL_RESULT,
+                    timestamp=self._now(),
+                    tool="fetch_sec_10k",
+                    output={"status": "error", "error": report_data["error"]},
+                ))
+                return {
+                    "report_summary": "",
+                    "messages": [{
+                        "role": "sec_analyzer",
+                        "content": f"SEC 报告获取失败: {report_data['error']}",
+                    }],
+                }
+            
+            # 获取预提取的财务数据
+            pre_extracted_financials = report_data.get("financials", {})
+            
+            self._emit(StreamEvent(
+                event=EventType.TOOL_RESULT,
+                timestamp=self._now(),
+                tool="fetch_sec_10k",
+                output={
+                    "status": "success", 
+                    "text_length": len(report_data.get("text", "")),
+                    "financials": pre_extracted_financials,
+                },
+            ))
+            
+            # 使用 AI 提取结构化数据
+            key_content = report_data.get("summary", "") or report_data.get("text", "")[:30000]
+            
+            if key_content:
+                self._emit(StreamEvent(
+                    event=EventType.TOOL_CALL,
+                    timestamp=self._now(),
+                    tool="ai_extract_sec_data",
+                    input={"content_length": len(key_content)},
+                ))
+                
+                stock_name = ticker.upper()
+                structured_data = await self._ai_extract_report_data(
+                    ticker=ticker,
+                    stock_name=stock_name,
+                    report_title=f"{ticker} 10-K",
+                    content=key_content,
+                    pre_extracted=pre_extracted_financials  # 传入预提取的数据
+                )
+                
+                self._emit(StreamEvent(
+                    event=EventType.TOOL_RESULT,
+                    timestamp=self._now(),
+                    tool="ai_extract_sec_data",
+                    output={"sections": list(structured_data.keys())[:5]},
+                ))
+                
+                # 缓存分析结果
+                cache_data = {
+                    "ticker": ticker,
+                    "report_title": f"{ticker} 10-K",
+                    "summary": structured_data.get("summary", ""),
+                    **structured_data,
+                    "analysis_date": self._now(),
+                }
+                analysis_path.write_text(json.dumps(cache_data, ensure_ascii=False, indent=2), encoding="utf-8")
+                
+                return {
+                    "report_summary": structured_data.get("summary", ""),
+                    "pdf_content": key_content[:3000],
+                    "report_data": structured_data,
+                    "messages": [{
+                        "role": "sec_analyzer",
+                        "content": f"已分析 SEC 10-K 报告: {ticker}",
+                    }],
+                }
+            
+            return {
+                "report_summary": "",
+                "pdf_content": "",
+                "messages": [{
+                    "role": "sec_analyzer",
+                    "content": "SEC 报告内容为空",
+                }],
+            }
+            
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            self._emit(StreamEvent(
+                event=EventType.TOOL_RESULT,
+                timestamp=self._now(),
+                tool="fetch_sec_10k",
+                output={"status": "error", "error": str(e)},
+            ))
+            return {
+                "report_summary": "",
+                "messages": [{
+                    "role": "sec_analyzer",
+                    "content": f"SEC 分析失败: {str(e)}",
+                }],
+            }
+
+    @traceable(name="ai_extract_report_data")
     async def _ai_extract_report_data(
         self,
         ticker: str,
         stock_name: str,
         report_title: str,
-        content: str
+        content: str,
+        pre_extracted: Dict = None
     ) -> Dict:
         """AI 探索财报，提取结构化关键数据"""
-        prompt = f"""你是专业的财务分析师。请仔细阅读以下 {stock_name}({ticker}) 的财报内容，搜索并提取关键数据。
+        print(f"[AI_EXTRACT] Starting extraction for {stock_name}({ticker})")
+        print(f"[AI_EXTRACT] Content length: {len(content)}, first 200 chars: {content[:200]}...")
+        
+        # 构建预提取数据提示
+        pre_extracted_hint = ""
+        if pre_extracted:
+            print(f"[AI_EXTRACT] Pre-extracted financials: {pre_extracted}")
+            pre_extracted_hint = f"""
+## 已从报告中正则提取的关键数据（仅供参考，请结合财报内容确认/补充）
+- Revenue: ${pre_extracted.get('revenue', 'N/A'):,.0f} million
+- Net Income: ${pre_extracted.get('net_income', 'N/A'):,.0f} million  
+- Operating Income: ${pre_extracted.get('operating_income', 'N/A'):,.0f} million
+- Gross Margin: ${pre_extracted.get('gross_margin', 'N/A'):,.0f} million
+- EPS: ${pre_extracted.get('eps', 'N/A')}
+"""
+        
+        prompt = f"""你是专业的财务分析师。请仔细阅读以下 {stock_name}({ticker}) 的年报/财报内容，搜索并提取关键数据。
 
+注意：这可能是美股10-K报告（英文）、港股年报（繁体中文）或A股年报（简体中文），请准确识别并提取数据。
+{pre_extracted_hint}
 ## 财报内容
-{content[:15000]}
+{content[:20000]}
 
 ## 任务
 请从财报中**搜索并提取**以下数据，以 JSON 格式返回：
@@ -957,18 +1421,18 @@ class StreamingAnalysisRunner:
 {{
   "summary": "一句话总结公司本期业绩（30字以内）",
   "key_financials": {{
-    "revenue": "营业收入（含金额和同比增速，如：150.5亿元，同比+25.3%）",
-    "net_profit": "净利润（含金额和同比增速）",
+    "revenue": "营业收入/營業收入（含金额和同比增速，如：150.5亿美元，同比+25.3%）",
+    "net_profit": "净利润/除稅前利潤（含金额和同比增速）",
     "gross_margin": "毛利率",
-    "net_margin": "净利率",
-    "roe": "ROE/净资产收益率",
-    "eps": "每股收益"
+    "net_margin": "净利率/淨利率",
+    "roe": "ROE/净资产收益率/股本回报率",
+    "eps": "每股收益/每股盈利"
   }},
   "revenue_breakdown": [
-    {{"segment": "业务/产品名称", "revenue": "金额", "ratio": "占比如25.5%", "growth": "增速如+30%"}}
+    {{"segment": "业务分部/地区名称", "revenue": "金额（如276億美元）", "ratio": "占比", "growth": "增速"}}
   ],
   "business_highlights": [
-    "亮点1：具体描述",
+    "亮点1：具体描述（如：香港业务收入159亿美元）",
     "亮点2：具体描述",
     "亮点3：具体描述"
   ],
@@ -980,30 +1444,39 @@ class StreamingAnalysisRunner:
 ```
 
 **重要提示**：
-1. 数值必须从财报中准确提取，保留单位
-2. revenue_breakdown 务必提取主要业务/产品的收入构成
-3. 如果某项数据在财报中找不到，设为 null
+1. 数值必须从财报中准确提取，保留原始单位（如：美元、港元、人民幣）
+2. revenue_breakdown 务必提取主要业务分部或地区的收入构成
+3. 如果某项数据在财报中找不到，设为空数组[]或空对象{{}}，不要设为null
 4. 只返回 JSON，不要其他内容"""
 
         try:
+            print(f"[AI_EXTRACT] Calling LLM...")
             result_text = self.llm.chat(
                 prompt,
                 system_prompt="你是财报数据提取专家，能准确从长篇财报中定位并提取关键财务数据。",
                 temperature=0.2,
+                max_tokens=3000,
             )
             
+            print(f"[AI_EXTRACT] LLM response length: {len(result_text)}")
+            print(f"[AI_EXTRACT] LLM response preview: {result_text[:500]}...")
+            
             # 解析 JSON
-            content = result_text.strip()
-            if "```json" in content:
-                content = content.split("```json")[1].split("```")[0].strip()
-            elif "```" in content:
-                content = content.split("```")[1].split("```")[0].strip()
+            json_content = result_text.strip()
+            if "```json" in json_content:
+                json_content = json_content.split("```json")[1].split("```")[0].strip()
+            elif "```" in json_content:
+                json_content = json_content.split("```")[1].split("```")[0].strip()
             
             import json
-            return json.loads(content)
+            parsed = json.loads(json_content)
+            print(f"[AI_EXTRACT] Successfully parsed JSON with keys: {list(parsed.keys())}")
+            return parsed
             
         except Exception as e:
-            print(f"AI extract error: {e}")
+            import traceback
+            print(f"[AI_EXTRACT] Error: {e}")
+            traceback.print_exc()
             return {
                 "summary": "",
                 "key_financials": {},

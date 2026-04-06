@@ -1,13 +1,13 @@
-"""新闻获取模块 - 使用 AKShare 东方财富新闻接口"""
+"""新闻获取模块 - 支持 A股/港股/美股"""
 import akshare as ak
 from typing import Optional, List
 from dataclasses import dataclass
 from datetime import datetime
 import re
+import httpx
 from cachetools import TTLCache
 import threading
 
-# 缓存：5分钟过期，最多100条
 _cache = TTLCache(maxsize=100, ttl=300)
 _cache_lock = threading.Lock()
 
@@ -23,72 +23,102 @@ class NewsArticle:
     thumbnail: Optional[str] = None
 
 
+def _parse_time(pub_time) -> Optional[datetime]:
+    if not pub_time:
+        return None
+    for fmt in ["%Y-%m-%d %H:%M:%S", "%Y-%m-%d", "%m-%d %H:%M", "%Y/%m/%d %H:%M"]:
+        try:
+            return datetime.strptime(str(pub_time), fmt)
+        except (ValueError, TypeError):
+            continue
+    return None
+
+
+def _fetch_cn_stock_news(code: str) -> List[dict]:
+    try:
+        df = ak.stock_news_em(symbol=code)
+        if df is None or df.empty:
+            return []
+        result = []
+        for _, row in df.iterrows():
+            title = row.get("新闻标题", "") or row.get("标题", "")
+            link = row.get("新闻链接", "") or row.get("链接", "")
+            content = row.get("新闻内容", "") or row.get("内容", "")
+            pub_time = row.get("发布时间", "") or row.get("时间", "")
+            source = row.get("文章来源", "") or row.get("来源", "东方财富")
+            pd = _parse_time(pub_time)
+            result.append({
+                "title": title, "link": link, "source": source,
+                "published": str(pub_time) if pub_time else None,
+                "published_date": pd.isoformat() if pd else None,
+                "summary": content[:200] if content else None,
+                "thumbnail": None,
+            })
+        return result
+    except Exception as e:
+        print(f"[News] CN fetch error: {e}")
+        return []
+
+
+def _fetch_keyword_news(keyword: str) -> List[dict]:
+    """通用关键词新闻搜索 - 使用 AKShare stock_news_em"""
+    result = []
+    try:
+        df = ak.stock_news_em(symbol=keyword)
+        if df is not None and not df.empty:
+            for _, row in df.iterrows():
+                title = row.get("新闻标题", "") or row.get("标题", "")
+                link = row.get("新闻链接", "") or row.get("链接", "")
+                content = row.get("新闻内容", "") or row.get("内容", "")
+                pub_time = row.get("发布时间", "") or row.get("时间", "")
+                source = row.get("文章来源", "") or row.get("来源", "东方财富")
+                pd = _parse_time(pub_time)
+                result.append({
+                    "title": title, "link": link, "source": source,
+                    "published": str(pub_time) if pub_time else None,
+                    "published_date": pd.isoformat() if pd else None,
+                    "summary": content[:200] if content else None,
+                    "thumbnail": None,
+                })
+    except Exception as e:
+        print(f"[News] Keyword search error for '{keyword}': {e}")
+    return result
+
+
+def _fetch_hk_stock_news(ticker: str, stock_name: str) -> List[dict]:
+    """港股新闻 - 用公司名作为关键词搜索"""
+    keyword = stock_name or re.sub(r"[a-zA-Z.]", "", ticker)
+    return _fetch_keyword_news(keyword)
+
+
+def _fetch_us_stock_news(ticker: str, stock_name: str) -> List[dict]:
+    """美股新闻 - 用公司名或 ticker 作为关键词搜索"""
+    keyword = stock_name or ticker.replace(".", "")
+    return _fetch_keyword_news(keyword)
+
+
 def get_stock_news(
     ticker: str,
     stock_name: str = "",
     market: str = "CN",
     limit: int = 10
 ) -> List[dict]:
-    """获取股票相关新闻
-    
-    Args:
-        ticker: 股票代码
-        stock_name: 股票名称
-        market: 市场 (CN, HK, US)
-        limit: 返回数量
-    
-    Returns:
-        新闻列表
-    """
-    cache_key = f"stock_news:{ticker}"
+    cache_key = f"stock_news:{market}:{ticker}"
     with _cache_lock:
         if cache_key in _cache:
             return _cache[cache_key][:limit]
     
-    result = []
-    
-    # 提取纯数字代码
     code = re.sub(r"[a-zA-Z.]", "", ticker)
     
     if market == "CN" and code:
-        try:
-            # 使用东方财富股票新闻
-            df = ak.stock_news_em(symbol=code)
-            if df is not None and not df.empty:
-                for _, row in df.iterrows():
-                    title = row.get("新闻标题", "") or row.get("标题", "")
-                    link = row.get("新闻链接", "") or row.get("链接", "")
-                    content = row.get("新闻内容", "") or row.get("内容", "")
-                    pub_time = row.get("发布时间", "") or row.get("时间", "")
-                    source = row.get("文章来源", "") or row.get("来源", "东方财富")
-                    
-                    # 解析时间
-                    published_date = None
-                    if pub_time:
-                        try:
-                            # 尝试解析多种时间格式
-                            for fmt in ["%Y-%m-%d %H:%M:%S", "%Y-%m-%d", "%m-%d %H:%M"]:
-                                try:
-                                    published_date = datetime.strptime(str(pub_time), fmt)
-                                    break
-                                except:
-                                    continue
-                        except:
-                            pass
-                    
-                    result.append({
-                        "title": title,
-                        "link": link,
-                        "source": source,
-                        "published": str(pub_time) if pub_time else None,
-                        "published_date": published_date.isoformat() if published_date else None,
-                        "summary": content[:200] if content else None,
-                        "thumbnail": None,
-                    })
-        except Exception as e:
-            print(f"Error fetching news for {ticker}: {e}")
+        result = _fetch_cn_stock_news(code)
+    elif market == "HK":
+        result = _fetch_hk_stock_news(ticker, stock_name)
+    elif market == "US":
+        result = _fetch_us_stock_news(ticker, stock_name)
+    else:
+        result = []
     
-    # 缓存结果
     with _cache_lock:
         _cache[cache_key] = result
     
@@ -96,13 +126,6 @@ def get_stock_news(
 
 
 def get_market_news(market: str = "CN", topic: str = "BUSINESS", limit: int = 20) -> List[dict]:
-    """获取市场新闻
-    
-    Args:
-        market: 市场 (CN, HK, US)
-        topic: 话题
-        limit: 返回数量
-    """
     cache_key = f"market_news:{market}:{topic}"
     with _cache_lock:
         if cache_key in _cache:
@@ -110,27 +133,34 @@ def get_market_news(market: str = "CN", topic: str = "BUSINESS", limit: int = 20
     
     result = []
     
-    if market == "CN":
-        try:
-            # 获取财经要闻
+    try:
+        if market == "CN":
             df = ak.stock_info_global_em()
             if df is not None and not df.empty:
                 for _, row in df.iterrows():
                     title = row.get("标题", "") or row.get("内容", "")
                     link = row.get("链接", "") or ""
                     pub_time = row.get("发布时间", "") or row.get("时间", "")
-                    
                     result.append({
-                        "title": title,
-                        "link": link,
-                        "source": "东方财富",
+                        "title": title, "link": link, "source": "东方财富",
                         "published": str(pub_time) if pub_time else None,
-                        "published_date": None,
-                        "summary": None,
-                        "thumbnail": None,
+                        "published_date": None, "summary": None, "thumbnail": None,
                     })
-        except Exception as e:
-            print(f"Error fetching market news: {e}")
+        elif market in ("HK", "US"):
+            # 港股/美股用全球财经要闻
+            df = ak.stock_info_global_em()
+            if df is not None and not df.empty:
+                for _, row in df.iterrows():
+                    title = row.get("标题", "") or row.get("内容", "")
+                    link = row.get("链接", "") or ""
+                    pub_time = row.get("发布时间", "") or row.get("时间", "")
+                    result.append({
+                        "title": title, "link": link, "source": "财经要闻",
+                        "published": str(pub_time) if pub_time else None,
+                        "published_date": None, "summary": None, "thumbnail": None,
+                    })
+    except Exception as e:
+        print(f"[News] Market news error for {market}: {e}")
     
     with _cache_lock:
         _cache[cache_key] = result

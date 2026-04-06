@@ -90,7 +90,7 @@ export function DataSidebar({
         market,
         limit: "5",
       });
-      const res = await fetch(`http://localhost:8000/api/news/${ticker}?${params}`);
+      const res = await fetch(`/api/news/${ticker}?${params}`);
       if (res.ok) {
         const data = await res.json();
         setNews(data.news || []);

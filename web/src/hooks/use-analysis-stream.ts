@@ -8,6 +8,7 @@ export type EventType =
   | "tool_call"
   | "tool_result"
   | "thinking"
+  | "streaming"
   | "error"
   | "final";
 
@@ -29,6 +30,7 @@ export interface StepStatus {
   end_time?: string;
   duration_ms?: number;
   output?: Record<string, unknown>;
+  streamingContent?: string;
 }
 
 interface UseAnalysisStreamReturn {
@@ -37,12 +39,16 @@ interface UseAnalysisStreamReturn {
   finalResult: AnalysisEvent | null;
   isRunning: boolean;
   error: string | null;
+  streamingContent: Record<string, string>;
   startAnalysis: (ticker: string, query?: string) => void;
   startReportAnalysis: (ticker: string, reportTitle?: string, reportPeriod?: string, pdfUrl?: string) => void;
   reset: () => void;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+// 直接使用后端地址，因为 Next.js rewrites 不能正确处理 SSE 流
+const API_BASE = typeof window !== 'undefined' 
+  ? (process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000")
+  : "";
 
 export function useAnalysisStream(): UseAnalysisStreamReturn {
   const [events, setEvents] = useState<AnalysisEvent[]>([]);
@@ -50,6 +56,7 @@ export function useAnalysisStream(): UseAnalysisStreamReturn {
   const [finalResult, setFinalResult] = useState<AnalysisEvent | null>(null);
   const [isRunning, setIsRunning] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [streamingContent, setStreamingContent] = useState<Record<string, string>>({});
   const abortRef = useRef<AbortController | null>(null);
 
   const reset = useCallback(() => {
@@ -62,6 +69,7 @@ export function useAnalysisStream(): UseAnalysisStreamReturn {
     setFinalResult(null);
     setIsRunning(false);
     setError(null);
+    setStreamingContent({});
   }, []);
 
   const processEvent = useCallback((event: AnalysisEvent) => {
@@ -75,7 +83,7 @@ export function useAnalysisStream(): UseAnalysisStreamReturn {
             if (existing) {
               return prev.map((s) =>
                 s.node === event.node
-                  ? { ...s, status: "running", start_time: event.timestamp }
+                  ? { ...s, status: "running", start_time: event.timestamp, streamingContent: "" }
                   : s
               );
             }
@@ -85,9 +93,30 @@ export function useAnalysisStream(): UseAnalysisStreamReturn {
                 node: event.node,
                 status: "running",
                 start_time: event.timestamp,
+                streamingContent: "",
               },
             ];
           });
+          // 清空该节点的流式内容
+          setStreamingContent((prev) => ({ ...prev, [event.node!]: "" }));
+        }
+        break;
+
+      case "streaming":
+        // 处理流式内容
+        if (event.node && event.content) {
+          setStreamingContent((prev) => ({
+            ...prev,
+            [event.node!]: (prev[event.node!] || "") + event.content,
+          }));
+          // 同时更新步骤中的流式内容
+          setSteps((prev) =>
+            prev.map((s) =>
+              s.node === event.node
+                ? { ...s, streamingContent: (s.streamingContent || "") + event.content }
+                : s
+            )
+          );
         }
         break;
 
@@ -270,6 +299,7 @@ export function useAnalysisStream(): UseAnalysisStreamReturn {
     finalResult,
     isRunning,
     error,
+    streamingContent,
     startAnalysis,
     startReportAnalysis,
     reset,

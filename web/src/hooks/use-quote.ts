@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { api, StockQuote } from "@/lib/api";
+import { api, StockQuote, DisclosureResponse } from "@/lib/api";
 
 export function useQuote(ticker: string | null, enabled = true) {
   return useQuery<StockQuote>({
@@ -20,5 +20,18 @@ export function useQuoteByName(name: string | null, enabled = true) {
     enabled: enabled && !!name,
     refetchInterval: 30000,
     staleTime: 10000,
+  });
+}
+
+export function useDisclosure(
+  ticker: string | null,
+  category: "annual" | "interim" | "quarterly" | "all" = "annual",
+  enabled = true
+) {
+  return useQuery<DisclosureResponse>({
+    queryKey: ["disclosure", ticker, category],
+    queryFn: () => api.getDisclosure(ticker!, category),
+    enabled: enabled && !!ticker,
+    staleTime: 60000 * 5, // 5 minutes
   });
 }

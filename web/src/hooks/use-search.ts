@@ -18,5 +18,8 @@ export function useSearch(
     queryFn: () => api.search(query, market, limit),
     enabled: enabled && query.length >= 1,
     staleTime: 60000,
+    retry: 2,
+    retryDelay: 1000,
+    gcTime: 5 * 60 * 1000,
   });
 }

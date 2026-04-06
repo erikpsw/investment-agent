@@ -17,7 +17,8 @@ interface AnalysisChatProps {
   context?: Record<string, unknown>;
 }
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+// 使用相对路径，通过 Next.js rewrites 代理到后端
+const API_BASE = "";
 
 const QUICK_PROMPTS = [
   "为什么给出这个评级?",

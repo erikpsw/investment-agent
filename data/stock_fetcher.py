@@ -293,6 +293,16 @@ class StockFetcher:
             if "error" in df.columns:
                 return {"error": df["error"].iloc[0]}
             return df.to_dict("records")[0] if len(df) > 0 else {}
+        
+        # 港股需要转换为 yfinance 格式
+        if self._is_hk_stock(ticker):
+            code = ticker.lower().replace("hk", "").replace(".hk", "")
+            code = code.lstrip("0") or "0"
+            if len(code) < 4:
+                code = code.zfill(4)
+            yf_ticker = f"{code}.HK"
+            return self.yfinance.get_key_metrics(yf_ticker)
+        
         return self.yfinance.get_key_metrics(ticker.upper())
 
     def get_market_overview(self) -> Dict[str, Any]:

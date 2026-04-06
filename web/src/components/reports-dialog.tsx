@@ -95,7 +95,7 @@ export function ReportsDialog({
     setError(null);
     try {
       const res = await fetch(
-        `http://localhost:8000/api/reports/${encodeURIComponent(ticker)}?report_type=${encodeURIComponent(reportType)}&years=2`
+        `/api/reports/${encodeURIComponent(ticker)}?report_type=${encodeURIComponent(reportType)}&years=2`
       );
       if (!res.ok) throw new Error("获取财报列表失败");
       const data = await res.json();
@@ -121,7 +121,7 @@ export function ReportsDialog({
         ? `分析财报: ${selectedReport.title} (${selectedReport.time})`
         : `分析 ${stockName || ticker} 的财务状况`;
 
-      const res = await fetch("http://localhost:8000/api/analysis/chat", {
+      const res = await fetch(`/api/analysis/chat`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

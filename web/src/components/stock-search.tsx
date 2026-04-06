@@ -25,7 +25,7 @@ export function StockSearch({ open, onOpenChange }: StockSearchProps) {
   const [query, setQuery] = React.useState("");
   const debouncedQuery = useDebounce(query, 300);
 
-  const { data, isLoading } = useSearch(debouncedQuery, {
+  const { data, isLoading, isError } = useSearch(debouncedQuery, {
     limit: 10,
     enabled: debouncedQuery.length >= 1,
   });
@@ -69,6 +69,12 @@ export function StockSearch({ open, onOpenChange }: StockSearchProps) {
           <div className="flex items-center justify-center py-6">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
           </div>
+        ) : isError ? (
+          <CommandEmpty>
+            <div className="flex flex-col items-center gap-2 py-6 text-destructive">
+              <p className="text-sm">搜索失败，请稍后重试</p>
+            </div>
+          </CommandEmpty>
         ) : query.length === 0 ? (
           <CommandEmpty>
             <div className="flex flex-col items-center gap-2 py-6">

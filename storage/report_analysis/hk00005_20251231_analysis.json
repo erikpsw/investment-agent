@@ -1,0 +1,33 @@
+{
+  "summary": "数据获取失败，无法分析该公司具体财务指标及经营状况。",
+  "revenue": {
+    "value": null,
+    "yoy_change": null,
+    "trend": null
+  },
+  "profit": {
+    "net_profit": null,
+    "yoy_change": null,
+    "margin": null,
+    "trend": null
+  },
+  "cash_flow": {
+    "operating": null,
+    "assessment": null
+  },
+  "highlights": [],
+  "risks": [
+    {
+      "category": "数据风险",
+      "description": "财务数据接口返回错误，无法获取有效信息",
+      "severity": "high"
+    }
+  ],
+  "outlook": "由于缺乏基础财务数据，无法对业绩进行预测。建议投资者关注后续官方披露的财报数据后再做判断。",
+  "recommendation": "观望",
+  "confidence": 0.1,
+  "ticker": "hk00005",
+  "report_period": "2025-12-31",
+  "report_type": "年报",
+  "analysis_date": "2026-04-06T15:11:23.119079"
+}

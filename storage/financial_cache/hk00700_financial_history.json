@@ -3,21 +3,6 @@
   "name": "腾讯控股",
   "data": [
     {
-      "period": "2017-12-31",
-      "revenue": 237760000000.0,
-      "net_profit": 71510000000.0,
-      "gross_profit": 116925000000.0,
-      "operating_profit": null,
-      "total_assets": null,
-      "total_liabilities": null,
-      "net_assets": null,
-      "operating_cash_flow": null,
-      "eps": 7.598,
-      "roe": 0.33206562370849,
-      "gross_margin": 0.49177742261104,
-      "net_margin": 0.304807368775
-    },
-    {
       "period": "2018-12-31",
       "revenue": 312694000000.0,
       "net_profit": 78719000000.0,
@@ -138,5 +123,5 @@
       "net_margin": 0.305681555165
     }
   ],
-  "updated_at": "2026-04-04T20:32:38.946714"
+  "updated_at": "2026-04-05T20:48:52.822830"
 }
