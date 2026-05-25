@@ -1,6 +1,7 @@
 """
 Stock Quotes API Routes
 """
+import asyncio
 from fastapi import APIRouter, HTTPException
 from datetime import datetime
 
@@ -15,7 +16,7 @@ fetcher = StockFetcher()
 async def get_quote(ticker: str):
     """Get real-time quote for a stock"""
     try:
-        quote = fetcher.get_quote(ticker)
+        quote = await asyncio.to_thread(fetcher.get_quote, ticker)
         
         if "error" in quote:
             raise HTTPException(status_code=404, detail=quote["error"])
@@ -47,7 +48,7 @@ async def get_quote(ticker: str):
 async def get_quote_by_name(name: str):
     """Get quote by company name (supports Chinese names)"""
     try:
-        quote = fetcher.get_quote_by_name(name)
+        quote = await asyncio.to_thread(fetcher.get_quote_by_name, name)
         
         if "error" in quote:
             raise HTTPException(status_code=404, detail=quote["error"])
@@ -82,7 +83,7 @@ async def get_quote_by_name(name: str):
 async def get_market_overview():
     """Get market indices overview"""
     try:
-        overview = fetcher.get_market_overview()
+        overview = await asyncio.to_thread(fetcher.get_market_overview)
         indices = overview.get("indices", [])
         
         return MarketOverview(

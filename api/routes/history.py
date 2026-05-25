@@ -1,6 +1,7 @@
 """
 Historical Data API Routes
 """
+import asyncio
 from fastapi import APIRouter, HTTPException, Query
 
 from investment.data import StockFetcher
@@ -18,7 +19,7 @@ async def get_history(
 ):
     """Get historical price data for a stock"""
     try:
-        df = fetcher.get_history(ticker, period=period, interval=interval)
+        df = await asyncio.to_thread(fetcher.get_history, ticker, period=period, interval=interval)
         
         if df is None or df.empty:
             raise HTTPException(status_code=404, detail="No historical data available")

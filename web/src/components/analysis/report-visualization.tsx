@@ -6,7 +6,6 @@ import {
   PieChart,
   BarChart3,
   TrendingUp,
-  TrendingDown,
   AlertTriangle,
   CheckCircle,
   Lightbulb,
@@ -27,6 +26,7 @@ interface RevenueBreakdown {
   revenue: string;
   ratio: string;
   growth: string;
+  dimension?: string;
 }
 
 interface Risk {
@@ -64,24 +64,41 @@ function parsePercentage(str: string): number {
   return match ? parseFloat(match[1]) : 0;
 }
 
+function formatMetricValue(value?: string): string {
+  if (!value || value === "{}" || value === "[]") return "";
+  if (value.includes("元/股")) return value;
+  const match = value.match(/^([\d,]+(?:\.\d+)?)元(?:人民币)?(.*)$/);
+  if (!match) return value;
+  const amount = Number(match[1].replaceAll(",", ""));
+  if (!Number.isFinite(amount)) return value;
+  if (Math.abs(amount) >= 100_000_000) {
+    return `${(amount / 100_000_000).toFixed(2)}亿元${match[2]}`;
+  }
+  return `${(amount / 10_000).toFixed(2)}万元${match[2]}`;
+}
+
+function breakdownDimension(item: RevenueBreakdown): string {
+  if (item.dimension) return item.dimension;
+  return /内销|出口|境内|境外|国内|海外/.test(item.segment) ? "地区构成" : "业务构成";
+}
+
 function PieChartSimple({ data }: { data: RevenueBreakdown[] }) {
   const total = data.reduce((sum, item) => {
     const ratio = parsePercentage(item.ratio);
     return sum + ratio;
   }, 0);
 
-  let currentAngle = 0;
-
   return (
     <div className="flex items-center gap-6">
-      <div className="relative w-40 h-40">
-        <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
+      <div className="relative size-40 shrink-0">
+        <svg viewBox="0 0 100 100" className="size-full -rotate-90">
           {data.map((item, index) => {
             const ratio = parsePercentage(item.ratio);
             const percentage = total > 0 ? (ratio / total) * 100 : 0;
             const angle = (percentage / 100) * 360;
-            const startAngle = currentAngle;
-            currentAngle += angle;
+            const startAngle = data
+              .slice(0, index)
+              .reduce((sum, prior) => sum + ((parsePercentage(prior.ratio) / (total || 1)) * 360), 0);
 
             const x1 = 50 + 45 * Math.cos((startAngle * Math.PI) / 180);
             const y1 = 50 + 45 * Math.sin((startAngle * Math.PI) / 180);
@@ -112,12 +129,10 @@ function PieChartSimple({ data }: { data: RevenueBreakdown[] }) {
           })}
         </svg>
       </div>
-      <div className="flex-1 space-y-2">
+      <div className="flex flex-1 flex-col gap-2">
         {data.map((item, index) => (
           <div key={index} className="flex items-center gap-2 text-sm">
-            <div
-              className={`w-3 h-3 rounded-full ${COLORS[index % COLORS.length]}`}
-            />
+            <div className={`size-3 rounded-full ${COLORS[index % COLORS.length]}`} />
             <span className="flex-1 truncate">{item.segment}</span>
             <span className="font-mono text-muted-foreground">{item.ratio}</span>
             {item.growth && (
@@ -147,8 +162,11 @@ function MetricCard({
   const isPositive = value.includes("+") || (value.includes("%") && !value.includes("-"));
   const isNegative = value.includes("-");
 
+  const displayValue = formatMetricValue(value);
+  if (!displayValue) return null;
+
   return (
-    <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+    <div className="flex flex-col gap-2 rounded-lg bg-muted/50 p-4">
       <div className="flex items-center gap-2 text-muted-foreground">
         <Icon className="h-4 w-4" />
         <span className="text-sm">{label}</span>
@@ -158,7 +176,7 @@ function MetricCard({
           isNegative ? "text-red-500" : isPositive ? "text-green-500" : ""
         }`}
       >
-        {value || "N/A"}
+        {displayValue}
       </p>
     </div>
   );
@@ -178,15 +196,28 @@ function RiskBadge({ level }: { level: string }) {
   );
 }
 
-export function ReportVisualization({ data, reportTitle }: ReportVisualizationProps) {
+export function ReportVisualization({ data }: ReportVisualizationProps) {
   if (!data || Object.keys(data).length === 0) {
     return null;
   }
 
   const { key_financials, revenue_breakdown, business_highlights, risks, outlook } = data;
+  const financials = key_financials
+    ? Object.fromEntries(
+        Object.entries(key_financials).map(([key, value]) => [key, formatMetricValue(value)])
+      ) as KeyFinancials
+    : undefined;
+  const breakdownGroups = (revenue_breakdown || []).reduce<Record<string, RevenueBreakdown[]>>(
+    (groups, item) => {
+      const dimension = breakdownDimension(item);
+      groups[dimension] = [...(groups[dimension] || []), item];
+      return groups;
+    },
+    {}
+  );
 
   const hasData =
-    (key_financials && Object.values(key_financials).some(Boolean)) ||
+    (financials && Object.values(financials).some(Boolean)) ||
     (revenue_breakdown && revenue_breakdown.length > 0) ||
     (business_highlights && business_highlights.length > 0) ||
     (risks && risks.length > 0) ||
@@ -199,7 +230,7 @@ export function ReportVisualization({ data, reportTitle }: ReportVisualizationPr
   return (
     <div className="space-y-4">
       {/* 关键财务指标 */}
-      {key_financials && Object.values(key_financials).some(Boolean) && (
+      {financials && Object.values(financials).some(Boolean) && (
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
@@ -209,23 +240,23 @@ export function ReportVisualization({ data, reportTitle }: ReportVisualizationPr
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {key_financials.revenue && (
-                <MetricCard label="营业收入" value={key_financials.revenue} icon={TrendingUp} />
+              {financials.revenue && (
+                <MetricCard label="营业收入" value={financials.revenue} icon={TrendingUp} />
               )}
-              {key_financials.net_profit && (
-                <MetricCard label="净利润" value={key_financials.net_profit} icon={TrendingUp} />
+              {financials.net_profit && (
+                <MetricCard label="净利润" value={financials.net_profit} icon={TrendingUp} />
               )}
-              {key_financials.gross_margin && (
-                <MetricCard label="毛利率" value={key_financials.gross_margin} icon={Target} />
+              {financials.gross_margin && (
+                <MetricCard label="毛利率" value={financials.gross_margin} icon={Target} />
               )}
-              {key_financials.net_margin && (
-                <MetricCard label="净利率" value={key_financials.net_margin} icon={Target} />
+              {financials.net_margin && (
+                <MetricCard label="净利率" value={financials.net_margin} icon={Target} />
               )}
-              {key_financials.roe && (
-                <MetricCard label="ROE" value={key_financials.roe} icon={TrendingUp} />
+              {financials.roe && (
+                <MetricCard label="ROE" value={financials.roe} icon={TrendingUp} />
               )}
-              {key_financials.eps && (
-                <MetricCard label="每股收益" value={key_financials.eps} icon={Target} />
+              {financials.eps && (
+                <MetricCard label="每股收益" value={financials.eps} icon={Target} />
               )}
             </div>
           </CardContent>
@@ -242,7 +273,17 @@ export function ReportVisualization({ data, reportTitle }: ReportVisualizationPr
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <PieChartSimple data={revenue_breakdown} />
+            <div className="grid gap-6 lg:grid-cols-2">
+              {Object.entries(breakdownGroups).map(([dimension, items]) => (
+                <section key={dimension} className="flex flex-col gap-3">
+                  <div>
+                    <h3 className="text-sm font-medium">{dimension}</h3>
+                    <p className="text-xs text-muted-foreground">同一统计口径内的占比合计约为 100%</p>
+                  </div>
+                  <PieChartSimple data={items} />
+                </section>
+              ))}
+            </div>
           </CardContent>
         </Card>
       )}

@@ -1,1 +1,996 @@
 {"timestamp": "2026-05-23T18:56:24.457431", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T18:56:53.675864", "level": "info", "message": "macrostream events cached", "cached_added": 60, "new_events": 60}
+{"timestamp": "2026-05-23T18:58:03.226518", "level": "info", "message": "feishu alert evaluated", "event_id": "macrostream:6a0ff9748416762100ff5c50", "dry_run": false, "sent": true}
+{"timestamp": "2026-05-23T18:58:28.291639", "level": "info", "message": "feishu alert evaluated", "event_id": "macrostream:6a1009cf8416762100ff5e95", "dry_run": false, "sent": true}
+{"timestamp": "2026-05-23T18:58:44.652902", "level": "info", "message": "feishu alert evaluated", "event_id": "macrostream:6a100d1d8416762100ff5f1d", "dry_run": false, "sent": true}
+{"timestamp": "2026-05-23T18:59:00.104926", "level": "info", "message": "feishu alert evaluated", "event_id": "macrostream:6a100d2e8416762100ff5f20", "dry_run": false, "sent": true}
+{"timestamp": "2026-05-23T18:59:14.958656", "level": "info", "message": "feishu alert evaluated", "event_id": "macrostream:6a100fa28416762100ff5f7f", "dry_run": false, "sent": true}
+{"timestamp": "2026-05-23T18:59:17.044164", "level": "info", "message": "analyze_once finished", "new_events": 60, "alerts": 5}
+{"timestamp": "2026-05-23T19:00:17.074326", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:00:30.660799", "level": "info", "message": "macrostream events cached", "cached_added": 33, "new_events": 1}
+{"timestamp": "2026-05-23T19:00:43.456622", "level": "info", "message": "analyze_once finished", "new_events": 1, "alerts": 0}
+{"timestamp": "2026-05-23T19:01:43.479244", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:01:46.549896", "level": "info", "message": "macrostream events cached", "cached_added": 1, "new_events": 1}
+{"timestamp": "2026-05-23T19:02:15.184293", "level": "info", "message": "analyze_once finished", "new_events": 1, "alerts": 0}
+{"timestamp": "2026-05-23T19:03:15.209727", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:03:17.958363", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:04:17.990221", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:04:19.904409", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:05:19.930992", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:05:22.206921", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:06:22.223716", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:06:24.175086", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:07:24.214073", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:07:27.167969", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:08:27.187628", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:08:29.102675", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:09:29.107100", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:09:30.979806", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:10:30.983810", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:10:33.282055", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:11:33.312277", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:11:35.236989", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:12:35.235873", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:12:37.478329", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:13:37.466344", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:13:39.401853", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:14:39.424663", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:14:41.494283", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:15:41.506409", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:15:43.651724", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:16:43.669863", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:16:46.178882", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:17:46.242452", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:17:48.541893", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:18:48.564960", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:18:51.042717", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:19:51.074452", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:19:52.965768", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:20:53.010376", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:20:54.985625", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:21:55.022208", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:21:56.973083", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:22:56.992795", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:22:58.917976", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:23:58.942347", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:24:00.845478", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:25:00.870756", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:25:02.740234", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:26:02.753980", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:26:04.858189", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:27:04.895986", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:27:06.801105", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:28:06.803444", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:28:08.740017", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:29:08.771954", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:29:10.811013", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:30:10.818368", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:30:13.938512", "level": "info", "message": "macrostream events cached", "cached_added": 1, "new_events": 1}
+{"timestamp": "2026-05-23T19:30:46.126310", "level": "info", "message": "feishu alert evaluated", "event_id": "macrostream:6a118fbc8416762100ff9375", "dry_run": false, "sent": true}
+{"timestamp": "2026-05-23T19:30:46.612984", "level": "info", "message": "analyze_once finished", "new_events": 1, "alerts": 1}
+{"timestamp": "2026-05-23T19:31:46.629549", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:31:48.753043", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:32:48.783934", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:32:51.469031", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:33:51.493561", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:33:54.142505", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:34:54.164462", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:34:56.351631", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:35:56.372257", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:35:59.894303", "level": "info", "message": "macrostream events cached", "cached_added": 1, "new_events": 1}
+{"timestamp": "2026-05-23T19:36:26.688642", "level": "info", "message": "feishu alert evaluated", "event_id": "macrostream:6a1190e68416762100ff939e", "dry_run": false, "sent": true}
+{"timestamp": "2026-05-23T19:36:27.380763", "level": "info", "message": "analyze_once finished", "new_events": 1, "alerts": 1}
+{"timestamp": "2026-05-23T19:37:27.388568", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:37:29.246827", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:38:29.279226", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:38:31.507799", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:39:31.535037", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:39:33.754545", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:40:33.757634", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:40:36.504457", "level": "info", "message": "macrostream events cached", "cached_added": 1, "new_events": 1}
+{"timestamp": "2026-05-23T19:40:58.572164", "level": "info", "message": "analyze_once finished", "new_events": 1, "alerts": 0}
+{"timestamp": "2026-05-23T19:41:58.578292", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:42:00.438796", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:43:00.460578", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:43:02.318993", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:44:02.338611", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:44:04.487123", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:45:04.518941", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:45:06.963069", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:46:06.981299", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:46:08.869791", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:47:08.898095", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:47:10.841205", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:48:10.884574", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:48:13.472744", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:49:13.506101", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:49:15.430999", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:50:15.450990", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:50:17.768680", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:51:17.835338", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:51:19.748988", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:52:19.791650", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:52:21.676536", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:53:21.687070", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:53:23.591734", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:54:23.601439", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:54:26.193729", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:55:26.225204", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:55:29.193071", "level": "info", "message": "macrostream events cached", "cached_added": 1, "new_events": 1}
+{"timestamp": "2026-05-23T19:55:56.054288", "level": "info", "message": "feishu alert evaluated", "event_id": "macrostream:6a1195998416762100ff9433", "dry_run": false, "sent": true}
+{"timestamp": "2026-05-23T19:55:56.706073", "level": "info", "message": "analyze_once finished", "new_events": 1, "alerts": 1}
+{"timestamp": "2026-05-23T19:56:56.736473", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:56:59.667941", "level": "info", "message": "macrostream events cached", "cached_added": 1, "new_events": 1}
+{"timestamp": "2026-05-23T19:57:13.239601", "level": "info", "message": "analyze_once finished", "new_events": 1, "alerts": 0}
+{"timestamp": "2026-05-23T19:58:13.299884", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:58:15.522542", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T19:59:15.537884", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T19:59:17.415851", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:00:17.443210", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:00:19.368594", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:01:19.393220", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:01:21.708890", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:02:21.739189", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:02:24.107828", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:03:24.146594", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:03:27.045624", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:04:27.084653", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:04:28.986036", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:05:29.014107", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:05:31.179189", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:06:31.201862", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:06:33.486626", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:07:33.528016", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:07:35.390132", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:08:35.426425", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:08:37.696049", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:09:37.728307", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:09:39.667425", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:10:39.679451", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:10:43.131755", "level": "info", "message": "macrostream events cached", "cached_added": 2, "new_events": 2}
+{"timestamp": "2026-05-23T20:11:41.580402", "level": "info", "message": "feishu alert evaluated", "event_id": "macrostream:6a11991a8416762100ff94ae", "dry_run": false, "sent": true}
+{"timestamp": "2026-05-23T20:11:42.005717", "level": "info", "message": "analyze_once finished", "new_events": 2, "alerts": 1}
+{"timestamp": "2026-05-23T20:12:42.000994", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:12:43.914358", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:13:43.940630", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:13:45.833596", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:14:45.865272", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:14:48.136162", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:15:48.139406", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:15:53.812097", "level": "info", "message": "macrostream events cached", "cached_added": 2, "new_events": 2}
+{"timestamp": "2026-05-23T20:16:08.286283", "level": "info", "message": "analyze_once finished", "new_events": 2, "alerts": 0}
+{"timestamp": "2026-05-23T20:17:08.328945", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:17:10.189755", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:18:10.192053", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:18:12.085740", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:19:12.091423", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:19:14.203546", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:20:14.222968", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:20:16.631640", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:21:16.657279", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:21:18.588595", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:22:18.620263", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:22:20.761910", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:23:20.790346", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:23:23.302153", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:24:23.311631", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:24:25.162111", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:25:25.198528", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:25:27.555939", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:26:27.588911", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:26:29.481831", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:27:29.526658", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:27:31.754250", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:28:31.787560", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:28:34.048420", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:29:34.062950", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:29:36.274617", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:30:36.306794", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:30:39.698973", "level": "info", "message": "macrostream events cached", "cached_added": 1, "new_events": 1}
+{"timestamp": "2026-05-23T20:30:52.445999", "level": "info", "message": "analyze_once finished", "new_events": 1, "alerts": 0}
+{"timestamp": "2026-05-23T20:31:52.471066", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:31:54.469655", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:32:54.491817", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:32:56.337297", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:33:56.342257", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:33:58.758194", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:34:58.783190", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:35:00.699468", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:36:00.720435", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:36:06.402986", "level": "info", "message": "macrostream events cached", "cached_added": 1, "new_events": 1}
+{"timestamp": "2026-05-23T20:37:28.473009", "level": "info", "message": "analyze_once finished", "new_events": 1, "alerts": 0}
+{"timestamp": "2026-05-23T20:38:28.499404", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:38:30.553585", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:39:30.582473", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:39:32.681320", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:40:32.699980", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:40:34.680526", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:41:34.709527", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:41:37.277760", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:42:37.333174", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:42:39.341790", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:43:39.361947", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:43:41.187391", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:44:41.231860", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:44:43.290654", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:45:43.308349", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:45:46.422881", "level": "info", "message": "macrostream events cached", "cached_added": 1, "new_events": 1}
+{"timestamp": "2026-05-23T20:46:40.463508", "level": "info", "message": "analyze_once finished", "new_events": 1, "alerts": 0}
+{"timestamp": "2026-05-23T20:47:40.527288", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:47:42.528106", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:48:42.556985", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:48:44.731339", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:49:44.768729", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:49:47.069470", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:50:47.134390", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:50:49.130093", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:51:49.146232", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:51:51.045248", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:52:51.083920", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:52:53.612099", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:53:53.632509", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:53:55.853236", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:54:55.880811", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:54:57.991428", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:55:58.028149", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:56:00.623959", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:57:00.659513", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:57:03.035224", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:58:03.093147", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:58:05.523429", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T20:59:05.548559", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T20:59:07.509095", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:00:07.525284", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:00:10.761798", "level": "info", "message": "macrostream events cached", "cached_added": 2, "new_events": 2}
+{"timestamp": "2026-05-23T21:00:39.866720", "level": "info", "message": "feishu alert evaluated", "event_id": "macrostream:6a11a4d48416762100ff9630", "dry_run": false, "sent": true}
+{"timestamp": "2026-05-23T21:00:41.092671", "level": "info", "message": "analyze_once finished", "new_events": 2, "alerts": 1}
+{"timestamp": "2026-05-23T21:01:41.136428", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:01:43.091285", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:02:43.135572", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:02:45.127533", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:03:45.155809", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:03:47.112168", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:04:47.147551", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:04:49.340696", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:05:49.367976", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:05:51.321418", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:06:51.352774", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:06:53.572419", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:07:53.602384", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:07:55.509264", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:08:55.541719", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:08:58.233774", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:09:58.260217", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:10:00.229066", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:11:00.268191", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:11:08.803611", "level": "info", "message": "macrostream events cached", "cached_added": 1, "new_events": 1}
+{"timestamp": "2026-05-23T21:11:38.697632", "level": "info", "message": "feishu alert evaluated", "event_id": "macrostream:6a11a72d8416762100ff967d", "dry_run": false, "sent": true}
+{"timestamp": "2026-05-23T21:11:39.464457", "level": "info", "message": "analyze_once finished", "new_events": 1, "alerts": 1}
+{"timestamp": "2026-05-23T21:12:39.508944", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:12:42.970291", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:13:42.990370", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:13:46.897333", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:14:46.926535", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:14:49.182787", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:15:49.200809", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:15:51.347421", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:16:51.366632", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:16:53.658111", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:17:53.675391", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:17:56.185796", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:18:56.225531", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:18:58.183685", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:19:58.191786", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:20:00.582290", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:21:00.639964", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:21:04.070295", "level": "info", "message": "macrostream events cached", "cached_added": 2, "new_events": 2}
+{"timestamp": "2026-05-23T21:21:50.373624", "level": "info", "message": "feishu alert evaluated", "event_id": "macrostream:6a11a9838416762100ff96cb", "dry_run": false, "sent": true}
+{"timestamp": "2026-05-23T21:22:02.577983", "level": "info", "message": "analyze_once finished", "new_events": 2, "alerts": 1}
+{"timestamp": "2026-05-23T21:23:02.650950", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:23:05.259300", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:24:05.272424", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:24:07.257160", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:25:07.275862", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:25:10.099259", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:26:10.164527", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:26:12.731359", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:27:12.767383", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:27:14.792341", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:28:14.818160", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:28:16.796557", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:29:16.819731", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:29:18.725876", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:30:18.757896", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:30:20.653871", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:31:20.670678", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:31:22.591539", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:32:22.617411", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:32:24.894258", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:33:24.914079", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:33:27.125435", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:34:27.146192", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:34:29.097783", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:35:29.122265", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:35:32.686553", "level": "info", "message": "macrostream events cached", "cached_added": 3, "new_events": 3}
+{"timestamp": "2026-05-23T21:36:03.757353", "level": "info", "message": "feishu alert evaluated", "event_id": "macrostream:6a11ad068416762100ff973e", "dry_run": false, "sent": true}
+{"timestamp": "2026-05-23T21:36:17.281284", "level": "info", "message": "feishu alert evaluated", "event_id": "macrostream:6a11ad0a8416762100ff9741", "dry_run": false, "sent": true}
+{"timestamp": "2026-05-23T21:36:18.285471", "level": "info", "message": "analyze_once finished", "new_events": 3, "alerts": 2}
+{"timestamp": "2026-05-23T21:37:18.309648", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:37:20.544419", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:38:20.583821", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:38:22.583455", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:39:22.606831", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:39:24.549846", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:40:24.572961", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:40:26.513774", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:41:26.558799", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:41:29.133201", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:42:29.155258", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:42:36.125180", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:43:36.161622", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:43:39.431092", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:44:39.447150", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:44:42.283889", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:45:43.449759", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:45:45.987142", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:46:46.000196", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:46:48.090804", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:47:48.114702", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:47:50.856919", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:48:50.915192", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:48:52.965367", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:49:52.980182", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:49:54.992039", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:50:55.005617", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:50:58.467606", "level": "info", "message": "macrostream events cached", "cached_added": 2, "new_events": 2}
+{"timestamp": "2026-05-23T21:51:35.912317", "level": "info", "message": "feishu alert evaluated", "event_id": "macrostream:6a11b08a8416762100ff97b6", "dry_run": false, "sent": true}
+{"timestamp": "2026-05-23T21:52:04.071418", "level": "info", "message": "feishu alert evaluated", "event_id": "macrostream:6a11b0918416762100ff97b9", "dry_run": false, "sent": true}
+{"timestamp": "2026-05-23T21:52:04.685036", "level": "info", "message": "analyze_once finished", "new_events": 2, "alerts": 2}
+{"timestamp": "2026-05-23T21:53:04.686407", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:53:06.938393", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:54:06.963822", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:54:08.896140", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:55:08.921909", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:55:12.389959", "level": "info", "message": "macrostream events cached", "cached_added": 1, "new_events": 1}
+{"timestamp": "2026-05-23T21:55:39.232878", "level": "info", "message": "feishu alert evaluated", "event_id": "macrostream:6a11b1b68416762100ff97df", "dry_run": false, "sent": true}
+{"timestamp": "2026-05-23T21:55:40.067957", "level": "info", "message": "analyze_once finished", "new_events": 1, "alerts": 1}
+{"timestamp": "2026-05-23T21:56:40.107901", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:56:42.196720", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:57:42.206194", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:57:44.359715", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:58:44.386809", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:58:46.872989", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T21:59:46.902507", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T21:59:48.795464", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:00:48.800814", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:00:51.549760", "level": "info", "message": "macrostream events cached", "cached_added": 1, "new_events": 1}
+{"timestamp": "2026-05-23T22:01:07.862777", "level": "info", "message": "analyze_once finished", "new_events": 1, "alerts": 0}
+{"timestamp": "2026-05-23T22:02:07.905431", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:02:10.436719", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:03:10.456562", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:03:12.388516", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:04:12.420777", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:04:14.631157", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:05:14.651743", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:05:18.816197", "level": "info", "message": "macrostream events cached", "cached_added": 1, "new_events": 1}
+{"timestamp": "2026-05-23T22:06:03.914450", "level": "info", "message": "feishu alert evaluated", "event_id": "macrostream:6a11b4108416762100ff982b", "dry_run": false, "sent": true}
+{"timestamp": "2026-05-23T22:06:16.577433", "level": "info", "message": "analyze_once finished", "new_events": 1, "alerts": 1}
+{"timestamp": "2026-05-23T22:07:16.635016", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:07:18.597100", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:08:18.630422", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:08:20.610333", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:09:20.641413", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:09:22.621983", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:10:22.643704", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:10:25.925963", "level": "info", "message": "macrostream events cached", "cached_added": 2, "new_events": 2}
+{"timestamp": "2026-05-23T22:11:04.184968", "level": "info", "message": "feishu alert evaluated", "event_id": "macrostream:6a11b53c8416762100ff9851", "dry_run": false, "sent": true}
+{"timestamp": "2026-05-23T22:11:05.645850", "level": "info", "message": "analyze_once finished", "new_events": 2, "alerts": 1}
+{"timestamp": "2026-05-23T22:12:05.659039", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:12:08.050272", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:13:08.109739", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:13:10.151765", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:14:10.176112", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:14:12.799256", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:15:12.868083", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:15:14.873005", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:16:14.895152", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:16:16.901613", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:17:16.910023", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:17:19.142628", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:18:19.163188", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:18:21.575622", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:19:21.600819", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:19:23.530338", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:20:23.553117", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:20:25.799254", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:21:25.823987", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:21:27.808287", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:22:27.838870", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:22:30.470289", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:23:30.541549", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:23:32.579402", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:24:32.610340", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:24:34.795576", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:25:34.824916", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:25:36.904785", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:26:36.930392", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:26:39.395336", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:27:39.411806", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:27:41.945958", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:28:41.971994", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:28:44.107537", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:29:44.139920", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:29:46.511645", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:30:46.556872", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:30:50.336621", "level": "info", "message": "macrostream events cached", "cached_added": 2, "new_events": 2}
+{"timestamp": "2026-05-23T22:31:23.732385", "level": "info", "message": "feishu alert evaluated", "event_id": "macrostream:6a11b9ef8416762100ff98ec", "dry_run": false, "sent": true}
+{"timestamp": "2026-05-23T22:31:24.060055", "level": "info", "message": "analyze_once finished", "new_events": 2, "alerts": 1}
+{"timestamp": "2026-05-23T22:32:24.066230", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:32:26.084080", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:33:26.113391", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:33:28.337567", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:34:28.377054", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:34:30.613825", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:35:30.647164", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:35:38.166475", "level": "info", "message": "macrostream events cached", "cached_added": 2, "new_events": 2}
+{"timestamp": "2026-05-23T22:36:08.817800", "level": "info", "message": "feishu alert evaluated", "event_id": "macrostream:6a11bb1a8416762100ff9915", "dry_run": false, "sent": true}
+{"timestamp": "2026-05-23T22:36:09.382614", "level": "info", "message": "analyze_once finished", "new_events": 2, "alerts": 1}
+{"timestamp": "2026-05-23T22:37:09.412371", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:37:11.821493", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:38:11.882619", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:38:13.849110", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:39:13.876436", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:39:15.817493", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:40:15.839920", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:40:19.156160", "level": "info", "message": "macrostream events cached", "cached_added": 1, "new_events": 1}
+{"timestamp": "2026-05-23T22:41:17.358561", "level": "info", "message": "feishu alert evaluated", "event_id": "macrostream:6a11bc438416762100ff993c", "dry_run": false, "sent": true}
+{"timestamp": "2026-05-23T22:41:33.197016", "level": "info", "message": "analyze_once finished", "new_events": 1, "alerts": 1}
+{"timestamp": "2026-05-23T22:42:33.216397", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:42:35.226410", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:43:35.260809", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:43:37.465471", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:44:37.494192", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:44:39.512205", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:45:39.544383", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:45:41.740509", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:46:41.770162", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:46:44.226568", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:47:44.270658", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:47:46.486457", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:48:46.514643", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:48:48.882964", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:49:48.908909", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:49:50.864362", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:50:50.896577", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:50:53.141303", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:51:53.197155", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:51:55.934041", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:52:55.994490", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:52:58.159540", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:53:58.201456", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:54:05.752998", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:55:05.817729", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:55:10.531300", "level": "info", "message": "macrostream events cached", "cached_added": 1, "new_events": 1}
+{"timestamp": "2026-05-23T22:55:28.784216", "level": "info", "message": "analyze_once finished", "new_events": 1, "alerts": 0}
+{"timestamp": "2026-05-23T22:56:28.813914", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:56:31.885556", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:57:31.897072", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:57:34.298067", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:58:34.314655", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:58:36.567797", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T22:59:36.594128", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T22:59:39.247199", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T23:00:39.272261", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T23:00:42.029528", "level": "info", "message": "macrostream events cached", "cached_added": 1, "new_events": 1}
+{"timestamp": "2026-05-23T23:00:59.195179", "level": "info", "message": "analyze_once finished", "new_events": 1, "alerts": 0}
+{"timestamp": "2026-05-23T23:01:59.220639", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T23:02:01.290671", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T23:03:01.316325", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T23:03:03.742617", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T23:04:03.737282", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T23:04:05.798151", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T23:05:05.839090", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T23:05:08.061388", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T23:06:08.091072", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T23:06:10.282323", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T23:07:10.283933", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T23:07:12.694040", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T23:08:12.724733", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T23:08:15.153541", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T23:09:15.176874", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T23:09:17.505534", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T23:10:17.544650", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T23:10:19.978767", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T23:11:20.001677", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T23:11:22.232097", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T23:12:22.266511", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T23:12:24.480685", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T23:13:24.490341", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T23:13:26.745617", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T23:14:26.769627", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T23:14:28.792149", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T23:15:28.820897", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T23:15:30.821434", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T23:16:30.849104", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T23:16:32.824445", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T23:17:32.845830", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T23:17:34.876412", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T23:18:34.898697", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T23:18:37.278494", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T23:19:37.278885", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T23:19:39.418046", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T23:20:39.451602", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T23:20:41.624421", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-23T23:21:41.632163", "level": "info", "message": "analyze_once started", "dry_run": false, "channels": ["flashes", "macro", "tech"], "limit": 20}
+{"timestamp": "2026-05-23T23:21:43.794591", "level": "info", "message": "analyze_once finished without new events"}
+{"timestamp": "2026-05-25T19:16:13.920893", "level": "info", "message": "实时盯盘已启动", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:16:17.822906", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:17:17.841279", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:17:20.629232", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:18:20.647314", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:18:23.186751", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:19:23.205027", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:19:25.636703", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:20:25.651441", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:20:28.202037", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:21:28.216731", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:21:30.827401", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:22:30.843368", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:22:33.598681", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:23:33.620420", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:23:36.300717", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:24:36.312614", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:24:38.902713", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:25:38.934567", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:25:41.409418", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:26:41.441890", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:26:43.888255", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:27:43.917001", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:27:46.721257", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:28:46.735433", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:28:49.233602", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:29:49.250101", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:29:51.780671", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:30:51.805733", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:30:54.304978", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:31:54.322774", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:31:58.149909", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:32:58.173581", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:33:03.105008", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:34:03.128129", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:34:06.545287", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:35:06.563825", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:35:09.639447", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:36:09.657803", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:36:13.016799", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:37:13.035149", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:37:16.452384", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:38:16.465206", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:38:19.629226", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:39:19.635262", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:39:22.690721", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:40:22.707309", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:40:25.818989", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:41:25.830906", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:41:29.260507", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:42:29.268888", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:42:32.955232", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:43:32.970388", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:43:36.154303", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:44:36.159945", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:44:39.367872", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:45:39.387578", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:45:42.340470", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:46:42.354909", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:46:45.856002", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:47:45.881821", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:47:51.131308", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:48:01.357898", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:48:05.164286", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:48:51.150392", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:48:54.671867", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:49:54.699871", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:49:58.574824", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:50:58.591865", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:51:02.098076", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:52:02.117444", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:52:05.343011", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:53:05.360324", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T19:53:08.887735", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T19:53:56.320286", "level": "info", "message": "实时盯盘已停止"}
+{"timestamp": "2026-05-25T20:00:02.033040", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:00:02.033040", "level": "info", "message": "实时盯盘已启动", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:00:05.528430", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:00:58.919918", "level": "info", "message": "实时盯盘已停止"}
+{"timestamp": "2026-05-25T20:01:22.562054", "level": "info", "message": "实时盯盘已启动", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:01:26.276766", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:02:26.286605", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:02:30.732526", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:03:30.754220", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:03:35.752909", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:04:35.769538", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:04:39.112556", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:05:39.131338", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:05:42.834199", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:06:42.859005", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:06:46.499407", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:07:46.523765", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:07:49.813040", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:08:49.824538", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:08:53.883221", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:09:53.898608", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:09:57.669824", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:10:57.682466", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:11:01.608488", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:12:01.628965", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:12:05.273389", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:13:05.291805", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:13:08.974916", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:14:08.994979", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:14:12.575912", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:15:12.594898", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:15:16.066318", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:16:16.082639", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:16:19.420588", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:17:19.438034", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:17:22.877326", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:18:22.891677", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:18:29.308738", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:19:29.325640", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:19:33.335005", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:20:33.356064", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:20:37.100859", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:21:37.125754", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:21:41.044246", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:22:41.066371", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:22:44.470878", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:23:44.484708", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:23:47.927235", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:24:47.946397", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:24:51.472704", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:25:51.484397", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:25:55.629664", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:26:55.646281", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:26:59.270942", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:27:59.294980", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:28:03.080403", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:28:31.028718", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:28:35.005432", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:29:03.090268", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:29:06.688738", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:30:06.711604", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:30:11.215190", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:31:11.236295", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:31:15.348306", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:32:15.358007", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:32:20.441309", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:33:20.457793", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:33:23.849332", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:34:23.860453", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:34:27.548419", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:35:27.561023", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:35:31.715572", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:36:31.729467", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:36:35.717971", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:42:18.162511", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:42:18.162511", "level": "info", "message": "实时盯盘已启动", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:42:22.267306", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:43:22.285077", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:43:26.575997", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:44:26.599688", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:44:30.427994", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:45:30.443364", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:45:34.959375", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:50:09.711630", "level": "info", "message": "实时盯盘已启动", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:50:09.711630", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:50:14.148777", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:51:14.179573", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:51:18.508129", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:52:18.522118", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:52:21.964220", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:53:21.975230", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:53:25.500385", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:54:25.510202", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:54:29.578586", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:55:29.610175", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:55:33.073228", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:56:33.093533", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:56:36.941071", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:57:36.956148", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:57:41.400909", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:58:41.418876", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:58:45.432291", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T20:59:45.460325", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T20:59:49.402878", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T21:00:49.416843", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:00:54.780090", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 0}
+{"timestamp": "2026-05-25T21:01:35.322032", "level": "info", "message": "实时盯盘已停止"}
+{"timestamp": "2026-05-25T21:02:14.459073", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:02:14.459073", "level": "info", "message": "实时盯盘已启动", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:02:59.454987", "level": "info", "message": "事件流刷新完成", "added": 60, "fetched": 60}
+{"timestamp": "2026-05-25T21:03:59.468394", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:04:03.183758", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T21:05:03.197911", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:05:06.954349", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T21:06:06.986371", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:06:33.485818", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T21:07:33.504513", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:07:38.166367", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T21:08:38.195158", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:08:42.689956", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T21:09:42.710444", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:09:46.246446", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T21:10:46.267743", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:10:57.593882", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T21:11:57.614008", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:12:01.398375", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T21:13:01.422378", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:13:05.620742", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T21:14:05.646658", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:14:19.576667", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T21:15:19.596428", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:15:23.710401", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T21:16:23.743864", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:16:27.284890", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T21:17:27.309471", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:17:32.054684", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T21:18:32.071688", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:20:52.874080", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T21:21:52.903718", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:23:45.686179", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T21:24:45.716274", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:24:49.176216", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T21:25:49.202144", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:26:58.185361", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T21:27:58.201418", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:30:22.437911", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T21:31:22.460085", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:31:26.242334", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T21:32:26.265216", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:32:42.324771", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T21:33:42.353847", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:33:46.049970", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T21:34:46.070226", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:34:49.428386", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T21:35:49.453259", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:35:53.602231", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T21:36:53.622464", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:36:56.398097", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T21:37:56.425781", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:40:17.373128", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T21:41:17.387185", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:41:30.935497", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T21:42:30.955510", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:42:51.357638", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T21:43:51.364161", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:43:56.110689", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T21:44:56.126018", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:45:00.909219", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T21:46:00.925863", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:46:04.519387", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T21:47:04.536223", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:47:07.956282", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T21:48:07.972110", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:48:12.803138", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T21:49:12.819188", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:49:15.791606", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T21:50:15.814589", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:51:55.202818", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T21:52:55.214433", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:53:00.242972", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T21:54:00.259688", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:54:04.553857", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T21:55:04.580998", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:55:17.657315", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T21:56:17.671530", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:56:34.265407", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T21:57:34.291297", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:57:37.199417", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T21:58:37.218197", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:58:41.959173", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T21:59:41.971661", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T21:59:45.848452", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T22:00:45.873304", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:00:49.305683", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T22:01:49.322636", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:02:02.610803", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T22:03:02.626069", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:03:06.639951", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T22:04:06.662818", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:04:09.948286", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T22:05:09.985689", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:05:15.160486", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T22:06:15.185789", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:06:23.930761", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T22:07:23.937933", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:09:46.336424", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T22:10:46.358772", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:11:01.559318", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T22:12:01.578178", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:12:06.015326", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T22:13:06.026213", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:13:09.540884", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T22:14:09.558982", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:14:13.498983", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T22:15:13.517421", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:20:53.715076", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T22:21:53.743634", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:26:02.004681", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T22:27:02.020784", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:27:17.657470", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T22:28:17.680511", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:30:15.263401", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T22:31:15.281988", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:31:19.027231", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T22:32:19.056988", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:32:24.501797", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T22:33:24.515459", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:33:39.716272", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T22:34:39.728770", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:34:43.511484", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T22:35:43.538048", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:35:48.743782", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T22:36:48.763407", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:37:01.060018", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T22:38:01.069875", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:38:05.810402", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T22:39:05.821287", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:39:11.881556", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T22:40:11.895189", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:40:15.264710", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T22:41:15.291454", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:41:20.336969", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T22:42:20.361845", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:42:25.081218", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T22:43:25.106244", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:43:30.533268", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T22:44:30.566205", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:44:34.042812", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T22:45:34.073352", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:47:16.908651", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T22:48:16.924626", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:48:20.052638", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T22:49:20.071377", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:49:36.225936", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T22:50:36.239755", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:50:45.321101", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T22:51:45.344429", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:51:50.669386", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T22:52:50.686146", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:52:54.584349", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T22:53:54.602309", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:54:10.137550", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T22:55:10.159605", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:55:16.151854", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T22:56:16.167178", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:56:20.148473", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T22:57:20.161776", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:57:42.551363", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T22:58:42.568244", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:58:46.012887", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T22:59:46.041614", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T22:59:50.939793", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:00:50.955513", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:00:56.702530", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:01:56.714126", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:02:11.468209", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T23:03:11.477656", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:03:15.297153", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:04:15.324397", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:04:20.180647", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:04:52.508619", "level": "info", "message": "实时盯盘已停止"}
+{"timestamp": "2026-05-25T23:05:20.613985", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:05:20.613985", "level": "info", "message": "实时盯盘已启动", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:05:42.553579", "level": "info", "message": "飞书提醒处理完成", "event_id": "macrostream:6a14652258e3453b3a8a241d", "sent": true, "dry_run": false, "deduped": false}
+{"timestamp": "2026-05-25T23:05:42.557483", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T23:06:42.577679", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:06:46.333473", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:07:46.353560", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:07:49.537478", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:07:52.560290", "level": "info", "message": "飞书提醒处理完成", "event_id": "macrostream:6a14633e58e3453b3a8a23db", "sent": true, "dry_run": false, "deduped": false}
+{"timestamp": "2026-05-25T23:08:49.556515", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:08:55.190885", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:09:55.212303", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:10:12.950038", "level": "info", "message": "飞书提醒处理完成", "event_id": "macrostream:6a14661558e3453b3a8a2423", "sent": true, "dry_run": false, "deduped": false}
+{"timestamp": "2026-05-25T23:10:12.954616", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T23:11:12.978174", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:11:16.718908", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:12:16.733121", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:12:20.276388", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:13:20.288228", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:13:24.304049", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:14:24.331020", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:14:28.479101", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:15:28.492896", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:17:51.358691", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T23:18:51.374653", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:19:04.936869", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T23:20:04.949035", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:20:09.828385", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:21:09.848217", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:21:14.690151", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:22:14.711020", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:22:33.947833", "level": "info", "message": "飞书提醒处理完成", "event_id": "macrostream:6a14691058e3453b3a8a2472", "sent": true, "dry_run": false, "deduped": false}
+{"timestamp": "2026-05-25T23:22:33.951743", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T23:23:33.972356", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:23:37.714736", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:24:37.730751", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:24:42.190842", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:25:42.213731", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:26:02.229873", "level": "info", "message": "飞书提醒处理完成", "event_id": "macrostream:6a1469ec58e3453b3a8a2492", "sent": true, "dry_run": false, "deduped": false}
+{"timestamp": "2026-05-25T23:26:02.233874", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T23:27:02.260559", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:27:07.932977", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:28:07.951177", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:28:12.669510", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:29:12.682307", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:29:26.002739", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T23:30:26.015318", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:30:30.281783", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:31:30.301283", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:31:36.327052", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:32:36.341592", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:32:39.560720", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:33:39.571346", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:33:43.004000", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:34:43.030547", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:34:46.660737", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:35:46.677817", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:36:02.469303", "level": "info", "message": "事件流刷新完成", "added": 2, "fetched": 60}
+{"timestamp": "2026-05-25T23:37:02.486764", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:37:05.526787", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:38:05.548391", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:38:08.963951", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:39:08.990003", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:39:13.230169", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:40:13.254107", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:40:18.981156", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:41:19.004146", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:41:22.532937", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:42:22.549495", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:42:26.610369", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:43:26.630269", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:43:34.228842", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:44:34.253029", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:44:47.905007", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T23:45:47.922287", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:45:51.182798", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:46:51.196784", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:46:55.034216", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:47:55.048238", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:50:56.975975", "level": "info", "message": "实时盯盘已停止"}
+{"timestamp": "2026-05-25T23:51:21.595262", "level": "info", "message": "实时盯盘已启动", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:51:21.595262", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:51:25.627339", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:52:25.656742", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:52:29.534132", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:53:29.566327", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:53:32.663825", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:54:32.689550", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:54:36.984703", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:55:36.997488", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:55:52.356324", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-25T23:56:52.366813", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:56:56.727540", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:57:56.751492", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:58:00.480447", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-25T23:59:00.503232", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-25T23:59:05.698340", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-26T00:00:05.726053", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-26T00:00:25.780130", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-26T00:01:25.805807", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-26T00:01:31.382019", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-26T00:02:31.393526", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-26T00:02:34.939981", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-26T00:03:34.959197", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-26T00:03:54.872462", "level": "info", "message": "飞书提醒处理完成", "event_id": "macrostream:6a1472ba58e3453b3a8a2570", "sent": true, "dry_run": false, "deduped": false}
+{"timestamp": "2026-05-26T00:03:54.878475", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}
+{"timestamp": "2026-05-26T00:04:54.893201", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-26T00:04:58.633159", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-26T00:05:58.658250", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-26T00:06:02.172061", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-26T00:07:02.178812", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-26T00:07:05.420977", "level": "info", "message": "事件流刷新完成", "added": 0, "fetched": 60}
+{"timestamp": "2026-05-26T00:08:05.430631", "level": "info", "message": "手动刷新事件流", "channels": ["flashes", "macro", "tech"], "dry_run": false}
+{"timestamp": "2026-05-26T00:12:13.758175", "level": "info", "message": "飞书提醒处理完成", "event_id": "macrostream:6a1473b658e3453b3a8a2591", "sent": true, "dry_run": false, "deduped": false}
+{"timestamp": "2026-05-26T00:12:13.761874", "level": "info", "message": "事件流刷新完成", "added": 1, "fetched": 60}

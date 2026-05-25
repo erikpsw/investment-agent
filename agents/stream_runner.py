@@ -198,7 +198,7 @@ class StreamingAnalysisRunner:
         ))
         
         try:
-            quote = self.fetcher.get_quote(ticker)
+            quote = await asyncio.to_thread(self.fetcher.get_quote, ticker)
             
             self._emit(StreamEvent(
                 event=EventType.TOOL_RESULT,
@@ -242,7 +242,7 @@ class StreamingAnalysisRunner:
         ))
         
         try:
-            history = self.fetcher.get_history(ticker, period="3mo", interval="1d")
+            history = await asyncio.to_thread(self.fetcher.get_history, ticker, period="3mo", interval="1d")
             
             if hasattr(history, 'empty') and history.empty:
                 return {"history_data": {}}
@@ -257,6 +257,133 @@ class StreamingAnalysisRunner:
             return {"history_data": {"period": "3mo", "count": len(history) if hasattr(history, '__len__') else 0}}
         except Exception as e:
             return {"errors": [f"获取历史数据失败: {str(e)}"]}
+
+    async def _fetch_recent_history(self, state: Dict) -> Dict:
+        """Fetch recent daily prices for report-side trend context."""
+        ticker = state.get("ticker", "")
+        self._emit(StreamEvent(
+            event=EventType.TOOL_CALL,
+            timestamp=self._now(),
+            tool="get_history",
+            input={"ticker": ticker, "period": "1mo", "interval": "1d"},
+        ))
+        try:
+            history = await asyncio.to_thread(self.fetcher.get_history, ticker, period="1mo", interval="1d")
+            if history is None or getattr(history, "empty", True):
+                self._emit(StreamEvent(
+                    event=EventType.TOOL_RESULT,
+                    timestamp=self._now(),
+                    tool="get_history",
+                    output={"status": "empty"},
+                ))
+                return {"recent_trend_data": {}}
+
+            close_key = "Close" if "Close" in history.columns else "close"
+            closes = [float(value) for value in history[close_key].tolist()]
+            dates = [str(value)[:10] for value in history.index.tolist()]
+
+            def pct_change(days: int) -> Optional[float]:
+                if len(closes) <= days:
+                    return None
+                return round((closes[-1] / closes[-days - 1] - 1) * 100, 2)
+
+            trend_data = {
+                "count": len(closes),
+                "latest_date": dates[-1] if dates else "",
+                "latest_close": round(closes[-1], 2),
+                "change_5d": pct_change(5),
+                "change_10d": pct_change(10),
+                "change_20d": pct_change(20),
+                "ma5": round(sum(closes[-5:]) / min(5, len(closes)), 2),
+                "ma20": round(sum(closes[-20:]) / min(20, len(closes)), 2),
+                "highest_close": round(max(closes), 2),
+                "lowest_close": round(min(closes), 2),
+            }
+            self._emit(StreamEvent(
+                event=EventType.TOOL_RESULT,
+                timestamp=self._now(),
+                tool="get_history",
+                output=trend_data,
+            ))
+            return {"recent_trend_data": trend_data}
+        except Exception as exc:
+            return {"errors": [f"获取近期走势失败: {str(exc)}"]}
+
+    async def _analyze_recent_trend(self, state: Dict) -> Dict:
+        """Convert recent daily prices into a concise, evidence-based trend note."""
+        trend = state.get("recent_trend_data") or {}
+        if not trend:
+            return {"technical_analysis": "近期走势数据暂不可用，无法判断短线趋势。"}
+
+        latest = float(trend.get("latest_close") or 0)
+        ma5 = float(trend.get("ma5") or 0)
+        ma20 = float(trend.get("ma20") or 0)
+        if latest > ma5 > ma20:
+            structure = "短中期均线呈多头结构，趋势偏强。"
+        elif latest < ma5 < ma20:
+            structure = "短中期均线呈空头结构，趋势偏弱。"
+        elif latest > ma20:
+            structure = "收盘仍在20日均线上方，但短线结构尚未完全确认。"
+        else:
+            structure = "收盘位于20日均线下方，需等待企稳信号。"
+
+        today_change = (state.get("price_data") or {}).get("change_percent")
+        chase_note = ""
+        if isinstance(today_change, (int, float)) and today_change >= 8:
+            chase_note = "\n\n当日涨幅已较大，不宜仅因单日拉升追价，优先观察回踩承接和后续成交持续性。"
+
+        def display_pct(value: Any) -> str:
+            return "--" if value is None else f"{float(value):+.2f}%"
+
+        text = f"""### 近期走势判断
+
+- 最近交易日收盘：{trend.get("latest_date")}，{latest:.2f} 元
+- 区间表现：5日 {display_pct(trend.get("change_5d"))}，10日 {display_pct(trend.get("change_10d"))}，20日 {display_pct(trend.get("change_20d"))}
+- 均线位置：MA5 {ma5:.2f} 元，MA20 {ma20:.2f} 元；{structure}
+- 近一月收盘区间：{float(trend.get("lowest_close") or 0):.2f} - {float(trend.get("highest_close") or 0):.2f} 元
+
+走势只用于辅助制定介入节奏，投资判断仍需以财报基本面和后续订单兑现为核心。{chase_note}"""
+        return {"technical_analysis": text}
+
+    async def _load_company_evidence(self, state: Dict) -> Dict:
+        """Load report chapters used by the final company analysis."""
+        ticker = state.get("ticker", "")
+        report_title = state.get("report_title", "")
+        evidence_parts: List[str] = []
+        try:
+            from ..agents.tools.pdf_analyzer import extract_section, get_text_path
+            text_path = get_text_path(ticker, report_title)
+            if not text_path.exists():
+                return {"company_evidence": state.get("pdf_content", "")}
+            full_text = text_path.read_text(encoding="utf-8")
+            for section_name in ("主营业务", "主营分析", "发展展望"):
+                self._emit(StreamEvent(
+                    event=EventType.TOOL_CALL,
+                    timestamp=self._now(),
+                    tool="read_report_section",
+                    input={"section_name": section_name},
+                ))
+                section_text = extract_section(full_text, section_name, max_chars=5000)
+                self._emit(StreamEvent(
+                    event=EventType.TOOL_RESULT,
+                    timestamp=self._now(),
+                    tool="read_report_section",
+                    output={
+                        "section_name": section_name,
+                        "characters": len(section_text),
+                        "preview": section_text[:100].replace("\n", " "),
+                    },
+                ))
+                if section_text:
+                    evidence_parts.append(f"【{section_name}】\n{section_text}")
+        except Exception as exc:
+            self._emit(StreamEvent(
+                event=EventType.TOOL_RESULT,
+                timestamp=self._now(),
+                tool="read_report_section",
+                output={"status": "error", "message": str(exc)[:160]},
+            ))
+        return {"company_evidence": "\n\n".join(evidence_parts) or state.get("pdf_content", "")}
     
     async def _fetch_financials(self, state: Dict) -> Dict:
         """获取财务数据"""
@@ -276,7 +403,7 @@ class StreamingAnalysisRunner:
         ))
         
         try:
-            metrics = self.fetcher.get_key_metrics(ticker)
+            metrics = await asyncio.to_thread(self.fetcher.get_key_metrics, ticker)
             
             self._emit(StreamEvent(
                 event=EventType.TOOL_RESULT,
@@ -776,6 +903,8 @@ class StreamingAnalysisRunner:
             ))
             
             for event in self._events:
+                if event.node is None:
+                    event.node = node_name
                 yield event.to_sse()
             self._events = []
             
@@ -826,6 +955,8 @@ class StreamingAnalysisRunner:
                 ))
             
             for event in self._events:
+                if event.node is None:
+                    event.node = node_name
                 yield event.to_sse()
             self._events = []
             
@@ -918,10 +1049,15 @@ class StreamingAnalysisRunner:
         state["pdf_url"] = pdf_url
         self._current_state = dict(state)
         
-        # 财报分析只需要：获取财务数据 + 分析PDF + 公司分析
+        # Combine report fundamentals with recent price context; the latter
+        # informs entry timing without replacing the report conclusion.
         nodes = [
+            ("fetch_data", self._fetch_price_data),
             ("fetch_financials", self._fetch_financials),
             ("fetch_pdf", self._fetch_pdf_report),
+            ("fetch_recent_history", self._fetch_recent_history),
+            ("recent_trend", self._analyze_recent_trend),
+            ("report_evidence", self._load_company_evidence),
             ("company_analysis", self._analyze_company),
         ]
         
@@ -938,6 +1074,8 @@ class StreamingAnalysisRunner:
             ))
             
             for event in self._events:
+                if event.node is None:
+                    event.node = node_name
                 yield event.to_sse()
             self._events = []
             
@@ -968,6 +1106,8 @@ class StreamingAnalysisRunner:
                 ))
             
             for event in self._events:
+                if event.node is None:
+                    event.node = node_name
                 yield event.to_sse()
             self._events = []
             
@@ -981,6 +1121,7 @@ class StreamingAnalysisRunner:
                 "confidence": self._current_state.get("confidence", 0),
                 "fundamental_analysis": self._current_state.get("fundamental_analysis", ""),
                 "company_analysis": self._current_state.get("company_analysis", ""),
+                "technical_analysis": self._current_state.get("technical_analysis", ""),
                 "key_metrics": self._current_state.get("key_metrics", {}),
                 "report_summary": self._current_state.get("report_summary", ""),
                 "report_data": self._current_state.get("report_data", {}),
@@ -1038,7 +1179,8 @@ class StreamingAnalysisRunner:
         try:
             from ..agents.tools.pdf_analyzer import (
                 download_pdf, extract_text_from_pdf, get_analysis_path,
-                locate_sections, extract_key_sections
+                get_text_path, locate_sections, extract_key_sections,
+                normalize_report_data
             )
             import json
             
@@ -1049,6 +1191,10 @@ class StreamingAnalysisRunner:
                 print(f"[PDF] Cache exists: {analysis_path.exists()}", flush=True)
                 if analysis_path.exists():
                     cached = json.loads(analysis_path.read_text(encoding="utf-8"))
+                    text_path = get_text_path(ticker, report_title)
+                    cached_text = text_path.read_text(encoding="utf-8") if text_path.exists() else ""
+                    cached = normalize_report_data(cached, cached_text)
+                    analysis_path.write_text(json.dumps(cached, ensure_ascii=False, indent=2), encoding="utf-8")
                     self._emit(StreamEvent(
                         event=EventType.TOOL_RESULT,
                         timestamp=self._now(),
@@ -1066,7 +1212,7 @@ class StreamingAnalysisRunner:
                     
                     return {
                         "report_summary": cached.get("summary", ""),
-                        "pdf_content": "",
+                        "pdf_content": extract_key_sections(cached_text)[:12000] if cached_text else "",
                         "report_data": structured_data,
                         "messages": [{
                             "role": "pdf_analyzer",
@@ -1157,6 +1303,7 @@ class StreamingAnalysisRunner:
             structured_data = await self._ai_extract_report_data(
                 ticker, stock_name, report_title, key_content
             )
+            structured_data = normalize_report_data(structured_data, full_text)
             
             print(f"[PDF] AI extraction result:")
             print(f"  - summary: {str(structured_data.get('summary', 'NONE'))[:50]}...")
@@ -1194,7 +1341,7 @@ class StreamingAnalysisRunner:
             
             return {
                 "report_summary": structured_data.get("summary", ""),
-                "pdf_content": key_content[:3000],
+                "pdf_content": key_content[:12000],
                 "report_data": structured_data,
                 "messages": [{
                     "role": "pdf_analyzer",
@@ -1451,7 +1598,8 @@ class StreamingAnalysisRunner:
 
         try:
             print(f"[AI_EXTRACT] Calling LLM...")
-            result_text = self.llm.chat(
+            result_text = await asyncio.to_thread(
+                self.llm.chat,
                 prompt,
                 system_prompt="你是财报数据提取专家，能准确从长篇财报中定位并提取关键财务数据。",
                 temperature=0.2,
@@ -1499,6 +1647,9 @@ class StreamingAnalysisRunner:
         key_metrics = state.get("key_metrics", {})
         report_summary = state.get("report_summary", "")
         pdf_content = state.get("pdf_content", "")
+        report_data = state.get("report_data", {})
+        trend_analysis = state.get("technical_analysis", "")
+        evidence_text = state.get("company_evidence", "") or pdf_content
         
         # 获取公司名称
         price_data = state.get("price_data", {})
@@ -1515,8 +1666,14 @@ class StreamingAnalysisRunner:
 ## 财报内容摘要
 {report_summary or "暂无"}
 
-{f"## 财报详细内容（节选）" if pdf_content else ""}
-{pdf_content[:3000] if pdf_content else ""}
+## 已核实的结构化财报事实
+{json.dumps(report_data, ensure_ascii=False, indent=2)[:6000] if report_data else "暂无"}
+
+## 近期走势辅助信息
+{trend_analysis or "暂无"}
+
+{f"## 已读取的财报章节证据" if evidence_text else ""}
+{evidence_text[:14000] if evidence_text else ""}
 
 ---
 
@@ -1552,13 +1709,20 @@ class StreamingAnalysisRunner:
 - 行业发展趋势
 - 公司战略展望
 
-**注意：本分析专注于公司基本面，不涉及股价技术分析和短期走势预测。**"""
+### 7. 投资结论与操作框架
+- 给出明确结论：关注/等待验证/谨慎回避，不得只写标题
+- 列出决定投资判断的 3 个验证指标
+- 给出适合的建仓前提、需要止损或退出的基本面条件
+
+**注意：本分析专注于公司基本面，不涉及股价技术分析和短期走势预测。结论必须写完整，不要停在标题。**"""
 
         try:
-            analysis = self.llm.chat(
+            analysis = await asyncio.to_thread(
+                self.llm.chat,
                 prompt,
                 system_prompt="你是一位专业的公司分析师，擅长从财务报表中提取关键信息，客观分析公司的商业模式、竞争力和发展前景。请基于数据给出专业、详细、客观的分析。",
                 temperature=0.3,
+                max_tokens=4200,
             )
             
             return {

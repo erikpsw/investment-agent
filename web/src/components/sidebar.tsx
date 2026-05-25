@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -10,6 +10,9 @@ import {
   FileText,
   Settings,
   TrendingUp,
+  Target,
+  Activity,
+  Layers3,
   PanelLeftClose,
   PanelLeft,
 } from "lucide-react";
@@ -28,19 +31,18 @@ const navigation = [
   { name: "仪表盘", href: "/", icon: LayoutDashboard },
   { name: "行情搜索", href: "/search", icon: Search },
   { name: "个股分析", href: "/stock", icon: LineChart },
+  { name: "实时盯盘", href: "/watchlist/monitor", icon: Activity },
+  { name: "板块分析", href: "/sectors", icon: Layers3 },
+  { name: "AI选股", href: "/stock-picker", icon: Target },
   { name: "财报数据", href: "/financials", icon: FileText },
 ];
 
 export function Sidebar() {
   const pathname = usePathname();
-  const [collapsed, setCollapsed] = useState(false);
-
-  useEffect(() => {
-    const saved = localStorage.getItem("sidebar-collapsed");
-    if (saved !== null) {
-      setCollapsed(saved === "true");
-    }
-  }, []);
+  const [collapsed, setCollapsed] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return localStorage.getItem("sidebar-collapsed") === "true";
+  });
 
   const toggleCollapse = () => {
     const newState = !collapsed;
@@ -49,7 +51,7 @@ export function Sidebar() {
   };
 
   return (
-    <TooltipProvider delayDuration={0}>
+    <TooltipProvider delay={0}>
       <div
         className={cn(
           "flex h-full flex-col border-r bg-background transition-all duration-300",
@@ -107,9 +109,7 @@ export function Sidebar() {
               if (collapsed) {
                 return (
                   <Tooltip key={item.name}>
-                    <TooltipTrigger asChild>
-                      {navItem}
-                    </TooltipTrigger>
+                    <TooltipTrigger render={navItem} />
                     <TooltipContent side="right">
                       <p>{item.name}</p>
                     </TooltipContent>
@@ -145,14 +145,14 @@ export function Sidebar() {
         <div className={cn("border-t", collapsed ? "p-2" : "p-4")}>
           {collapsed ? (
             <Tooltip>
-              <TooltipTrigger asChild>
+              <TooltipTrigger render={
                 <Link
                   href="/settings"
                   className="flex items-center justify-center rounded-md p-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
                 >
                   <Settings className="h-4 w-4" />
                 </Link>
-              </TooltipTrigger>
+              } />
               <TooltipContent side="right">
                 <p>设置</p>
               </TooltipContent>

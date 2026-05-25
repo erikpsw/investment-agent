@@ -21,6 +21,7 @@ for d in [PDF_DIR, TEXT_DIR, ANALYSIS_DIR]:
 SECTION_PATTERNS = [
     # A股年报 - 简体中文
     (r"第[一二三四五六七八九十]+节\s*公司基本情况", "公司概况"),
+    (r"第[一二三四五六七八九十]+节\s*公司简介和主要财务指标", "财务摘要"),
     (r"第[一二三四五六七八九十]+节\s*会计数据和财务指标摘要", "财务摘要"),
     (r"第[一二三四五六七八九十]+节\s*管理层讨论与分析", "管理层分析"),
     (r"第[一二三四五六七八九十]+节\s*公司治理", "公司治理"),
@@ -30,6 +31,8 @@ SECTION_PATTERNS = [
     (r"主要财务指标", "财务指标"),
     (r"营业收入构成", "收入构成"),
     (r"主营业务分析", "主营分析"),
+    (r"报告期内公司从事的主要业务", "主营业务"),
+    (r"公司未来发展的展望", "发展展望"),
     (r"资产负债表", "资产负债"),
     (r"利润表", "利润表"),
     (r"现金流量表", "现金流"),
@@ -186,15 +189,26 @@ def extract_text_from_pdf(pdf_path: Path, ticker: str, report_title: str) -> Opt
 
 def locate_sections(text: str) -> Dict[str, Tuple[int, int]]:
     """定位文档中的关键章节"""
-    sections = {}
-    
+    section_starts: Dict[str, int] = {}
+
     for pattern, name in SECTION_PATTERNS:
         matches = list(re.finditer(pattern, text, re.IGNORECASE))
         if matches:
-            start = matches[0].start()
-            end = matches[-1].end() + 5000
-            sections[name] = (start, min(end, len(text)))
-    
+            body_matches = [
+                match for match in matches
+                if not re.search(r"\.{5,}", text[max(0, match.start() - 100):match.end() + 100])
+            ]
+            match = body_matches[0] if body_matches else matches[-1]
+            existing = section_starts.get(name)
+            if existing is None or match.start() < existing:
+                section_starts[name] = match.start()
+
+    ordered = sorted(section_starts.items(), key=lambda item: item[1])
+    sections: Dict[str, Tuple[int, int]] = {}
+    for index, (name, start) in enumerate(ordered):
+        end = ordered[index + 1][1] if index + 1 < len(ordered) else len(text)
+        sections[name] = (start, end)
+
     return sections
 
 
@@ -215,19 +229,19 @@ def extract_section(text: str, section_name: str, max_chars: int = 8000) -> str:
     return ""
 
 
-def extract_key_sections(text: str, max_total: int = 25000) -> str:
+def extract_key_sections(text: str, max_total: int = 45000) -> str:
     """提取关键章节用于分析"""
     priority_sections = [
-        "财务摘要", "财务回顾", "业务分部", "收入构成", 
-        "会计数据", "财务指标", "主营分析", 
-        "主席报告", "CEO报告", "风险",
+        "财务摘要", "会计数据", "财务指标", "主营业务",
+        "主营分析", "收入构成", "业务分部", "财务回顾",
+        "发展展望", "主席报告", "CEO报告", "风险",
     ]
     
     extracted = []
     total_len = 0
     
     for section in priority_sections:
-        content = extract_section(text, section, max_chars=4000)
+        content = extract_section(text, section, max_chars=6000)
         if content and total_len + len(content) < max_total:
             extracted.append(f"【{section}】\n{content}")
             total_len += len(content)
@@ -258,6 +272,117 @@ def extract_key_sections(text: str, max_total: int = 25000) -> str:
         extracted.append(text[start_pos:start_pos + max_total])
     
     return "\n\n".join(extracted)
+
+
+def _format_yuan(value: float) -> str:
+    """Use compact display units for CNY statement figures."""
+    if abs(value) >= 100_000_000:
+        return f"{value / 100_000_000:.2f}亿元"
+    if abs(value) >= 10_000:
+        return f"{value / 10_000:.2f}万元"
+    return f"{value:.2f}元"
+
+
+def _amount(match: Optional[re.Match[str]], index: int = 1) -> Optional[float]:
+    if not match:
+        return None
+    try:
+        return float(match.group(index).replace(",", ""))
+    except (ValueError, IndexError):
+        return None
+
+
+def extract_a_share_statement_facts(text: str) -> Dict[str, str]:
+    """Extract deterministic annual-report headline figures from common A-share tables."""
+    compact = re.sub(r"\s+", "", text or "")
+    facts: Dict[str, str] = {}
+
+    def with_sign(value: str) -> str:
+        return value if value.startswith(("+", "-")) else f"+{value}"
+
+    revenue_match = re.search(
+        r"营业收入（元）\s+([\d,]+\.\d+)\s+[\d,]+\.\d+\s+([-+]?\d+(?:\.\d+)?%)",
+        text,
+    ) or re.search(
+        r"营业收入（元）([\d,]+\.\d+)[\d,]+\.\d+([-+]?\d+(?:\.\d+)?%)",
+        compact,
+    )
+    revenue = _amount(revenue_match)
+    if revenue is not None and revenue_match:
+        facts["revenue"] = f"{_format_yuan(revenue)}，同比{with_sign(revenue_match.group(2))}"
+
+    profit_patterns = [
+        r"归属于上市公司股东\s*\n\s*([\d,]+\.\d+)\s+[\d,]+\.\d+\s+([-+]?\d+(?:\.\d+)?%)\s+[\d,]+\.\d+\s*\n\s*的净利润（元）",
+        r"归属于上市公司股东的净利润（元）([\d,]+\.\d+)[\d,]+\.\d+([-+]?\d+(?:\.\d+)?%)",
+        r"归属于上市公司股东([\d,]+\.\d+)[\d,]+\.\d+([-+]?\d+(?:\.\d+)?%)[\d,]+\.\d+的净利润（元）",
+    ]
+    profit_match = next((match for pattern in profit_patterns if (match := re.search(pattern, text))), None)
+    if profit_match is None:
+        profit_match = next((match for pattern in profit_patterns[1:] if (match := re.search(pattern, compact))), None)
+    net_profit = _amount(profit_match)
+    if net_profit is not None and profit_match:
+        facts["net_profit"] = f"{_format_yuan(net_profit)}，同比{with_sign(profit_match.group(2))}"
+
+    eps_match = re.search(
+        r"基本每股收益（元/\s*([\d.]+)\s+[\d.]+\s+([-+]?\d+(?:\.\d+)?%)[\s\S]{0,12}股）",
+        text,
+    ) or re.search(
+        r"基本每股收益（元/股）([\d.]+)[\d.]+([-+]?\d+(?:\.\d+)?%)",
+        compact,
+    )
+    if eps_match:
+        facts["eps"] = f"{float(eps_match.group(1)):.2f}元/股，同比{with_sign(eps_match.group(2))}"
+
+    roe_match = re.search(r"加权平均净资产收益\s*([-+]?\d+(?:\.\d+)?%)[^\n]*\n?\s*率", text) or re.search(
+        r"加权平均净资产收益率([-+]?\d+(?:\.\d+)?%)", compact
+    )
+    if roe_match:
+        facts["roe"] = roe_match.group(1)
+
+    if revenue and net_profit:
+        facts["net_margin"] = f"{net_profit / revenue * 100:.2f}%"
+    cost_match = re.search(r"其中：营业成本\s+([\d,]+\.\d+)", text)
+    operating_cost = _amount(cost_match)
+    if revenue and operating_cost:
+        facts["gross_margin"] = f"{(revenue - operating_cost) / revenue * 100:.2f}%"
+
+    return facts
+
+
+def normalize_report_data(data: Dict[str, Any], text: str = "") -> Dict[str, Any]:
+    """Complete deterministic metrics and label incompatible revenue dimensions."""
+    result = dict(data or {})
+    financials = dict(result.get("key_financials") or {})
+    extracted_facts: Dict[str, str] = {}
+    if text:
+        extracted_facts = extract_a_share_statement_facts(text)
+        financials.update(extracted_facts)
+
+    for key, value in list(financials.items()):
+        if not isinstance(value, str):
+            continue
+        match = re.match(r"^([\d,]+(?:\.\d+)?)元(?:人民币)?(.*)$", value.strip())
+        if match:
+            financials[key] = f"{_format_yuan(float(match.group(1).replace(',', '')))}{match.group(2)}"
+
+    result["key_financials"] = financials
+    if extracted_facts.get("revenue") and extracted_facts.get("net_profit"):
+        result["summary"] = (
+            f"营业收入{extracted_facts['revenue']}；"
+            f"归母净利润{extracted_facts['net_profit']}；"
+            f"净利率{extracted_facts.get('net_margin', '--')}。"
+        )
+    normalized_breakdown = []
+    for item in result.get("revenue_breakdown") or []:
+        normalized = dict(item)
+        segment = str(normalized.get("segment") or "")
+        normalized["dimension"] = (
+            "地区构成" if any(keyword in segment for keyword in ("内销", "出口", "境内", "境外", "国内", "海外"))
+            else "业务构成"
+        )
+        normalized_breakdown.append(normalized)
+    result["revenue_breakdown"] = normalized_breakdown
+    return result
 
 
 def analyze_pdf_report(

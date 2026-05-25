@@ -32,6 +32,11 @@ const NODE_LABELS: Record<string, string> = {
   sentiment: "市场情绪分析",
   risk: "风险评估",
   synthesize: "生成投资建议",
+  fetch_pdf: "读取财报与提取数据",
+  company_analysis: "公司基本面与投资结论",
+  fetch_recent_history: "获取近期走势",
+  recent_trend: "研判近期趋势",
+  report_evidence: "读取基本面章节",
 };
 
 const NODE_ICONS: Record<string, string> = {
@@ -43,6 +48,11 @@ const NODE_ICONS: Record<string, string> = {
   sentiment: "💭",
   risk: "⚠️",
   synthesize: "🎯",
+  fetch_pdf: "📄",
+  company_analysis: "🏢",
+  fetch_recent_history: "📉",
+  recent_trend: "📈",
+  report_evidence: "📚",
 };
 
 export function InlineSteps({ steps, events, isRunning }: InlineStepsProps) {
@@ -71,7 +81,7 @@ export function InlineSteps({ steps, events, isRunning }: InlineStepsProps) {
   }, [events]);
 
   const completedCount = steps.filter((s) => s.status === "completed").length;
-  const totalSteps = 8;
+  const totalSteps = steps.length || 1;
 
   return (
     <Card>
@@ -109,9 +119,10 @@ export function InlineSteps({ steps, events, isRunning }: InlineStepsProps) {
           {steps.map((step) => {
             const nodeEvents = eventsByNode[step.node] || [];
             const toolCalls = nodeEvents.filter((e) => e.event === "tool_call");
+            const toolResults = nodeEvents.filter((e) => e.event === "tool_result");
             const thinkings = nodeEvents.filter((e) => e.event === "thinking");
             const errors = nodeEvents.filter((e) => e.event === "error");
-            const hasDetails = toolCalls.length > 0 || thinkings.length > 0 || errors.length > 0;
+            const hasDetails = toolCalls.length > 0 || toolResults.length > 0 || thinkings.length > 0 || errors.length > 0;
             const isExpanded = expandedSteps.has(step.node);
 
             return (
@@ -195,6 +206,20 @@ export function InlineSteps({ steps, events, isRunning }: InlineStepsProps) {
                             <span className="text-muted-foreground ml-1">
                               ({JSON.stringify(tc.input)})
                             </span>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+
+                    {toolResults.map((result, i) => (
+                      <div key={`result-${i}`} className="flex items-start gap-2 rounded-md bg-muted p-2 text-xs">
+                        <CheckCircle2 className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary" />
+                        <div className="min-w-0">
+                          <span className="font-mono text-muted-foreground">{result.tool}</span>
+                          {result.output && (
+                            <pre className="mt-1 whitespace-pre-wrap break-all text-muted-foreground">
+                              {JSON.stringify(result.output, null, 2)}
+                            </pre>
                           )}
                         </div>
                       </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useRef, useEffect, useState, useMemo } from "react";
+import { use, useRef, useEffect, useState, useMemo, useCallback } from "react";
 import {
   ArrowLeft,
   Play,
@@ -19,7 +19,7 @@ import {
   Loader2,
   AlertCircle,
   TrendingUp,
-  RefreshCw,
+  Printer,
   X,
 } from "lucide-react";
 import Link from "next/link";
@@ -90,7 +90,6 @@ export default function AnalysisPage({ params }: PageProps) {
     finalResult,
     isRunning,
     error,
-    streamingContent,
     startAnalysis,
     startReportAnalysis,
     reset,
@@ -115,19 +114,7 @@ export default function AnalysisPage({ params }: PageProps) {
     startReportAnalysis(decodedTicker, report.title, report.period || "", report.url || "");
   };
 
-  useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
-    }
-  }, [steps, finalResult]);
-
-  useEffect(() => {
-    if (activeTab === "reports") {
-      fetchReports();
-    }
-  }, [activeTab, reportType, decodedTicker]);
-
-  const fetchReports = async () => {
+  const fetchReports = useCallback(async () => {
     setReportsLoading(true);
     setReportsError(null);
     try {
@@ -143,7 +130,19 @@ export default function AnalysisPage({ params }: PageProps) {
     } finally {
       setReportsLoading(false);
     }
-  };
+  }, [decodedTicker, reportType]);
+
+  useEffect(() => {
+    if (scrollRef.current) {
+      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    }
+  }, [steps, finalResult]);
+
+  useEffect(() => {
+    if (activeTab === "reports") {
+      void fetchReports();
+    }
+  }, [activeTab, fetchReports]);
 
   const handleStartAnalysis = () => {
     if (selectedReport) {
@@ -165,9 +164,25 @@ export default function AnalysisPage({ params }: PageProps) {
     reset();
   };
 
+  const handlePrintReport = () => {
+    const previousTitle = document.title;
+    const stockLabel = quote?.name || decodedTicker;
+    const reportLabel = selectedReport?.title ? `_${toSimplified(selectedReport.title)}` : "";
+    document.title = `${stockLabel}_${decodedTicker}${reportLabel}_分析报告`;
+    const restoreTitle = () => {
+      document.title = previousTitle;
+      window.removeEventListener("afterprint", restoreTitle);
+    };
+    window.addEventListener("afterprint", restoreTitle);
+    window.print();
+    window.setTimeout(restoreTitle, 1000);
+  };
+
   return (
     <>
-      <Header onSearchClick={() => setSearchOpen(true)} />
+      <div className="print:hidden">
+        <Header onSearchClick={() => setSearchOpen(true)} />
+      </div>
       <StockSearch open={searchOpen} onOpenChange={setSearchOpen} />
       
       {selectedReport && (
@@ -181,8 +196,8 @@ export default function AnalysisPage({ params }: PageProps) {
         />
       )}
 
-      <div className="flex-1 flex flex-col h-[calc(100vh-64px)]">
-        <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 p-4">
+      <div className="flex h-[calc(100vh-64px)] flex-1 flex-col print:h-auto">
+        <div className="border-b bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 print:hidden">
           <div className="flex items-center gap-4">
             <Link href={`/stock/${encodeURIComponent(decodedTicker)}`}>
               <Button variant="ghost" size="icon">
@@ -218,6 +233,12 @@ export default function AnalysisPage({ params }: PageProps) {
                       重新分析
                     </Button>
                   )}
+                  {finalResult && (
+                    <Button variant="outline" onClick={handlePrintReport}>
+                      <Printer data-icon="inline-start" />
+                      导出报告
+                    </Button>
+                  )}
                   {isRunning && (
                     <Badge variant="secondary" className="animate-pulse">
                       <Activity className="h-3 w-3 mr-1" />
@@ -247,7 +268,7 @@ export default function AnalysisPage({ params }: PageProps) {
           onValueChange={setActiveTab}
           className="flex-1 flex flex-col min-h-0"
         >
-          <div className="border-b px-6 py-2 shrink-0">
+          <div className="shrink-0 border-b px-6 py-2 print:hidden">
             <TabsList>
               <TabsTrigger value="analysis" className="gap-2">
                 <Sparkles className="h-4 w-4" />
@@ -260,10 +281,10 @@ export default function AnalysisPage({ params }: PageProps) {
             </TabsList>
           </div>
 
-          <div className="flex-1 flex overflow-hidden">
-            <TabsContent value="analysis" className="flex-1 m-0 min-h-0 flex flex-col">
-              <ScrollArea className="flex-1" ref={scrollRef}>
-                <div className="max-w-4xl mx-auto p-6 space-y-4">
+          <div className="flex flex-1 overflow-hidden print:block print:overflow-visible">
+            <TabsContent value="analysis" className="m-0 flex min-h-0 flex-1 flex-col print:block">
+              <ScrollArea className="flex-1 print:overflow-visible" ref={scrollRef}>
+                <div className="mx-auto flex max-w-4xl flex-col gap-4 p-6 print:max-w-none print:p-0">
                   {/* 显示正在分析的财报 */}
                   {selectedReport && (isRunning || finalResult || steps.length > 0) && (
                     <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 flex items-center gap-3">
@@ -281,7 +302,7 @@ export default function AnalysisPage({ params }: PageProps) {
                       <Button
                         variant="ghost"
                         size="sm"
-                        className="ml-auto"
+                        className="ml-auto print:hidden"
                         onClick={() => setSelectedReport(null)}
                       >
                         <X className="h-4 w-4" />
@@ -303,7 +324,7 @@ export default function AnalysisPage({ params }: PageProps) {
                             </>
                           ) : (
                             <>
-                              点击"开始分析"按钮，AI 将对 {quote?.name || decodedTicker}{" "}
+                              点击“开始分析”按钮，AI 将对 {quote?.name || decodedTicker}{" "}
                               进行多维度深度分析，包括技术面、基本面、市场情绪和风险评估。
                             </>
                           )}
@@ -317,7 +338,9 @@ export default function AnalysisPage({ params }: PageProps) {
                   )}
 
                   {(isRunning || steps.length > 0) && (
-                    <InlineSteps steps={steps} events={events} isRunning={isRunning} />
+                    <div className="print:hidden">
+                      <InlineSteps steps={steps} events={events} isRunning={isRunning} />
+                    </div>
                   )}
 
                   {error && (
@@ -380,7 +403,7 @@ export default function AnalysisPage({ params }: PageProps) {
                       {finalResult.output?.technical_analysis && (
                         <Card>
                           <CardHeader>
-                            <CardTitle>技术面分析</CardTitle>
+                            <CardTitle>{selectedReport ? "近期走势分析" : "技术面分析"}</CardTitle>
                           </CardHeader>
                           <CardContent>
                             <MarkdownContent content={finalResult.output.technical_analysis} />
@@ -411,7 +434,7 @@ export default function AnalysisPage({ params }: PageProps) {
                       )}
 
                       {/* AI 追问对话框 */}
-                      <Card>
+                      <Card className="print:hidden">
                         <CardContent className="pt-4">
                           <InlineChat
                             context={{
@@ -569,7 +592,7 @@ export default function AnalysisPage({ params }: PageProps) {
 
             <div
               className={cn(
-                "border-l transition-all duration-300 overflow-hidden shrink-0",
+                "shrink-0 overflow-hidden border-l transition-all duration-300 print:hidden",
                 sidebarOpen ? "w-80" : "w-0"
               )}
             >

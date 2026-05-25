@@ -128,3 +128,21 @@
     @apply font-sans;
   }
 }
+
+@media print {
+  aside,
+  [data-slot="scroll-area-scrollbar"] {
+    display: none !important;
+  }
+
+  [data-slot="scroll-area"],
+  [data-slot="scroll-area-viewport"] {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  body,
+  main {
+    overflow: visible !important;
+  }
+}
