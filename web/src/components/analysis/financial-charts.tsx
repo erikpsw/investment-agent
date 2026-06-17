@@ -267,7 +267,10 @@ export function FinancialCharts({ ticker, stockName }: FinancialChartsProps) {
   const latestData = data.length > 0 ? data[data.length - 1] : null;
   const prevData = data.length > 1 ? data[data.length - 2] : null;
 
-  const getChange = (current: number | null, previous: number | null) => {
+  const getChange = (
+    current: number | null | undefined,
+    previous: number | null | undefined
+  ) => {
     if (current == null || previous == null || previous === 0) return null;
     return ((current - previous) / Math.abs(previous)) * 100;
   };

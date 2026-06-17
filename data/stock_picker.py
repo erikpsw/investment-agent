@@ -18,10 +18,6 @@ from typing import Any, Dict, List, Optional
 import pandas as pd
 import requests
 
-from investment.agents.llm import get_llm_client
-from investment.data.news_fetcher import get_stock_news
-from investment.data.stock_fetcher import StockFetcher
-
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 STORAGE_DIR = PROJECT_ROOT / "storage" / "stock_picker"
@@ -248,6 +244,8 @@ def _value(row: pd.Series, *names: str) -> Optional[float]:
 
 class StockPickerService:
     def __init__(self) -> None:
+        from investment.data.stock_fetcher import StockFetcher
+
         self.fetcher = StockFetcher()
         self.last_macrostream_errors: List[str] = []
 
@@ -552,6 +550,8 @@ class StockPickerService:
             return f"财务指标获取失败：{str(exc)[:80]}"
 
     def _recent_news(self, ticker: str, name: str, market: str) -> List[Dict[str, Any]]:
+        from investment.data.news_fetcher import get_stock_news
+
         rows = self._call_with_timeout(
             lambda: get_stock_news(ticker, stock_name=name, market=market, limit=3),
             timeout=ENRICH_TIMEOUT_SECONDS,
@@ -1027,6 +1027,8 @@ class StockPickerService:
         if not events:
             return "离线期间没有足够重要的新增事件。"
         try:
+            from investment.agents.llm import get_llm_client
+
             llm = get_llm_client()
             prompt = f"""请用中文总结我离线期间新增的重点市场事件，并说明对美股潜力股选股的影响。
 重点关注：AI、半导体、存储、量子、卫星通信、商业航天、军工、伊朗/霍尔木兹/原油。
@@ -1087,6 +1089,8 @@ class StockPickerService:
         notes: str,
     ) -> Dict[str, Any]:
         try:
+            from investment.agents.llm import get_llm_client
+
             llm = get_llm_client()
             prompt = f"""请作为谨慎型选股 Agent，基于候选评分输出 JSON。
 目标：选出有潜力、不追高、风险低、确定性更大的标的。A股只推荐普通沪深主板，不推荐科创板 sh688 或创业板 sz300/sz301。美股不要只推荐 NVDA/TSM/XOM 这类普通大票；优先从 ASTS/AXTI/BB/NOK/RKLB/LUNR/IONQ/RGTI/SOUN/BBAI/LAES/ENVX/AEHR/AMBA/INDI/HIMX 这类小众高弹性池里找机会。不要编造数据。每个推荐都必须解释公司做什么、基本面是否支持、近期新闻/事件是否有催化，以及为什么现在不是追高。

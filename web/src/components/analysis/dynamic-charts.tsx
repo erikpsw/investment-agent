@@ -65,10 +65,14 @@ function getColor(index: number, customColor?: string): string {
 }
 
 function formatValue(value: unknown, unit?: string): string {
-  if (typeof value !== "number") return String(value);
+  if (typeof value !== "number") return String(value ?? "--");
   
   const formatted = formatLargeNumber(value);
   return unit ? `${formatted}${unit}` : formatted;
+}
+
+function formatTooltipValue(value: unknown, unit?: string): string {
+  return formatValue(value, unit);
 }
 
 function SingleChart({ config }: { config: ChartConfig }) {
@@ -92,7 +96,7 @@ function SingleChart({ config }: { config: ChartConfig }) {
                 className="text-muted-foreground"
               />
               <Tooltip 
-                formatter={(value: number) => formatValue(value, unit)}
+                formatter={(value) => formatTooltipValue(value, unit)}
                 contentStyle={{
                   backgroundColor: "hsl(var(--background))",
                   border: "1px solid hsl(var(--border))",
@@ -132,7 +136,7 @@ function SingleChart({ config }: { config: ChartConfig }) {
                 className="text-muted-foreground"
               />
               <Tooltip 
-                formatter={(value: number) => formatValue(value, unit)}
+                formatter={(value) => formatTooltipValue(value, unit)}
                 contentStyle={{
                   backgroundColor: "hsl(var(--background))",
                   border: "1px solid hsl(var(--border))",
@@ -169,7 +173,7 @@ function SingleChart({ config }: { config: ChartConfig }) {
                 className="text-muted-foreground"
               />
               <Tooltip 
-                formatter={(value: number) => formatValue(value, unit)}
+                formatter={(value) => formatTooltipValue(value, unit)}
                 contentStyle={{
                   backgroundColor: "hsl(var(--background))",
                   border: "1px solid hsl(var(--border))",
@@ -201,7 +205,7 @@ function SingleChart({ config }: { config: ChartConfig }) {
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                label={({ name, percent }) => `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`}
                 outerRadius={80}
                 dataKey={metrics[0]?.key || "value"}
                 nameKey="name"
@@ -211,7 +215,7 @@ function SingleChart({ config }: { config: ChartConfig }) {
                 ))}
               </Pie>
               <Tooltip 
-                formatter={(value: number) => formatValue(value, unit)}
+                formatter={(value) => formatTooltipValue(value, unit)}
                 contentStyle={{
                   backgroundColor: "hsl(var(--background))",
                   border: "1px solid hsl(var(--border))",
@@ -239,7 +243,7 @@ function SingleChart({ config }: { config: ChartConfig }) {
                 className="text-muted-foreground"
               />
               <Tooltip 
-                formatter={(value: number) => formatValue(value, unit)}
+                formatter={(value) => formatTooltipValue(value, unit)}
                 contentStyle={{
                   backgroundColor: "hsl(var(--background))",
                   border: "1px solid hsl(var(--border))",

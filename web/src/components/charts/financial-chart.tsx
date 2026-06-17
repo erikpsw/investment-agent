@@ -25,7 +25,7 @@ interface FinancialChartProps {
 }
 
 function formatLargeNumber(value: number | null): string {
-  if (value === null) return "-";
+  if (value == null) return "-";
   const absValue = Math.abs(value);
   if (absValue >= 1e8) {
     return `${(value / 1e8).toFixed(2)}亿`;
@@ -35,8 +35,8 @@ function formatLargeNumber(value: number | null): string {
   return value.toFixed(2);
 }
 
-function formatPercent(value: number | null): string {
-  if (value === null) return "-";
+function formatPercent(value: number | null | undefined): string {
+  if (value == null) return "-";
   return `${(value * 100).toFixed(2)}%`;
 }
 
@@ -127,11 +127,12 @@ export function RevenueChart({ data, isLoading }: FinancialChartProps) {
                 border: "1px solid hsl(var(--border))",
                 borderRadius: "8px",
               }}
-              formatter={(value: number, name: string) => {
+              formatter={(value, name) => {
+                const formatted = typeof value === "number" ? value.toFixed(2) : "--";
                 if (name === "营业收入" || name === "净利润") {
-                  return [`${value?.toFixed(2)}亿`, name];
+                  return [`${formatted}亿`, name];
                 }
-                return [`${value?.toFixed(2)}%`, name];
+                return [`${formatted}%`, name];
               }}
             />
             <Legend />
@@ -222,7 +223,10 @@ export function ProfitabilityChart({ data, isLoading }: FinancialChartProps) {
                 border: "1px solid hsl(var(--border))",
                 borderRadius: "8px",
               }}
-              formatter={(value: number) => [`${value?.toFixed(2)}%`, ""]}
+              formatter={(value) => [
+                typeof value === "number" ? `${value.toFixed(2)}%` : "--",
+                "",
+              ]}
             />
             <Legend />
             <Line 

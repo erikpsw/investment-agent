@@ -137,7 +137,7 @@ def migrate_to_supabase(df: pd.DataFrame, batch_size: int = 500):
     from supabase import create_client
     
     url = os.getenv("SUPABASE_URL")
-    key = os.getenv("SUPABASE_ANON_KEY")
+    key = os.getenv("SUPABASE_ANON_KEY") or os.getenv("SUPABASE_KEY")
     
     if not url or not key:
         raise ValueError("Please set SUPABASE_URL and SUPABASE_ANON_KEY environment variables")

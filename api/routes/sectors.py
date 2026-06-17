@@ -1,12 +1,14 @@
 """Fast sector/theme dashboard derived from the screened stock universe."""
 from __future__ import annotations
 
+import json
 from collections import defaultdict
+from pathlib import Path
 from typing import Any
 
 from fastapi import APIRouter
 
-from investment.data.stock_picker import CANDIDATE_POOL, _is_buyable_cn_ticker, get_stock_picker_service
+from investment.data.stock_picker import CANDIDATE_POOL, PROJECT_ROOT, _is_buyable_cn_ticker
 
 
 router = APIRouter()
@@ -30,7 +32,7 @@ def _stock_summary(item: dict[str, Any]) -> dict[str, Any]:
 
 @router.get("/sectors")
 async def list_sectors():
-    results = get_stock_picker_service().read_results(limit=1)
+    results = _read_latest_results()
     latest = results[-1] if results else {}
     latest_items: dict[str, dict[str, Any]] = {}
     for group in ("recommendations", "watch_only", "avoid"):
@@ -77,3 +79,22 @@ async def list_sectors():
 def _average(items: list[dict[str, Any]], key: str) -> float | None:
     values = [float(item[key]) for item in items if isinstance(item.get(key), (int, float))]
     return round(sum(values) / len(values), 2) if values else None
+
+
+def _read_latest_results() -> list[dict[str, Any]]:
+    path = Path(PROJECT_ROOT) / "storage" / "stock_picker" / "results.jsonl"
+    if not path.exists():
+        return []
+    try:
+        lines = [line for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    except Exception:
+        return []
+    results: list[dict[str, Any]] = []
+    for line in lines[-1:]:
+        try:
+            value = json.loads(line)
+        except Exception:
+            continue
+        if isinstance(value, dict):
+            results.append(value)
+    return results

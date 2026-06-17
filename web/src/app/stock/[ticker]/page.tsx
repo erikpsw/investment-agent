@@ -222,12 +222,10 @@ export default function StockDetailPage({ params }: PageProps) {
                 <CardTitle>快捷操作</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <Link href={`/stock/${encodeURIComponent(decodedTicker)}/analysis`}>
-                  <Button className="w-full">
-                    <Bot className="h-4 w-4 mr-2" />
-                    AI 深度分析
-                  </Button>
-                </Link>
+                <Button className="w-full" disabled>
+                  <Bot className="h-4 w-4 mr-2" />
+                  AI 深度分析暂不可用
+                </Button>
                 <Button className="w-full" variant="outline">
                   添加到自选
                 </Button>
@@ -266,4 +264,3 @@ function MetricRow({
     </div>
   );
 }
-

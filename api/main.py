@@ -21,6 +21,9 @@ except ImportError:
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+if os.getenv("SUPABASE_KEY") and not os.getenv("SUPABASE_ANON_KEY"):
+    os.environ["SUPABASE_ANON_KEY"] = os.environ["SUPABASE_KEY"]
+
 from investment.api.routes import quotes, search, history, financials, analysis, reports, financial_history, report_analysis, pdf_analysis, news, foreign_reports, disclosure, stock_picker, monitor, sectors
 
 

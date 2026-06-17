@@ -10,8 +10,6 @@ import {
   FileText,
   Settings,
   TrendingUp,
-  Target,
-  Activity,
   Layers3,
   PanelLeftClose,
   PanelLeft,
@@ -31,9 +29,7 @@ const navigation = [
   { name: "仪表盘", href: "/", icon: LayoutDashboard },
   { name: "行情搜索", href: "/search", icon: Search },
   { name: "个股分析", href: "/stock", icon: LineChart },
-  { name: "实时盯盘", href: "/watchlist/monitor", icon: Activity },
   { name: "板块分析", href: "/sectors", icon: Layers3 },
-  { name: "AI选股", href: "/stock-picker", icon: Target },
   { name: "财报数据", href: "/financials", icon: FileText },
 ];
 

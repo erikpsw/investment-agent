@@ -5,8 +5,6 @@ from .akshare_client import AKShareClient
 from .sina_client import SinaClient
 from .ashare_client import AshareQuoteClient, get_ashare_client
 from .stock_search import StockSearch, get_stock_search, search_stock, resolve_stock
-from .sec_edgar_client import SECEdgarClient
-from .hkex_client import HKEXClient
 
 __all__ = [
     "StockFetcher",
@@ -20,6 +18,4 @@ __all__ = [
     "get_stock_search",
     "search_stock",
     "resolve_stock",
-    "SECEdgarClient",
-    "HKEXClient",
 ]
