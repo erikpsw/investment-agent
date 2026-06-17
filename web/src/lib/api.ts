@@ -195,6 +195,38 @@ export interface SectorItem {
   stocks?: StockPickItem[];
 }
 
+export interface FormulaRankingItem {
+  ticker: string;
+  name?: string;
+  market?: string;
+  theme?: string;
+  profile?: string;
+  formula_score: number;
+  recommendation: string;
+  original_score?: number | null;
+  price?: number | null;
+  change_5d?: number | null;
+  change_20d?: number | null;
+  distance_to_high_20d?: number | null;
+  distance_to_ma20?: number | null;
+  volatility_20d?: number | null;
+  today_change_percent?: number | null;
+  action?: string;
+  reasons?: string[];
+  risks?: string[];
+  components?: Record<string, number>;
+}
+
+export interface FormulaRankingResult {
+  generated_at?: string | null;
+  market: string;
+  mode: "balanced" | "conservative" | "aggressive";
+  formula: string;
+  items: FormulaRankingItem[];
+  total: number;
+  source: string;
+}
+
 class ApiClient {
   private baseUrl: string;
 
@@ -320,6 +352,19 @@ class ApiClient {
 
   async getSectors(): Promise<{ status: string; result: { generated_at?: string; sectors: SectorItem[]; coverage_count: number; source: string } }> {
     return this.fetch<{ status: string; result: { generated_at?: string; sectors: SectorItem[]; coverage_count: number; source: string } }>("/api/sectors");
+  }
+
+  async getFormulaRanking(
+    market: "CN" | "US" | "HK" | "all" = "CN",
+    limit = 30,
+    mode: "balanced" | "conservative" | "aggressive" = "balanced"
+  ): Promise<{ status: string; result: FormulaRankingResult }> {
+    const params = new URLSearchParams({
+      market,
+      limit: limit.toString(),
+      mode,
+    });
+    return this.fetch<{ status: string; result: FormulaRankingResult }>(`/api/formula-ranking?${params}`);
   }
 
   async getFinancials(ticker: string): Promise<FinancialMetrics> {

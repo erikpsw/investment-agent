@@ -11,6 +11,7 @@ import {
   Settings,
   TrendingUp,
   Layers3,
+  Target,
   PanelLeftClose,
   PanelLeft,
 } from "lucide-react";
@@ -30,6 +31,7 @@ const navigation = [
   { name: "行情搜索", href: "/search", icon: Search },
   { name: "个股分析", href: "/stock", icon: LineChart },
   { name: "板块分析", href: "/sectors", icon: Layers3 },
+  { name: "公式选股", href: "/stock-picker", icon: Target },
   { name: "财报数据", href: "/financials", icon: FileText },
 ];
 

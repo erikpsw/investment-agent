@@ -1,13 +1,269 @@
 "use client";
 
-import { VercelLiteUnavailable } from "@/components/vercel-lite-unavailable";
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { Calculator, Loader2, RefreshCw, Target } from "lucide-react";
+import { Header } from "@/components/header";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { api, type FormulaRankingItem, type FormulaRankingResult } from "@/lib/api";
+import { cn } from "@/lib/utils";
 
-export default function StockPickerPage() {
+type Market = "CN" | "US" | "HK" | "all";
+type Mode = "balanced" | "conservative" | "aggressive";
+
+const markets: Array<{ value: Market; label: string }> = [
+  { value: "CN", label: "A股" },
+  { value: "US", label: "美股" },
+  { value: "HK", label: "港股" },
+  { value: "all", label: "全部" },
+];
+
+const modes: Array<{ value: Mode; label: string }> = [
+  { value: "balanced", label: "均衡" },
+  { value: "conservative", label: "稳健" },
+  { value: "aggressive", label: "进攻" },
+];
+
+function percent(value?: number | null) {
+  if (value == null) return "--";
+  return `${value > 0 ? "+" : ""}${value.toFixed(2)}%`;
+}
+
+function PercentValue({ value }: { value?: number | null }) {
   return (
-    <VercelLiteUnavailable
-      title="AI选股暂未在 Vercel 轻量版开放"
-      description="AI选股会调用长任务 Agent、LLM、新闻聚合和本地结果存储，不适合直接运行在当前 Vercel Python Function 部署中。"
-    />
+    <span
+      className={cn(
+        "font-medium tabular-nums",
+        value != null && value > 0 && "text-green-600",
+        value != null && value < 0 && "text-red-600"
+      )}
+    >
+      {percent(value)}
+    </span>
   );
 }
 
+function scoreTone(score: number) {
+  if (score >= 78) return "text-green-600";
+  if (score >= 65) return "text-amber-600";
+  return "text-muted-foreground";
+}
+
+function recommendationVariant(value: string) {
+  if (value.includes("优先")) return "default";
+  if (value.includes("观察")) return "secondary";
+  return "outline";
+}
+
+function formatTime(value?: string | null) {
+  if (!value) return "--";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleString("zh-CN", { hour12: false });
+}
+
+function topRisk(item: FormulaRankingItem) {
+  if (item.risks?.length) return item.risks[0];
+  return item.action || "--";
+}
+
+export default function StockPickerPage() {
+  const [market, setMarket] = useState<Market>("CN");
+  const [mode, setMode] = useState<Mode>("balanced");
+  const [data, setData] = useState<FormulaRankingResult | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const response = await api.getFormulaRanking(market, 40, mode);
+      setData(response.result);
+      setMessage("");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "加载公式排名失败");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void load();
+  }, [market, mode]);
+
+  const topItems = data?.items || [];
+  const priorityCount = useMemo(
+    () => topItems.filter((item) => item.recommendation.includes("优先")).length,
+    [topItems]
+  );
+
+  return (
+    <>
+      <Header />
+      <main className="flex flex-1 flex-col gap-6 p-6">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">公式选股排名</h1>
+            <p className="text-muted-foreground">
+              基于最近一次候选池数据，用固定公式给股票排序，适合 Vercel 轻量版快速筛选。
+            </p>
+          </div>
+          <Button variant="outline" onClick={load} disabled={loading}>
+            {loading ? <Loader2 data-icon="inline-start" className="animate-spin" /> : <RefreshCw data-icon="inline-start" />}
+            刷新
+          </Button>
+        </div>
+
+        <div className="flex flex-wrap gap-3">
+          <div className="flex rounded-md border p-1">
+            {markets.map((item) => (
+              <Button
+                key={item.value}
+                type="button"
+                size="sm"
+                variant={market === item.value ? "secondary" : "ghost"}
+                onClick={() => setMarket(item.value)}
+              >
+                {item.label}
+              </Button>
+            ))}
+          </div>
+          <div className="flex rounded-md border p-1">
+            {modes.map((item) => (
+              <Button
+                key={item.value}
+                type="button"
+                size="sm"
+                variant={mode === item.value ? "secondary" : "ghost"}
+                onClick={() => setMode(item.value)}
+              >
+                {item.label}
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {message && <div className="rounded-lg border px-4 py-3 text-sm">{message}</div>}
+
+        <div className="grid gap-4 md:grid-cols-4">
+          <Card>
+            <CardHeader>
+              <CardDescription>候选股票</CardDescription>
+              <CardTitle className="text-2xl">{data?.total ?? "--"}</CardTitle>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardDescription>优先关注</CardDescription>
+              <CardTitle className="text-2xl">{priorityCount}</CardTitle>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardDescription>数据时间</CardDescription>
+              <CardTitle className="text-sm">{formatTime(data?.generated_at)}</CardTitle>
+            </CardHeader>
+          </Card>
+          <Card>
+            <CardHeader>
+              <CardDescription>数据来源</CardDescription>
+              <CardTitle className="text-sm">{data?.source || "--"}</CardTitle>
+            </CardHeader>
+          </Card>
+        </div>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calculator />公式口径
+            </CardTitle>
+            <CardDescription>{data?.formula || "正在加载公式口径"}</CardDescription>
+          </CardHeader>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Target />推荐排名
+            </CardTitle>
+            <CardDescription>点击股票名称进入个股行情、K 线和财务数据。</CardDescription>
+          </CardHeader>
+          <CardContent className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-14">排名</TableHead>
+                  <TableHead>股票</TableHead>
+                  <TableHead>主题</TableHead>
+                  <TableHead>公式分</TableHead>
+                  <TableHead>建议</TableHead>
+                  <TableHead>5日</TableHead>
+                  <TableHead>20日</TableHead>
+                  <TableHead>距高点</TableHead>
+                  <TableHead>MA20</TableHead>
+                  <TableHead>波动</TableHead>
+                  <TableHead className="min-w-48">风险/动作</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loading && !topItems.length ? (
+                  <TableRow>
+                    <TableCell colSpan={11} className="h-24 text-center text-muted-foreground">
+                      <Loader2 className="mx-auto mb-2 h-5 w-5 animate-spin" />
+                      正在计算排名
+                    </TableCell>
+                  </TableRow>
+                ) : topItems.length ? (
+                  topItems.map((item, index) => (
+                    <TableRow key={`${item.market}-${item.ticker}`}>
+                      <TableCell className="font-medium tabular-nums">{index + 1}</TableCell>
+                      <TableCell>
+                        <Link href={`/stock/${item.ticker}`} className="font-medium hover:underline">
+                          {item.name || item.ticker}
+                        </Link>
+                        <div className="text-xs text-muted-foreground">{item.ticker}</div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="max-w-32 truncate">{item.theme || "--"}</div>
+                      </TableCell>
+                      <TableCell>
+                        <span className={cn("text-lg font-semibold tabular-nums", scoreTone(item.formula_score))}>
+                          {item.formula_score.toFixed(1)}
+                        </span>
+                        {item.original_score != null && (
+                          <div className="text-xs text-muted-foreground">原始 {item.original_score.toFixed(0)}</div>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        <Badge variant={recommendationVariant(item.recommendation)}>
+                          {item.recommendation}
+                        </Badge>
+                      </TableCell>
+                      <TableCell><PercentValue value={item.change_5d} /></TableCell>
+                      <TableCell><PercentValue value={item.change_20d} /></TableCell>
+                      <TableCell><PercentValue value={item.distance_to_high_20d} /></TableCell>
+                      <TableCell><PercentValue value={item.distance_to_ma20} /></TableCell>
+                      <TableCell>{percent(item.volatility_20d)}</TableCell>
+                      <TableCell className="max-w-64">
+                        <div className="line-clamp-2 text-sm text-muted-foreground">{topRisk(item)}</div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={11} className="h-24 text-center text-muted-foreground">
+                      暂无可排名标的
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </main>
+    </>
+  );
+}

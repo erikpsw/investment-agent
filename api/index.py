@@ -31,6 +31,7 @@ from investment.api.routes import (
     disclosure,
     financial_history,
     financials,
+    formula_ranking,
     history,
     news,
     quotes,
@@ -79,6 +80,7 @@ app.include_router(financials.router, prefix="/api", tags=["financials"])
 app.include_router(financial_history.router, prefix="/api", tags=["financial-history"])
 app.include_router(news.router, prefix="/api", tags=["news"])
 app.include_router(sectors.router, prefix="/api", tags=["sectors"])
+app.include_router(formula_ranking.router, prefix="/api", tags=["formula-ranking"])
 app.include_router(disclosure.router, prefix="/api", tags=["disclosure"])
 
 
