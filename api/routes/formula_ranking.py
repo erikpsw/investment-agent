@@ -30,13 +30,7 @@ async def formula_ranking(
     if market.upper() == "CN":
         try:
             scan = scan_cn_market()
-            enriched_rows = enrich_stock_history(scan["rows"], limit=min(30, max(20, limit + 10)))
-            enriched = [
-                item
-                for item in enriched_rows
-                if all(isinstance(item.get(key), (int, float)) for key in ("change_5d", "change_20d", "change_60d"))
-            ][:limit]
-            ranked = [_rank_live_item(item, mode) for item in enriched]
+            ranked = [_rank_live_item(item, mode) for item in scan["rows"]]
             ranked.sort(key=lambda item: item["formula_score"], reverse=True)
             return {
                 "status": "ok",
@@ -48,7 +42,7 @@ async def formula_ranking(
                     "items": ranked[:limit],
                     "total": len(ranked),
                     "scanned_count": len(scan["rows"]),
-                    "history_enriched_count": len(enriched),
+                    "history_enriched_count": 0,
                     "cached": scan["cached"],
                     "fallback": False,
                     "source": "东方财富沪深 A 股全市场快照（10分钟缓存）",
@@ -77,6 +71,33 @@ async def formula_ranking(
             "fallback": True,
             "fallback_reason": fallback_error,
             "source": "历史候选缓存 + 固定公式排序（全市场行情不可用时降级）",
+        },
+    }
+
+
+@router.get("/formula-ranking/history")
+async def formula_ranking_history(
+    tickers: str = Query(..., min_length=1),
+    mode: FormulaMode = Query("balanced"),
+):
+    wanted = [item.strip() for item in tickers.split(",") if item.strip()][:30]
+    scan = scan_cn_market()
+    wanted_set = set(wanted)
+    selected = [item for item in scan["rows"] if item.get("ticker") in wanted_set]
+    enriched_rows = enrich_stock_history(selected, limit=len(selected))
+    enriched = [
+        item
+        for item in enriched_rows
+        if all(isinstance(item.get(key), (int, float)) for key in ("change_5d", "change_20d", "change_60d"))
+    ]
+    ranked = [_rank_live_item(item, mode) for item in enriched]
+    ranked.sort(key=lambda item: item["formula_score"], reverse=True)
+    return {
+        "status": "ok",
+        "result": {
+            "items": ranked,
+            "history_enriched_count": len(ranked),
+            "requested_count": len(wanted),
         },
     }
 

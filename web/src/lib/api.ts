@@ -402,6 +402,16 @@ class ApiClient {
     return this.fetch<{ status: string; result: FormulaRankingResult }>(`/api/formula-ranking?${params}`);
   }
 
+  async getFormulaRankingHistory(
+    tickers: string[],
+    mode: "balanced" | "conservative" | "aggressive"
+  ): Promise<{ status: string; result: { items: FormulaRankingItem[]; history_enriched_count: number; requested_count: number } }> {
+    const params = new URLSearchParams({ tickers: tickers.join(","), mode });
+    return this.fetch<{ status: string; result: { items: FormulaRankingItem[]; history_enriched_count: number; requested_count: number } }>(
+      `/api/formula-ranking/history?${params}`
+    );
+  }
+
   async getFinancials(ticker: string): Promise<FinancialMetrics> {
     return this.fetch<FinancialMetrics>(
       `/api/financials/${encodeURIComponent(ticker)}`

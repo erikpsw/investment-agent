@@ -90,6 +90,7 @@ export default function StockPickerPage() {
   const [sortKey, setSortKey] = useState<SortKey>("formula_score");
   const [data, setData] = useState<FormulaRankingResult | null>(null);
   const [loading, setLoading] = useState(true);
+  const [historyLoading, setHistoryLoading] = useState(false);
   const [message, setMessage] = useState("");
 
   const load = async () => {
@@ -98,6 +99,26 @@ export default function StockPickerPage() {
       const response = await api.getFormulaRanking(market, 20, mode);
       setData(response.result);
       setMessage("");
+      if (market === "CN" && !response.result.fallback && response.result.items.length) {
+        setHistoryLoading(true);
+        try {
+          const historyResponse = await api.getFormulaRankingHistory(
+            response.result.items.map((item) => item.ticker),
+            mode
+          );
+          setData((current) =>
+            current
+              ? {
+                  ...current,
+                  items: historyResponse.result.items,
+                  history_enriched_count: historyResponse.result.history_enriched_count,
+                }
+              : current
+          );
+        } finally {
+          setHistoryLoading(false);
+        }
+      }
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "加载公式排名失败");
     } finally {
@@ -137,6 +158,13 @@ export default function StockPickerPage() {
             刷新
           </Button>
         </div>
+
+        {historyLoading && (
+          <div className="rounded-lg border px-4 py-3 text-sm text-muted-foreground">
+            <Loader2 className="mr-2 inline h-4 w-4 animate-spin" />
+            初筛已完成，正在补算前 20 名的 5日、20日和60日走势并重新排序。
+          </div>
+        )}
 
         <div className="flex flex-wrap gap-3">
           <div className="flex rounded-md border p-1">

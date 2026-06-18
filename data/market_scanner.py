@@ -41,7 +41,7 @@ def scan_cn_market() -> dict[str, Any]:
     page_count = max(1, math.ceil(total / PAGE_SIZE))
 
     if page_count > 1:
-        with ThreadPoolExecutor(max_workers=12) as executor:
+        with ThreadPoolExecutor(max_workers=20) as executor:
             futures = {executor.submit(_fetch_page, page): page for page in range(2, page_count + 1)}
             for future in as_completed(futures):
                 rows.extend(future.result().get("diff") or [])
@@ -94,9 +94,9 @@ def _fetch_page(page: int) -> dict[str, Any]:
         "Referer": "https://quote.eastmoney.com/",
     }
     last_error: Exception | None = None
-    for attempt in range(6):
+    for attempt in range(2):
         try:
-            response = requests.get(EASTMONEY_URLS[attempt % len(EASTMONEY_URLS)], params=params, headers=headers, timeout=12)
+            response = requests.get(EASTMONEY_URLS[attempt % len(EASTMONEY_URLS)], params=params, headers=headers, timeout=5)
             response.raise_for_status()
             data = response.json().get("data")
             if isinstance(data, dict):
@@ -129,13 +129,13 @@ def _stock_returns(ticker: str) -> dict[str, float | None]:
     }
     data: dict[str, Any] = {}
     last_error: Exception | None = None
-    for attempt in range(2):
+    for attempt in range(1):
         try:
             response = requests.get(
                 "https://push2his.eastmoney.com/api/qt/stock/kline/get",
                 params=params,
                 headers={"User-Agent": "Mozilla/5.0", "Referer": "https://quote.eastmoney.com/"},
-                timeout=6,
+                timeout=5,
             )
             response.raise_for_status()
             data = response.json().get("data") or {}
