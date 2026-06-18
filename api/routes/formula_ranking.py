@@ -45,7 +45,7 @@ async def formula_ranking(
                     "history_enriched_count": 0,
                     "cached": scan["cached"],
                     "fallback": False,
-                    "source": "东方财富沪深 A 股全市场快照（10分钟缓存）",
+                    "source": scan.get("source") or "沪深 A 股全市场快照",
                 },
             }
         except Exception as exc:

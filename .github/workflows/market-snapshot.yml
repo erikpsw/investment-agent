@@ -1,0 +1,30 @@
+name: Update market snapshots
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "15 7 * * 1-5"
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Fetch market snapshots
+        run: node scripts/update_market_snapshot.mjs
+      - name: Commit updated snapshots
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add storage/market/latest.json storage/market/sectors.json
+          git diff --cached --quiet && exit 0
+          git commit -m "chore: update market snapshots"
+          git push origin main

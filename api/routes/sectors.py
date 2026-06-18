@@ -24,7 +24,7 @@ async def list_sectors():
             "sectors": result["rows"],
             "coverage_count": len(result["rows"]),
             "cached": result["cached"],
-            "source": "东方财富沪深完整板块快照（10分钟缓存）",
+            "source": result.get("source") or "沪深完整板块快照",
         },
     }
 

@@ -1,10 +1,12 @@
 """Lightweight full-market A-share scanner for the Vercel deployment."""
 from __future__ import annotations
 
+import json
 import math
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime, timedelta
+from pathlib import Path
 from threading import Lock
 from typing import Any
 
@@ -23,9 +25,14 @@ CACHE_SECONDS = 600
 _cache_lock = Lock()
 _cache: dict[str, Any] = {"expires_at": 0.0, "rows": [], "generated_at": None}
 _history_cache: dict[str, tuple[float, dict[str, float | None]]] = {}
+SNAPSHOT_PATH = Path(__file__).resolve().parent.parent / "storage" / "market" / "latest.json"
 
 
 def scan_cn_market() -> dict[str, Any]:
+    snapshot = _read_snapshot()
+    if snapshot:
+        return snapshot
+
     now = time.time()
     with _cache_lock:
         if _cache["rows"] and now < _cache["expires_at"]:
@@ -60,7 +67,25 @@ def scan_cn_market() -> dict[str, Any]:
                 "generated_at": generated_at,
             }
         )
-    return {"rows": filtered, "generated_at": generated_at, "cached": False}
+    return {"rows": filtered, "generated_at": generated_at, "cached": False, "source": "东方财富实时全市场"}
+
+
+def _read_snapshot() -> dict[str, Any] | None:
+    if not SNAPSHOT_PATH.exists():
+        return None
+    try:
+        payload = json.loads(SNAPSHOT_PATH.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+    rows = payload.get("rows") if isinstance(payload, dict) else None
+    if not isinstance(rows, list) or len(rows) < 4500:
+        return None
+    return {
+        "rows": rows,
+        "generated_at": payload.get("generated_at"),
+        "cached": True,
+        "source": "GitHub Actions 交易日全市场快照",
+    }
 
 
 def enrich_stock_history(rows: list[dict[str, Any]], limit: int = 120) -> list[dict[str, Any]]:

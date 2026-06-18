@@ -108,11 +108,17 @@ export default function StockPickerPage() {
           );
           setData((current) =>
             current
-              ? {
-                  ...current,
-                  items: historyResponse.result.items,
-                  history_enriched_count: historyResponse.result.history_enriched_count,
-                }
+              ? (() => {
+                  const enrichedTickers = new Set(historyResponse.result.items.map((item) => item.ticker));
+                  return {
+                    ...current,
+                    items: [
+                      ...historyResponse.result.items,
+                      ...current.items.filter((item) => !enrichedTickers.has(item.ticker)),
+                    ],
+                    history_enriched_count: historyResponse.result.history_enriched_count,
+                  };
+                })()
               : current
           );
         } finally {

@@ -1,9 +1,11 @@
 """Industry/sector snapshot and on-demand trend data."""
 from __future__ import annotations
 
+import json
 import math
 import time
 from datetime import datetime, timedelta
+from pathlib import Path
 from threading import Lock
 from typing import Any
 
@@ -19,9 +21,24 @@ HISTORY_URL = "https://push2his.eastmoney.com/api/qt/stock/kline/get"
 CACHE_SECONDS = 600
 _lock = Lock()
 _cache: dict[str, Any] = {"expires_at": 0.0, "rows": [], "generated_at": None}
+SNAPSHOT_PATH = Path(__file__).resolve().parent.parent / "storage" / "market" / "sectors.json"
 
 
 def scan_sectors() -> dict[str, Any]:
+    if SNAPSHOT_PATH.exists():
+        try:
+            payload = json.loads(SNAPSHOT_PATH.read_text(encoding="utf-8"))
+            rows = payload.get("rows") if isinstance(payload, dict) else None
+            if isinstance(rows, list) and len(rows) >= 300:
+                return {
+                    "rows": rows,
+                    "generated_at": payload.get("generated_at"),
+                    "cached": True,
+                    "source": "GitHub Actions 交易日完整板块快照",
+                }
+        except Exception:
+            pass
+
     now = time.time()
     with _lock:
         if _cache["rows"] and now < _cache["expires_at"]:
@@ -41,7 +58,7 @@ def scan_sectors() -> dict[str, Any]:
     generated_at = datetime.now().astimezone().isoformat()
     with _lock:
         _cache.update({"expires_at": now + CACHE_SECONDS, "rows": result, "generated_at": generated_at})
-    return {"rows": result, "generated_at": generated_at, "cached": False}
+    return {"rows": result, "generated_at": generated_at, "cached": False, "source": "东方财富实时板块快照"}
 
 
 def sector_history(code: str, days: int = 120) -> dict[str, Any]:
