@@ -7,6 +7,7 @@ from typing import Any, Literal
 
 from fastapi import APIRouter, Query
 
+from investment.data.market_scanner import scan_cn_market
 from investment.data.stock_picker import CANDIDATE_POOL, PROJECT_ROOT
 
 
@@ -15,8 +16,8 @@ router = APIRouter()
 FormulaMode = Literal["balanced", "conservative", "aggressive"]
 
 FORMULA_DESCRIPTION = (
-    "公式分 = 原始评分35% + 20日趋势20% + 5日动量15% + 距20日高点回撤15% "
-    "+ 20日均线位置10% + 波动率5% + 标的属性加减分 - 追高/风险惩罚"
+    "全市场公式分 = 60日趋势25% + 今日动量20% + 量比15% + 换手率15% "
+    "+ 估值10% + 市值质量15% - 涨停追高与异常估值惩罚"
 )
 
 
@@ -26,6 +27,31 @@ async def formula_ranking(
     limit: int = Query(30, ge=1, le=100),
     mode: FormulaMode = Query("balanced", description="Risk mode"),
 ):
+    if market.upper() == "CN":
+        try:
+            scan = scan_cn_market()
+            ranked = [_rank_live_item(item, mode) for item in scan["rows"]]
+            ranked.sort(key=lambda item: item["formula_score"], reverse=True)
+            return {
+                "status": "ok",
+                "result": {
+                    "generated_at": scan["generated_at"],
+                    "market": "CN",
+                    "mode": mode,
+                    "formula": FORMULA_DESCRIPTION,
+                    "items": ranked[:limit],
+                    "total": len(ranked),
+                    "scanned_count": len(scan["rows"]),
+                    "cached": scan["cached"],
+                    "fallback": False,
+                    "source": "东方财富沪深 A 股全市场快照（10分钟缓存）",
+                },
+            }
+        except Exception as exc:
+            fallback_error = str(exc)
+    else:
+        fallback_error = None
+
     latest = _latest_result()
     rows = _collect_items(latest, market)
     ranked = [_rank_item(item, mode) for item in rows]
@@ -39,9 +65,121 @@ async def formula_ranking(
             "formula": FORMULA_DESCRIPTION,
             "items": ranked[:limit],
             "total": len(ranked),
-            "source": "最近一次选股缓存 + 固定公式排序",
+            "scanned_count": len(rows),
+            "cached": True,
+            "fallback": True,
+            "fallback_reason": fallback_error,
+            "source": "历史候选缓存 + 固定公式排序（全市场行情不可用时降级）",
         },
     }
+
+
+def _rank_live_item(item: dict[str, Any], mode: FormulaMode) -> dict[str, Any]:
+    change_today = _num(item.get("today_change_percent"))
+    change_60d = _num(item.get("change_60d"))
+    volume_ratio = _num(item.get("volume_ratio"))
+    turnover = _num(item.get("turnover_rate"))
+    pe_ratio = _num(item.get("pe_ratio"))
+    pb_ratio = _num(item.get("pb_ratio"))
+    market_cap = _num(item.get("market_cap"))
+
+    components = {
+        "60日趋势": _range_score(change_60d, [(-20, 20), (0, 45), (8, 78), (30, 92), (60, 58)]),
+        "今日动量": _range_score(change_today, [(-10, 10), (-2, 45), (1, 72), (5, 90), (9.5, 58)]),
+        "量比": _range_score(volume_ratio, [(0, 30), (0.8, 58), (1.2, 80), (2.5, 92), (5, 62)]),
+        "换手率": _range_score(turnover, [(0, 25), (1, 55), (3, 82), (8, 92), (18, 55)]),
+        "估值": _valuation_score(pe_ratio, pb_ratio),
+        "市值质量": _market_cap_score(market_cap),
+    }
+    penalty = 0.0
+    if change_today is not None and change_today >= 9.5:
+        penalty += 12
+    if pe_ratio is not None and (pe_ratio < 0 or pe_ratio > 180):
+        penalty += 8
+    if mode == "conservative":
+        penalty *= 1.25
+        components["市值质量"] = min(100, components["市值质量"] + 8)
+    elif mode == "aggressive":
+        penalty *= 0.75
+        components["量比"] = min(100, components["量比"] + 5)
+        components["换手率"] = min(100, components["换手率"] + 5)
+
+    weighted = (
+        components["60日趋势"] * 0.25
+        + components["今日动量"] * 0.20
+        + components["量比"] * 0.15
+        + components["换手率"] * 0.15
+        + components["估值"] * 0.10
+        + components["市值质量"] * 0.15
+        - penalty
+    )
+    score = round(max(0, min(weighted, 100)), 1)
+    return {
+        **item,
+        "theme": _market_cap_label(market_cap),
+        "formula_score": score,
+        "recommendation": _recommendation(score, penalty),
+        "original_score": None,
+        "components": {**{key: round(value, 1) for key, value in components.items()}, "风险惩罚": round(penalty, 1)},
+        "risks": _live_risks(item),
+        "action": "结合公告、财务和板块强度进一步确认",
+    }
+
+
+def _range_score(value: float | None, points: list[tuple[float, float]]) -> float:
+    if value is None:
+        return 40
+    if value <= points[0][0]:
+        return points[0][1]
+    for (left_x, left_y), (right_x, right_y) in zip(points, points[1:]):
+        if value <= right_x:
+            ratio = (value - left_x) / (right_x - left_x)
+            return left_y + (right_y - left_y) * ratio
+    return points[-1][1]
+
+
+def _valuation_score(pe_ratio: float | None, pb_ratio: float | None) -> float:
+    pe_score = 35 if pe_ratio is None or pe_ratio <= 0 else max(20, min(92, 100 - abs(pe_ratio - 28) * 1.4))
+    pb_score = 40 if pb_ratio is None or pb_ratio <= 0 else max(20, min(90, 95 - abs(pb_ratio - 3) * 8))
+    return pe_score * 0.65 + pb_score * 0.35
+
+
+def _market_cap_score(value: float | None) -> float:
+    if value is None or value <= 0:
+        return 35
+    cap_billion = value / 1_000_000_000
+    if 5 <= cap_billion <= 80:
+        return 88
+    if 80 < cap_billion <= 300:
+        return 78
+    if 300 < cap_billion <= 1000:
+        return 68
+    if cap_billion > 1000:
+        return 58
+    return 52
+
+
+def _market_cap_label(value: float | None) -> str:
+    if value is None:
+        return "未知市值"
+    cap_billion = value / 1_000_000_000
+    if cap_billion < 80:
+        return "小盘成长"
+    if cap_billion < 300:
+        return "中盘"
+    return "大盘"
+
+
+def _live_risks(item: dict[str, Any]) -> list[str]:
+    risks: list[str] = []
+    if (_num(item.get("today_change_percent")) or 0) >= 9.5:
+        risks.append("当日接近涨停，注意追高风险")
+    if (_num(item.get("turnover_rate")) or 0) >= 15:
+        risks.append("换手率偏高，短线波动可能放大")
+    pe = _num(item.get("pe_ratio"))
+    if pe is not None and (pe < 0 or pe > 100):
+        risks.append("盈利或估值指标偏激进")
+    return risks or ["公式仅做量化初筛，需结合公告和基本面确认"]
 
 
 def _latest_result() -> dict[str, Any]:
@@ -274,4 +412,3 @@ def _recommendation(score: float, risk_penalty: float) -> str:
     if score >= 50:
         return "仅跟踪"
     return "暂不推荐"
-

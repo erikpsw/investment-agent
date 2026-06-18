@@ -32,6 +32,11 @@ function percent(value?: number | null) {
   return `${value > 0 ? "+" : ""}${value.toFixed(2)}%`;
 }
 
+function number(value?: number | null, digits = 2) {
+  if (value == null) return "--";
+  return value.toFixed(digits);
+}
+
 function PercentValue({ value }: { value?: number | null }) {
   return (
     <span
@@ -108,7 +113,7 @@ export default function StockPickerPage() {
           <div>
             <h1 className="text-3xl font-bold tracking-tight">公式选股排名</h1>
             <p className="text-muted-foreground">
-              基于最近一次候选池数据，用固定公式给股票排序，适合 Vercel 轻量版快速筛选。
+              扫描沪深 A 股可交易股票，用实时行情、趋势、量价、估值和市值因子进行排序。
             </p>
           </div>
           <Button variant="outline" onClick={load} disabled={loading}>
@@ -151,8 +156,8 @@ export default function StockPickerPage() {
         <div className="grid gap-4 md:grid-cols-4">
           <Card>
             <CardHeader>
-              <CardDescription>候选股票</CardDescription>
-              <CardTitle className="text-2xl">{data?.total ?? "--"}</CardTitle>
+              <CardDescription>本轮扫描</CardDescription>
+              <CardTitle className="text-2xl">{data?.scanned_count ?? data?.total ?? "--"}</CardTitle>
             </CardHeader>
           </Card>
           <Card>
@@ -163,7 +168,7 @@ export default function StockPickerPage() {
           </Card>
           <Card>
             <CardHeader>
-              <CardDescription>数据时间</CardDescription>
+              <CardDescription>行情时间</CardDescription>
               <CardTitle className="text-sm">{formatTime(data?.generated_at)}</CardTitle>
             </CardHeader>
           </Card>
@@ -174,6 +179,13 @@ export default function StockPickerPage() {
             </CardHeader>
           </Card>
         </div>
+
+        {data?.fallback && (
+          <div className="rounded-lg border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+            全市场行情暂时不可用，当前显示历史候选缓存。
+            {data.fallback_reason ? ` 原因：${data.fallback_reason}` : ""}
+          </div>
+        )}
 
         <Card>
           <CardHeader>
@@ -200,11 +212,11 @@ export default function StockPickerPage() {
                   <TableHead>主题</TableHead>
                   <TableHead>公式分</TableHead>
                   <TableHead>建议</TableHead>
-                  <TableHead>5日</TableHead>
-                  <TableHead>20日</TableHead>
-                  <TableHead>距高点</TableHead>
-                  <TableHead>MA20</TableHead>
-                  <TableHead>波动</TableHead>
+                  <TableHead>今日</TableHead>
+                  <TableHead>60日</TableHead>
+                  <TableHead>量比</TableHead>
+                  <TableHead>换手</TableHead>
+                  <TableHead>PE/PB</TableHead>
                   <TableHead className="min-w-48">风险/动作</TableHead>
                 </TableRow>
               </TableHeader>
@@ -242,11 +254,14 @@ export default function StockPickerPage() {
                           {item.recommendation}
                         </Badge>
                       </TableCell>
-                      <TableCell><PercentValue value={item.change_5d} /></TableCell>
-                      <TableCell><PercentValue value={item.change_20d} /></TableCell>
-                      <TableCell><PercentValue value={item.distance_to_high_20d} /></TableCell>
-                      <TableCell><PercentValue value={item.distance_to_ma20} /></TableCell>
-                      <TableCell>{percent(item.volatility_20d)}</TableCell>
+                      <TableCell><PercentValue value={item.today_change_percent ?? item.change_5d} /></TableCell>
+                      <TableCell><PercentValue value={item.change_60d ?? item.change_20d} /></TableCell>
+                      <TableCell>{number(item.volume_ratio)}</TableCell>
+                      <TableCell>{percent(item.turnover_rate)}</TableCell>
+                      <TableCell>
+                        <div className="tabular-nums">{number(item.pe_ratio, 1)}</div>
+                        <div className="text-xs text-muted-foreground">PB {number(item.pb_ratio, 1)}</div>
+                      </TableCell>
                       <TableCell className="max-w-64">
                         <div className="line-clamp-2 text-sm text-muted-foreground">{topRisk(item)}</div>
                       </TableCell>

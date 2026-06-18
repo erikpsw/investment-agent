@@ -211,6 +211,12 @@ export interface FormulaRankingItem {
   distance_to_ma20?: number | null;
   volatility_20d?: number | null;
   today_change_percent?: number | null;
+  change_60d?: number | null;
+  turnover_rate?: number | null;
+  volume_ratio?: number | null;
+  pe_ratio?: number | null;
+  pb_ratio?: number | null;
+  market_cap?: number | null;
   action?: string;
   reasons?: string[];
   risks?: string[];
@@ -224,6 +230,10 @@ export interface FormulaRankingResult {
   formula: string;
   items: FormulaRankingItem[];
   total: number;
+  scanned_count?: number;
+  cached?: boolean;
+  fallback?: boolean;
+  fallback_reason?: string | null;
   source: string;
 }
 
