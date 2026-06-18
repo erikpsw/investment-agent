@@ -11,7 +11,10 @@ from typing import Any
 import requests
 
 
-EASTMONEY_URL = "https://push2delay.eastmoney.com/api/qt/clist/get"
+EASTMONEY_URLS = [
+    "https://push2delay.eastmoney.com/api/qt/clist/get",
+    "https://push2.eastmoney.com/api/qt/clist/get",
+]
 PAGE_SIZE = 100
 FIELDS = "f2,f3,f5,f6,f8,f9,f10,f12,f14,f20,f21,f23,f24,f25"
 MARKET_FILTER = "m:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23"
@@ -38,18 +41,15 @@ def scan_cn_market() -> dict[str, Any]:
     page_count = max(1, math.ceil(total / PAGE_SIZE))
 
     if page_count > 1:
-        with ThreadPoolExecutor(max_workers=6) as executor:
+        with ThreadPoolExecutor(max_workers=12) as executor:
             futures = {executor.submit(_fetch_page, page): page for page in range(2, page_count + 1)}
             for future in as_completed(futures):
-                try:
-                    rows.extend(future.result().get("diff") or [])
-                except Exception:
-                    continue
+                rows.extend(future.result().get("diff") or [])
 
     normalized = [_normalize(row) for row in rows]
     filtered = [row for row in normalized if row is not None]
     generated_at = datetime.now().astimezone().isoformat()
-    if len(filtered) < 1000:
+    if len(filtered) < 4500:
         raise RuntimeError(f"全市场行情返回不完整，仅获取 {len(filtered)} 只")
 
     with _cache_lock:
@@ -66,7 +66,7 @@ def scan_cn_market() -> dict[str, Any]:
 def enrich_stock_history(rows: list[dict[str, Any]], limit: int = 120) -> list[dict[str, Any]]:
     selected = sorted(rows, key=_snapshot_priority, reverse=True)[:limit]
     by_ticker = {str(row["ticker"]): dict(row) for row in selected}
-    with ThreadPoolExecutor(max_workers=24) as executor:
+    with ThreadPoolExecutor(max_workers=10) as executor:
         futures = {executor.submit(_stock_returns, ticker): ticker for ticker in by_ticker}
         for future in as_completed(futures):
             ticker = futures[future]
@@ -94,9 +94,9 @@ def _fetch_page(page: int) -> dict[str, Any]:
         "Referer": "https://quote.eastmoney.com/",
     }
     last_error: Exception | None = None
-    for attempt in range(3):
+    for attempt in range(6):
         try:
-            response = requests.get(EASTMONEY_URL, params=params, headers=headers, timeout=12)
+            response = requests.get(EASTMONEY_URLS[attempt % len(EASTMONEY_URLS)], params=params, headers=headers, timeout=12)
             response.raise_for_status()
             data = response.json().get("data")
             if isinstance(data, dict):
@@ -127,14 +127,25 @@ def _stock_returns(ticker: str) -> dict[str, float | None]:
         "end": end.strftime("%Y%m%d"),
         "lmt": "120",
     }
-    response = requests.get(
-        "https://push2his.eastmoney.com/api/qt/stock/kline/get",
-        params=params,
-        headers={"User-Agent": "Mozilla/5.0", "Referer": "https://quote.eastmoney.com/"},
-        timeout=6,
-    )
-    response.raise_for_status()
-    data = response.json().get("data") or {}
+    data: dict[str, Any] = {}
+    last_error: Exception | None = None
+    for attempt in range(2):
+        try:
+            response = requests.get(
+                "https://push2his.eastmoney.com/api/qt/stock/kline/get",
+                params=params,
+                headers={"User-Agent": "Mozilla/5.0", "Referer": "https://quote.eastmoney.com/"},
+                timeout=6,
+            )
+            response.raise_for_status()
+            data = response.json().get("data") or {}
+            if data.get("klines"):
+                break
+        except Exception as exc:
+            last_error = exc
+            time.sleep(0.2 * (attempt + 1))
+    if not data.get("klines"):
+        raise RuntimeError(f"{ticker} 历史行情获取失败: {last_error}")
     closes = [_number(str(item).split(",")[2]) for item in data.get("klines") or []]
     valid = [value for value in closes if value is not None and value > 0]
     result = {

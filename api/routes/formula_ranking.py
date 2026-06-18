@@ -30,7 +30,12 @@ async def formula_ranking(
     if market.upper() == "CN":
         try:
             scan = scan_cn_market()
-            enriched = enrich_stock_history(scan["rows"], limit=max(60, min(100, limit * 2)))
+            enriched_rows = enrich_stock_history(scan["rows"], limit=min(30, max(20, limit + 10)))
+            enriched = [
+                item
+                for item in enriched_rows
+                if all(isinstance(item.get(key), (int, float)) for key in ("change_5d", "change_20d", "change_60d"))
+            ][:limit]
             ranked = [_rank_live_item(item, mode) for item in enriched]
             ranked.sort(key=lambda item: item["formula_score"], reverse=True)
             return {

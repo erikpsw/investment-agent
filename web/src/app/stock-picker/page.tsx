@@ -95,7 +95,7 @@ export default function StockPickerPage() {
   const load = async () => {
     setLoading(true);
     try {
-      const response = await api.getFormulaRanking(market, 40, mode);
+      const response = await api.getFormulaRanking(market, 20, mode);
       setData(response.result);
       setMessage("");
     } catch (error) {
