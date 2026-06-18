@@ -4,7 +4,7 @@ from __future__ import annotations
 import math
 import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime
+from datetime import datetime, timedelta
 from threading import Lock
 from typing import Any
 
@@ -19,6 +19,7 @@ CACHE_SECONDS = 600
 
 _cache_lock = Lock()
 _cache: dict[str, Any] = {"expires_at": 0.0, "rows": [], "generated_at": None}
+_history_cache: dict[str, tuple[float, dict[str, float | None]]] = {}
 
 
 def scan_cn_market() -> dict[str, Any]:
@@ -62,6 +63,20 @@ def scan_cn_market() -> dict[str, Any]:
     return {"rows": filtered, "generated_at": generated_at, "cached": False}
 
 
+def enrich_stock_history(rows: list[dict[str, Any]], limit: int = 120) -> list[dict[str, Any]]:
+    selected = sorted(rows, key=_snapshot_priority, reverse=True)[:limit]
+    by_ticker = {str(row["ticker"]): dict(row) for row in selected}
+    with ThreadPoolExecutor(max_workers=24) as executor:
+        futures = {executor.submit(_stock_returns, ticker): ticker for ticker in by_ticker}
+        for future in as_completed(futures):
+            ticker = futures[future]
+            try:
+                by_ticker[ticker].update(future.result())
+            except Exception:
+                continue
+    return list(by_ticker.values())
+
+
 def _fetch_page(page: int) -> dict[str, Any]:
     params = {
         "pn": page,
@@ -90,6 +105,64 @@ def _fetch_page(page: int) -> dict[str, Any]:
             last_error = exc
             time.sleep(0.25 * (attempt + 1))
     raise RuntimeError(f"行情第 {page} 页获取失败: {last_error}")
+
+
+def _stock_returns(ticker: str) -> dict[str, float | None]:
+    now = time.time()
+    cached = _history_cache.get(ticker)
+    if cached and now < cached[0]:
+        return dict(cached[1])
+
+    code = ticker[2:]
+    secid = f"{'1' if ticker.startswith('sh') else '0'}.{code}"
+    end = datetime.now()
+    begin = end - timedelta(days=150)
+    params = {
+        "secid": secid,
+        "fields1": "f1,f2,f3,f4,f5,f6",
+        "fields2": "f51,f52,f53,f54,f55,f56,f57,f58,f59,f60,f61",
+        "klt": "101",
+        "fqt": "1",
+        "beg": begin.strftime("%Y%m%d"),
+        "end": end.strftime("%Y%m%d"),
+        "lmt": "120",
+    }
+    response = requests.get(
+        "https://push2his.eastmoney.com/api/qt/stock/kline/get",
+        params=params,
+        headers={"User-Agent": "Mozilla/5.0", "Referer": "https://quote.eastmoney.com/"},
+        timeout=6,
+    )
+    response.raise_for_status()
+    data = response.json().get("data") or {}
+    closes = [_number(str(item).split(",")[2]) for item in data.get("klines") or []]
+    valid = [value for value in closes if value is not None and value > 0]
+    result = {
+        "change_5d": _period_return(valid, 5),
+        "change_20d": _period_return(valid, 20),
+        "change_60d": _period_return(valid, 60),
+    }
+    _history_cache[ticker] = (now + CACHE_SECONDS, result)
+    return result
+
+
+def _period_return(closes: list[float], days: int) -> float | None:
+    if len(closes) <= days or closes[-days - 1] <= 0:
+        return None
+    return round((closes[-1] / closes[-days - 1] - 1) * 100, 2)
+
+
+def _snapshot_priority(row: dict[str, Any]) -> float:
+    change = _number(row.get("today_change_percent")) or 0
+    trend = _number(row.get("change_60d")) or 0
+    volume_ratio = _number(row.get("volume_ratio")) or 0
+    turnover = _number(row.get("turnover_rate")) or 0
+    return (
+        min(max(change, -5), 8) * 2
+        + min(max(trend, -20), 50) * 0.5
+        + min(volume_ratio, 5) * 4
+        + min(turnover, 15)
+    )
 
 
 def _normalize(row: dict[str, Any]) -> dict[str, Any] | None:
@@ -130,4 +203,8 @@ def _normalize(row: dict[str, Any]) -> dict[str, Any] | None:
 def _number(value: Any) -> float | None:
     if isinstance(value, (int, float)) and math.isfinite(float(value)):
         return float(value)
-    return None
+    try:
+        parsed = float(str(value))
+        return parsed if math.isfinite(parsed) else None
+    except Exception:
+        return None

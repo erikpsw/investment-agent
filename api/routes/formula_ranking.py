@@ -7,7 +7,7 @@ from typing import Any, Literal
 
 from fastapi import APIRouter, Query
 
-from investment.data.market_scanner import scan_cn_market
+from investment.data.market_scanner import enrich_stock_history, scan_cn_market
 from investment.data.stock_picker import CANDIDATE_POOL, PROJECT_ROOT
 
 
@@ -16,8 +16,8 @@ router = APIRouter()
 FormulaMode = Literal["balanced", "conservative", "aggressive"]
 
 FORMULA_DESCRIPTION = (
-    "全市场公式分 = 60日趋势25% + 今日动量20% + 量比15% + 换手率15% "
-    "+ 估值10% + 市值质量15% - 涨停追高与异常估值惩罚"
+    "全市场初筛后补算日K：5日动量20% + 20日趋势25% + 60日趋势15% + 今日动量10% "
+    "+ 量比10% + 换手率8% + 估值5% + 市值质量7% - 追高与异常估值惩罚"
 )
 
 
@@ -30,7 +30,8 @@ async def formula_ranking(
     if market.upper() == "CN":
         try:
             scan = scan_cn_market()
-            ranked = [_rank_live_item(item, mode) for item in scan["rows"]]
+            enriched = enrich_stock_history(scan["rows"], limit=max(60, min(100, limit * 2)))
+            ranked = [_rank_live_item(item, mode) for item in enriched]
             ranked.sort(key=lambda item: item["formula_score"], reverse=True)
             return {
                 "status": "ok",
@@ -42,6 +43,7 @@ async def formula_ranking(
                     "items": ranked[:limit],
                     "total": len(ranked),
                     "scanned_count": len(scan["rows"]),
+                    "history_enriched_count": len(enriched),
                     "cached": scan["cached"],
                     "fallback": False,
                     "source": "东方财富沪深 A 股全市场快照（10分钟缓存）",
@@ -76,6 +78,8 @@ async def formula_ranking(
 
 def _rank_live_item(item: dict[str, Any], mode: FormulaMode) -> dict[str, Any]:
     change_today = _num(item.get("today_change_percent"))
+    change_5d = _num(item.get("change_5d"))
+    change_20d = _num(item.get("change_20d"))
     change_60d = _num(item.get("change_60d"))
     volume_ratio = _num(item.get("volume_ratio"))
     turnover = _num(item.get("turnover_rate"))
@@ -84,6 +88,8 @@ def _rank_live_item(item: dict[str, Any], mode: FormulaMode) -> dict[str, Any]:
     market_cap = _num(item.get("market_cap"))
 
     components = {
+        "5日动量": _range_score(change_5d, [(-12, 15), (-3, 42), (2, 78), (8, 92), (18, 48)]),
+        "20日趋势": _range_score(change_20d, [(-20, 18), (0, 50), (8, 82), (25, 92), (45, 50)]),
         "60日趋势": _range_score(change_60d, [(-20, 20), (0, 45), (8, 78), (30, 92), (60, 58)]),
         "今日动量": _range_score(change_today, [(-10, 10), (-2, 45), (1, 72), (5, 90), (9.5, 58)]),
         "量比": _range_score(volume_ratio, [(0, 30), (0.8, 58), (1.2, 80), (2.5, 92), (5, 62)]),
@@ -105,12 +111,14 @@ def _rank_live_item(item: dict[str, Any], mode: FormulaMode) -> dict[str, Any]:
         components["换手率"] = min(100, components["换手率"] + 5)
 
     weighted = (
-        components["60日趋势"] * 0.25
-        + components["今日动量"] * 0.20
-        + components["量比"] * 0.15
-        + components["换手率"] * 0.15
-        + components["估值"] * 0.10
-        + components["市值质量"] * 0.15
+        components["5日动量"] * 0.20
+        + components["20日趋势"] * 0.25
+        + components["60日趋势"] * 0.15
+        + components["今日动量"] * 0.10
+        + components["量比"] * 0.10
+        + components["换手率"] * 0.08
+        + components["估值"] * 0.05
+        + components["市值质量"] * 0.07
         - penalty
     )
     score = round(max(0, min(weighted, 100)), 1)

@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 
 type Market = "CN" | "US" | "HK" | "all";
 type Mode = "balanced" | "conservative" | "aggressive";
+type SortKey = "formula_score" | "change_5d" | "change_20d" | "change_60d" | "today_change_percent";
 
 const markets: Array<{ value: Market; label: string }> = [
   { value: "CN", label: "A股" },
@@ -25,6 +26,14 @@ const modes: Array<{ value: Mode; label: string }> = [
   { value: "balanced", label: "均衡" },
   { value: "conservative", label: "稳健" },
   { value: "aggressive", label: "进攻" },
+];
+
+const sorts: Array<{ value: SortKey; label: string }> = [
+  { value: "formula_score", label: "综合分" },
+  { value: "change_5d", label: "5日" },
+  { value: "change_20d", label: "20日" },
+  { value: "change_60d", label: "60日" },
+  { value: "today_change_percent", label: "今日" },
 ];
 
 function percent(value?: number | null) {
@@ -78,6 +87,7 @@ function topRisk(item: FormulaRankingItem) {
 export default function StockPickerPage() {
   const [market, setMarket] = useState<Market>("CN");
   const [mode, setMode] = useState<Mode>("balanced");
+  const [sortKey, setSortKey] = useState<SortKey>("formula_score");
   const [data, setData] = useState<FormulaRankingResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
@@ -99,7 +109,13 @@ export default function StockPickerPage() {
     void load();
   }, [market, mode]);
 
-  const topItems = data?.items || [];
+  const topItems = useMemo(
+    () =>
+      [...(data?.items || [])].sort(
+        (left, right) => (right[sortKey] ?? Number.NEGATIVE_INFINITY) - (left[sortKey] ?? Number.NEGATIVE_INFINITY)
+      ),
+    [data, sortKey]
+  );
   const priorityCount = useMemo(
     () => topItems.filter((item) => item.recommendation.includes("优先")).length,
     [topItems]
@@ -133,6 +149,19 @@ export default function StockPickerPage() {
                 onClick={() => setMarket(item.value)}
               >
                 {item.label}
+              </Button>
+            ))}
+          </div>
+          <div className="flex flex-wrap rounded-md border p-1">
+            {sorts.map((item) => (
+              <Button
+                key={item.value}
+                type="button"
+                size="sm"
+                variant={sortKey === item.value ? "secondary" : "ghost"}
+                onClick={() => setSortKey(item.value)}
+              >
+                {item.label}排序
               </Button>
             ))}
           </div>
@@ -212,8 +241,10 @@ export default function StockPickerPage() {
                   <TableHead>主题</TableHead>
                   <TableHead>公式分</TableHead>
                   <TableHead>建议</TableHead>
-                  <TableHead>今日</TableHead>
+                  <TableHead>5日</TableHead>
+                  <TableHead>20日</TableHead>
                   <TableHead>60日</TableHead>
+                  <TableHead>今日</TableHead>
                   <TableHead>量比</TableHead>
                   <TableHead>换手</TableHead>
                   <TableHead>PE/PB</TableHead>
@@ -223,7 +254,7 @@ export default function StockPickerPage() {
               <TableBody>
                 {loading && !topItems.length ? (
                   <TableRow>
-                    <TableCell colSpan={11} className="h-24 text-center text-muted-foreground">
+                    <TableCell colSpan={13} className="h-24 text-center text-muted-foreground">
                       <Loader2 className="mx-auto mb-2 h-5 w-5 animate-spin" />
                       正在计算排名
                     </TableCell>
@@ -254,8 +285,10 @@ export default function StockPickerPage() {
                           {item.recommendation}
                         </Badge>
                       </TableCell>
-                      <TableCell><PercentValue value={item.today_change_percent ?? item.change_5d} /></TableCell>
-                      <TableCell><PercentValue value={item.change_60d ?? item.change_20d} /></TableCell>
+                      <TableCell><PercentValue value={item.change_5d} /></TableCell>
+                      <TableCell><PercentValue value={item.change_20d} /></TableCell>
+                      <TableCell><PercentValue value={item.change_60d} /></TableCell>
+                      <TableCell><PercentValue value={item.today_change_percent} /></TableCell>
                       <TableCell>{number(item.volume_ratio)}</TableCell>
                       <TableCell>{percent(item.turnover_rate)}</TableCell>
                       <TableCell>
@@ -269,7 +302,7 @@ export default function StockPickerPage() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={11} className="h-24 text-center text-muted-foreground">
+                    <TableCell colSpan={13} className="h-24 text-center text-muted-foreground">
                       暂无可排名标的
                     </TableCell>
                   </TableRow>

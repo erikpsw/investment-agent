@@ -186,13 +186,31 @@ export interface MonitorDecision {
 export interface SectorItem {
   code: string;
   name: string;
-  candidate_count: number;
-  scored_count: number;
-  change_5d?: number | null;
-  change_20d?: number | null;
+  price?: number | null;
+  change_percent?: number | null;
+  change_60d?: number | null;
+  change_ytd?: number | null;
+  turnover_rate?: number | null;
+  market_cap?: number | null;
+  up_count?: number;
+  down_count?: number;
+  breadth?: number | null;
   score?: number | null;
   leader?: StockPickItem;
-  stocks?: StockPickItem[];
+}
+
+export interface SectorHistoryResult {
+  code: string;
+  name?: string | null;
+  change_5d?: number | null;
+  change_20d?: number | null;
+  change_60d?: number | null;
+  bars: Array<{
+    date: string;
+    close?: number | null;
+    change_percent?: number | null;
+    turnover_rate?: number | null;
+  }>;
 }
 
 export interface FormulaRankingItem {
@@ -231,6 +249,7 @@ export interface FormulaRankingResult {
   items: FormulaRankingItem[];
   total: number;
   scanned_count?: number;
+  history_enriched_count?: number;
   cached?: boolean;
   fallback?: boolean;
   fallback_reason?: string | null;
@@ -362,6 +381,12 @@ class ApiClient {
 
   async getSectors(): Promise<{ status: string; result: { generated_at?: string; sectors: SectorItem[]; coverage_count: number; source: string } }> {
     return this.fetch<{ status: string; result: { generated_at?: string; sectors: SectorItem[]; coverage_count: number; source: string } }>("/api/sectors");
+  }
+
+  async getSectorHistory(code: string, days = 120): Promise<{ status: string; result: SectorHistoryResult }> {
+    return this.fetch<{ status: string; result: SectorHistoryResult }>(
+      `/api/sectors/${encodeURIComponent(code)}/history?days=${days}`
+    );
   }
 
   async getFormulaRanking(
