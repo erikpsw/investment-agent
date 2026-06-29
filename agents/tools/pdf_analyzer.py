@@ -4,6 +4,7 @@ PDF 财报分析工具 - 下载、解析、定位、分析
 import json
 import hashlib
 import re
+from itertools import combinations
 from pathlib import Path
 from typing import Optional, Dict, Any, List, Tuple
 from datetime import datetime
@@ -29,10 +30,10 @@ SECTION_PATTERNS = [
     (r"第[一二三四五六七八九十]+节\s*财务报告", "财务报告"),
     (r"主要会计数据", "会计数据"),
     (r"主要财务指标", "财务指标"),
-    (r"营业收入构成", "收入构成"),
-    (r"主营业务分析", "主营分析"),
-    (r"报告期内公司从事的主要业务", "主营业务"),
-    (r"公司未来发展的展望", "发展展望"),
+    (r"营业收入构成|主营业务分行业、分产品、分地区、分销售模式情况", "收入构成"),
+    (r"主营业务分析|经营情况讨论与分析", "主营分析"),
+    (r"报告期内公司从事的(?:主要)?业务(?:情况)?|主要业务", "主营业务"),
+    (r"公司未来发展的展望|公司关于公司未来发展的讨论与分析", "发展展望"),
     (r"资产负债表", "资产负债"),
     (r"利润表", "利润表"),
     (r"现金流量表", "现金流"),
@@ -41,9 +42,12 @@ SECTION_PATTERNS = [
     # 港股年报 - 繁体中文
     (r"財務概覽|財務概要|財務摘要", "财务摘要"),
     (r"財務回顧|財務檢討", "财务回顾"),
-    (r"業務分部|按業務劃分", "业务分部"),
-    (r"收入.*構成|按.*劃分的收入", "收入构成"),
+    (r"業務分部|按業務劃分|分部資料", "业务分部"),
+    (r"收入.*構成|按.*劃分的收入|按經營分部劃分的.*營收|按地理分部劃分的.*營收", "收入构成"),
     (r"管理層討論|管理層分析|董事會報告", "管理层分析"),
+    (r"主要業務|業務概覽及展望", "主营业务"),
+    (r"業務回顧", "主营分析"),
+    (r"未來展望|行業展望及業務前景", "发展展望"),
     (r"主席報告|主席致詞|主席致股東|集團主席致股東", "主席报告"),
     (r"行政總裁報告|行政總裁致詞|集團行政總裁致股東", "CEO报告"),
     (r"風險管理|風險回顧|風險因素", "风险"),
@@ -66,6 +70,27 @@ SECTION_PATTERNS = [
     (r"Consolidated.*Balance Sheet|Statement of Financial Position", "资产负债"),
     (r"Consolidated.*Cash Flow", "现金流"),
 ]
+
+OUTLINE_TOPIC_PATTERNS = [
+    (r"公司简介和主要财务指标|會計數據|財務摘要|Financial Highlights|Financial Summary", "财务摘要"),
+    (r"管理层讨论与分析|管理層討論及分析|Management Discussion|Operating and financial review", "管理层分析"),
+    (r"报告期内公司从事的业务情况|主要業務|業務概覽及展望|Business Overview", "主营业务"),
+    (r"主营业务分析|收入和成本分析|業務回顧|Results of segments", "主营分析"),
+    (r"主营业务分行业、分产品、分地区、分销售模式情况|分部資料|Segment Information", "收入构成"),
+    (r"公司关于公司未来发展的讨论与分析|公司未来发展的展望|未來展望|Outlook", "发展展望"),
+    (r"可能面对的风险|風險因素|Risk Factors|Risk Management", "风险"),
+    (r"财务报告|財務報表|Financial statements", "财务报告"),
+    (r"綜合損益表|綜合收入表|Consolidated.*Income Statement", "利润表"),
+    (r"綜合資產負債表|綜合財務狀況表|Statement of Financial Position", "资产负债"),
+    (r"綜合現金流量表|Consolidated.*Cash Flow", "现金流"),
+]
+
+ANALYSIS_TOPICS = {
+    "公司与主营业务": ("主营业务", "管理层分析"),
+    "经营表现与收入构成": ("主营分析", "收入构成", "业务分部"),
+    "财务核心数据": ("财务摘要", "利润表", "现金流"),
+    "展望与风险": ("发展展望", "风险"),
+}
 
 
 def _normalize_ticker(ticker: str) -> str:
@@ -187,16 +212,80 @@ def extract_text_from_pdf(pdf_path: Path, ticker: str, report_title: str) -> Opt
         return None
 
 
-def locate_sections(text: str) -> Dict[str, Tuple[int, int]]:
-    """定位文档中的关键章节"""
+def _page_offsets(text: str) -> Dict[int, int]:
+    return {
+        int(match.group(1)): match.start()
+        for match in re.finditer(r"--- 第\s*(\d+)/\d+\s*页 ---", text)
+    }
+
+
+def _offset_for_page(text: str, page_no: int, offsets: Dict[int, int]) -> int:
+    if page_no in offsets:
+        return offsets[page_no]
+    later_pages = [page for page in offsets if page > page_no]
+    return offsets[min(later_pages)] if later_pages else len(text)
+
+
+def _topic_for_title(title: str) -> Optional[str]:
+    compact = re.sub(r"\s+", "", title)
+    for pattern, name in OUTLINE_TOPIC_PATTERNS:
+        if re.search(pattern, compact, re.IGNORECASE):
+            return name
+    return None
+
+
+def _outline_sections(text: str, pdf_path: Optional[Path]) -> Dict[str, Tuple[int, int]]:
+    """Map native PDF bookmarks onto text offsets when a report provides them."""
+    if not pdf_path or not pdf_path.exists():
+        return {}
+    try:
+        import fitz
+
+        document = fitz.open(pdf_path)
+        toc = document.get_toc(simple=True)
+        total_pages = document.page_count
+        document.close()
+    except Exception as exc:
+        print(f"PDF 书签解析失败: {exc}")
+        return {}
+
+    offsets = _page_offsets(text)
+    sections: Dict[str, Tuple[int, int]] = {}
+    candidates: Dict[str, Tuple[int, int, int]] = {}
+    for index, (level, title, page) in enumerate(toc):
+        name = _topic_for_title(title)
+        if not name or page <= 0:
+            continue
+        next_page = total_pages + 1
+        for next_level, _, candidate_page in toc[index + 1:]:
+            if next_level <= level and candidate_page > page:
+                next_page = candidate_page
+                break
+        start = _offset_for_page(text, page, offsets)
+        end = _offset_for_page(text, next_page, offsets)
+        length = max(end - start, 0)
+        previous = candidates.get(name)
+        # Prefer the most specific bookmark level; it avoids reading an entire parent chapter.
+        if previous is None or level > previous[0] or (level == previous[0] and length < previous[2]):
+            candidates[name] = (level, start, length)
+            sections[name] = (start, end)
+    return sections
+
+
+def locate_sections(text: str, pdf_path: Optional[Path] = None) -> Dict[str, Tuple[int, int]]:
+    """Locate semantic sections, preferring native PDF bookmarks over text matches."""
+    sections = _outline_sections(text, pdf_path)
     section_starts: Dict[str, int] = {}
 
     for pattern, name in SECTION_PATTERNS:
+        if name in sections:
+            continue
         matches = list(re.finditer(pattern, text, re.IGNORECASE))
         if matches:
             body_matches = [
                 match for match in matches
                 if not re.search(r"\.{5,}", text[max(0, match.start() - 100):match.end() + 100])
+                and match.start() > min(3000, len(text) // 10)
             ]
             match = body_matches[0] if body_matches else matches[-1]
             existing = section_starts.get(name)
@@ -204,7 +293,6 @@ def locate_sections(text: str) -> Dict[str, Tuple[int, int]]:
                 section_starts[name] = match.start()
 
     ordered = sorted(section_starts.items(), key=lambda item: item[1])
-    sections: Dict[str, Tuple[int, int]] = {}
     for index, (name, start) in enumerate(ordered):
         end = ordered[index + 1][1] if index + 1 < len(ordered) else len(text)
         sections[name] = (start, end)
@@ -212,39 +300,60 @@ def locate_sections(text: str) -> Dict[str, Tuple[int, int]]:
     return sections
 
 
-def extract_section(text: str, section_name: str, max_chars: int = 8000) -> str:
+def extract_section(
+    text: str,
+    section_name: str,
+    max_chars: int = 8000,
+    pdf_path: Optional[Path] = None,
+) -> str:
     """提取指定章节的内容"""
-    sections = locate_sections(text)
+    sections = locate_sections(text, pdf_path)
     
     if section_name in sections:
         start, end = sections[section_name]
-        end = min(start + max_chars, end)
+        search_end = min(len(text), max(end, start + max_chars))
+        for pattern, name in SECTION_PATTERNS:
+            if name != section_name:
+                continue
+            heading = re.search(pattern, text[start:search_end], re.IGNORECASE)
+            if heading:
+                start += heading.start()
+                break
+        # Some reports bookmark every nested table heading. Read a bounded window
+        # from the requested start rather than returning a ten-character fragment.
+        end = min(start + max_chars, len(text))
         return text[start:end]
     
     for name, (start, end) in sections.items():
         if section_name in name or name in section_name:
-            end = min(start + max_chars, end)
+            end = min(start + max_chars, len(text))
             return text[start:end]
     
     return ""
 
 
-def extract_key_sections(text: str, max_total: int = 45000) -> str:
-    """提取关键章节用于分析"""
-    priority_sections = [
-        "财务摘要", "会计数据", "财务指标", "主营业务",
-        "主营分析", "收入构成", "业务分部", "财务回顾",
-        "发展展望", "主席报告", "CEO报告", "风险",
-    ]
-    
+def extract_key_sections(text: str, max_total: int = 45000, pdf_path: Optional[Path] = None) -> str:
+    """Combine noisy report bookmarks into a small set of analysis topics."""
     extracted = []
     total_len = 0
-    
-    for section in priority_sections:
-        content = extract_section(text, section, max_chars=6000)
-        if content and total_len + len(content) < max_total:
-            extracted.append(f"【{section}】\n{content}")
-            total_len += len(content)
+    seen_spans = set()
+    sections = locate_sections(text, pdf_path)
+
+    for topic, names in ANALYSIS_TOPICS.items():
+        topic_parts = []
+        for section in names:
+            if section not in sections:
+                continue
+            span = sections[section]
+            if span in seen_spans:
+                continue
+            content = extract_section(text, section, max_chars=6000, pdf_path=pdf_path)
+            if content and total_len + len(content) <= max_total:
+                topic_parts.append(f"[{section}]\n{content}")
+                total_len += len(content)
+                seen_spans.add(span)
+        if topic_parts:
+            extracted.append(f"【{topic}】\n" + "\n\n".join(topic_parts))
     
     # 如果没有找到任何章节，尝试智能提取
     if not extracted and text:
@@ -373,14 +482,52 @@ def normalize_report_data(data: Dict[str, Any], text: str = "") -> Dict[str, Any
             f"净利率{extracted_facts.get('net_margin', '--')}。"
         )
     normalized_breakdown = []
+    geography_terms = (
+        "内销", "出口", "境内", "境外", "国内", "海外", "中国", "亚洲",
+        "欧洲", "美洲", "北美", "南美", "中东", "非洲", "亚太", "EMEA",
+        "全球其他", "其他地区", "地区", "Americas", "Europe", "Asia",
+    )
     for item in result.get("revenue_breakdown") or []:
         normalized = dict(item)
         segment = str(normalized.get("segment") or "")
         normalized["dimension"] = (
-            "地区构成" if any(keyword in segment for keyword in ("内销", "出口", "境内", "境外", "国内", "海外"))
+            "地区构成" if any(keyword in segment for keyword in geography_terms)
             else "业务构成"
         )
         normalized_breakdown.append(normalized)
+    business_items = [item for item in normalized_breakdown if item.get("dimension") == "业务构成"]
+    ratio_values = []
+    for item in business_items:
+        match = re.search(r"([\d.]+)", str(item.get("ratio", "")))
+        ratio_values.append(float(match.group(1)) if match else None)
+    aggregate_indexes = set()
+    for index, ratio in enumerate(ratio_values):
+        if ratio is None:
+            continue
+        other_values = [value for other_index, value in enumerate(ratio_values) if other_index != index and value is not None]
+        if any(
+            abs(sum(parts) - ratio) <= 0.2
+            for size in range(2, len(other_values) + 1)
+            for parts in combinations(other_values, size)
+        ):
+            aggregate_indexes.add(index)
+    if aggregate_indexes:
+        aggregate_ids = {id(business_items[index]) for index in aggregate_indexes}
+        normalized_breakdown = [item for item in normalized_breakdown if id(item) not in aggregate_ids]
+    composite_groups = (
+        (("手机×AIoT", "手机xAIoT", "手機×AIoT", "手機xAIoT"), ("智能手机", "智能手機", "IoT", "互联网服务", "互聯網服務")),
+    )
+    business_names = [str(item.get("segment") or "") for item in normalized_breakdown if item.get("dimension") == "业务构成"]
+    for parents, children in composite_groups:
+        if any(any(parent in name for parent in parents) for name in business_names):
+            normalized_breakdown = [
+                item for item in normalized_breakdown
+                if item.get("dimension") != "业务构成"
+                or not any(child in str(item.get("segment") or "") for child in children)
+                or any(parent in str(item.get("segment") or "") for parent in parents)
+            ]
+    for item in normalized_breakdown:
+        item["segment"] = re.sub(r"^其中[：:]?", "", str(item.get("segment") or ""))
     result["revenue_breakdown"] = normalized_breakdown
     return result
 
@@ -430,18 +577,18 @@ def analyze_pdf_report(
             "analysis_date": datetime.now().isoformat(),
         }
     
-    sections = locate_sections(full_text)
+    sections = locate_sections(full_text, pdf_path)
     
     if focus_sections:
         analysis_text = ""
         for section in focus_sections:
-            content = extract_section(full_text, section)
+            content = extract_section(full_text, section, pdf_path=pdf_path)
             if content:
                 analysis_text += f"\n\n【{section}】\n{content}"
         if not analysis_text:
-            analysis_text = extract_key_sections(full_text)
+            analysis_text = extract_key_sections(full_text, pdf_path=pdf_path)
     else:
-        analysis_text = extract_key_sections(full_text)
+        analysis_text = extract_key_sections(full_text, pdf_path=pdf_path)
     
     from ...utils.config import get_config
     from langchain_openai import ChatOpenAI

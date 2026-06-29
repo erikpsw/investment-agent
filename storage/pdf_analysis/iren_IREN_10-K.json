@@ -1,0 +1,53 @@
+{
+  "ticker": "IREN",
+  "report_title": "IREN 10-K",
+  "summary": "IREN FY2025营收大增168%至5亿美元，扭亏为盈净利8694万美元。",
+  "key_financials": {
+    "revenue": "5.01亿美元，同比+167.7%",
+    "net_profit": "8694.1万美元，同比转正（去年同期亏损2892万美元）",
+    "gross_margin": "68.3%",
+    "net_margin": "17.4%",
+    "roe": "4.8%",
+    "eps": "0.39美元（稀释后）"
+  },
+  "revenue_breakdown": [
+    {
+      "dimension": "业务构成",
+      "segment": "比特币挖矿 (Bitcoin Mining)",
+      "revenue": "4.846亿美元",
+      "ratio": "96.7%",
+      "growth": "+163.3%"
+    },
+    {
+      "dimension": "业务构成",
+      "segment": "AI云服务 (AI Cloud Services)",
+      "revenue": "1639.4万美元",
+      "ratio": "3.3%",
+      "growth": "新增业务"
+    }
+  ],
+  "business_highlights": [
+    "亮点1：总营收达5.01亿美元，较上一财年的1.87亿美元大幅增长167.7%。",
+    "亮点2：成功实现扭亏为盈，净利润达8694万美元，而上一财年净亏损2892万美元。",
+    "亮点3：算力规模显著扩张，运营容量达50 EH/s，并在建及规划产能超过3,910 MW。"
+  ],
+  "risks": [
+    {
+      "type": "市场风险",
+      "description": "比特币价格波动及减半事件对挖矿收入产生直接影响，尽管本期通过币价上涨抵消了产量影响。",
+      "level": "high"
+    },
+    {
+      "type": "财务风险",
+      "description": "公司发行了9.6亿美元的可转换票据，债务水平大幅上升，面临利息支出及潜在稀释风险。",
+      "level": "medium"
+    },
+    {
+      "type": "运营风险",
+      "description": "电力成本占总收入比重较高（约28%），电价波动或供应中断将严重影响利润率。",
+      "level": "medium"
+    }
+  ],
+  "outlook": "继续扩大比特币挖矿规模并加速发展AI云服务能力，优化能源结构以提升盈利能力。",
+  "analysis_date": "2026-05-26T21:52:23.838347"
+}

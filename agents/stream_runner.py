@@ -351,19 +351,30 @@ class StreamingAnalysisRunner:
         report_title = state.get("report_title", "")
         evidence_parts: List[str] = []
         try:
-            from ..agents.tools.pdf_analyzer import extract_section, get_text_path
+            from ..agents.tools.pdf_analyzer import extract_section, get_pdf_path, get_text_path, locate_sections
             text_path = get_text_path(ticker, report_title)
             if not text_path.exists():
                 return {"company_evidence": state.get("pdf_content", "")}
             full_text = text_path.read_text(encoding="utf-8")
-            for section_name in ("主营业务", "主营分析", "发展展望"):
+            pdf_path = get_pdf_path(ticker, report_title)
+            sections = locate_sections(full_text, pdf_path if pdf_path.exists() else None)
+            preferred_sections = (
+                "主营业务", "主营分析", "收入构成", "管理层分析", "发展展望", "风险"
+            )
+            readable_sections = [name for name in preferred_sections if name in sections][:5]
+            for section_name in readable_sections:
                 self._emit(StreamEvent(
                     event=EventType.TOOL_CALL,
                     timestamp=self._now(),
                     tool="read_report_section",
                     input={"section_name": section_name},
                 ))
-                section_text = extract_section(full_text, section_name, max_chars=5000)
+                section_text = extract_section(
+                    full_text,
+                    section_name,
+                    max_chars=5000,
+                    pdf_path=pdf_path if pdf_path.exists() else None,
+                )
                 self._emit(StreamEvent(
                     event=EventType.TOOL_RESULT,
                     timestamp=self._now(),
@@ -1150,8 +1161,10 @@ class StreamingAnalysisRunner:
         print(f"[PDF] report_title: {report_title}")
         print(f"[PDF] pdf_url: {pdf_url[:100] if pdf_url else 'NONE'}...")
         
-        # 美股使用 SEC 10-K HTM 文件
-        if self._is_us_stock(ticker):
+        # SEC HTML filings use the SEC parser; investor-relations PDFs can use the
+        # same outline/text pipeline as A/H-share reports.
+        is_direct_pdf_report = "static-files/" in pdf_url or pdf_url.lower().split("?", 1)[0].endswith(".pdf")
+        if self._is_us_stock(ticker) and not is_direct_pdf_report:
             return await self._fetch_sec_report(state)
         
         self._emit(StreamEvent(
@@ -1179,10 +1192,11 @@ class StreamingAnalysisRunner:
         try:
             from ..agents.tools.pdf_analyzer import (
                 download_pdf, extract_text_from_pdf, get_analysis_path,
-                get_text_path, locate_sections, extract_key_sections,
+                get_pdf_path, get_text_path, locate_sections, extract_key_sections,
                 normalize_report_data
             )
             import json
+            report_schema_version = 3
             
             # 检查缓存
             if report_title:
@@ -1193,32 +1207,37 @@ class StreamingAnalysisRunner:
                     cached = json.loads(analysis_path.read_text(encoding="utf-8"))
                     text_path = get_text_path(ticker, report_title)
                     cached_text = text_path.read_text(encoding="utf-8") if text_path.exists() else ""
-                    cached = normalize_report_data(cached, cached_text)
-                    analysis_path.write_text(json.dumps(cached, ensure_ascii=False, indent=2), encoding="utf-8")
-                    self._emit(StreamEvent(
-                        event=EventType.TOOL_RESULT,
-                        timestamp=self._now(),
-                        tool="download_pdf",
-                        output={"status": "cached"},
-                    ))
-                    
-                    structured_data = {
-                        "key_financials": cached.get("key_financials", {}),
-                        "revenue_breakdown": cached.get("revenue_breakdown", []),
-                        "business_highlights": cached.get("business_highlights", []),
-                        "risks": cached.get("risks", []),
-                        "outlook": cached.get("outlook", ""),
-                    }
-                    
-                    return {
-                        "report_summary": cached.get("summary", ""),
-                        "pdf_content": extract_key_sections(cached_text)[:12000] if cached_text else "",
-                        "report_data": structured_data,
-                        "messages": [{
-                            "role": "pdf_analyzer",
-                            "content": f"已加载缓存分析: {report_title}",
-                        }],
-                    }
+                    if cached.get("schema_version") == report_schema_version:
+                        cached = normalize_report_data(cached, cached_text)
+                        analysis_path.write_text(json.dumps(cached, ensure_ascii=False, indent=2), encoding="utf-8")
+                        self._emit(StreamEvent(
+                            event=EventType.TOOL_RESULT,
+                            timestamp=self._now(),
+                            tool="download_pdf",
+                            output={"status": "cached"},
+                        ))
+
+                        structured_data = {
+                            "key_financials": cached.get("key_financials", {}),
+                            "revenue_breakdown": cached.get("revenue_breakdown", []),
+                            "business_highlights": cached.get("business_highlights", []),
+                            "risks": cached.get("risks", []),
+                            "outlook": cached.get("outlook", ""),
+                        }
+                        cached_pdf_path = get_pdf_path(ticker, report_title)
+                        return {
+                            "report_summary": cached.get("summary", ""),
+                            "pdf_content": extract_key_sections(
+                                cached_text,
+                                pdf_path=cached_pdf_path if cached_pdf_path.exists() else None,
+                            )[:12000] if cached_text else "",
+                            "report_data": structured_data,
+                            "messages": [{
+                                "role": "pdf_analyzer",
+                                "content": f"已加载缓存分析: {report_title}",
+                            }],
+                        }
+                    print("[PDF] Stale analysis cache found, rebuilding with outline-based sections", flush=True)
             
             # 下载 PDF
             self._emit(StreamEvent(
@@ -1268,17 +1287,21 @@ class StreamingAnalysisRunner:
                 input={"text_length": len(full_text)},
             ))
             
-            sections = locate_sections(full_text)
+            sections = locate_sections(full_text, pdf_path)
             
             self._emit(StreamEvent(
                 event=EventType.TOOL_RESULT,
                 timestamp=self._now(),
                 tool="locate_sections",
-                output={"sections_found": list(sections.keys())[:8]},
+                output={
+                    "sections_found": list(sections.keys())[:12],
+                    "reading_topics": ["公司与主营业务", "经营表现与收入构成", "财务核心数据", "展望与风险"],
+                    "method": "pdf_outline_with_text_fallback",
+                },
             ))
             
             # 提取关键内容用于 AI 分析
-            key_content = extract_key_sections(full_text)
+            key_content = extract_key_sections(full_text, pdf_path=pdf_path)
             
             # AI 探索分析 - 提取结构化数据
             self._emit(StreamEvent(
@@ -1330,6 +1353,7 @@ class StreamingAnalysisRunner:
             # 缓存分析结果
             if report_title:
                 cache_data = {
+                    "schema_version": report_schema_version,
                     "ticker": ticker,
                     "report_title": report_title,
                     "summary": structured_data.get("summary", ""),
@@ -1367,17 +1391,21 @@ class StreamingAnalysisRunner:
             }
     
     async def _fetch_sec_report(self, state: Dict) -> Dict:
-        """获取并解析美股 SEC 10-K 报告"""
+        """获取并解析美股 SEC 年报。"""
         ticker = state.get("ticker", "")
         report_title = state.get("report_title", "") or "10-K"
+        report_url = state.get("pdf_url", "")
+        filing_type = report_title.split(" - ", 1)[0].strip() if " - " in report_title else "10-K"
+        if filing_type not in {"10-K", "20-F", "20-F/A"}:
+            filing_type = "10-K"
         
         print(f"[SEC] Starting SEC fetch for {ticker}")
         
         self._emit(StreamEvent(
             event=EventType.TOOL_CALL,
             timestamp=self._now(),
-            tool="fetch_sec_10k",
-            input={"ticker": ticker},
+            tool="fetch_sec_report",
+            input={"ticker": ticker, "filing_type": filing_type},
         ))
         
         try:
@@ -1386,14 +1414,14 @@ class StreamingAnalysisRunner:
             import json
             
             # 检查缓存
-            cache_key = f"{ticker.upper()}_10-K"
+            cache_key = f"{ticker.upper()}_{filing_type.replace('/', '-')}"
             analysis_path = get_analysis_path(ticker, cache_key)
             if analysis_path.exists():
                 cached = json.loads(analysis_path.read_text(encoding="utf-8"))
                 self._emit(StreamEvent(
                     event=EventType.TOOL_RESULT,
                     timestamp=self._now(),
-                    tool="fetch_sec_10k",
+                    tool="fetch_sec_report",
                     output={"status": "cached"},
                 ))
                 
@@ -1411,26 +1439,29 @@ class StreamingAnalysisRunner:
                     "report_data": structured_data,
                     "messages": [{
                         "role": "sec_analyzer",
-                        "content": f"已加载缓存 SEC 分析: {ticker} 10-K",
+                        "content": f"已加载缓存 SEC 分析: {ticker} {filing_type}",
                     }],
                 }
             
             self._emit(StreamEvent(
                 event=EventType.THINKING,
                 timestamp=self._now(),
-                content=f"正在从 SEC EDGAR 获取 {ticker} 的 10-K 报告...",
+                content=f"正在从 SEC EDGAR 获取 {ticker} 的 {filing_type} 报告...",
             ))
             
             # 获取 SEC 报告
             import asyncio
             loop = asyncio.get_event_loop()
-            report_data = await loop.run_in_executor(None, get_sec_report_summary, ticker)
+            report_data = await loop.run_in_executor(
+                None,
+                lambda: get_sec_report_summary(ticker, report_url or None, filing_type),
+            )
             
             if report_data.get("error"):
                 self._emit(StreamEvent(
                     event=EventType.TOOL_RESULT,
                     timestamp=self._now(),
-                    tool="fetch_sec_10k",
+                    tool="fetch_sec_report",
                     output={"status": "error", "error": report_data["error"]},
                 ))
                 return {
@@ -1447,7 +1478,7 @@ class StreamingAnalysisRunner:
             self._emit(StreamEvent(
                 event=EventType.TOOL_RESULT,
                 timestamp=self._now(),
-                tool="fetch_sec_10k",
+                    tool="fetch_sec_report",
                 output={
                     "status": "success", 
                     "text_length": len(report_data.get("text", "")),
@@ -1470,7 +1501,7 @@ class StreamingAnalysisRunner:
                 structured_data = await self._ai_extract_report_data(
                     ticker=ticker,
                     stock_name=stock_name,
-                    report_title=f"{ticker} 10-K",
+                    report_title=f"{ticker} {filing_type}",
                     content=key_content,
                     pre_extracted=pre_extracted_financials  # 传入预提取的数据
                 )
@@ -1485,7 +1516,7 @@ class StreamingAnalysisRunner:
                 # 缓存分析结果
                 cache_data = {
                     "ticker": ticker,
-                    "report_title": f"{ticker} 10-K",
+                    "report_title": f"{ticker} {filing_type}",
                     "summary": structured_data.get("summary", ""),
                     **structured_data,
                     "analysis_date": self._now(),
@@ -1498,7 +1529,7 @@ class StreamingAnalysisRunner:
                     "report_data": structured_data,
                     "messages": [{
                         "role": "sec_analyzer",
-                        "content": f"已分析 SEC 10-K 报告: {ticker}",
+                        "content": f"已分析 SEC {filing_type} 报告: {ticker}",
                     }],
                 }
             
@@ -1545,13 +1576,17 @@ class StreamingAnalysisRunner:
         pre_extracted_hint = ""
         if pre_extracted:
             print(f"[AI_EXTRACT] Pre-extracted financials: {pre_extracted}")
+            def format_extracted_value(key: str) -> str:
+                value = pre_extracted.get(key)
+                return f"{value:,.2f}" if isinstance(value, (int, float)) else "N/A"
+
             pre_extracted_hint = f"""
-## 已从报告中正则提取的关键数据（仅供参考，请结合财报内容确认/补充）
-- Revenue: ${pre_extracted.get('revenue', 'N/A'):,.0f} million
-- Net Income: ${pre_extracted.get('net_income', 'N/A'):,.0f} million  
-- Operating Income: ${pre_extracted.get('operating_income', 'N/A'):,.0f} million
-- Gross Margin: ${pre_extracted.get('gross_margin', 'N/A'):,.0f} million
-- EPS: ${pre_extracted.get('eps', 'N/A')}
+## 已从报告中正则提取的财务表格原始数值（仅供参考，必须结合正文单位确认）
+- Revenue raw value: {format_extracted_value('revenue')}
+- Net Income raw value: {format_extracted_value('net_income')}
+- Operating Income raw value: {format_extracted_value('operating_income')}
+- Gross Profit raw value: {format_extracted_value('gross_margin')}
+- EPS raw value: {format_extracted_value('eps')}
 """
         
         prompt = f"""你是专业的财务分析师。请仔细阅读以下 {stock_name}({ticker}) 的年报/财报内容，搜索并提取关键数据。
@@ -1559,7 +1594,7 @@ class StreamingAnalysisRunner:
 注意：这可能是美股10-K报告（英文）、港股年报（繁体中文）或A股年报（简体中文），请准确识别并提取数据。
 {pre_extracted_hint}
 ## 财报内容
-{content[:20000]}
+{content[:40000]}
 
 ## 任务
 请从财报中**搜索并提取**以下数据，以 JSON 格式返回：
@@ -1576,7 +1611,7 @@ class StreamingAnalysisRunner:
     "eps": "每股收益/每股盈利"
   }},
   "revenue_breakdown": [
-    {{"segment": "业务分部/地区名称", "revenue": "金额（如276億美元）", "ratio": "占比", "growth": "增速"}}
+    {{"dimension": "业务构成/地区构成", "segment": "业务分部/地区名称", "revenue": "金额（如276億美元）", "ratio": "占比", "growth": "增速"}}
   ],
   "business_highlights": [
     "亮点1：具体描述（如：香港业务收入159亿美元）",
@@ -1592,7 +1627,7 @@ class StreamingAnalysisRunner:
 
 **重要提示**：
 1. 数值必须从财报中准确提取，保留原始单位（如：美元、港元、人民幣）
-2. revenue_breakdown 务必提取主要业务分部或地区的收入构成
+2. revenue_breakdown 务必提取主要业务分部或地区的收入构成；业务口径与地区口径必须分别标注 dimension，不得混合为同一构成
 3. 如果某项数据在财报中找不到，设为空数组[]或空对象{{}}，不要设为null
 4. 只返回 JSON，不要其他内容"""
 

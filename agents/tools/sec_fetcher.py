@@ -4,6 +4,7 @@ SEC EDGAR 财报获取工具 - 下载和解析美股 10-K/10-Q HTM 文件
 import re
 import json
 import time
+import subprocess
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 from datetime import datetime
@@ -22,6 +23,30 @@ SEC_HEADERS = {
     "User-Agent": "InvestmentAgent research@example.com",
     "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
 }
+
+
+def fetch_url_content(url: str, timeout: int = 60) -> Optional[str]:
+    """Fetch SEC HTML with a curl fallback for local TLS interoperability issues."""
+    try:
+        with httpx.Client(timeout=timeout, headers=SEC_HEADERS, follow_redirects=True) as client:
+            response = client.get(url)
+            response.raise_for_status()
+            return response.text
+    except Exception as first_error:
+        try:
+            result = subprocess.run(
+                [
+                    "curl.exe", "-sS", "--http1.1", "--connect-timeout", "10",
+                    "--max-time", str(timeout), "-A", SEC_HEADERS["User-Agent"], url,
+                ],
+                capture_output=True,
+                check=True,
+                timeout=timeout + 5,
+            )
+            return result.stdout.decode("utf-8", errors="replace")
+        except Exception as fallback_error:
+            print(f"[SEC] Fetch failed ({first_error}); curl fallback failed: {fallback_error}")
+            return None
 
 
 def get_recent_filings(ticker: str, filing_type: str = "10-K", count: int = 5) -> List[Dict[str, Any]]:
@@ -311,11 +336,25 @@ def extract_sec_sections(text: str) -> Dict[str, str]:
     return sections
 
 
-def get_sec_report_summary(ticker: str) -> Dict[str, Any]:
+def get_sec_report_summary(
+    ticker: str,
+    document_url: Optional[str] = None,
+    filing_type: str = "10-K",
+) -> Dict[str, Any]:
     """获取 SEC 报告摘要，用于分析"""
-    text = fetch_and_parse_10k(ticker)
+    text = None
+    if document_url:
+        cache_name = f"{ticker.upper()}_{filing_type.replace('/', '-')}.txt"
+        text_file = TEXT_DIR / cache_name
+        html = fetch_url_content(document_url)
+        if html:
+            text = parse_htm_to_text(html)
+            if text and len(text) > 1000:
+                text_file.write_text(text, encoding="utf-8")
+    else:
+        text = fetch_and_parse_10k(ticker)
     if not text:
-        return {"error": "Failed to fetch 10-K", "text": "", "sections": {}, "financials": {}}
+        return {"error": f"Failed to fetch {filing_type}", "text": "", "sections": {}, "financials": {}}
     
     sections = extract_sec_sections(text)
     financials = extract_key_financials(text)

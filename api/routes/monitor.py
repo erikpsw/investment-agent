@@ -49,6 +49,22 @@ def _now() -> str:
     return datetime.now().isoformat()
 
 
+def _published_timestamp(value: Any) -> float:
+    try:
+        return float(value or 0)
+    except (TypeError, ValueError):
+        try:
+            return datetime.fromisoformat(str(value).replace("Z", "+00:00")).timestamp()
+        except ValueError:
+            return 0.0
+
+
+def _recent_events(limit: int) -> List[dict[str, Any]]:
+    rows = _read_jsonl(EVENTS_PATH, 100000)
+    rows.sort(key=lambda row: _published_timestamp(row.get("published_at")), reverse=True)
+    return rows[:limit]
+
+
 def _parse_decision_analysis(value: str) -> dict[str, Any] | None:
     text = str(value or "").strip()
     if text.startswith("```"):
@@ -142,8 +158,9 @@ class RealtimeMonitorController:
         self._log("info", "实时盯盘已停止")
         return self.status()
 
-    def analyze_once(self, request: AnalyzeRequest) -> dict[str, Any]:
-        self._log("info", "手动刷新事件流", channels=request.channels, dry_run=request.dry_run)
+    def analyze_once(self, request: AnalyzeRequest, *, trigger: str = "manual") -> dict[str, Any]:
+        action = "自动轮询事件流" if trigger == "automatic" else "手动刷新事件流"
+        self._log("info", action, channels=request.channels, dry_run=request.dry_run)
         service = get_stock_picker_service()
         rows = service._fetch_macrostream_recent(limit=request.limit)
         fetch_errors = list(getattr(service, "last_macrostream_errors", []))
@@ -163,7 +180,7 @@ class RealtimeMonitorController:
         return {
             "added": added,
             "fetched": len(rows),
-            "events": list(reversed(_read_jsonl(EVENTS_PATH, request.limit))),
+            "events": _recent_events(request.limit),
             "decision": decision,
         }
 
@@ -183,14 +200,14 @@ class RealtimeMonitorController:
         prompt = f"""请判断本轮实时盯盘新增事件中哪些需要用户立即关注。
 仅输出 JSON，不要 Markdown 代码块，结构为：
 {{
-  "summary": "本轮判断摘要",
+  "summary": "本轮判断摘要，若有多个重要事件，请合并成一段整体市场脉络",
   "reviewed_event_ids": ["事件id"],
   "important_events": [
     {{"event_id": "事件id", "title_cn": "简洁中文标题", "content_summary": "用一至两句话概述事件内容", "sector_impact": "用一至两句话说明对用户关注板块的可能影响"}}
   ],
   "ignored_reason": {{"事件id": "忽略原因"}}
 }}
-必须为每条事件给出 important_events 或 ignored_reason 之一；important_events 的标题必须翻译为中文，内容概述与板块影响都应简洁、具体，不要输出建议动作，不构成投资建议。所有字符串必须为纯文本，不要包含 Markdown 标题、列表、加粗、链接或代码标记。
+必须为每条事件给出 important_events 或 ignored_reason 之一；important_events 的标题必须翻译为中文，内容概述与板块影响都应简洁、具体，不要输出建议动作，不构成投资建议。summary 要把同一批 MacroStream 事件合并总结，不要逐条罗列。所有字符串必须为纯文本，不要包含 Markdown 标题、列表、加粗、链接或代码标记。
 
 用户偏好：
 {profile[:3000]}
@@ -243,59 +260,88 @@ class RealtimeMonitorController:
             return []
         event_lookup = {str(item.get("id")): item for item in events}
         prior_alerts = _read_jsonl(ALERTS_PATH, 10000)
-        already_sent = {
-            str(item.get("event_id"))
-            for item in prior_alerts
-            if item.get("sent") or item.get("would_send")
-        }
-        service = get_stock_picker_service()
-        results: List[dict[str, Any]] = []
+        already_sent: set[str] = set()
+        for item in prior_alerts:
+            if not (item.get("sent") or item.get("would_send")):
+                continue
+            if item.get("event_id"):
+                already_sent.add(str(item.get("event_id")))
+            if isinstance(item.get("event_ids"), list):
+                already_sent.update(str(event_id) for event_id in item["event_ids"] if event_id)
+        alert_items: List[dict[str, Any]] = []
         for item in important:
             if not isinstance(item, dict):
                 continue
             event_id = str(item.get("event_id") or "")
-            if not event_id:
+            if not event_id or event_id in already_sent:
                 continue
             event = event_lookup.get(event_id, {})
             title = str(item.get("title_cn") or item.get("title") or event.get("title") or event.get("summary") or "实时盯盘重点事件")[:120]
             content_summary = str(item.get("content_summary") or item.get("reason") or "该事件被识别为需要及时关注的市场动态。")
             sector_impact = str(item.get("sector_impact") or item.get("action") or item.get("action_taken") or "可能影响相关市场情绪与关注板块走势，需继续观察后续变化。")
-            text = (
-                f"【实时盯盘】{title}\n\n"
-                f"内容概述：{content_summary}\n\n"
-                f"关注板块影响：{sector_impact}\n\n"
-                f"原文：{event.get('source_url') or '--'}"
+            alert_items.append(
+                {
+                    "event_id": event_id,
+                    "title": title,
+                    "content_summary": content_summary,
+                    "sector_impact": sector_impact,
+                    "source_url": event.get("source_url") or "--",
+                }
             )
-            record: dict[str, Any] = {
-                "timestamp": _now(),
-                "event_id": event_id,
-                "title": title,
-                "severity": "medium",
-                "text": text,
-                "dry_run": dry_run,
-                "trigger_source": "decision_important_event",
-            }
-            if event_id in already_sent:
-                record.update({"sent": False, "deduped": True, "reason": "event already alerted"})
-            elif dry_run:
-                record.update({"sent": False, "would_send": True})
-                already_sent.add(event_id)
-            else:
-                send_result = service._send_feishu_text(text)
-                record.update({"sent": bool(send_result.get("ok")), "send_result": send_result})
-                if record["sent"]:
-                    already_sent.add(event_id)
-            _append_jsonl(ALERTS_PATH, record)
-            results.append(record)
-            self._log(
-                "info" if record.get("sent") or record.get("would_send") or record.get("deduped") else "error",
-                "飞书提醒处理完成",
-                event_id=event_id,
-                sent=record.get("sent", False),
-                dry_run=dry_run,
-                deduped=record.get("deduped", False),
-            )
-        return results
+        if not alert_items:
+            return []
+
+        summary = str(parsed.get("summary") or "本轮新增事件包含需要关注的市场变化。")
+        titles = "；".join(item["title"] for item in alert_items[:3])
+        event_lines = "\n".join(
+            f"{index}、{item['title']}：{item['content_summary']}"
+            for index, item in enumerate(alert_items, start=1)
+        )
+        impact_lines = "\n".join(
+            f"{index}、{item['sector_impact']}"
+            for index, item in enumerate(alert_items, start=1)
+        )
+        source_lines = "\n".join(
+            f"{index}、{item['source_url']}"
+            for index, item in enumerate(alert_items, start=1)
+        )
+        text = (
+            f"【实时盯盘合并提醒】本轮 {len(alert_items)} 条重要事件\n\n"
+            f"整体总结：{summary}\n\n"
+            f"事件概述：\n{event_lines}\n\n"
+            f"关注板块影响：\n{impact_lines}\n\n"
+            f"原文：\n{source_lines}"
+        )
+        event_ids = [item["event_id"] for item in alert_items]
+        record: dict[str, Any] = {
+            "timestamp": _now(),
+            "event_id": event_ids[0],
+            "event_ids": event_ids,
+            "title": titles,
+            "severity": "medium",
+            "text": text,
+            "dry_run": dry_run,
+            "trigger_source": "decision_important_events_batch",
+        }
+        if dry_run:
+            record.update({"sent": False, "would_send": True})
+            already_sent.update(event_ids)
+        else:
+            service = get_stock_picker_service()
+            send_result = service._send_feishu_text(text)
+            record.update({"sent": bool(send_result.get("ok")), "send_result": send_result})
+            if record["sent"]:
+                already_sent.update(event_ids)
+        _append_jsonl(ALERTS_PATH, record)
+        self._log(
+            "info" if record.get("sent") or record.get("would_send") else "error",
+            "飞书合并提醒处理完成",
+            event_ids=event_ids,
+            sent=record.get("sent", False),
+            dry_run=dry_run,
+            count=len(event_ids),
+        )
+        return [record]
 
     def _loop(self) -> None:
         while not self._stop.is_set():
@@ -305,7 +351,8 @@ class RealtimeMonitorController:
                         dry_run=self.config.dry_run,
                         limit=20,
                         channels=self.config.channels,
-                    )
+                    ),
+                    trigger="automatic",
                 )
             except Exception as exc:
                 self._log("error", "事件流刷新失败", error=str(exc)[:240])
@@ -341,7 +388,7 @@ async def monitor_analyze_once(request: AnalyzeRequest):
 
 @router.get("/monitor/events")
 async def monitor_events(limit: int = Query(default=100, ge=1, le=500)):
-    return {"status": "ok", "result": list(reversed(_read_jsonl(EVENTS_PATH, limit)))}
+    return {"status": "ok", "result": _recent_events(limit)}
 
 
 @router.get("/monitor/logs")

@@ -21,7 +21,7 @@ except ImportError:
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from investment.api.routes import quotes, search, history, financials, analysis, reports, financial_history, report_analysis, pdf_analysis, news, foreign_reports, disclosure, stock_picker, monitor, sectors
+from investment.api.routes import quotes, search, history, financials, analysis, reports, financial_history, report_analysis, pdf_analysis, news, foreign_reports, disclosure, stock_picker, monitor, sectors, portfolio
 
 
 @asynccontextmanager
@@ -69,6 +69,7 @@ app.include_router(disclosure.router, prefix="/api", tags=["disclosure"])
 app.include_router(stock_picker.router, prefix="/api", tags=["stock-picker"])
 app.include_router(monitor.router, prefix="/api", tags=["monitor"])
 app.include_router(sectors.router, prefix="/api", tags=["sectors"])
+app.include_router(portfolio.router, prefix="/api", tags=["portfolio"])
 
 
 @app.get("/")

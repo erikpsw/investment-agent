@@ -1,0 +1,29 @@
+{
+  "updated_at": "2026-06-11T18:11:19.390492",
+  "positions": [
+    {
+      "ticker": "hk07709",
+      "name": "ＸＬ二南方海力士",
+      "market": "HK",
+      "quantity": 200.0,
+      "avg_cost": 102.0,
+      "notes": ""
+    },
+    {
+      "ticker": "sh601231",
+      "name": "环旭电子",
+      "market": "CN",
+      "quantity": 300.0,
+      "avg_cost": 35.87,
+      "notes": ""
+    },
+    {
+      "ticker": "sh601066",
+      "name": "中信建投",
+      "market": "CN",
+      "quantity": 600.0,
+      "avg_cost": 24.99,
+      "notes": ""
+    }
+  ]
+}

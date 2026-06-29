@@ -235,6 +235,35 @@ def _search_us_by_alias(query: str) -> List[Dict[str, Any]]:
     return results
 
 
+def _search_hk_direct_quote(query: str) -> List[Dict[str, Any]]:
+    raw = query.strip().lower().replace(" ", "")
+    if raw.startswith("hk"):
+        digits = raw[2:]
+    elif raw.endswith(".hk"):
+        digits = raw[:-3]
+    elif raw.isdigit() and len(raw) in (4, 5):
+        digits = raw
+    else:
+        return []
+    if not digits.isdigit():
+        return []
+    code = f"hk{digits.zfill(5)}"
+    try:
+        quote = fetcher.get_quote(code)
+        if quote.get("error") or quote.get("price") is None:
+            return []
+        name = quote.get("name") or quote.get("name_en") or code
+        return [{
+            "code": code,
+            "name": name,
+            "market": "HK",
+            "display": f"{name} ({code})",
+            "exchange": "HKEX",
+        }]
+    except Exception:
+        return []
+
+
 def _search_yfinance(query: str, limit: int = 5) -> List[Dict[str, Any]]:
     """使用 yfinance 搜索美股作为备用"""
     try:
@@ -281,6 +310,12 @@ async def search_stocks(
             if r["code"] not in seen_codes:
                 seen_codes.add(r["code"])
                 results.append(r)
+        if not results:
+            hk_direct = await loop.run_in_executor(executor, lambda: _search_hk_direct_quote(q))
+            for r in hk_direct:
+                if r["code"] not in seen_codes:
+                    seen_codes.add(r["code"])
+                    results.append(r)
     
     if market in ("all", "us", "US"):
         for r in _search_us_by_alias(q):

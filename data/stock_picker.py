@@ -938,21 +938,26 @@ class StockPickerService:
             "Referer": "https://www.macrostream.ai/",
             "Origin": "https://www.macrostream.ai",
         }
-        try:
-            resp = requests.post(url, json=payload, headers=headers, timeout=15)
-            if resp.status_code >= 400:
-                self.last_macrostream_errors.append(f"HTTP {resp.status_code}: {resp.text[:120]}")
+        for attempt in range(2):
+            try:
+                resp = requests.post(url, json=payload, headers=headers, timeout=15)
+                if resp.status_code >= 400:
+                    self.last_macrostream_errors.append(f"HTTP {resp.status_code}: {resp.text[:120]}")
+                    return []
+                data = resp.json()
+                if isinstance(data, dict) and data.get("code") not in (None, 0):
+                    self.last_macrostream_errors.append(str(data.get("message") or data.get("code")))
+                    return []
+                items = self._find_macrostream_items(data)
+                if items:
+                    return items
+                self.last_macrostream_errors.append("response contained no events")
                 return []
-            data = resp.json()
-            if isinstance(data, dict) and data.get("code") not in (None, 0):
-                self.last_macrostream_errors.append(str(data.get("message") or data.get("code")))
-                return []
-            items = self._find_macrostream_items(data)
-            if items:
-                return items
-            self.last_macrostream_errors.append("response contained no events")
-        except Exception as exc:
-            self.last_macrostream_errors.append(str(exc)[:180])
+            except requests.RequestException as exc:
+                if attempt == 0:
+                    time.sleep(0.5)
+                    continue
+                self.last_macrostream_errors.append(str(exc)[:180])
         return []
 
     def _find_macrostream_items(self, data: Any) -> List[Dict[str, Any]]:

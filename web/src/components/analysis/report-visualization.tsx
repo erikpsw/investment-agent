@@ -22,25 +22,25 @@ interface KeyFinancials {
 }
 
 interface RevenueBreakdown {
-  segment: string;
-  revenue: string;
-  ratio: string;
-  growth: string;
-  dimension?: string;
+  segment: unknown;
+  revenue: unknown;
+  ratio: unknown;
+  growth: unknown;
+  dimension?: unknown;
 }
 
 interface Risk {
-  type: string;
-  description: string;
-  level: "high" | "medium" | "low";
+  type: unknown;
+  description: unknown;
+  level: unknown;
 }
 
 interface ReportData {
-  key_financials?: KeyFinancials;
+  key_financials?: Record<string, unknown>;
   revenue_breakdown?: RevenueBreakdown[];
-  business_highlights?: string[];
+  business_highlights?: unknown[];
   risks?: Risk[];
-  outlook?: string;
+  outlook?: unknown;
 }
 
 interface ReportVisualizationProps {
@@ -59,18 +59,28 @@ const COLORS = [
   "bg-teal-500",
 ];
 
-function parsePercentage(str: string): number {
+function toText(value: unknown): string {
+  if (typeof value === "string") return value;
+  if (typeof value === "number" && Number.isFinite(value)) return String(value);
+  return "";
+}
+
+function parsePercentage(value: unknown): number {
+  const str = toText(value);
   const match = str.match(/([\d.]+)/);
   return match ? parseFloat(match[1]) : 0;
 }
 
-function formatMetricValue(value?: string): string {
-  if (!value || value === "{}" || value === "[]") return "";
-  if (value.includes("元/股")) return value;
-  const match = value.match(/^([\d,]+(?:\.\d+)?)元(?:人民币)?(.*)$/);
-  if (!match) return value;
+function formatMetricValue(value: unknown, label?: string): string {
+  const text = toText(value);
+  if (!text || text === "{}" || text === "[]") return "";
+  if (label === "每股收益" || text.includes("元/股")) {
+    return text.includes("元/股") ? text : text.replace(/元(?!\/股)/, "元/股");
+  }
+  const match = text.match(/^([\d,]+(?:\.\d+)?)元(?:人民币)?(.*)$/);
+  if (!match) return text;
   const amount = Number(match[1].replaceAll(",", ""));
-  if (!Number.isFinite(amount)) return value;
+  if (!Number.isFinite(amount)) return text;
   if (Math.abs(amount) >= 100_000_000) {
     return `${(amount / 100_000_000).toFixed(2)}亿元${match[2]}`;
   }
@@ -78,8 +88,11 @@ function formatMetricValue(value?: string): string {
 }
 
 function breakdownDimension(item: RevenueBreakdown): string {
-  if (item.dimension) return item.dimension;
-  return /内销|出口|境内|境外|国内|海外/.test(item.segment) ? "地区构成" : "业务构成";
+  const dimension = toText(item.dimension);
+  if (dimension) return dimension;
+  return /内销|出口|境内|境外|国内|海外|中国|亚洲|欧洲|美洲|北美|南美|中东|非洲|亚太|全球其他|其他地区|地区/i.test(toText(item.segment))
+    ? "地区构成"
+    : "业务构成";
 }
 
 function PieChartSimple({ data }: { data: RevenueBreakdown[] }) {
@@ -133,14 +146,14 @@ function PieChartSimple({ data }: { data: RevenueBreakdown[] }) {
         {data.map((item, index) => (
           <div key={index} className="flex items-center gap-2 text-sm">
             <div className={`size-3 rounded-full ${COLORS[index % COLORS.length]}`} />
-            <span className="flex-1 truncate">{item.segment}</span>
-            <span className="font-mono text-muted-foreground">{item.ratio}</span>
-            {item.growth && (
+            <span className="flex-1 truncate">{toText(item.segment)}</span>
+            <span className="font-mono text-muted-foreground">{toText(item.ratio)}</span>
+            {toText(item.growth) && (
               <Badge
-                variant={item.growth.includes("-") ? "destructive" : "secondary"}
+                variant={toText(item.growth).includes("-") ? "destructive" : "secondary"}
                 className="text-xs"
               >
-                {item.growth}
+                {toText(item.growth)}
               </Badge>
             )}
           </div>
@@ -156,14 +169,13 @@ function MetricCard({
   icon: Icon,
 }: {
   label: string;
-  value: string;
+  value: unknown;
   icon: React.ElementType;
 }) {
-  const isPositive = value.includes("+") || (value.includes("%") && !value.includes("-"));
-  const isNegative = value.includes("-");
-
-  const displayValue = formatMetricValue(value);
+  const displayValue = formatMetricValue(value, label);
   if (!displayValue) return null;
+  const isPositive = displayValue.includes("+") || (displayValue.includes("%") && !displayValue.includes("-"));
+  const isNegative = displayValue.includes("-");
 
   return (
     <div className="flex flex-col gap-2 rounded-lg bg-muted/50 p-4">
@@ -203,8 +215,11 @@ export function ReportVisualization({ data }: ReportVisualizationProps) {
 
   const { key_financials, revenue_breakdown, business_highlights, risks, outlook } = data;
   const financials = key_financials
-    ? Object.fromEntries(
-        Object.entries(key_financials).map(([key, value]) => [key, formatMetricValue(value)])
+      ? Object.fromEntries(
+        Object.entries(key_financials).map(([key, value]) => [
+          key,
+          formatMetricValue(value, key === "eps" ? "每股收益" : undefined),
+        ])
       ) as KeyFinancials
     : undefined;
   const breakdownGroups = (revenue_breakdown || []).reduce<Record<string, RevenueBreakdown[]>>(
@@ -219,9 +234,9 @@ export function ReportVisualization({ data }: ReportVisualizationProps) {
   const hasData =
     (financials && Object.values(financials).some(Boolean)) ||
     (revenue_breakdown && revenue_breakdown.length > 0) ||
-    (business_highlights && business_highlights.length > 0) ||
+    (business_highlights && business_highlights.some((item) => toText(item))) ||
     (risks && risks.length > 0) ||
-    outlook;
+    Boolean(toText(outlook));
 
   if (!hasData) {
     return null;
@@ -289,7 +304,7 @@ export function ReportVisualization({ data }: ReportVisualizationProps) {
       )}
 
       {/* 业务亮点 */}
-      {business_highlights && business_highlights.length > 0 && (
+      {business_highlights && business_highlights.some((item) => toText(item)) && (
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
@@ -302,7 +317,7 @@ export function ReportVisualization({ data }: ReportVisualizationProps) {
               {business_highlights.map((highlight, index) => (
                 <li key={index} className="flex items-start gap-2">
                   <CheckCircle className="h-4 w-4 text-green-500 mt-0.5 shrink-0" />
-                  <span className="text-sm">{highlight}</span>
+                  <span className="text-sm">{toText(highlight)}</span>
                 </li>
               ))}
             </ul>
@@ -328,10 +343,10 @@ export function ReportVisualization({ data }: ReportVisualizationProps) {
                 >
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium text-sm">{risk.type}</span>
-                      <RiskBadge level={risk.level} />
+                      <span className="font-medium text-sm">{toText(risk.type)}</span>
+                      <RiskBadge level={toText(risk.level)} />
                     </div>
-                    <p className="text-sm text-muted-foreground">{risk.description}</p>
+                    <p className="text-sm text-muted-foreground">{toText(risk.description)}</p>
                   </div>
                 </div>
               ))}
@@ -341,7 +356,7 @@ export function ReportVisualization({ data }: ReportVisualizationProps) {
       )}
 
       {/* 发展展望 */}
-      {outlook && (
+      {toText(outlook) && (
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-base flex items-center gap-2">
@@ -350,7 +365,7 @@ export function ReportVisualization({ data }: ReportVisualizationProps) {
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground leading-relaxed">{outlook}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">{toText(outlook)}</p>
           </CardContent>
         </Card>
       )}

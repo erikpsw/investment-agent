@@ -195,6 +195,65 @@ export interface SectorItem {
   stocks?: StockPickItem[];
 }
 
+export interface PortfolioPosition {
+  ticker: string;
+  name?: string;
+  market?: string;
+  quantity: number;
+  avg_cost: number;
+  notes?: string;
+  current_price?: number | null;
+  cost?: number | null;
+  market_value?: number | null;
+  pnl?: number | null;
+  pnl_percent?: number | null;
+  day_change_percent?: number | null;
+  weight?: number | null;
+  errors?: string[];
+}
+
+export interface PortfolioAnalysisItem extends PortfolioPosition {
+  current_price?: number | null;
+  cost?: number | null;
+  market_value?: number | null;
+  pnl?: number | null;
+  pnl_percent?: number | null;
+  day_change_percent?: number | null;
+  weight?: number | null;
+  technical?: {
+    status?: string;
+    latest_close?: number | null;
+    ma20?: number | null;
+    ma60?: number | null;
+    change_5d?: number | null;
+    change_20d?: number | null;
+    distance_to_high_20d?: number | null;
+    rsi14?: number | null;
+    volume_ratio?: number | null;
+    summary?: string;
+  };
+  recent_news?: Array<{
+    title?: string;
+    link?: string;
+    source?: string;
+    published?: string | null;
+    published_date?: string | null;
+    summary?: string | null;
+  }>;
+  errors?: string[];
+}
+
+export interface PortfolioAnalysisResult {
+  generated_at: string;
+  positions: PortfolioAnalysisItem[];
+  summary: string;
+  total_cost: number;
+  total_market_value: number;
+  total_pnl: number;
+  total_pnl_percent?: number | null;
+  agent_view: string;
+}
+
 class ApiClient {
   private baseUrl: string;
 
@@ -320,6 +379,24 @@ class ApiClient {
 
   async getSectors(): Promise<{ status: string; result: { generated_at?: string; sectors: SectorItem[]; coverage_count: number; source: string } }> {
     return this.fetch<{ status: string; result: { generated_at?: string; sectors: SectorItem[]; coverage_count: number; source: string } }>("/api/sectors");
+  }
+
+  async getPortfolioPositions(): Promise<{ status: string; result: { updated_at?: string | null; positions: PortfolioPosition[]; path: string } }> {
+    return this.fetch<{ status: string; result: { updated_at?: string | null; positions: PortfolioPosition[]; path: string } }>("/api/portfolio/positions");
+  }
+
+  async savePortfolioPositions(positions: PortfolioPosition[]): Promise<{ status: string; result: { updated_at?: string | null; positions: PortfolioPosition[]; path: string } }> {
+    return this.fetch<{ status: string; result: { updated_at?: string | null; positions: PortfolioPosition[]; path: string } }>("/api/portfolio/positions", {
+      method: "PUT",
+      body: JSON.stringify({ positions }),
+    });
+  }
+
+  async analyzePortfolio(): Promise<{ status: string; result: PortfolioAnalysisResult }> {
+    return this.fetch<{ status: string; result: PortfolioAnalysisResult }>("/api/portfolio/analyze", {
+      method: "POST",
+      body: JSON.stringify({}),
+    });
   }
 
   async getFinancials(ticker: string): Promise<FinancialMetrics> {

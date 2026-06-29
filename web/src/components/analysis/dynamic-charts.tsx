@@ -1,6 +1,5 @@
 "use client";
 
-import { useMemo } from "react";
 import {
   LineChart,
   Line,
@@ -42,14 +41,6 @@ interface DynamicChartsProps {
   className?: string;
 }
 
-const COLORS = [
-  "hsl(var(--chart-1))",
-  "hsl(var(--chart-2))",
-  "hsl(var(--chart-3))",
-  "hsl(var(--chart-4))",
-  "hsl(var(--chart-5))",
-];
-
 const DEFAULT_COLORS = [
   "#3b82f6",
   "#10b981",
@@ -66,6 +57,8 @@ function getColor(index: number, customColor?: string): string {
 
 function formatValue(value: unknown, unit?: string): string {
   if (typeof value !== "number") return String(value);
+  if (unit === "亿") return `${(value / 1e8).toFixed(2)}亿`;
+  if (unit === "%") return `${(value * 100).toFixed(2)}%`;
   
   const formatted = formatLargeNumber(value);
   return unit ? `${formatted}${unit}` : formatted;

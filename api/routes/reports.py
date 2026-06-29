@@ -120,35 +120,44 @@ async def get_reports(
 async def _get_us_reports(ticker: str, report_type: str, years: int) -> List[ReportItem]:
     """获取美股财报列表"""
     loop = asyncio.get_event_loop()
-    
-    # 映射报告类型
-    type_map = {
-        "年报": "10-K",
-        "半年报": "10-Q",  # 美股没有半年报，用季报代替
-        "季报": "10-Q",
-        "Q1": "10-Q",
-        "Q3": "10-Q",
-    }
-    filing_type = type_map.get(report_type, "10-K")
-    limit = years * (4 if filing_type == "10-Q" else 1)
-    
-    filings = await loop.run_in_executor(
-        executor,
-        sec_client.get_filings_list,
-        ticker,
-        filing_type,
-        limit,
-    )
+
+    if report_type == "年报":
+        limit = years
+        filings = await loop.run_in_executor(
+            executor,
+            sec_client.get_annual_reports,
+            ticker,
+            limit,
+        )
+    else:
+        limit = years * 4
+        filings = await loop.run_in_executor(
+            executor,
+            sec_client.get_filings_list,
+            ticker,
+            "10-Q",
+            limit,
+        )
     
     items = []
     for f in filings:
+        filing_type = f.get("type", "")
+        filing_labels = {
+            "10-K": "年度报告",
+            "20-F": "年度报告（外国发行人）",
+            "20-F/A": "年度报告修订版（外国发行人）",
+            "10-Q": "季度报告",
+        }
+        description = f.get("description", "")
+        display_description = filing_labels.get(filing_type, description or filing_type)
         items.append(ReportItem(
             stock_code=f.get("ticker", ticker),
             stock_name=None,
-            title=f"{f.get('type', '')} - {f.get('description', '')}",
+            title=f"{filing_type} - {display_description}",
             time=f.get("date"),
             url=f.get("url"),
             announcement_url=f.get("url"),
+            has_pdf=f.get("source") == "investor_relations",
         ))
     
     return items

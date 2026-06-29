@@ -1,0 +1,788 @@
+x | ANNUAL REPORT PURSUANT TO SECTION 13 OR 15(d) OF THE SECURITIES EXCHANGE ACT OF 1934
+o | TRANSITION REPORT PURSUANT TO SECTION 13 OR 15(d) OF THE SECURITIES EXCHANGE ACT OF 1934
+Australia | [Not Applicable]
+(State or other jurisdiction ofincorporation or organization) | (I.R.S. EmployerIdentification No.)
+Level 6, 55 Market StreetSydney, NSW 2000Australia | 2000
+(Address of principal executive offices) | (Zip Code)
+Title of each class | Trading Symbol(s) | Name of each exchange on which registered
+Ordinary shares, no par value | IREN | The Nasdaq Global Select Market
+Large accelerated filer | x | Accelerated filer | o
+Non-accelerated filer | o | Smaller reporting company | o
+Emerging growth company | o
+PART I
+Item 1. | Business | 12
+Item 1A. | Risk Factors | 29
+Item 1B. | Unresolved Staff Comments | 100
+Item 1C. | Cybersecurity | 100
+Item 2. | Properties | 101
+Item 3. | Legal Proceedings | 102
+Item 4. | Mine Safety Disclosures | 104
+PART II
+Item 5. | Market for Registrant’s Common Equity, Related Stockholder Matters and Issuer Purchases of Equity Securities | 105
+Item 6. | [Reserved] | 106
+Item 7. | Management’s Discussion and Analysis of Financial Condition and Results of Operations | 106
+Item 7A. | Quantitative and Qualitative Disclosures about Market Risk | 128
+Item 8. | Financial Statements and Supplementary Data | 1
+Item 9. | Changes in and Disagreements with Accountants on Accounting and Financial Disclosure | 56
+Item 9A. | Controls and Procedures | 56
+Item 9B. | Other Information | 57
+Item 9C. | Disclosure Regarding Foreign Jurisdictions that Prevent Inspections | 57
+PART III
+Item 10. | Directors, Executive Officers and Corporate Governance | 58
+Item 11. | Executive Compensation | 58
+Item 12. | Security Ownership of Certain Beneficial Owners and Management and Related Stockholder Matters | 58
+Item 13. | Certain Relationships and Related Transactions, and Director Independence | 58
+Item 14. | Principal Accountant Fees and Services | 58
+PART IV
+Item 15. | Exhibits and Financial Statement Schedules | 59
+Item 16. | Form 10-K Summary | 61
+SIGNATURES
+Site | Capacity(MW) | Capacity(EH/s) | Status
+Canal Flats (British Columbia, Canada) | 30 | 1.6 | Operating
+Mackenzie (British Columbia, Canada) | 80 | 5.2 | Operating
+Prince George (British Columbia, Canada) | 50 | 3.1 | Operating
+Childress BTC Mining (Texas, USA) | 650 | 40.1 | Operating
+Total Operating | 810 | 50.0
+Childress Horizon 1 (Texas, USA) | 75 | N/A | Under construction
+Sweetwater 1 (Texas, USA) | 1,400 | N/A | Substation under construction
+Total Construction | 1,475 | N/A
+Childress Expansion | 25 | Power available
+Sweetwater 2 (Texas, USA) | 600 | Connection agreement signed
+Additional Pipeline | >1,000 | Development
+Total | >3,910
+Three Months Ended
+June 30,2025 | March 31, 2025 | December 31, 2024 | September 30, 2024
+($ thousands) | ($ thousands) | ($ thousands) | ($ thousands)
+Revenue:
+Bitcoin Mining Revenue | $ | 180,330 | $ | 141,242 | $ | 113,483 | $ | 49,575
+AI Cloud Services Revenue | 6,963 | 3,581 | 2,660 | 3,189
+Total revenue | 187,293 | 144,823 | 116,143 | 52,764
+Cost of revenue (exclusive of depreciation and amortization shown below):
+Bitcoin Mining | (52,412) | (41,614) | (32,019) | (31,627)
+AI Cloud Services | (475) | (336) | (276) | (232)
+Total cost of revenue | (52,887) | (41,950) | (32,295) | (31,859)
+Operating (expenses) income:
+Selling, general and administrative expenses | (53,297) | (29,098) | (28,891) | (25,171)
+Depreciation and amortization | (63,815) | (47,312) | (36,077) | (33,931)
+Impairment of assets | 2,396 | (95) | — | (9,524)
+Gain (loss) on disposal of property, plant and equipment | 2,325 | 1,525 | (681) | 833
+Other operating expenses | (3,038) | (1,865) | (3,994) | (4,405)
+Other operating income | 1,593 | 3,090 | 3,104 | 1,626
+Total operating (expenses) income | (113,836) | (73,755) | (66,539) | (70,572)
+Operating (loss) income | 20,570 | 29,118 | 17,309 | (49,667)
+Other (expense) income:
+Finance expense | (5,183) | (4,119) | (1,722) | (22)
+Interest income | 1,703 | 1,926 | 1,587 | 2,289
+Increase (decrease) in fair value of assets held for sale | (2,676) | — | 516 | —
+Realized gain (loss) on financial assets | — | — | — | (4,215)
+Unrealized gain (loss) on financial instruments | 147,718 | (37,900) | (32,300) | —
+Gain on partial extinguishment of financial liabilities | 9,093 | — | — | —
+Foreign exchange gain (loss) | 2,353 | (319) | (4,563) | 1,190
+Other non-operating income | 523 | — | 289 | 5
+Total other (expense) income | 153,531 | (40,412) | (36,193) | (753)
+Income (loss) before taxes | 174,101 | (11,294) | (18,884) | (50,420)
+Income tax (provision) benefit | 2,767 | (5,038) | (3,009) | (1,280)
+Net income (loss) | $ | 176,868 | $ | (16,332) | $ | (21,893) | $ | (51,700)
+Net income (loss) per share of Ordinary shares:
+Basic net income (loss) per share of Ordinary shares | $ | 0.74 | $ | (0.07) | $ | (0.10) | $ | (0.27)
+Basic weighted-average shares used in computing net income (loss) per share of Ordinary shares | 240,121,220 | 218,659,835 | 210,470,186 | 189,262,447
+Diluted net income (loss) per share of Ordinary shares | $ | 0.66 | $ | (0.07) | $ | (0.10) | $ | (0.27)
+Diluted weighted-average shares used in computing net income (loss) per share of Ordinary shares | 273,520,160 | 218,659,835 | 210,470,186 | 189,262,447
+Year Ended June 30,
+2025 | 2024 | 2023
+($ thousands) | ($ thousands) | ($ thousands)
+Net income (loss) | 86,941 | (28,920) | (171,827)
+Income tax provision (benefit) | 6,560 | 3,453 | 2,390
+Finance expense | 11,045 | 98 | 16,207
+Interest income | (7,504) | (5,831) | (924)
+Depreciation | 181,136 | 50,470 | 30,673
+EBITDA | 278,178 | 19,270 | (123,481)
+Revenue | 501,023 | 187,192 | 75,509
+Net income (loss) margin (1) | 17 | % | (15 | %) | (228 | %)
+EBITDA margin (2) | 56 | % | 10 | % | (164 | %)
+Add (deduct) the following:
+Unrealized (gain) loss on financial instruments | (77,518) | 3,448 | -
+(Increase) decrease in fair value of assets held for sale (3) | 2,160 | - | -
+Gain on partial extinguishment of financial liabilities | (9,093) | - | -
+Non-cash stock-based compensation expense – $75 exercise price options | 11,814 | 11,810 | 12,186
+Non-cash stock-based compensation expense – other | 30,828 | 11,826 | 2,170
+Impairment of assets (4) | 7,223 | - | 105,172
+Foreign exchange (gain) loss | 1,339 | 4,747 | 191
+Other one-off income (5) | (1,699) | (108) | (3,117)
+Gain on disposal of subsidiaries (6) | - | - | (3,258)
+(Gain) loss on disposal of property, plant and equipment | (4,002) | (43) | 6,628
+Other one-off expense items (7) | 30,443 | 3,476 | 4,613
+Adjusted EBITDA | 269,672 | 54,427 | 1,103
+Adjusted EBITDA margin (8) | 54 | % | 29 | % | 1 | %
+Total Electricity charges (included in Cost of revenue) | $ | (148,054) | $ | (81,605) | $ | (35,753)
+Realized gain (loss) on financial asset | (4,215) | 4,121 | -
+One off liquidation payment (included in Realized gain (loss) on financial asset) (1) | 7,210 | - | -
+Reversal of unrealized loss (included in Realized gain (loss) on financial asset) (2) | (3,448) | - | -
+Demand response program income (included in Other operating income) | 7,715 | 1,566 | -
+Demand response program fees (included in Selling, general and administrative expenses) | (463) | (94) | -
+Total net electricity costs | (141,256) | (76,012) | (35,753)
+Electricity charges - AI Cloud Services (included in Cost of revenue - AI Cloud Services) | 249 | 42 | -
+Net electricity costs - Bitcoin Mining | (141,007) | (75,970) | (35,753)
+Bitcoin mined | 5,499 | 4,191 | 3,259
+Net electricity costs per Bitcoin mined (3) | (25.6) | (18.1) | (11.0)
+Bitcoin Mining Revenue | $ | 484,629 | $ | 184,087 | $ | 75,509
+AI Cloud Services Revenue | 16,394 | 3,105 | —
+Total revenue | 501,023 | 187,192 | 75,509
+Bitcoin Mining | (157,673) | (86,688) | (39,419)
+AI Cloud Services | (1,319) | (379) | —
+Total cost of revenue | (158,992) | (87,067) | (39,419)
+Selling, general and administrative expenses | (136,458) | (70,424) | (49,004)
+Depreciation and amortization | (181,136) | (50,470) | (30,673)
+Impairment of assets | (7,223) | — | (105,172)
+Gain (loss) on disposal of property, plant and equipment | 4,002 | 43 | (6,628)
+Other operating expenses | (13,302) | (8,074) | (4,971)
+Other operating income | 9,413 | 1,566 | 3,117
+Total operating (expenses) income | (324,704) | (127,359) | (193,331)
+Operating (loss) income | 17,327 | (27,234) | (157,241)
+Finance expense | (11,045) | (98) | (16,207)
+Interest income | 7,504 | 5,831 | 924
+Increase (decrease) in fair value of assets held for sale | (2,160) | — | —
+Realized gain (loss) on financial assets | (4,215) | 4,121 | —
+Unrealized gain (loss) on financial instruments | 77,518 | (3,448) | —
+Gain on partial extinguishment of financial liabilities | 9,093 | — | —
+Gain (loss) on disposal of subsidiaries | — | — | 3,258
+Foreign exchange gain (loss) | (1,339) | (4,747) | (191)
+Other non-operating income | 817 | 108 | 20
+Total other (expense) income | 76,173 | 1,767 | (12,196)
+Income (loss) before taxes | 93,501 | (25,467) | (169,437)
+Income tax (provision) benefit | (6,560) | (3,453) | (2,390)
+Net income (loss) | $ | 86,941 | $ | (28,920) | $ | (171,827)
+Net cash from (used in) operating activities | 245,886 | 52,219 | 5,729
+Net cash from (used in) investing activities | (1,380,487) | (498,466) | (71,467)
+Net cash from (used in) financing activities | 1,294,735 | 782,626 | 28,558
+Net cash and cash equivalents increase/(decrease) | 160,134 | 336,379 | (37,182)
+Cash and cash equivalents at the beginning of the period | 404,601 | 68,894 | 109,970
+Effects of exchange rate changes on cash and cash equivalents | (209) | (672) | (3,894)
+Net cash and cash equivalents at the end of the period | $ | 564,526 | $ | 404,601 | $ | 68,894
+IREN Limited
+Contents
+Audited Consolidated Financial Statements
+Report of Independent Registered Public Accounting Firm(PCAOB ID No.1232) | F-1
+Consolidated Balance Sheets as atJune 30, 2025andJune 30, 2024 | F-4
+Consolidated Statements of Operations and Comprehensive Income (Loss)for the years endedJune 30 2025,2024, and2023 | F-5
+Consolidated Statements of Stockholders' Equity for the years endedJune 30 2025,2024, and2023 | F-6
+Consolidated Statements of Cash Flows for the years endedJune 30 2025,2024, and2023 | F-7
+Notes to the Consolidated Financial Statements | F-8
+Consolidated Balance Sheets
+As at June 30, 2025 and 2024
+(in USD thousands, except share and per share data) | Note | June 30,2025 | June 30,2024
+Assets
+Current assets
+Cash and cash equivalents | $ | 564,526 | $ | 404,601
+Accounts receivable, net | 1,564 | 152
+Deposits and prepaid expenses | 9 | 45,908 | 11,888
+Derivative assets | 14 | 5,756 | —
+Financial assets | 10 | — | 6,530
+Income taxes receivable | 22 | 2,581 | —
+Other receivables | 11 | 20,838 | 29,214
+Total current assets | 641,173 | 452,385
+Non-current assets
+Property, plant and equipment, net | 12 | 1,930,567 | 441,371
+Operating lease right-of-use asset, net | 17 | 1,463 | 1,336
+Deposits and prepaid expenses | 9 | 32,916 | 257,300
+Financial assets | 10 | 211,617 | —
+Derivative assets | 14 | 122,100 | —
+Other non-current assets | 486 | 427
+Total non-current assets | 2,299,150 | 700,434
+Total assets | $ | 2,940,323 | $ | 1,152,819
+Liabilities and stockholders' equity
+Current liabilities
+Accounts payable and accrued expenses | 16 | $ | 144,115 | $ | 45,494
+Operating lease liability, current portion | 17 | 404 | 289
+Income taxes payable | 22 | — | 1,389
+Deferred revenue | 884 | 2,558
+Other liabilities, current portion | 3,945 | 1,342
+Total current liabilities | 149,347 | 51,072
+Non-current liabilities
+Operating lease liability, less current portion | 17 | 1,063 | 1,032
+Convertible notes payable | 18 | 962,765 | —
+Deferred tax liabilities | 22 | 7,971 | 3,125
+Income taxes payable, less current portion | 22 | 1,454 | —
+Other liabilities, less current portion | 234 | 117
+Total non-current liabilities | 973,488 | 4,274
+Total liabilities | 1,122,835 | 55,346
+Commitments and contingencies (See Note 23)
+Stockholders' equity
+Ordinary shares, no par value;999,999,999shares authorized;258,103,209and187,864,454shares issued and outstanding as of June 30, 2025 and June 30, 2024, respectively | 19 | 2,355,056 | 1,764,289
+B Class shares, $0.72par value;2shares authorized; and2shares issued and outstanding as of June 30, 2025 and June 30, 2024 | 19 | — | —
+Additional paid-in capital | 88,672 | 51,286
+Retained earnings (accumulated deficit) | (596,167) | (683,110)
+Accumulated other comprehensive income (loss) | (30,073) | (34,994)
+Total stockholders' equity | 1,817,488 | 1,097,471
+Total liabilities and stockholders' equity | $ | 2,940,323 | $ | 1,152,819
+Consolidated Statements of Operations and Comprehensive Income (Loss)
+For the years ended June 30, 2025, 2024, and 2023
+(in USD thousands, except share and per share data) | Years ended June 30,
+Note | 2025 | 2024 | 2023
+Bitcoin Mining | 4 | (157,673) | (86,688) | (39,419)
+AI Cloud Services | 4 | (1,319) | (379) | —
+Selling, general and administrative expenses | 5 | (136,458) | (70,424) | (49,004)
+Depreciation and amortization | 12 | (181,136) | (50,470) | (30,673)
+Impairment of assets | 12 | (7,223) | — | (105,172)
+Gain (loss) on disposal of property, plant and equipment | 12 | 4,002 | 43 | (6,628)
+Other operating expenses | 6 | (13,302) | (8,074) | (4,971)
+Other operating income | 7 | 9,413 | 1,566 | 3,117
+Increase (decrease) in fair value of assets held for sale | 13 | (2,160) | — | —
+Realized gain (loss) on financial assets | 10 | (4,215) | 4,121 | —
+Unrealized gain (loss) on financial instruments | 10, 14 | 77,518 | (3,448) | —
+Gain on partial extinguishment of financial liabilities | 14 | 9,093 | — | —
+Income tax (provision) benefit | 22 | (6,560) | (3,453) | (2,390)
+Basic net income (loss) per share of Ordinary shares | 21 | $ | 0.41 | $ | (0.29) | $ | (3.14)
+Basic weighted-average shares used in computing net income (loss) per share of Ordinary shares | 21 | 214,586,767 | 99,640,920 | 54,775,771
+Diluted net income (loss) per share of Ordinary shares | 21 | $ | 0.39 | $ | (0.29) | $ | (3.14)
+Other comprehensive income (loss):
+Change in foreign currency translation adjustments | 4,921 | (339) | (13,641)
+Total comprehensive income (loss) | $ | 91,862 | $ | (29,259) | $ | (185,468)
+Consolidated Statements of Stockholders’ Equity
+(in USD thousands, except share and per share data) | Ordinary shares | Additional Paid-in Capital | AccumulatedDeficit | Accumulated OtherComprehensiveIncome (Loss) | TotalStockholders'Equity
+Shares | Amount
+Balance, June 30, 2022 | 53,028,867 | $ | 926,581 | $ | 14,200 | $ | (482,362) | $ | (21,014) | $ | 437,405
+Issuance of Ordinary shares – Committed Equity Facility, net of issuance costs | 11,454,324 | 38,761 | — | — | — | 38,761
+Issuance of Ordinary shares – restricted stock units | 4,000 | 500 | — | — | — | 500
+Issuance of Ordinary shares - third party issuance | 260,286 | 15 | — | — | — | 15
+Stock-based compensation | — | — | 14,235 | — | — | 14,235
+Change in foreign currency translation adjustments | — | — | — | — | (13,641) | (13,641)
+Net income (loss) | — | — | (171,827) | — | (171,827)
+Balance, June 30, 2023 | 64,747,477 | $ | 965,857 | $ | 28,435 | $ | (654,189) | $ | (34,655) | $ | 305,448
+Issuance of Ordinary shares – Committed Equity Facility, net of issuance costs | 12,887,814 | 49,717 | — | — | — | 49,717
+Issuance of Ordinary shares – at-the-market offering, net of issuance costs | 108,063,868 | 746,999 | — | — | — | 746,999
+Issuance of Ordinary shares – restricted stock units | 104,559 | 118 | — | — | — | 118
+Issuance of Ordinary shares – stock options | 457,281 | 1,279 | — | — | — | 1,279
+Issuance of Ordinary shares - third party issuance | 106,687 | 319 | — | — | — | 319
+Stock-based compensation | — | — | 22,851 | — | — | 22,851
+Change in foreign currency translation adjustments | — | — | — | — | (339) | (339)
+Net income (loss) | — | — | (28,920) | — | (28,920)
+Balance, June 30, 2024 | 186,367,686 | $ | 1,764,289 | $ | 51,286 | $ | (683,109) | $ | (34,994) | $ | 1,097,471
+Issuance of Ordinary shares – at-the-market offering, net of issuance costs | 69,074,101 | 584,747 | — | — | — | 584,747
+Issuance of Ordinary shares – restricted stock units | 1,770,112 | 6,020 | — | — | — | 6,020
+Stock-based compensation | — | 37,386 | — | — | 37,386
+Change in foreign currency translation adjustments | — | — | — | — | 4,921 | 4,921
+Net income (loss) | — | — | — | 86,941 | — | 86,941
+Balance, June 30, 2025 | 257,211,899 | $ | 2,355,056 | $ | 88,672 | $ | (596,167) | $ | (30,073) | $ | 1,817,488
+Consolidated Statements of Cash Flows
+(in USD thousands) | Years ended June 30,
+Operating activities
+Adjustments to reconcile net income (loss) to net cash from (used in) operating activities:
+Depreciation and amortization | 181,136 | 50,470 | 30,673
+Impairment of assets | 7,223 | — | 105,172
+Change in fair value of assets held for sale | 2,160 | — | —
+Other non-operating income | — | (108) | —
+Realized (gain) loss on financial asset | 4,215 | (4,121) | —
+Unrealized (gain) loss on financial instrument | (77,518) | 3,448 | —
+Other (income) expense | 11,811 | — | (3,137)
+Other finance expense | 586 | — | —
+(Gain) loss on disposal of subsidiaries | — | — | (3,258)
+Foreign exchange loss (gain) | 3,821 | (3,507) | 5,199
+Gain on partial extinguishment of financial liabilities | (9,093) | — | —
+Accrued interest related to hardware financing | — | — | 11,223
+Amortization of debt issuance costs | 1,400 | — | —
+Amortization of capitalized borrowing costs | — | — | 1,038
+Stock-based compensation expense | 42,642 | 23,636 | 14,356
+Changes in assets and liabilities:
+Accounts receivable and other receivables | (9,656) | (5,588) | 17,641
+Financial asset, current | 6,530 | — | —
+Accounts payable and accrued expenses | 16,689 | 10,072 | (2,097)
+Tax related receivables | (2,581) | — | —
+Tax related liabilities | 4,911 | 1,357 | 2,231
+Other liabilities | 2,718 | 409 | (1,175)
+Deferred revenue | (1,674) | 2,558 | —
+Prepayments and deposits | (22,227) | 2,940 | (6,617)
+Operating lease liabilities | (146) | (384) | (321)
+Investing activities
+Payments for property, plant and equipment net of hardware prepayments | (573,456) | (141,855) | (116,064)
+Payments for computer hardware prepayments | (799,171) | (338,054) | —
+Repayments/(advancement) of loan proceeds | — | — | 2,291
+Payments for prepayments and other assets | (19,502) | (18,600) | (7,363)
+Proceeds from disposal of property, plant and equipment | 11,172 | 43 | 32,488
+Deconsolidation of Non-Recourse SPVs | — | — | (1,214)
+Proceeds from release of deposits | 470 | — | 18,395
+Consolidated Statements of Cash Flows (continued)
+Financing activities
+Payment of offering costs for committed equity facility | — | (213) | (1,012)
+Payment of offering costs for the issuance of Ordinary shares - at-the-market offering | (1,069) | (733) | —
+Repayment of borrowings | — | — | (9,432)
+Proceeds from loan funded shares | 876 | 503 | —
+Proceeds from convertible notes | 701,211 | — | —
+Payment of borrowing transaction costs | (8,088) | — | (250)
+Proceeds from committed equity facility | — | 51,352 | 39,252
+Proceeds from the issuance of Ordinary shares – at-the-market offering | 601,805 | 731,717 | —
+Net increase (decrease) in cash and cash equivalents | 160,134 | 336,379 | (37,182)
+Cash and cash equivalents at the beginning of the financial year | 404,601 | 68,894 | 109,970
+Cash, and restricted cash, end of period | $ | 564,526 | $ | 404,601 | $ | 68,894
+Supplemental cash flow information:
+Cash paid for interest | $ | (7,634) | $ | (213) | $ | (4,102)
+Cash paid for income taxes | $ | — | $ | (1,419) | $ | —
+Supplemental schedule of non-cash investing and financing activities:
+Mining hardware finance prepayments made directly by third party financier | — | — | (3,420)
+Additions to right of use assets in exchange for an operating lease liability | 1,686 | 347 | 373
+Share issuance proceeds under Committed Equity Facility | — | — | 1,642
+Unrealized gain (loss) on derivative assets | 27,252 | — | —
+Unrealized gain (loss) on financial assets | 45,400 | — | —
+ATM agent fees | 18,101 | 23,143 | —
+Stock-based compensation - third party issuance | — | 319 | —
+Reclassification of property and equipment to equipment held for sale | 23,222 | — | —
+Issuance of Ordinary shares - restricted stock unit settlements | 1,178 | — | —
+Property and equipment obtained in exchange transactions | 49,207 | — | —
+Notes to the consolidated financial statements
+Useful life (in years)
+Buildings | 20
+Plant and equipment | 3-10
+Mining hardware - S19j Pros1 | 2
+Mining hardware - all other models | 4
+HPC hardware | 5
+Leasehold improvements | Lesser of the life of the lease or the useful life of the improvement
+June 30, 2025
+Notes | IFRS | Effect of transition to GAAP | GAAP
+(in USD thousands)
+Cash and cash equivalents | $ | 564,526 | $ | — | $ | 564,526
+Accounts receivable, net | C | — | 1,564 | 1,564
+Deposits and prepaid expenses | 45,908 | — | 45,908
+Derivative assets | A | 127,856 | (122,100) | 5,756
+Income taxes receivable | 2,581 | — | 2,581
+Other receivables | C | 22,400 | (1,564) | 20,838
+Total current assets | 763,271 | (122,100) | 641,173
+Property, plant and equipment, net | B | 1,930,484 | 83 | 1,930,567
+Operating lease right-of-use asset, net | B | 1,550 | (87) | 1,463
+Computer hardware prepayments | C | 3,068 | (3,068) | —
+Deposits and prepaid expenses | C | 29,847 | 3,068 | 32,916
+Financial assets | 211,617 | — | 211,617
+Derivative assets | A | — | 122,100 | 122,100
+Other non-current assets | 486 | — | 486
+Total non-current assets | 2,177,052 | 122,096 | 2,299,150
+Total assets | $ | 2,940,323 | $ | (4) | $ | 2,940,323
+Accounts payable and accrued expenses | $ | 124,113 | $ | 20,000 | $ | 144,115
+Operating lease liability, current portion | B | 361 | 43 | 404
+Notes payable | A | 706,042 | (706,042) | —
+Derivative liabilities | A | 437,700 | (437,700) | —
+Accrued interest payable | C | 1,545 | (1,545) | —
+Employee benefits | C | 2,400 | (2,400) | —
+Provisions | C | 20,000 | (20,000) | —
+Deferred revenue | 884 | — | 884
+Other liabilities, current portion | C | — | 3,945 | 3,945
+Total current liabilities | 1,293,045 | (1,143,699) | 149,347
+Operating lease liability, less current portion | B | 1,204 | (141) | 1,063
+Notes payable | A | — | 962,765 | 962,765
+Deferred tax liabilities | C | 8,112 | (141) | 7,971
+Income taxes payable, less current portion | — | 1,454 | 1,454
+Employee benefits | C | 234 | (234) | —
+Other liabilities, less current portion | C | — | 234 | 234
+Total non-current liabilities | 9,550 | 963,937 | 973,488
+Total liabilities | 1,302,595 | (179,760) | 1,122,835
+Ordinary shares | 2,355,056 | — | 2,355,056
+B Class shares | — | — | —
+Additional paid-in capital | 88,672 | — | 88,672
+Retained earnings (accumulated deficit) | A, B | (775,432) | 179,265 | (596,167)
+Accumulated other comprehensive income (loss) | A, B | (30,569) | 496 | (30,073)
+Total stockholders' equity | 1,637,727 | 179,761 | 1,817,488
+Total liabilities and stockholders' equity | $ | 2,940,322 | $ | 1 | $ | 2,940,323
+June 30, 2024
+Cash and cash equivalents | $ | 404,601 | $ | — | $ | 404,601
+Accounts receivable, net | C | — | 153 | 152
+Deposits and prepaid expenses | 11,888 | — | 11,888
+Financial assets | 6,530 | — | 6,530
+Other receivables | C | 29,367 | (153) | 29,214
+Total current assets | 452,386 | — | 452,385
+Property, plant and equipment, net | 441,371 | — | 441,371
+Operating lease right-of-use asset, net | B | 1,549 | (213) | 1,336
+Computer hardware prepayments | C | 239,841 | (239,841) | —
+Deposits and prepaid expenses | C | 17,459 | 239,841 | 257,300
+Other non-current assets | 427 | — | 427
+Total non-current assets | 700,647 | (213) | 700,434
+Total assets | $ | 1,153,033 | $ | (213) | $ | 1,152,819
+Accounts payable and accrued expenses | C | $ | 32,119 | $ | 13,375 | $ | 45,494
+Operating lease liability, current portion | B | 214 | 75 | 289
+Income taxes payable | 1,389 | — | 1,389
+Employee benefits | C | 1,342 | (1,342) | —
+Provisions | C | 13,375 | (13,375) | —
+Deferred revenue | 2,558 | — | 2,558
+Other liabilities, current portion | C | — | 1,342 | 1,342
+Total current liabilities | 50,997 | 75 | 51,072
+Operating lease liability, less current portion | B | 1,441 | (409) | 1,032
+Deferred tax liabilities | 3,125 | — | 3,125
+Employee benefits | C | 119 | (119) | —
+Other liabilities, less current portion | C | — | 117 | 117
+Total non-current liabilities | 4,685 | (409) | 4,274
+Total liabilities | 55,682 | (334) | 55,346
+Ordinary shares | 1,764,289 | — | 1,764,289
+Additional paid-in capital | 51,286 | — | 51,286
+Retained earnings (accumulated deficit) | B | (683,231) | 121 | (683,110)
+Accumulated other comprehensive income (loss) | B | (34,993) | (1) | (34,994)
+Total stockholders' equity | 1,097,351 | 120 | 1,097,471
+Total liabilities and stockholders' equity | $ | 1,153,033 | $ | (214) | $ | 1,152,819
+Year ending June 30,
+Notes | 2025 | 2024 | 2023
+Net income (loss) - IFRS | $ | (92,201) | $ | (28,955) | $ | (171,871)
+Transition adjustments - Leases | B | (38) | 35 | 44
+Transition adjustments - Convertible notes | A | 180,493 | — | —
+Transition adjustments - Tax | (1,313) | — | —
+Net income (loss) - GAAP | $ | 86,941 | $ | (28,920) | $ | (171,827)
+(in USD thousands) | Note | IFRS | Effect of transition to GAAP | GAAP
+Net cash used in operating activities | B, D | $ | (238,232) | $ | 484,118 | $ | 245,886
+Net cash used in investing activities | B | (895,858) | (484,629) | (1,380,487)
+Net cash used in financing activities | D | $ | 1,294,224 | $ | 511 | $ | 1,294,735
+Net cash used in operating activities | B, D | $ | (130,870) | $ | 183,089 | $ | 52,219
+Net cash used in investing activities | B | (314,880) | (183,586) | (498,466)
+Net cash used in financing activities | D | $ | 782,129 | $ | 497 | $ | 782,626
+June 30, 2023
+Net cash used in operating activities | B, D | $ | (72,378) | $ | 78,107 | $ | 5,729
+Net cash used in investing activities | B | 6,956 | (78,423) | (71,467)
+Net cash used in financing activities | D | $ | 28,240 | $ | 318 | $ | 28,558
+Year ended June 30, 2025
+(in USD thousands) | Bitcoin Mining | AI Cloud Services | Total
+Electricity | $ | 147,805 | $ | 249 | $ | 148,054
+Employee benefits | 7,520 | 823 | 8,343
+Other direct expenses | 2,348 | 247 | 2,595
+Total cost of revenue | $ | 157,673 | $ | 1,319 | $ | 158,992
+Year ended June 30, 2024
+Electricity | $ | 81,563 | $ | 42 | $ | 81,605
+Employee benefits | 3,912 | 283 | 4,195
+Other direct expenses | 1,213 | 54 | 1,267
+Total cost of revenue | $ | 86,688 | $ | 379 | $ | 87,067
+Year ended June 30, 2023
+Electricity | $ | 35,753 | $ | - | $ | 35,753
+Employee benefits | 2,928 | - | 2,928
+Other direct expenses | 738 | - | 738
+Total cost of revenue | $ | 39,419 | $ | - | $ | 39,419
+Years ended June 30,
+(in USD thousands) | 2025 | 2024 | 2023
+Employee benefits | $ | 27,533 | $ | 18,007 | $ | 14,969
+Professional fees | 18,001 | 8,080 | 6,271
+Stock based compensation | 42,642 | 23,636 | 14,356
+Insurance | 18,102 | 7,033 | 5,687
+Renewable energy certificates | 5,733 | 874 | 170
+Property taxes | 4,054 | 982 | 481
+Non-refundable provincial sales tax | 5,189 | 1,408 | 371
+Sponsorships and marketing | 2,884 | 2,051 | 716
+Other selling, general and administrative expenses | 12,320 | 8,353 | 5,983
+Total selling, general and administrative expenses | $ | 136,458 | $ | 70,424 | $ | 49,004
+Loss on theft of PPE in transit | $ | 1,724 | $ | - | $ | -
+Loss contingencies (Refer to note 16 for further information) | 5,788 | 8,074 | 4,971
+Other transaction costs | 4,242 | - | -
+Write-off of deposit | 1,548 | - | -
+Total other operating expenses | $ | 13,302 | $ | 8,074 | $ | 4,971
+Demand response program income | $ | 7,715 | $ | 1,566 | $ | -
+Insurance income | 1,699 | - | -
+Gain on disposal of coupons | - | - | 3,117
+Total other operating income | $ | 9,413 | $ | 1,566 | $ | 3,117
+Australia | $ | 484,629 | $ | 184,087 | $ | 75,509
+United States | — | — | —
+Canada | 16,394 | 3,105 | —
+Total revenue | $ | 501,023 | $ | 187,192 | $ | 75,509
+(in USD thousands) | June 30, 2025 | June 30, 2024
+Australia | $ | 1,748 | $ | 648
+United States | 1,626,521 | 420,217
+Canada | 337,162 | 279,569
+Total long-lived assets | $ | 1,965,431 | $ | 700,434
+Current
+Prepayments | $ | 33,015 | $ | 9,787
+Security deposits | 12,894 | 2,101
+Total current deposits and prepaid expenses | $ | 45,908 | $ | 11,888
+Non-current
+Security deposits | $ | 29,847 | $ | 17,458
+Computer hardware prepayment | 3,068 | 239,842
+Total non-current deposits and prepaid expenses | $ | 32,916 | $ | 257,300
+Total deposits and prepaid expenses | $ | 78,824 | $ | 269,189
+Financial assets | Balance Sheet Line | June 30,2025 | June 30,2024
+2030 Prepaid forward contract | Financial assets - Non current | $ | 83,117 | $ | —
+2029 Prepaid forward contract | Financial assets - Non current | 128,500 | —
+Electricity financial asset | Financial assets - Current | — | 6,530
+Total financial assets | $ | 211,617 | $ | 6,530
+Financial assets | Statement of Operations Line | 2025 | 2024 | 2023
+2030 Prepaid forward contract | Unrealized gain (loss) on financial instruments | $ | 9,400 | $ | — | $ | —
+2029 Prepaid forward contract | Unrealized gain (loss) on financial instruments | 36,000 | — | —
+Electricity financial asset | Unrealized gain (loss) on financial instruments | — | (3,448) | —
+Electricity financial asset | Realized gain (loss) on financial asset | (4,215) | 4,121 | —
+Total financial assets | $ | 41,185 | $ | 673 | $ | —
+Fair Value Hierarchy Level | Asset Description | Valuation Technique | Significant Inputs
+Level 2 | Prepaid Electricity - Financial asset | Forward Price Approach | Forward Prices from OTC Global Holdings
+Level 2 | 2029 Prepaid forward contract | Analytical formula | Share price, risk free rate, dividend yield
+Level 2 | 2030 Prepaid forward contract | Analytical formula | Share price, risk free rate, dividend yield
+GST receivable | $ | 14,859 | $ | 7,844
+Demand response program receivable | 5,212 | 1,128
+Interest receivable | 637 | 1,472
+Government grant receivable | - | 2,078
+Share issuances proceeds receivable | - | 16,563
+Other receivables | 130 | 129
+Total other receivables | $ | 20,838 | $ | 29,214
+Mining hardware | $ | 1,135,584 | $ | 177,766
+HPC Hardware | 76,001 | 33,315
+Buildings | 639,750 | 215,542
+Plant and equipment | 10,002 | 4,856
+Land | 13,086 | 3,601
+Leasehold improvements | 43 | —
+Construction in progress | 237,734 | 102,946
+Property and equipment, gross | 2,112,200 | 538,026
+Less: Accumulated depreciation | (181,246) | (71,050)
+Less: Impairment | (385) | (25,605)
+Property and equipment, net | $ | 1,930,567 | $ | 441,371
+Goodwill | $ | - | $ | - | $ | 603
+Mining hardware | 7,223 | - | 25,700
+Mining hardware – Non-Recourse SPVs | - | - | 64,824
+Mining hardware prepayments | - | - | 11,301
+Mining hardware prepayments – Non-Recourse SPVs | - | - | 1,660
+Development assets | - | - | 1,084
+Impairment of assets | $ | 7,223 | $ | - | $ | 105,172
+Gain on warranty | $ | 920 | $ | - | $ | -
+Gain (loss) on disposal of mining hardware | 3,082 | 43 | (6,628)
+Total gain (loss) on disposal of property and equipment | $ | 4,002 | $ | 43 | $ | (6,628)
+(in USD thousands) | S19j Pro miners held for sale | T21 miners held for sale | Total
+Balance at 1 July 2024 | $ | — | $ | — | $ | —
+Transfer from property, plant and equipment | 13,278 | 9,944 | 23,222
+Mining hardware sold during the period | (10,998) | (9,944) | (20,942)
+Change in fair value of held for sale assets | (2,160) | — | (2,160)
+Foreign currency translation difference | (120) | — | (120)
+Held for sale amount at 30 June 2025 | $ | - | $ | - | $ | -
+Derivative | Balance Sheet Line | Asset | Liability | Asset | Liability
+Derivatives not designated as hedging instruments:
+Bitcoin purchase option | Derivative assets - Current | $ | 5,756 | $ | — | $ | — | $ | —
+Capped call transactions - 2030 Notes | Derivative assets - Non current | 46,400 | — | — | —
+Capped call transactions - 2029 Notes | Derivative assets - Non current | 75,700 | — | — | —
+Total derivatives | $ | 127,856 | $ | — | $ | — | $ | —
+Derivative | Statement of Operations Line | 2025 | 2024 | 2023
+Bitcoin purchase option | Unrealized gain (loss) on financial instruments | $ | 3,918 | $ | — | $ | —
+Capped call transactions - 2030 Notes | Unrealized gain (loss) on financial instruments | 3,500 | — | —
+Capped call transactions - 2029 Notes | Unrealized gain (loss) on financial instruments | 24,700 | — | —
+Total gain (loss) on derivatives | $ | 32,118 | $ | — | $ | —
+2030 Capped Call | 2029 Capped Call
+Closing share price | $14.57 | $14.57
+Long strike price | $16.81 | $13.64
+Short strike price | $25.86 | $20.98
+Risk free interest rate | 3.72 | % | 3.69 | %
+Dividend yield | nil | nil
+Expected volatility | 50 | % | 50 | %
+(in USD thousands) | 2030Called Call | 2029Capped Call | Total
+Balance as at July 1, 2024 | $ | - | $ | - | $ | -
+Fair value at issuance date | 42,900 | 51,000 | 93,900
+Unrealized gain (loss) recognized in the Consolidated Statements of Operations and Comprehensive Income (Loss) | 3,500 | 24,700 | 28,200
+Balance as at June 30, 2025 | $ | 46,400 | $ | 75,700 | $ | 122,100
+Fair Value Hierarchy Level | Asset Description | Valuation Technique | Significant Input
+Level 2 | Bitcoin purchase option | Monte Carlo simulation option pricing model and Black-Scholes option pricing model | Strike Bitcoin price, spot Bitcoin price, risk free rate, volatility
+Fair value measured as of June 30, 2025
+(in USD thousands) | Total carrying value | Quoted prices in active markets (Level 1) | Significant other observable inputs(Level 2) | Significant unobservable inputs(Level 3)
+Financial assets
+2030 Prepaid Forward Contract | $ | 83,117 | $ | - | $ | 83,117 | $ | -
+2029 Prepaid Forward Contract | 128,500 | - | 128,500 | -
+Total financial assets | $ | 211,617 | $ | - | $ | 211,617 | $ | -
+Derivative assets
+2030 Capped Call Transactions | $ | 46,400 | $ | - | $ | - | $ | 46,400
+2029 Capped Call Transactions | 75,700 | - | - | 75,700
+Bitcoin purchase option | 5,756 | - | 5,756 | -
+Total derivative assets | $ | 127,856 | $ | - | $ | 5,756 | $ | 122,100
+Fair value measured as of June 30, 2024
+Electricity financial asset | $ | 6,530 | $ | - | $ | 6,530 | $ | -
+2030 Notes | $ | 427,837 | $ | 483,089 | $ | - | $ | -
+2029 Notes | 534,928 | 712,844 | - | -
+Total financial liabilities at amortized cost | $ | 962,765 | $ | 1,195,933 | $ | - | $ | -
+Accounts payable | $ | 81,747 | $ | 27,345
+Accrued expenses | 42,368 | 4,407
+Loss contingencies | 20,000 | 13,375
+Other payables | — | 367
+Total accounts payable and accrued expenses | $ | 144,115 | $ | 45,494
+Right-of-use assets:
+Operating leases | $ | 1,463 | $ | 1,336
+Total right-of-use assets | $ | 1,463 | $ | 1,336
+Lease liabilities:
+Operating leases - Current | $ | 404 | $ | 289
+Operating leases - Non current | 1,063 | 1,032
+Total lease liabilities | $ | 1,467 | $ | 1,321
+Operating lease cost | $ | 543 | $ | 303 | $ | 296
+Short-term lease expense | 317 | 207 | 162
+Total lease expense | $ | 860 | $ | 510 | $ | 458
+Operating cash outflows – operating leases | $ | 545 | $ | 309 | $ | 300
+Weighted-average remaining lease term – operating leases | 4.03 | 21.53 | 22.08
+Weighted-average discount rate – operating leases | 6.4 | % | 10.0 | % | 10.5 | %
+(in USD thousands) | OperatingLeases
+2026 | $ | 450
+2027 | 437
+2028 | 402
+2029 | 415
+2030 | 79
+Thereafter | —
+Total undiscounted lease payments | $ | 1,783
+Less present value discount | (316)
+Present value of operating lease liabilities | $ | 1,467
+2030 Notes | 2029 Notes | Total
+Balance as at 1 July 2024 | $ | — | $ | — | $ | —
+Initial recognition | 440,000 | 550,000 | 990,000
+Capital raising costs | (13,420) | (15,215) | (28,635)
+Interest expenses | 9,401 | 1,052 | 10,453
+Coupon interest payable | (8,144) | (909) | (9,053)
+Balance as at 30 June 2025 | $ | 427,837 | $ | 534,928 | $ | 962,765
+Stock options | $ | 12,431 | $ | 12,885 | $ | 12,331
+Service-based RSUs | 28,223 | 9,400 | 1,633
+Performance-based RSUs | 1,988 | 1,351 | 392
+Total stock-based compensation | $ | 42,642 | $ | 23,636 | $ | 14,356
+(inUSDthousands,exceptshareandpershareamounts) | Numberofunits | Weightedaveragegrant-datefairvalue | Aggregateintrinsicvalue
+Unvested as of June 30, 2024 | 4,210,400 | $ | 3.95 | $ | 47,535
+Granted | 10,001,088 | 9.70
+Modified | 2,579,448 | 4.37
+Forfeited | (45,716) | 6.51
+Exercised | (1,177,953) | 4.22
+Unvested as of June 30, 2025 | 15,567,267 | $ | 7.68 | $ | 226,815
+Unvested as of June 30, 2024 | 2,402,247 | $ | 2.31 | $ | 27,121
+Granted | 6,373,418 | 6.93
+Modified | (2,579,448) | 6.61
+Forfeited | (37,650) | 3.98
+Exercised | — | —
+Unvested as of June 30, 2025 | 6,158,567 | $ | 5.28 | $ | 89,730
+(in USD thousands, except share and per share amounts and years) | Number ofshares | Weighted averageexercise price(per share) | Aggregateintrinsic value | Weightedaverage remainingcontractual life(in years)
+Outstanding as of June 30, 2024 | 8,484,011 | $ | 43.97 | $ | 25,244 | 6.56
+Granted | — | —
+Forfeited or canceled | (13,299) | 1.53
+Exercised | (592,158) | 1.54
+Outstanding as of June 30, 2025 | 7,878,554 | $ | 47.07 | $ | 34,648 | 5.80
+Vested and exercisable as of June 30, 2025 | 2,972,027 | $ | 3.17 | $ | 34,072 | 1.82
+Grant date | Dividendyield | Expectedvolatility | Risk-freeinterest rate | Expectedlife | Grant dateshare price | Exerciseprice | Fair value | Number ofoptions/RSUsgranted
+% | % | % | years | US$ | US$ | US$
+Long Term Incentive Plan
+Service RSUs | - | - | - | 2.76 | 3.34 | - | 3.34 | 2,810,261
+Market RSUs | - | 120 | % | 3.44 | % | 11.14 | 3.63 | - | 2.17 | 930,105
+Service RSUs | - | - | - | 1.99 | 4.70 | - | 4.70 | 1,740,069
+Market RSUs | - | 100 | % | 4.38 | % | 3.00 | 4.67 | - | 2.41 | 1,574,725
+Service RSUs | - | - | - | 1.99 | 9.70 | - | 9.70 | 10,001,088
+Market RSUs | - | 66 | % | 4.14 | % | 4.92 | 10.86 | - | 6.93 | 6,373,418
+Market RSUs (at modification date) | - | 75 | % | 4.12 | % | 4.49 | 8.41 | - | 4.14 | (2,579,448)
+Service RSU (post modification) | - | - | - | 0.75 | 8.41 | - | 4.37 | 2,579,448
+Stock options | 4,381,787 | 8,906,840 | 8,906,839
+Restricted stock units | 15,508,896 | 6,616,342 | 3,623,867
+Convertible notes | 6,454,464 | — | —
+Total | 26,345,147 | 15,523,182 | 12,530,706
+(in USD thousands. except share and per share amounts) | Years ended June 30,
+Numerator:
+Numerator for diluted net income (loss) per share of Ordinary shares | $ | 86,941 | $ | (28,920) | $ | (171,827)
+Denominator:
+Effects of dilutive securities:
+Options | 2,054,372 | — | —
+Restricted stock units | 6,604,512 | — | —
+Dilutive potential Ordinary shares | 8,658,884 | — | —
+Basic net income (loss) per share of Ordinary shares | $ | 0.41 | $ | (0.29) | $ | (3.14)
+Diluted net income (loss) per share of Ordinary shares | $ | 0.39 | $ | (0.29) | $ | (3.14)
+Australia | $ | 70,955 | $ | (31,133) | $ | (101,759)
+Foreign | 22,546 | 5,666 | (67,679)
+Total | $ | 93,501 | $ | (25,467) | $ | (169,437)
+Australian Federal | $ | — | $ | — | $ | (959)
+Australian State | — | — | —
+Foreign | 1,665 | 1,743 | 32
+Total current | 1,665 | 1,743 | (927)
+Deferred
+Australian Federal | — | — | 1,816
+Foreign | 4,895 | 1,710 | 1,501
+Total deferred | 4,895 | 1,710 | 3,317
+Total income tax provision (benefit) | $ | 6,560 | $ | 3,453 | $ | 2,390
+(in USD thousands, and in percentages) | Years ended June 30,
+Tax (benefit)/provision computed at the Australian Corporate statutory rate | $ | 28,050 | 30.0 | % | $ | (7,640) | 30.0 | % | $ | (50,831) | 30.0 | %
+State taxes, net of federal tax benefit | — | — | — | — | — | —
+Share based Compensation | 12,603 | 13.5 | 6,422 | (25.2) | 3,913 | (2.3)
+Increase/(Decrease) in non-deductible expenses | (3,196) | (3.4) | 1,664 | (6.5) | 1,186 | (0.7)
+Foreign currency differences related to accounting and tax functional currencies | 1,893 | 2.0 | — | — | — | —
+Foreign tax rate differential | (1,700) | (1.8) | (436) | 1.7 | 1,979 | (1.2)
+Non-recoverable foreign withholding tax | 1,225 | 1.3 | 308 | (1.2) | — | —
+Changes in valuation allowances | (37,791) | (40.4) | 2,615 | (10.3) | 28,224 | (16.7)
+Changes in unrecognized tax benefits | 1,453 | 1.6 | — | — | — | —
+Deconsolidation Adjustment for SPV's | — | — | — | — | 18,362 | (10.8)
+Other permanent differences | 3,918 | 4.2 | — | — | — | —
+Other | 103 | 0.1 | 519 | (2.0) | (443) | 0.3
+Total tax expense/(benefit) and Effective tax rate | $ | 6,560 | 7.0 | % | $ | 3,453 | (13.6) | % | $ | 2,390 | (1.4) | %
+June 30, 2025 | June 30, 2024
+Deferred tax assets
+Tax losses | $ | 146,929 | $ | 41,467
+Unrealized foreign exchange losses | 475 | 736
+Capital raising costs | 10,326 | 8,616
+Loss Contingencies | 6,000 | —
+Unrealized Capital Losses | 29,302 | 29,909
+Other | 3,846 | 3,879
+Total deferred tax assets | 196,879 | 84,607
+Valuation allowance | (25,281) | (58,582)
+Net deferred tax assets | 171,598 | 26,025
+Deferred tax liabilities
+Property, plant and equipment | (142,893) | (24,536)
+Unrealized foreign exchange gains | (5,511) | (2,784)
+Employee Benefits | — | (116)
+Convertible Notes | (3,704) | —
+Financial Assets | (21,068) | —
+Other | (6,394) | (1,714)
+Total deferred tax liabilities | (179,570) | (29,150)
+Total net deferred tax liability | $ | (7,971) | $ | (3,125)
+Balance, beginning of year | $ | — | $ | — | $ | —
+Increase/(Decrease) related to prior year tax positions | 214 | — | —
+Increase related to current year tax positions | 1,239 | — | —
+Balance, end of year | $ | 1,453 | $ | — | $ | —
+(in local currency thousands)
+Jurisdiction - Currency | RevenueLosses | CapitalLosses | Expiry/Limitation
+Australia - AUD | $ | 40,491 | $ | — | No expiry or limitation
+USA - USD | 538,284 | — | No expiry but deduction limited to 80% of Taxable Income in any given tax year
+Canada - CAD | $ | 137,861 | $ | 2,224 | Revenue Losses - carry forward up to 20 years and will commence expiry in 2040Capital Losses carry back three years and forward indefinitely to offset capital gain
+Mining hardware commitments
+Amounts payable within 12 months of balance date: | $ | — | $ | 116,982
+Amounts payable after 12 months of balance date: | — | —
+Other commitments
+Amounts payable within 12 months of balance date: | $ | 368,805 | $ | 77,659
+Total commitments | $ | 368,805 | $ | 194,641
+ExhibitNo. | Exhibit
+3.1* | Constitution of the Registrant (incorporated herein by reference to Exhibit 99.1 to the Company’s Report on Form 6-K filed with the SEC on November 29, 2024).
+3.2* | Certificate of Registration on Change of Name and Conversion to a Public Company dated October 7, 2021 (incorporated herein by reference to Exhibit 3.3 to the Company’s Registration Statement on Form F-1 (File No. 333-260488) filed with the SEC on October 25, 2021).
+4.1 | Description of Securities registered under Section 12 of the Exchange Act.
+4.5* | Indenture, dated as of June 13, 2025, between IREN Limited and U.S. Bank Trust Company, National Association, as trustee (incorporated herein by reference to Exhibit 4.1 to the Company’s Report on Form 6-K filed with the SEC on June 13, 2025).
+10.1# | Amended and Restated At Market Issuance Sales Agreement, dated as of August 28, 2025, between IREN Limited and B. Riley Securities, Inc., Canaccord Genuity LLC, Cantor Fitzgerald & Co., Citigroup Global Markets Inc., Compass Point Research & Trading, LLC, J.P. Morgan Securities LLC, Macquarie Capital (USA) Inc. and Roth Capital Partners, LLC.
+10.2*#§ | Future Sales and Purchase Agreement, dated as of May 9, 2024, between Bitmain Technologies Delaware Limited and IE US Hardware 1 Inc. (incorporated herein by reference to Exhibit 10.8 to the Company’s Annual Report on Form 20-F filed with the SEC on August 28, 2024).
+10.3*#§ | Future Sales and Purchase Agreement, dated August 16, 2024, between Bitmain Technologies Delaware Limited and IE US Hardware 1 Inc. (incorporated herein by reference to Exhibit 10.9 to the Company’s Annual Report on Form 20-F filed with the SEC on August 28, 2024).
+10.4#§ | Supplemental Agreement to certain Future Sales and Purchase Agreements and Notice of Exercise, dated as of June 4, 2025, between Bitmain Technologies Delaware Limited and IE US Hardware 1 Inc.
+10.5* | Form of Capped Call Transactions Confirmation (incorporated herein by reference to Exhibit 10.1 to the Company’s Report on Form 6-K filed with the SEC on December 6, 2024).
+10.6*# | Prepaid Forward Transaction Confirmation (incorporated herein by reference to Exhibit 10.2 to the Company’s Report on Form 6-K filed with the SEC on December 6, 2024).
+10.7* | Form of Capped Call Transactions Confirmation (incorporated herein by reference to Exhibit 10.1 to the Company’s Report on Form 6-K filed with the SEC on June 13, 2025).
+10.8*# | Prepaid Forward Transaction Confirmation (incorporated herein by reference to Exhibit 10.2 to the Company’s Report on Form 6-K filed with the SEC on June 13, 2025).
+10.9*# | Indenture, dated as of December 6, 2024, between IREN Limited and U.S. Bank Trust Company, National Association, as trustee (incorporated herein by reference to Exhibit 4.1 to the Company’s Report on Form 6-K filed with the SEC on December 6, 2024).
+10.10* | Form of certificate representing the 3.25% Convertible Senior Notes due 2030 (incorporated herein by reference to Exhibit 4.2 to the Company’s Report on Form 6-K filed with the SEC on December 6, 2024).
+10.11*# | Indenture, dated as of June 13, 2025, between IREN Limited and U.S. Bank Trust Company, National Association, as trustee (incorporated herein by reference to Exhibit 4.1 to the Company’s Report on Form 6-K filed with the SEC on June 13, 2025).
+10.12* | Form of certificate representing the 3.50% Convertible Senior Notes due 2029 (incorporated herein by reference to Exhibit 4.2 to the Company’s Report on Form 6-K filed with the SEC on June 13, 2025).
+10.13*+ | Form of Indemnification Agreement entered into by and between Iris Energy Limited and each director and executive officer (incorporated herein by reference to Exhibit 10.2 to the Company’s Registration Statement on Form F-1 (File No. 333-260488) filed with the SEC on October 25, 2021).
+10.14+ | 2023 Long Term Incentive Plan (2023 LTIP)
+10.15+ | 2023 LTIP Form of Notice of Award (Non-Employee Directors)
+10.16+ | 2023 LTIP Form of Notice of Award (Executive Officers)
+10.17+ | 2023 Short Term Incentive Plan
+10.18+ | 2025 Short Term Incentive Plan
+10.19+ | Form of Director Appointment Letter
+10.20+ | Non-Employee Director Option Plan
+10.21+ | Non-Employee Director Option Plan Form of Notice of Award
+10.22+ | Executive Services Agreement (Belinda Nucifora)
+10.23+ | Employee Option Deed and Notice of Award
+19.1 | Insider Trading Compliance Policy.
+21.1 | List of significant subsidiaries.
+23.1 | Consent of Raymond Chabot Grant Thornton LLP.
+31.1 | Certification pursuant to section 302 of the Sarbanes-Oxley Act of 2002 of the Co-Chief Executive Officer.
+31.2 | Certification pursuant to section 302 of the Sarbanes-Oxley Act of 2002 of the Co-Chief Executive Officer.
+31.3 | Certification pursuant to section 302 of the Sarbanes-Oxley Act of 2002 of the Chief Financial Officer.
+32.1 | Certification pursuant to 18 U.S.C. section 1350, as adopted pursuant to section 906 of the Sarbanes-Oxley Act of 2002, of the Co-Chief Executive Officer.
+32.2 | Certification pursuant to 18 U.S.C. section 1350, as adopted pursuant to section 906 of the Sarbanes-Oxley Act of 2002, of the Co-Chief Executive Officer.
+32.3 | Certification pursuant to 18 U.S.C. section 1350, as adopted pursuant to section 906 of the Sarbanes-Oxley Act of 2002, of the Chief Financial Officer.
+97.1* | Restatement Clawback Policy (incorporated herein by reference to Exhibit 97.1 to the Company’s Annual Report on Form 20-F filed with the SEC on August 28, 2024).
+101.INS | Inline XBRL Instance Document. (the instance document does not appear in the Interactive Data File because its XBRL tags are embedded within the Inline XBRL document).
+101.SCH | Inline XBRL Taxonomy Extension Schema Document.
+101.CAL | Inline XBRL Taxonomy Extension Calculation Linkbase Document.
+101.DEF | Inline XBRL Taxonomy Extension Definition Linkbase Document.
+101.LAB | Inline XBRL Taxonomy Extension Label Linkbase Document.
+101.PRE | Inline XBRL Taxonomy Extension Presentation Linkbase Document.
+104 | Cover Page Interactive Data File (the cover page XBRL tags are embedded within the inline XBRL document).
+Date: August 28, 2025 | By: | /s/ Daniel Roberts
+Daniel Roberts
+Co-Chief Executive Officer and Director
+Date: August 28, 2025 | By: | /s/ Will Roberts
+Will Roberts
+Signature | Title
+/s/ Daniel Roberts | Co-Chief Executive Officer and Director(co-principal executive officer)
+/s/ Will Roberts | Co-Chief Executive Officer and Director(co-principal executive officer)
+/s/ Belinda Nucifora | Chief Financial Officer(principal financial and accounting officer)
+Belinda Nucifora
+/s/ David Bartholomew | Chair
+David Bartholomew
+/s/ Christopher Guzowski | Director
+Christopher Guzowski
+/s/ Michael Alfred | Director
+Michael Alfred
+/s/ Sunita Parasuraman
+Sunita Parasuraman | Director
