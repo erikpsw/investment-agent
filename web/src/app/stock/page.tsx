@@ -55,7 +55,7 @@ export default function StockListPage() {
               个股分析
             </h1>
             <p className="text-muted-foreground">
-              选择股票查看详细分析和 AI 投资建议
+              选择股票查看实时行情、K线图和关键财务指标
             </p>
           </div>
           <Tabs value={market} onValueChange={(v) => setMarket(v as typeof market)}>
@@ -108,7 +108,7 @@ export default function StockListPage() {
           <CardContent className="text-sm text-muted-foreground space-y-2">
             <p>1. 点击任意股票卡片进入详情页</p>
             <p>2. 在详情页可以查看实时行情、K线图、关键财务指标</p>
-            <p>3. 点击「AI 深度分析」获取 AI 生成的投资建议</p>
+            <p>3. Vercel 轻量版暂不开放 AI 深度分析、PDF/RAG 和长任务监控</p>
             <p className="text-xs mt-4">
               * 所有分析仅供参考，不构成投资建议。投资有风险，决策需谨慎。
             </p>

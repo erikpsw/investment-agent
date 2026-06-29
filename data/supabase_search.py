@@ -17,7 +17,11 @@ def get_supabase_client():
             from supabase import create_client
             url = os.getenv("SUPABASE_URL")
             # 优先使用 service key（绕过 RLS），否则使用 anon key
-            key = os.getenv("SUPABASE_SERVICE_KEY") or os.getenv("SUPABASE_ANON_KEY")
+            key = (
+                os.getenv("SUPABASE_SERVICE_KEY")
+                or os.getenv("SUPABASE_ANON_KEY")
+                or os.getenv("SUPABASE_KEY")
+            )
             if url and key:
                 _supabase_client = create_client(url, key)
         except ImportError:

@@ -16,3 +16,4 @@ supabase>=2.0.0
 pypinyin>=0.50.0
 tenacity>=8.2.0
 cachetools>=5.3.0
+

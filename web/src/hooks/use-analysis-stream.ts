@@ -78,11 +78,12 @@ export function useAnalysisStream(): UseAnalysisStreamReturn {
     switch (event.event) {
       case "node_start":
         if (event.node) {
+          const node = event.node;
           setSteps((prev) => {
-            const existing = prev.find((s) => s.node === event.node);
+            const existing = prev.find((s) => s.node === node);
             if (existing) {
               return prev.map((s) =>
-                s.node === event.node
+                s.node === node
                   ? { ...s, status: "running", start_time: event.timestamp, streamingContent: "" }
                   : s
               );
@@ -90,7 +91,7 @@ export function useAnalysisStream(): UseAnalysisStreamReturn {
             return [
               ...prev,
               {
-                node: event.node,
+                node,
                 status: "running",
                 start_time: event.timestamp,
                 streamingContent: "",
@@ -98,21 +99,22 @@ export function useAnalysisStream(): UseAnalysisStreamReturn {
             ];
           });
           // 清空该节点的流式内容
-          setStreamingContent((prev) => ({ ...prev, [event.node!]: "" }));
+          setStreamingContent((prev) => ({ ...prev, [node]: "" }));
         }
         break;
 
       case "streaming":
         // 处理流式内容
         if (event.node && event.content) {
+          const node = event.node;
           setStreamingContent((prev) => ({
             ...prev,
-            [event.node!]: (prev[event.node!] || "") + event.content,
+            [node]: (prev[node] || "") + event.content,
           }));
           // 同时更新步骤中的流式内容
           setSteps((prev) =>
             prev.map((s) =>
-              s.node === event.node
+              s.node === node
                 ? { ...s, streamingContent: (s.streamingContent || "") + event.content }
                 : s
             )
@@ -122,9 +124,10 @@ export function useAnalysisStream(): UseAnalysisStreamReturn {
 
       case "node_end":
         if (event.node) {
+          const node = event.node;
           setSteps((prev) =>
             prev.map((s) =>
-              s.node === event.node
+              s.node === node
                 ? {
                     ...s,
                     status: "completed",
@@ -140,9 +143,10 @@ export function useAnalysisStream(): UseAnalysisStreamReturn {
 
       case "error":
         if (event.node) {
+          const node = event.node;
           setSteps((prev) =>
             prev.map((s) =>
-              s.node === event.node ? { ...s, status: "error" } : s
+              s.node === node ? { ...s, status: "error" } : s
             )
           );
         }

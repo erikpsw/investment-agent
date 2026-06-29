@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState } from "react";
 import Link from "next/link";
@@ -35,7 +35,7 @@ const navigation = [
   { name: "实时盯盘", href: "/watchlist/monitor", icon: Activity },
   { name: "投资组合", href: "/portfolio", icon: BriefcaseBusiness },
   { name: "板块分析", href: "/sectors", icon: Layers3 },
-  { name: "AI选股", href: "/stock-picker", icon: Target },
+  { name: "公式选股", href: "/stock-picker", icon: Target },
   { name: "财报数据", href: "/financials", icon: FileText },
 ];
 
@@ -143,3 +143,5 @@ export function Sidebar() {
     </TooltipProvider>
   );
 }
+
+

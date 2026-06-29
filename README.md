@@ -39,8 +39,11 @@ cd web && npm run dev
 ## 安装
 
 ```bash
-# 安装 Python 依赖
+# 安装 Vercel 轻量 API 依赖
 pip3 install -r requirements.txt
+
+# 安装本地完整版依赖（Streamlit、PDF/RAG、Playwright、Agent）
+pip3 install -r requirements-full.txt
 
 # 下载中文 embedding 模型（首次运行会自动下载）
 python3 -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('BAAI/bge-small-zh-v1.5')"

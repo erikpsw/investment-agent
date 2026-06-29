@@ -1,0 +1,38 @@
+# LangGraph & LLM
+langgraph>=0.2.0
+langchain>=0.3.0
+langchain-openai>=0.2.0
+langchain-community>=0.3.0
+
+# Web UI
+streamlit>=1.40.0
+plotly>=5.24.0
+
+# 数据获取
+yfinance>=0.2.50
+akshare>=1.15.0
+requests>=2.32.0
+
+# PDF 处理
+pdfplumber>=0.11.0
+pymupdf>=1.24.0
+
+# 向量搜索 (RAG)
+chromadb>=0.5.0
+sentence-transformers>=3.0.0
+
+# 工具
+pandas>=2.2.0
+python-dotenv>=1.0.0
+httpx>=0.27.0
+pypinyin>=0.50.0
+tenacity>=8.2.0
+cachetools>=5.3.0
+
+# API Server
+fastapi>=0.115.0
+uvicorn>=0.32.0
+
+# 浏览器自动化(爬取财报PDF)
+playwright>=1.40.0
+

@@ -186,13 +186,74 @@ export interface MonitorDecision {
 export interface SectorItem {
   code: string;
   name: string;
-  candidate_count: number;
-  scored_count: number;
-  change_5d?: number | null;
-  change_20d?: number | null;
+  price?: number | null;
+  change_percent?: number | null;
+  change_60d?: number | null;
+  change_ytd?: number | null;
+  turnover_rate?: number | null;
+  market_cap?: number | null;
+  up_count?: number;
+  down_count?: number;
+  breadth?: number | null;
   score?: number | null;
   leader?: StockPickItem;
-  stocks?: StockPickItem[];
+}
+
+export interface SectorHistoryResult {
+  code: string;
+  name?: string | null;
+  change_5d?: number | null;
+  change_20d?: number | null;
+  change_60d?: number | null;
+  bars: Array<{
+    date: string;
+    close?: number | null;
+    change_percent?: number | null;
+    turnover_rate?: number | null;
+  }>;
+}
+
+export interface FormulaRankingItem {
+  ticker: string;
+  name?: string;
+  market?: string;
+  theme?: string;
+  profile?: string;
+  formula_score: number;
+  recommendation: string;
+  original_score?: number | null;
+  price?: number | null;
+  change_5d?: number | null;
+  change_20d?: number | null;
+  distance_to_high_20d?: number | null;
+  distance_to_ma20?: number | null;
+  volatility_20d?: number | null;
+  today_change_percent?: number | null;
+  change_60d?: number | null;
+  turnover_rate?: number | null;
+  volume_ratio?: number | null;
+  pe_ratio?: number | null;
+  pb_ratio?: number | null;
+  market_cap?: number | null;
+  action?: string;
+  reasons?: string[];
+  risks?: string[];
+  components?: Record<string, number>;
+}
+
+export interface FormulaRankingResult {
+  generated_at?: string | null;
+  market: string;
+  mode: "balanced" | "conservative" | "aggressive";
+  formula: string;
+  items: FormulaRankingItem[];
+  total: number;
+  scanned_count?: number;
+  history_enriched_count?: number;
+  cached?: boolean;
+  fallback?: boolean;
+  fallback_reason?: string | null;
+  source: string;
 }
 
 export interface PortfolioPosition {
@@ -397,6 +458,35 @@ class ApiClient {
       method: "POST",
       body: JSON.stringify({}),
     });
+  }
+
+  async getSectorHistory(code: string, days = 120): Promise<{ status: string; result: SectorHistoryResult }> {
+    return this.fetch<{ status: string; result: SectorHistoryResult }>(
+      `/api/sectors/${encodeURIComponent(code)}/history?days=${days}`
+    );
+  }
+
+  async getFormulaRanking(
+    market: "CN" | "US" | "HK" | "all" = "CN",
+    limit = 30,
+    mode: "balanced" | "conservative" | "aggressive" = "balanced"
+  ): Promise<{ status: string; result: FormulaRankingResult }> {
+    const params = new URLSearchParams({
+      market,
+      limit: limit.toString(),
+      mode,
+    });
+    return this.fetch<{ status: string; result: FormulaRankingResult }>(`/api/formula-ranking?${params}`);
+  }
+
+  async getFormulaRankingHistory(
+    tickers: string[],
+    mode: "balanced" | "conservative" | "aggressive"
+  ): Promise<{ status: string; result: { items: FormulaRankingItem[]; history_enriched_count: number; requested_count: number } }> {
+    const params = new URLSearchParams({ tickers: tickers.join(","), mode });
+    return this.fetch<{ status: string; result: { items: FormulaRankingItem[]; history_enriched_count: number; requested_count: number } }>(
+      `/api/formula-ranking/history?${params}`
+    );
   }
 
   async getFinancials(ticker: string): Promise<FinancialMetrics> {
