@@ -213,6 +213,19 @@ export interface SectorHistoryResult {
   }>;
 }
 
+export interface SectorConstituentsResult {
+  code: string;
+  name?: string | null;
+  generated_at?: string | null;
+  mode: "balanced" | "conservative" | "aggressive";
+  formula: string;
+  items: FormulaRankingItem[];
+  total: number;
+  history_enriched_count?: number;
+  cached?: boolean;
+  source: string;
+}
+
 export interface FormulaRankingItem {
   ticker: string;
   name?: string;
@@ -463,6 +476,20 @@ class ApiClient {
   async getSectorHistory(code: string, days = 120): Promise<{ status: string; result: SectorHistoryResult }> {
     return this.fetch<{ status: string; result: SectorHistoryResult }>(
       `/api/sectors/${encodeURIComponent(code)}/history?days=${days}`
+    );
+  }
+
+  async getSectorConstituents(
+    code: string,
+    limit = 80,
+    mode: "balanced" | "conservative" | "aggressive" = "balanced"
+  ): Promise<{ status: string; result: SectorConstituentsResult }> {
+    const params = new URLSearchParams({
+      limit: limit.toString(),
+      mode,
+    });
+    return this.fetch<{ status: string; result: SectorConstituentsResult }>(
+      `/api/sectors/${encodeURIComponent(code)}/constituents?${params}`
     );
   }
 

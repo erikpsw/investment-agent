@@ -65,6 +65,10 @@ function number(value) {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
+function isMainBoardCode(code) {
+  return /^(600|601|603|605|000|001|002|003)/.test(code);
+}
+
 async function fetchStocks() {
   const base = {
     pz: "100",
@@ -87,7 +91,7 @@ async function fetchStocks() {
     const code = String(row.f12 || "");
     const name = String(row.f14 || "").trim();
     if (!code || !name || name.toUpperCase().includes("ST") || name.includes("退")) return null;
-    if (!/^(600|601|603|605|688|000|001|002|003|300|301)/.test(code)) return null;
+    if (!isMainBoardCode(code)) return null;
     if (!(row.f2 > 0) || !(row.f6 > 0) || !(row.f20 > 0)) return null;
     return {
       ticker: `${code.startsWith("6") ? "sh" : "sz"}${code}`,
@@ -179,7 +183,7 @@ async function fetchOrKeepExisting(label, fetcher, path, minimumRows) {
 }
 
 const [stockPayload, sectorPayload] = await Promise.all([
-  fetchOrKeepExisting("Stock", fetchStocks, stockSnapshotPath, 4500),
+  fetchOrKeepExisting("Stock", fetchStocks, stockSnapshotPath, 2500),
   fetchOrKeepExisting("Sector", fetchSectors, sectorSnapshotPath, 300),
 ]);
 await mkdir(outputDir, { recursive: true });
