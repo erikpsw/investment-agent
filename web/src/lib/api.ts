@@ -1,4 +1,6 @@
 // 使用相对路径，通过 Next.js rewrites 代理到后端
+import { AuthenticationRequiredError, getPortfolioAccessToken } from "@/lib/auth-token";
+
 const API_BASE = "";
 
 export interface StockQuote {
@@ -25,6 +27,7 @@ export interface SearchResult {
   market: string;
   display: string;
   exchange: string | null;
+  instrument_type?: "stock" | "etf";
 }
 
 export interface SearchResponse {
@@ -52,6 +55,8 @@ export interface HistoryResponse {
 export interface MarketIndex {
   code: string;
   name: string;
+  market: "CN" | "HK" | "US";
+  history_ticker: string;
   price: number | null;
   change: number | null;
   change_percent: number | null;
@@ -60,6 +65,31 @@ export interface MarketIndex {
 export interface MarketOverview {
   indices: MarketIndex[];
   timestamp: string;
+}
+
+export type HotStockMarket = "CN" | "HK" | "US";
+export type HotStockMode = "hot" | "amount" | "gainers";
+
+export interface HotStockItem {
+  ticker: string;
+  name: string;
+  market: HotStockMarket;
+  price: number;
+  amount: number;
+  today_change_percent: number;
+  turnover_rate?: number | null;
+  volume_ratio?: number | null;
+  heat_score: number;
+  score_components: Record<string, number>;
+}
+
+export interface HotStockResult {
+  market: HotStockMarket;
+  mode: HotStockMode;
+  generated_at?: string | null;
+  source: string;
+  stale: boolean;
+  items: HotStockItem[];
 }
 
 export interface FinancialMetrics {
@@ -273,13 +303,18 @@ export interface PortfolioPosition {
   ticker: string;
   name?: string;
   market?: string;
+  currency?: "CNY" | "HKD" | "USD" | string;
   quantity: number;
   avg_cost: number;
   notes?: string;
   current_price?: number | null;
+  fx_rate_to_cny?: number | null;
   cost?: number | null;
+  cost_native?: number | null;
   market_value?: number | null;
+  market_value_native?: number | null;
   pnl?: number | null;
+  pnl_native?: number | null;
   pnl_percent?: number | null;
   day_change_percent?: number | null;
   weight?: number | null;
@@ -326,6 +361,43 @@ export interface PortfolioAnalysisResult {
   total_pnl: number;
   total_pnl_percent?: number | null;
   agent_view: string;
+  valuation_currency?: "CNY" | string;
+  fx_rates?: Record<string, number>;
+}
+
+export interface PersonalAccessToken {
+  id: string;
+  name: string;
+  token_prefix: string;
+  scopes: string[];
+  created_at: string;
+  expires_at: string;
+  last_used_at?: string | null;
+  revoked_at?: string | null;
+}
+
+export interface CreatedPersonalAccessToken extends PersonalAccessToken {
+  token: string;
+}
+
+export interface HotEtfSectorItem {
+  theme: string;
+  ticker: string;
+  name: string;
+  market: "CN";
+  price: number;
+  amount: number;
+  today_change_percent: number;
+  change_5d?: number | null;
+  heat_score: number;
+  score_components: Record<string, number>;
+}
+
+export interface HotEtfSectorResult {
+  generated_at?: string | null;
+  source: string;
+  stale: boolean;
+  items: HotEtfSectorItem[];
 }
 
 class ApiClient {
@@ -335,18 +407,23 @@ class ApiClient {
     this.baseUrl = baseUrl;
   }
 
-  private async fetch<T>(path: string, options?: RequestInit): Promise<T> {
+  private async fetch<T>(path: string, options?: RequestInit, authenticated = false): Promise<T> {
     const url = `${this.baseUrl}${path}`;
+    const headers = new Headers(options?.headers);
+    if (!headers.has("Content-Type")) headers.set("Content-Type", "application/json");
+    if (authenticated) {
+      headers.set("Authorization", `Bearer ${await getPortfolioAccessToken()}`);
+    }
     const response = await fetch(url, {
       ...options,
-      headers: {
-        "Content-Type": "application/json",
-        ...options?.headers,
-      },
+      headers,
     });
 
     if (!response.ok) {
       const error = await response.json().catch(() => ({ detail: "Unknown error" }));
+      if (authenticated && response.status === 401) {
+        throw new AuthenticationRequiredError();
+      }
       throw new Error(error.detail || `HTTP ${response.status}`);
     }
 
@@ -383,6 +460,17 @@ class ApiClient {
 
   async getMarketOverview(): Promise<MarketOverview> {
     return this.fetch<MarketOverview>("/api/market/overview");
+  }
+
+  async getHotStocks(
+    market: HotStockMarket,
+    mode: HotStockMode = "hot",
+    limit = 6
+  ): Promise<{ status: string; result: HotStockResult }> {
+    const params = new URLSearchParams({ market, mode, limit: String(limit) });
+    return this.fetch<{ status: string; result: HotStockResult }>(
+      `/api/market/hot-stocks?${params}`
+    );
   }
 
   async analyzeStockPicker(payload: {
@@ -455,22 +543,52 @@ class ApiClient {
     return this.fetch<{ status: string; result: { generated_at?: string; sectors: SectorItem[]; coverage_count: number; source: string } }>("/api/sectors");
   }
 
-  async getPortfolioPositions(): Promise<{ status: string; result: { updated_at?: string | null; positions: PortfolioPosition[]; path: string } }> {
-    return this.fetch<{ status: string; result: { updated_at?: string | null; positions: PortfolioPosition[]; path: string } }>("/api/portfolio/positions");
+  async getPortfolioPositions(): Promise<{ status: string; result: { updated_at?: string | null; positions: PortfolioPosition[]; storage: string } }> {
+    return this.fetch<{ status: string; result: { updated_at?: string | null; positions: PortfolioPosition[]; storage: string } }>("/api/portfolio/positions", undefined, true);
   }
 
-  async savePortfolioPositions(positions: PortfolioPosition[]): Promise<{ status: string; result: { updated_at?: string | null; positions: PortfolioPosition[]; path: string } }> {
-    return this.fetch<{ status: string; result: { updated_at?: string | null; positions: PortfolioPosition[]; path: string } }>("/api/portfolio/positions", {
+  async savePortfolioPositions(positions: PortfolioPosition[]): Promise<{ status: string; result: { updated_at?: string | null; positions: PortfolioPosition[]; storage: string } }> {
+    return this.fetch<{ status: string; result: { updated_at?: string | null; positions: PortfolioPosition[]; storage: string } }>("/api/portfolio/positions", {
       method: "PUT",
       body: JSON.stringify({ positions }),
-    });
+    }, true);
   }
 
   async analyzePortfolio(): Promise<{ status: string; result: PortfolioAnalysisResult }> {
     return this.fetch<{ status: string; result: PortfolioAnalysisResult }>("/api/portfolio/analyze", {
       method: "POST",
       body: JSON.stringify({}),
-    });
+    }, true);
+  }
+
+  async listPersonalAccessTokens(): Promise<{ status: string; result: { tokens: PersonalAccessToken[] } }> {
+    return this.fetch<{ status: string; result: { tokens: PersonalAccessToken[] } }>(
+      "/api/portfolio/tokens",
+      undefined,
+      true
+    );
+  }
+
+  async createPersonalAccessToken(name: string): Promise<{ status: string; result: CreatedPersonalAccessToken }> {
+    return this.fetch<{ status: string; result: CreatedPersonalAccessToken }>(
+      "/api/portfolio/tokens",
+      { method: "POST", body: JSON.stringify({ name }) },
+      true
+    );
+  }
+
+  async revokePersonalAccessToken(id: string): Promise<{ status: string; result: { revoked: boolean } }> {
+    return this.fetch<{ status: string; result: { revoked: boolean } }>(
+      `/api/portfolio/tokens/${encodeURIComponent(id)}`,
+      { method: "DELETE" },
+      true
+    );
+  }
+
+  async getHotEtfSectors(limit = 10): Promise<{ status: string; result: HotEtfSectorResult }> {
+    return this.fetch<{ status: string; result: HotEtfSectorResult }>(
+      `/api/etfs/hot-sectors?limit=${limit}`
+    );
   }
 
   async getSectorHistory(code: string, days = 120): Promise<{ status: string; result: SectorHistoryResult }> {

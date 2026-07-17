@@ -227,6 +227,7 @@ def _normalize(row: dict[str, Any]) -> dict[str, Any] | None:
         "name": name,
         "market": "CN",
         "price": price,
+        "amount": amount,
         "today_change_percent": change,
         "turnover_rate": _number(row.get("f8")),
         "pe_ratio": _number(row.get("f9")),

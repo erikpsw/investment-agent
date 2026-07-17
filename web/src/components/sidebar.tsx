@@ -1,5 +1,6 @@
 ﻿"use client";
 
+import { useUser } from "@auth0/nextjs-auth0";
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -10,6 +11,8 @@ import {
   Layers3,
   LayoutDashboard,
   LineChart,
+  LogIn,
+  LogOut,
   PanelLeft,
   PanelLeftClose,
   Search,
@@ -41,6 +44,7 @@ const navigation = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { user, isLoading: authLoading } = useUser();
   const [collapsed, setCollapsed] = useState(() => {
     if (typeof window === "undefined") return false;
     return localStorage.getItem("sidebar-collapsed") === "true";
@@ -117,24 +121,58 @@ export function Sidebar() {
 
         <div className={cn("border-t", collapsed ? "p-2" : "p-4")}>
           {collapsed ? (
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <Link href="/settings" className="flex items-center justify-center rounded-md p-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground">
-                    <Settings className="h-4 w-4" />
-                  </Link>
-                }
-              />
-              <TooltipContent side="right">
-                <p>设置</p>
-              </TooltipContent>
-            </Tooltip>
+            <div className="flex flex-col gap-1">
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Link href="/settings" className="flex items-center justify-center rounded-md p-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground">
+                      <Settings className="h-4 w-4" />
+                    </Link>
+                  }
+                />
+                <TooltipContent side="right"><p>设置</p></TooltipContent>
+              </Tooltip>
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <Link
+                      href={user ? "/auth/logout" : "/auth/login"}
+                      prefetch={false}
+                      className="flex items-center justify-center rounded-md p-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
+                    >
+                      {user ? <LogOut className="h-4 w-4" /> : <LogIn className="h-4 w-4" />}
+                    </Link>
+                  }
+                />
+                <TooltipContent side="right"><p>{user ? "退出登录" : "登录"}</p></TooltipContent>
+              </Tooltip>
+            </div>
           ) : (
             <>
               <Link href="/settings" className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground">
                 <Settings className="h-4 w-4" />
                 设置
               </Link>
+              <div className="mt-2 border-t pt-2">
+                {authLoading ? (
+                  <p className="px-3 py-2 text-xs text-muted-foreground">正在检查登录状态...</p>
+                ) : user ? (
+                  <>
+                    <p className="truncate px-3 text-xs text-muted-foreground">
+                      {user.email || user.name || "已登录"}
+                    </p>
+                    <Link href="/auth/logout" prefetch={false} className="mt-1 flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground">
+                      <LogOut className="h-4 w-4" />
+                      退出登录
+                    </Link>
+                  </>
+                ) : (
+                  <Link href="/auth/login" prefetch={false} className="flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground">
+                    <LogIn className="h-4 w-4" />
+                    登录 / 注册
+                  </Link>
+                )}
+              </div>
               <p className="mt-2 text-center text-xs text-muted-foreground">v1.0.0 · 仅供研究学习</p>
             </>
           )}

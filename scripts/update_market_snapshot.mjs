@@ -62,6 +62,7 @@ async function mapConcurrent(values, concurrency, worker) {
 }
 
 function number(value) {
+  if (value && typeof value === "object") value = value.raw;
   return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
@@ -98,6 +99,7 @@ async function fetchStocks() {
       name,
       market: "CN",
       price: number(row.f2),
+      amount: number(row.f6),
       today_change_percent: number(row.f3),
       turnover_rate: number(row.f8),
       pe_ratio: number(row.f9),

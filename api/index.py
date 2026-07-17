@@ -29,14 +29,18 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from investment.api.routes import (
     disclosure,
+    etfs,
     financial_history,
     financials,
     formula_ranking,
     history,
+    hot_stocks,
     news,
+    portfolio,
     quotes,
     search,
     sectors,
+    tokens,
 )
 
 
@@ -76,12 +80,16 @@ app.add_middleware(
 app.include_router(quotes.router, prefix="/api", tags=["quotes"])
 app.include_router(search.router, prefix="/api", tags=["search"])
 app.include_router(history.router, prefix="/api", tags=["history"])
+app.include_router(hot_stocks.router, prefix="/api", tags=["hot-stocks"])
 app.include_router(financials.router, prefix="/api", tags=["financials"])
 app.include_router(financial_history.router, prefix="/api", tags=["financial-history"])
 app.include_router(news.router, prefix="/api", tags=["news"])
+app.include_router(portfolio.router, prefix="/api", tags=["portfolio"])
+app.include_router(tokens.router, prefix="/api", tags=["tokens"])
 app.include_router(sectors.router, prefix="/api", tags=["sectors"])
 app.include_router(formula_ranking.router, prefix="/api", tags=["formula-ranking"])
 app.include_router(disclosure.router, prefix="/api", tags=["disclosure"])
+app.include_router(etfs.router, prefix="/api", tags=["etfs"])
 
 
 @app.get("/")

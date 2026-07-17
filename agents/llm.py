@@ -1,6 +1,22 @@
 from typing import Any, Optional, List, Dict, Iterator, AsyncIterator
 from openai import OpenAI, AsyncOpenAI
-from langsmith import traceable, wrappers
+
+try:
+    from langsmith import traceable, wrappers
+except ImportError:
+    def traceable(*args, **kwargs):
+        def decorator(func):
+            return func
+
+        return decorator
+
+    class _Wrappers:
+        @staticmethod
+        def wrap_openai(client):
+            return client
+
+    wrappers = _Wrappers()
+
 from ..utils.config import get_config
 
 

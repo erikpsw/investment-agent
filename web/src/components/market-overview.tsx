@@ -1,11 +1,14 @@
 "use client";
 
 import { TrendingUp, TrendingDown, Minus, RefreshCw } from "lucide-react";
+import Link from "next/link";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
 import { useMarketOverview } from "@/hooks/use-market";
 import { cn, formatNumber, formatPercent } from "@/lib/utils";
+import { marketIndexHref } from "@/lib/market-index";
 
 export function MarketOverview() {
   const { data, isLoading, refetch, isFetching } = useMarketOverview();
@@ -34,7 +37,7 @@ export function MarketOverview() {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {indices.map((index) => {
             const isPositive = (index.change_percent ?? 0) > 0;
             const isNegative = (index.change_percent ?? 0) < 0;
@@ -50,25 +53,27 @@ export function MarketOverview() {
               : "text-muted-foreground";
 
             return (
-              <div
+              <Link
                 key={index.code}
-                className="flex flex-col gap-1 p-3 rounded-lg bg-secondary/50"
+                href={marketIndexHref(index)}
+                className="flex flex-col gap-1 rounded-lg bg-secondary/50 p-3 transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               >
-                <p className="text-sm font-medium text-muted-foreground">
-                  {index.name}
-                </p>
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-sm font-medium text-muted-foreground">{index.name}</p>
+                  <Badge variant="outline">{index.market}</Badge>
+                </div>
                 <p className="text-lg font-bold tabular-nums">
-                  {index.price ? formatNumber(index.price, 2) : "--"}
+                  {index.price != null ? formatNumber(index.price, 2) : "--"}
                 </p>
                 <div className={cn("flex items-center gap-1 text-sm", trendColor)}>
                   <TrendIcon className="h-3 w-3" />
                   <span>
-                    {index.change_percent
+                    {index.change_percent != null
                       ? formatPercent(index.change_percent)
                       : "--"}
                   </span>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>

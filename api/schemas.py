@@ -29,6 +29,7 @@ class SearchResult(BaseModel):
     market: str
     display: str
     exchange: Optional[str] = None
+    instrument_type: str = "stock"
 
 
 class SearchResponse(BaseModel):
@@ -56,6 +57,8 @@ class HistoryResponse(BaseModel):
 class MarketIndex(BaseModel):
     code: str
     name: str
+    market: str
+    history_ticker: str
     price: Optional[float] = None
     change: Optional[float] = None
     change_percent: Optional[float] = None
