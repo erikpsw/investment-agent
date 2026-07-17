@@ -13,6 +13,8 @@ import akshare as ak
 import pandas as pd
 from datetime import datetime
 
+from investment.data.runtime_paths import cache_directory
+
 # 美股数据客户端
 try:
     from investment.data import YFinanceClient
@@ -24,8 +26,7 @@ except ImportError:
 router = APIRouter()
 executor = ThreadPoolExecutor(max_workers=2)
 
-CACHE_DIR = Path(__file__).parent.parent.parent / "storage" / "financial_cache"
-CACHE_DIR.mkdir(parents=True, exist_ok=True)
+CACHE_DIR = cache_directory("financial_cache")
 
 
 class FinancialHistoryItem(BaseModel):

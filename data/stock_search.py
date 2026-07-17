@@ -12,6 +12,18 @@ _search_instance: Optional["StockSearch"] = None
 _search_lock = threading.Lock()
 
 
+def _instrument_type(code: str, listed_type: Any = None) -> str:
+    normalized_type = str(listed_type or "").strip().lower()
+    normalized_code = str(code or "").lower().replace("sh", "").replace("sz", "")
+    if normalized_type in {"fund", "etf"}:
+        return "etf"
+    if len(normalized_code) == 6 and (
+        normalized_code.startswith("5") or normalized_code.startswith("159")
+    ):
+        return "etf"
+    return "stock"
+
+
 def get_stock_search() -> "StockSearch":
     """获取全局共享的 StockSearch 实例"""
     global _search_instance
@@ -74,6 +86,10 @@ class StockSearch:
         
         if dfs:
             self._stocks = pd.concat(dfs, ignore_index=True)
+            self._stocks["instrument_type"] = self._stocks.apply(
+                lambda row: _instrument_type(row.get("code"), row.get("type")),
+                axis=1,
+            )
             self._stocks["name_lower"] = self._stocks["name"].str.lower()
             self._stocks["code_str"] = self._stocks["code"].astype(str)
             
@@ -146,6 +162,7 @@ class StockSearch:
                 "market": row["market"],
                 "display": f"{row['name']} ({row['ticker']})",
                 "exchange": row.get("exchange", ""),
+                "instrument_type": row.get("instrument_type", "stock"),
             })
         
         results = self._rank_results(results, query)
@@ -257,6 +274,7 @@ class StockSearch:
                 "name": "",
                 "market": "CN",
                 "display": code_lower,
+                "instrument_type": _instrument_type(code_lower),
             }
         elif code_lower.startswith("sz"):
             return {
@@ -264,6 +282,7 @@ class StockSearch:
                 "name": "",
                 "market": "CN",
                 "display": code_lower,
+                "instrument_type": _instrument_type(code_lower),
             }
         elif code_lower.startswith("hk"):
             return {
@@ -271,6 +290,7 @@ class StockSearch:
                 "name": "",
                 "market": "HK",
                 "display": code_lower,
+                "instrument_type": "stock",
             }
         elif code.isdigit():
             if len(code) == 5:
@@ -281,7 +301,7 @@ class StockSearch:
                     "market": "HK",
                     "display": ticker,
                 }
-            elif code.startswith("6"):
+            elif code.startswith(("5", "6")):
                 ticker = f"sh{code.zfill(6)}"
             else:
                 ticker = f"sz{code.zfill(6)}"
@@ -290,6 +310,7 @@ class StockSearch:
                 "name": "",
                 "market": "CN",
                 "display": ticker,
+                "instrument_type": _instrument_type(ticker),
             }
         elif code_upper.isalpha():
             return {
@@ -297,6 +318,7 @@ class StockSearch:
                 "name": "",
                 "market": "US",
                 "display": code_upper,
+                "instrument_type": "stock",
             }
         
         return {
@@ -304,6 +326,7 @@ class StockSearch:
             "name": "",
             "market": "UNKNOWN",
             "display": code,
+            "instrument_type": "stock",
         }
     
     def _rank_results(self, results: List[Dict[str, Any]], query: str) -> List[Dict[str, Any]]:

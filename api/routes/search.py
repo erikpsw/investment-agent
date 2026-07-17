@@ -367,6 +367,7 @@ async def search_stocks(
                 market=r.get("market", ""),
                 display=r.get("display", ""),
                 exchange=r.get("exchange"),
+                instrument_type=r.get("instrument_type", "stock"),
             )
             for r in results
         ],

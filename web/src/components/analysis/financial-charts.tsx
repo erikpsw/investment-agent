@@ -552,8 +552,10 @@ export function FinancialCharts({ ticker, stockName }: FinancialChartsProps) {
 
             {!aiAnalysis && !aiLoading && (
               <div className="text-center py-8 text-muted-foreground">
+                {/* eslint-disable react/no-unescaped-entities */}
                 <Sparkles className="h-12 w-12 mx-auto mb-3 opacity-30" />
                 <p className="text-sm">点击"开始分析"让 AI 提取关键财务数据</p>
+                {/* eslint-enable react/no-unescaped-entities */}
               </div>
             )}
 
@@ -742,6 +744,11 @@ function MetricCard({
   );
 }
 
+type SimpleChartDatum = {
+  shortPeriod: string;
+  [key: string]: string | number | null | undefined;
+};
+
 function BarChartSimple({
   data,
   dataKey,
@@ -750,14 +757,16 @@ function BarChartSimple({
   formatValue,
   showNegative,
 }: {
-  data: any[];
+  data: SimpleChartDatum[];
   dataKey: string;
   label: string;
   color: string;
   formatValue: (v: number) => string;
   showNegative?: boolean;
 }) {
-  const values = data.map((d) => d[dataKey]).filter((v): v is number => v !== null);
+  const values = data
+    .map((d) => d[dataKey])
+    .filter((v): v is number => typeof v === "number");
   if (values.length === 0) {
     return <div className="h-full flex items-center justify-center text-muted-foreground text-sm">暂无数据</div>;
   }
@@ -813,7 +822,7 @@ function BarChartSimple({
           ))}
           {data.map((item, i) => {
             const val = item[dataKey];
-            if (val == null) return <div key={i} className="flex-1 h-full" />;
+            if (typeof val !== "number") return <div key={i} className="flex-1 h-full" />;
             
             const height = ((val - yMin) / yRange) * 100;
             const isNegative = val < 0;
@@ -858,12 +867,14 @@ function LineChartSimple({
   lines,
   formatValue,
 }: {
-  data: any[];
+  data: SimpleChartDatum[];
   lines: { key: string; label: string; color: string }[];
   formatValue: (v: number) => string;
 }) {
   const allValues = lines.flatMap((line) =>
-    data.map((d) => d[line.key]).filter((v): v is number => v !== null)
+    data
+      .map((d) => d[line.key])
+      .filter((v): v is number => typeof v === "number")
   );
   if (allValues.length === 0) {
     return <div className="h-full flex items-center justify-center text-muted-foreground text-sm">暂无数据</div>;
@@ -934,7 +945,8 @@ function LineChartSimple({
             {lines.map((line) => {
               const points = data
                 .map((d, i) => {
-                  const y = getY(d[line.key]);
+                  const value = d[line.key];
+                  const y = getY(typeof value === "number" ? value : null);
                   if (y == null) return null;
                   const x = data.length > 1 ? (i / (data.length - 1)) * 100 : 50;
                   return `${x},${y}`;

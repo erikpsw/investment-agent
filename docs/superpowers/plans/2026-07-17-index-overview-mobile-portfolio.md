@@ -61,7 +61,7 @@ A_SHARE_INDICES = (
 )
 GLOBAL_INDICES = (
     ("^HSI", "恒生指数", "HK"),
-    ("^HSTECH", "恒生科技指数", "HK"),
+    ("HSTECH.HK", "恒生科技指数", "HK"),
     ("^GSPC", "标普500", "US"),
     ("^IXIC", "纳斯达克综合", "US"),
     ("^DJI", "道琼斯工业指数", "US"),

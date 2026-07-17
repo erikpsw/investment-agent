@@ -58,7 +58,8 @@ export function CandlestickChart({
       observer.observe(container);
       return () => observer.disconnect();
     } else {
-      setContainerReady(true);
+      const frame = requestAnimationFrame(() => setContainerReady(true));
+      return () => cancelAnimationFrame(frame);
     }
   }, []);
 
@@ -208,6 +209,11 @@ export function CandlestickChart({
                 <Skeleton className="h-4 w-20" />
               </div>
             </div>
+          </div>
+        )}
+        {!isLoading && !error && data && data.bars.length === 0 && (
+          <div className="absolute inset-0 flex items-center justify-center bg-background/80 text-muted-foreground">
+            <p>暂无走势数据</p>
           </div>
         )}
         {error && (

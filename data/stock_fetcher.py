@@ -1,4 +1,5 @@
 from typing import Any, Optional, List, Dict
+from datetime import datetime
 import pandas as pd
 from .yfinance_client import YFinanceClient
 from .tencent_client import TencentClient
@@ -6,6 +7,22 @@ from .akshare_client import AKShareClient
 from .sina_client import SinaClient
 from .ashare_client import AshareQuoteClient, get_ashare_client
 from .stock_search import get_stock_search, resolve_stock
+
+
+A_SHARE_INDICES = (
+    ("sh000001", "上证指数", "000001.SS"),
+    ("sz399001", "深证成指", "399001.SZ"),
+    ("sz399006", "创业板指", "399006.SZ"),
+    ("sh000300", "沪深300", "000300.SS"),
+)
+
+GLOBAL_INDICES = (
+    ("^HSI", "恒生指数", "HK"),
+    ("HSTECH.HK", "恒生科技指数", "HK"),
+    ("^GSPC", "标普500", "US"),
+    ("^IXIC", "纳斯达克综合", "US"),
+    ("^DJI", "道琼斯工业指数", "US"),
+)
 
 
 class StockFetcher:
@@ -64,6 +81,23 @@ class StockFetcher:
         """
         # 先用本地数据快速搜索
         results = self.searcher.search(query, market, limit)
+
+        normalized_query = query.strip()
+        if normalized_query.isdigit() and len(normalized_query) == 6:
+            resolved = self.searcher.resolve(normalized_query)
+            exact_code = str((resolved or {}).get("code") or "")
+            if exact_code and not any(str(item.get("code")) == exact_code for item in results):
+                try:
+                    quote = self.get_quote(exact_code)
+                    if quote.get("price") is not None and not quote.get("error"):
+                        resolved = {
+                            **resolved,
+                            "name": quote.get("name") or resolved.get("name") or exact_code,
+                            "display": f"{quote.get('name') or exact_code} ({exact_code})",
+                        }
+                        results.insert(0, resolved)
+                except Exception:
+                    pass
         
         # 如果结果不够，补充 AKShare 实时数据
         if len(results) < limit:
@@ -306,8 +340,47 @@ class StockFetcher:
         return self.yfinance.get_key_metrics(ticker.upper())
 
     def get_market_overview(self) -> Dict[str, Any]:
-        """获取市场概览"""
-        return self.tencent.get_market_overview()
+        """获取 A 股、港股和美股主要指数，单个行情失败不影响其他指数。"""
+        indices: List[Dict[str, Any]] = []
+
+        for code, name, history_ticker in A_SHARE_INDICES:
+            try:
+                quote = self.tencent.get_index(code, name)
+                if quote.get("price") is None or quote.get("error"):
+                    continue
+                indices.append({
+                    "code": code,
+                    "name": name,
+                    "market": "CN",
+                    "history_ticker": history_ticker,
+                    "price": quote.get("price"),
+                    "change": quote.get("change"),
+                    "change_percent": quote.get("change_percent"),
+                })
+            except Exception:
+                continue
+
+        for ticker, name, market in GLOBAL_INDICES:
+            try:
+                quote = self.yfinance.get_quote(ticker)
+                if quote.get("price") is None or quote.get("error"):
+                    continue
+                indices.append({
+                    "code": ticker,
+                    "name": name,
+                    "market": market,
+                    "history_ticker": ticker,
+                    "price": quote.get("price"),
+                    "change": quote.get("change"),
+                    "change_percent": quote.get("change_percent"),
+                })
+            except Exception:
+                continue
+
+        return {
+            "timestamp": datetime.now().isoformat(),
+            "indices": indices,
+        }
 
     def _is_china_stock(self, ticker: str) -> bool:
         """判断是否为 A 股"""

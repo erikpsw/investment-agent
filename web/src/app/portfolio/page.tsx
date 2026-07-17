@@ -1,8 +1,9 @@
 "use client";
 
+import { useUser } from "@auth0/nextjs-auth0";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { Loader2, Plus, RefreshCw, Save, Search, Trash2 } from "lucide-react";
+import { Copy, KeyRound, Loader2, Plus, RefreshCw, Save, Search, Trash2 } from "lucide-react";
 import { Header } from "@/components/header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { useDebounce } from "@/hooks/use-debounce";
-import { api, type PortfolioAnalysisItem, type PortfolioAnalysisResult, type PortfolioPosition, type SearchResult } from "@/lib/api";
+import { api, type CreatedPersonalAccessToken, type PersonalAccessToken, type PortfolioAnalysisItem, type PortfolioAnalysisResult, type PortfolioPosition, type SearchResult } from "@/lib/api";
 
 function formatNumber(value?: number | null, digits = 2) {
   if (value == null || Number.isNaN(Number(value))) return "--";
@@ -31,12 +32,16 @@ function marketFor(ticker: string) {
   return "US";
 }
 
+function currencyForMarket(market?: string) {
+  return ({ CN: "CNY", HK: "HKD", US: "USD", CASH: "CNY" } as Record<string, string>)[market || ""] || "CNY";
+}
+
 function emptyPosition(): PortfolioPosition {
-  return { ticker: "", name: "", market: "", quantity: 0, avg_cost: 0, notes: "" };
+  return { ticker: "", name: "", market: "", currency: "CNY", quantity: 0, avg_cost: 0, notes: "" };
 }
 
 function cashPosition(): PortfolioPosition {
-  return { ticker: "CASH", name: "现金", market: "CASH", quantity: 0, avg_cost: 1, notes: "" };
+  return { ticker: "CASH", name: "现金", market: "CASH", currency: "CNY", quantity: 0, avg_cost: 1, notes: "" };
 }
 
 function PositionSearchInput({
@@ -59,10 +64,19 @@ function PositionSearchInput({
   const syncDropdownPosition = useCallback(() => {
     const rect = wrapperRef.current?.getBoundingClientRect();
     if (!rect) return;
+    const viewportPadding = 12;
+    const width = Math.min(
+      Math.max(rect.width, 300),
+      window.innerWidth - viewportPadding * 2,
+    );
+    const left = Math.min(
+      Math.max(rect.left, viewportPadding),
+      window.innerWidth - width - viewportPadding,
+    );
     setDropdownStyle({
-      left: rect.left,
+      left,
       top: rect.bottom + 6,
-      width: Math.max(rect.width, 360),
+      width,
     });
   }, []);
 
@@ -108,7 +122,7 @@ function PositionSearchInput({
   }, [open, syncDropdownPosition]);
 
   return (
-    <div ref={wrapperRef} className="relative min-w-72">
+    <div ref={wrapperRef} className="relative w-full min-w-0">
       <Search className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         className="pl-8"
@@ -149,7 +163,10 @@ function PositionSearchInput({
                 <span className="block truncate font-medium">{result.name || result.code}</span>
                 <span className="text-xs text-muted-foreground">{result.code}</span>
               </span>
-              <Badge variant="outline">{result.market}</Badge>
+              <div className="flex gap-1">
+                {result.instrument_type === "etf" && <Badge variant="secondary">ETF</Badge>}
+                <Badge variant="outline">{result.market}</Badge>
+              </div>
             </button>
           ))}
         </div>
@@ -171,6 +188,104 @@ function pnlClass(value?: number | null) {
   if ((value || 0) > 0) return "text-green-600";
   if ((value || 0) < 0) return "text-red-600";
   return "";
+}
+
+function MobilePositionCard({
+  position,
+  index,
+  onUpdate,
+  onRemove,
+}: {
+  position: PortfolioPosition;
+  index: number;
+  onUpdate: (index: number, patch: Partial<PortfolioPosition>) => void;
+  onRemove: (index: number) => void;
+}) {
+  return (
+    <Card data-testid="mobile-position-card">
+      <CardContent className="space-y-4 pt-6">
+        <PositionSearchInput
+          value={position.ticker}
+          onInput={(value) => {
+            const market = marketFor(value);
+            onUpdate(index, {
+              ticker: value,
+              market,
+              currency: currencyForMarket(market),
+            });
+          }}
+          onSelect={(result) => onUpdate(index, {
+            ticker: result.code,
+            name: result.name,
+            market: result.market,
+            currency: currencyForMarket(result.market),
+          })}
+        />
+
+        <Input
+          value={position.name || ""}
+          onChange={(event) => onUpdate(index, { name: event.target.value })}
+          placeholder="名称（选择标的后自动填入）"
+        />
+
+        <div className="grid grid-cols-2 gap-3">
+          <label className="space-y-1 text-xs text-muted-foreground">
+            市场
+            <Input
+              value={position.market || ""}
+              onChange={(event) => onUpdate(index, { market: event.target.value.toUpperCase() })}
+              placeholder="CN/HK/US"
+            />
+          </label>
+          <label className="space-y-1 text-xs text-muted-foreground">
+            币种
+            <Input
+              value={position.currency || currencyForMarket(position.market)}
+              onChange={(event) => onUpdate(index, { currency: event.target.value.toUpperCase() })}
+              placeholder="CNY/HKD/USD"
+            />
+          </label>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <label className="space-y-1 text-xs text-muted-foreground">
+            数量
+            <Input
+              type="number"
+              inputMode="decimal"
+              value={position.quantity}
+              onChange={(event) => onUpdate(index, { quantity: Number(event.target.value) })}
+            />
+          </label>
+          <label className="space-y-1 text-xs text-muted-foreground">
+            买入均价
+            <Input
+              type="number"
+              inputMode="decimal"
+              value={position.avg_cost}
+              onChange={(event) => onUpdate(index, { avg_cost: Number(event.target.value) })}
+            />
+          </label>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <Metric label={`现价 (${position.currency || "CNY"})`} value={formatNumber(position.current_price)} />
+          <Metric label="市值 (人民币)" value={`¥${formatNumber(position.market_value)}`} />
+          <Metric label="浮盈亏 (人民币)" value={`¥${formatNumber(position.pnl)}`} className={pnlClass(position.pnl)} />
+          <Metric label="盈亏比例" value={formatPct(position.pnl_percent)} className={pnlClass(position.pnl_percent)} />
+        </div>
+
+        <Input
+          value={position.notes || ""}
+          onChange={(event) => onUpdate(index, { notes: event.target.value })}
+          placeholder="策略/原因"
+        />
+        <Button variant="outline" className="w-full" onClick={() => onRemove(index)}>
+          <Trash2 className="mr-2 h-4 w-4" />删除持仓
+        </Button>
+      </CardContent>
+    </Card>
+  );
 }
 
 function PositionAnalysis({ item }: { item: PortfolioAnalysisItem }) {
@@ -199,10 +314,10 @@ function PositionAnalysis({ item }: { item: PortfolioAnalysisItem }) {
       <CardContent className="space-y-4">
         <div className="grid gap-3 md:grid-cols-5">
           <Metric label="数量" value={formatNumber(item.quantity, 0)} />
-          <Metric label="买入均价" value={formatNumber(item.avg_cost)} />
-          <Metric label="当前价" value={formatNumber(item.current_price)} />
-          <Metric label="市值" value={formatNumber(item.market_value)} />
-          <Metric label="浮盈亏" value={`${formatNumber(item.pnl)} / ${formatPct(item.pnl_percent)}`} className={itemPnlClass} />
+          <Metric label={`买入均价 (${item.currency || "CNY"})`} value={formatNumber(item.avg_cost)} />
+          <Metric label={`当前价 (${item.currency || "CNY"})`} value={formatNumber(item.current_price)} />
+          <Metric label="市值 (人民币)" value={`¥${formatNumber(item.market_value)}`} />
+          <Metric label="浮盈亏 (人民币)" value={`¥${formatNumber(item.pnl)} / ${formatPct(item.pnl_percent)}`} className={itemPnlClass} />
         </div>
 
         <div className="grid gap-3 md:grid-cols-4">
@@ -244,15 +359,20 @@ function PositionAnalysis({ item }: { item: PortfolioAnalysisItem }) {
 }
 
 export default function PortfolioPage() {
+  const { user, isLoading: authLoading } = useUser();
   const [positions, setPositions] = useState<PortfolioPosition[]>([]);
   const [analysis, setAnalysis] = useState<PortfolioAnalysisResult | null>(null);
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [personalTokens, setPersonalTokens] = useState<PersonalAccessToken[]>([]);
+  const [newTokenName, setNewTokenName] = useState("Codex MCP");
+  const [createdToken, setCreatedToken] = useState<CreatedPersonalAccessToken | null>(null);
+  const [tokenLoading, setTokenLoading] = useState(false);
 
   const totals = useMemo(() => analysis ? [
-    { label: "总成本", value: formatNumber(analysis.total_cost) },
-    { label: "当前市值", value: formatNumber(analysis.total_market_value) },
-    { label: "浮动盈亏", value: `${formatNumber(analysis.total_pnl)} / ${formatPct(analysis.total_pnl_percent)}` },
+    { label: "总成本 (人民币)", value: `¥${formatNumber(analysis.total_cost)}` },
+    { label: "当前市值 (人民币)", value: `¥${formatNumber(analysis.total_market_value)}` },
+    { label: "浮动盈亏 (人民币)", value: `¥${formatNumber(analysis.total_pnl)} / ${formatPct(analysis.total_pnl_percent)}` },
   ] : [], [analysis]);
 
   const loadPositions = useCallback(async () => {
@@ -260,17 +380,61 @@ export default function PortfolioPage() {
     setPositions(response.result.positions.length ? response.result.positions : [emptyPosition()]);
   }, []);
 
+  const loadPersonalTokens = useCallback(async () => {
+    const response = await api.listPersonalAccessTokens();
+    setPersonalTokens(response.result.tokens);
+  }, []);
+
   useEffect(() => {
-    void loadPositions().catch((error) => setMessage(error instanceof Error ? error.message : "加载持仓失败"));
-  }, [loadPositions]);
+    if (authLoading || !user) return;
+    void Promise.all([loadPositions(), loadPersonalTokens()]).catch((error) =>
+      setMessage(error instanceof Error ? error.message : "加载投资组合失败")
+    );
+  }, [authLoading, loadPersonalTokens, loadPositions, user]);
 
   const updatePosition = (index: number, patch: Partial<PortfolioPosition>) => {
     setPositions((current) => current.map((item, itemIndex) => {
       if (itemIndex !== index) return item;
       const next = { ...item, ...patch };
       if (patch.ticker && !next.market) next.market = marketFor(patch.ticker);
+      if (patch.market) next.currency = currencyForMarket(patch.market);
       return next;
     }));
+  };
+
+  const createMcpToken = async () => {
+    if (!newTokenName.trim()) return;
+    setTokenLoading(true);
+    try {
+      const response = await api.createPersonalAccessToken(newTokenName.trim());
+      setCreatedToken(response.result);
+      await loadPersonalTokens();
+      setMessage("Personal Access Token 已创建，请立即复制并妥善保存");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "创建 Token 失败");
+    } finally {
+      setTokenLoading(false);
+    }
+  };
+
+  const copyMcpToken = async () => {
+    if (!createdToken) return;
+    await navigator.clipboard.writeText(createdToken.token);
+    setMessage("Token 已复制");
+  };
+
+  const revokeMcpToken = async (id: string) => {
+    setTokenLoading(true);
+    try {
+      await api.revokePersonalAccessToken(id);
+      if (createdToken?.id === id) setCreatedToken(null);
+      await loadPersonalTokens();
+      setMessage("Token 已撤销");
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "撤销 Token 失败");
+    } finally {
+      setTokenLoading(false);
+    }
   };
 
   const savePositionsOnly = async () => {
@@ -316,6 +480,36 @@ export default function PortfolioPage() {
     }
   };
 
+  if (authLoading) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Header />
+        <main className="flex flex-1 items-center justify-center p-6">
+          <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+        </main>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="flex min-h-screen flex-col">
+        <Header />
+        <main className="flex flex-1 items-center justify-center p-6">
+          <Card className="w-full max-w-md">
+            <CardHeader>
+              <CardTitle>登录后管理投资组合</CardTitle>
+              <CardDescription>持仓将按账户保存到云端，并在不同设备间同步。</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Button className="w-full" render={<Link href="/auth/login?returnTo=/portfolio" prefetch={false} />}>登录 / 注册</Button>
+            </CardContent>
+          </Card>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
@@ -343,18 +537,106 @@ export default function PortfolioPage() {
 
         {message && <div className="rounded-lg border px-4 py-3 text-sm">{message}</div>}
 
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2"><KeyRound className="h-5 w-5" />远程 MCP 接入</CardTitle>
+            <CardDescription>创建可随时撤销的 90 天 Personal Access Token。Token 仅能读取和分析你的投资组合。</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid gap-3 md:grid-cols-[180px_1fr]">
+              <div className="text-sm text-muted-foreground">Streamable HTTP 地址</div>
+              <code className="break-all rounded bg-muted px-3 py-2 text-sm">https://invest.erikai.top/mcp</code>
+              <div className="text-sm text-muted-foreground">创建 Token</div>
+              <div className="space-y-2">
+                <div className="flex flex-wrap gap-2">
+                  <Input
+                    value={newTokenName}
+                    onChange={(event) => setNewTokenName(event.target.value)}
+                    maxLength={80}
+                    placeholder="例如：Codex MCP"
+                    className="max-w-sm"
+                  />
+                  <Button variant="outline" onClick={createMcpToken} disabled={tokenLoading || !newTokenName.trim()}>
+                    {tokenLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <KeyRound className="mr-2 h-4 w-4" />}创建 90 天 Token
+                  </Button>
+                </div>
+              </div>
+            </div>
+            {createdToken && (
+              <div className="space-y-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
+                <div className="font-medium">完整 Token 仅显示这一次</div>
+                <Textarea value={createdToken.token} readOnly className="min-h-24 font-mono text-xs" />
+                <div className="flex flex-wrap gap-2">
+                  <Button variant="outline" onClick={copyMcpToken}>
+                    <Copy className="mr-2 h-4 w-4" />复制 Token
+                  </Button>
+                  <Button variant="ghost" onClick={() => setCreatedToken(null)}>我已保存，关闭</Button>
+                </div>
+              </div>
+            )}
+            <div className="space-y-2">
+              <div className="text-sm font-medium">已创建的 Token</div>
+              {personalTokens.length === 0 ? (
+                <div className="rounded-lg border p-3 text-sm text-muted-foreground">还没有 Personal Access Token</div>
+              ) : personalTokens.map((token) => {
+                const expired = new Date(token.expires_at).getTime() <= Date.now();
+                const state = token.revoked_at ? "已撤销" : expired ? "已过期" : "有效";
+                return (
+                  <div key={token.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3 text-sm">
+                    <div>
+                      <div className="flex items-center gap-2 font-medium">
+                        {token.name}
+                        <Badge variant={state === "有效" ? "secondary" : "outline"}>{state}</Badge>
+                      </div>
+                      <div className="mt-1 text-xs text-muted-foreground">
+                        {token.token_prefix}... · 到期 {new Date(token.expires_at).toLocaleString("zh-CN")}
+                        {token.last_used_at ? ` · 最近使用 ${new Date(token.last_used_at).toLocaleString("zh-CN")}` : " · 尚未使用"}
+                      </div>
+                    </div>
+                    {!token.revoked_at && !expired && (
+                      <Button variant="outline" size="sm" onClick={() => revokeMcpToken(token.id)} disabled={tokenLoading}>
+                        <Trash2 className="mr-2 h-4 w-4" />撤销
+                      </Button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <div className="rounded-lg border bg-muted/40 p-4 text-sm leading-6">
+              <div className="font-medium">Codex 配置</div>
+              <code className="mt-2 block break-all">设置环境变量 ERIK_AI_ACCESS_TOKEN 为上面的 Token</code>
+              <code className="block break-all">codex mcp add erik_ai --url https://invest.erikai.top/mcp --bearer-token-env-var ERIK_AI_ACCESS_TOKEN</code>
+              <div className="mt-2 text-muted-foreground">Token 90 天后自动过期，也可以在此立即撤销。请勿把 Token 提交到 Git 或发送给他人。</div>
+            </div>
+          </CardContent>
+        </Card>
+
         <Card className="overflow-visible">
           <CardHeader>
             <CardTitle>持仓清单</CardTitle>
             <CardDescription>输入名称或代码后选择候选项，系统会自动填入代码、名称和市场；再填写数量与买入均价。</CardDescription>
           </CardHeader>
           <CardContent className="overflow-visible">
-            <Table>
+            <div className="space-y-4 md:hidden">
+              {positions.map((position, index) => (
+                <MobilePositionCard
+                  key={index}
+                  position={position}
+                  index={index}
+                  onUpdate={updatePosition}
+                  onRemove={(itemIndex) => setPositions((current) => current.filter((_, currentIndex) => currentIndex !== itemIndex))}
+                />
+              ))}
+            </div>
+
+            <div className="hidden overflow-x-auto md:block">
+              <Table>
               <TableHeader>
                 <TableRow>
                   <TableHead>代码/名称</TableHead>
                   <TableHead>名称</TableHead>
                   <TableHead>市场</TableHead>
+                  <TableHead>币种</TableHead>
                   <TableHead>数量</TableHead>
                   <TableHead>买入均价</TableHead>
                   <TableHead>现价</TableHead>
@@ -371,17 +653,18 @@ export default function PortfolioPage() {
                     <TableCell>
                       <PositionSearchInput
                         value={position.ticker}
-                        onInput={(value) => updatePosition(index, { ticker: value, market: marketFor(value) })}
-                        onSelect={(result) => updatePosition(index, { ticker: result.code, name: result.name, market: result.market })}
+                        onInput={(value) => { const market = marketFor(value); updatePosition(index, { ticker: value, market, currency: currencyForMarket(market) }); }}
+                        onSelect={(result) => updatePosition(index, { ticker: result.code, name: result.name, market: result.market, currency: currencyForMarket(result.market) })}
                       />
                     </TableCell>
                     <TableCell><Input value={position.name || ""} onChange={(event) => updatePosition(index, { name: event.target.value })} placeholder="自动填入，可修改" /></TableCell>
                     <TableCell><Input value={position.market || ""} onChange={(event) => updatePosition(index, { market: event.target.value.toUpperCase() })} placeholder="CN/HK/US" /></TableCell>
+                    <TableCell><Input value={position.currency || currencyForMarket(position.market)} onChange={(event) => updatePosition(index, { currency: event.target.value.toUpperCase() })} placeholder="CNY/HKD/USD" /></TableCell>
                     <TableCell><Input type="number" value={position.quantity} onChange={(event) => updatePosition(index, { quantity: Number(event.target.value) })} /></TableCell>
                     <TableCell><Input type="number" value={position.avg_cost} onChange={(event) => updatePosition(index, { avg_cost: Number(event.target.value) })} /></TableCell>
-                    <TableCell className="tabular-nums">{formatNumber(position.current_price)}</TableCell>
-                    <TableCell className="tabular-nums">{formatNumber(position.market_value)}</TableCell>
-                    <TableCell className={`tabular-nums ${pnlClass(position.pnl)}`}>{formatNumber(position.pnl)}</TableCell>
+                    <TableCell className="tabular-nums">{formatNumber(position.current_price)} {position.currency}</TableCell>
+                    <TableCell className="tabular-nums">¥{formatNumber(position.market_value)}</TableCell>
+                    <TableCell className={`tabular-nums ${pnlClass(position.pnl)}`}>¥{formatNumber(position.pnl)}</TableCell>
                     <TableCell className={`tabular-nums ${pnlClass(position.pnl_percent)}`}>{formatPct(position.pnl_percent)}</TableCell>
                     <TableCell><Input value={position.notes || ""} onChange={(event) => updatePosition(index, { notes: event.target.value })} placeholder="策略/原因" /></TableCell>
                     <TableCell>
@@ -392,7 +675,8 @@ export default function PortfolioPage() {
                   </TableRow>
                 ))}
               </TableBody>
-            </Table>
+              </Table>
+            </div>
           </CardContent>
         </Card>
 

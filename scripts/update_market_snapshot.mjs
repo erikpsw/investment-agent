@@ -1,4 +1,4 @@
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -39,7 +39,63 @@ async function mapConcurrent(values, concurrency, worker) {
 }
 
 function number(value) {
+  if (value && typeof value === "object") value = value.raw;
   return typeof value === "number" && Number.isFinite(value) ? value : null;
+}
+
+async function readPrevious(name, minimumRows) {
+  try {
+    const payload = JSON.parse(await readFile(resolve(outputDir, name), "utf8"));
+    return Array.isArray(payload.rows) && payload.rows.length >= minimumRows ? payload : null;
+  } catch {
+    return null;
+  }
+}
+
+async function fetchHotMarket(market) {
+  const region = market === "HK" ? "HK" : "US";
+  try {
+    const payload = await fetchJson(
+      "https://query1.finance.yahoo.com/v1/finance/screener/predefined/saved",
+      {
+        scrIds: "most_actives",
+        count: "100",
+        formatted: "false",
+        region,
+        lang: market === "HK" ? "zh-Hant-HK" : "en-US",
+      }
+    );
+    const quotes = payload.finance?.result?.[0]?.quotes || [];
+    const rows = quotes.map((quote) => {
+      const symbol = String(quote.symbol || "");
+      const price = number(quote.regularMarketPrice);
+      const volume = number(quote.regularMarketVolume);
+      const averageVolume = number(quote.averageDailyVolume3Month);
+      const ticker = market === "HK"
+        ? `hk${symbol.toUpperCase().replace(".HK", "").padStart(5, "0")}`
+        : symbol.toUpperCase();
+      return {
+        ticker,
+        name: quote.longName || quote.shortName || ticker,
+        market,
+        price,
+        amount: price && volume ? price * volume : null,
+        today_change_percent: number(quote.regularMarketChangePercent),
+        turnover_rate: null,
+        volume_ratio: volume && averageVolume ? volume / averageVolume : null,
+      };
+    }).filter((row) => row.ticker && row.price > 0 && row.amount > 0);
+    if (rows.length < 10) throw new Error(`${market} hot snapshot incomplete: ${rows.length}`);
+    return {
+      generated_at: new Date().toISOString(),
+      source: `Yahoo Finance ${market} most active`,
+      rows,
+    };
+  } catch (error) {
+    const previous = await readPrevious(`hot-${market.toLowerCase()}.json`, 10);
+    if (previous) return previous;
+    throw error;
+  }
 }
 
 async function fetchStocks() {
@@ -72,6 +128,7 @@ async function fetchStocks() {
       name,
       market: "CN",
       price: number(row.f2),
+      amount: number(row.f6),
       today_change_percent: number(row.f3),
       turnover_rate: number(row.f8),
       pe_ratio: number(row.f9),
@@ -132,13 +189,60 @@ async function fetchSectors() {
   }).filter((row) => row.code && row.name);
 }
 
+async function fetchEtfs() {
+  const url = "https://push2delay.eastmoney.com/api/qt/clist/get";
+  const base = {
+    pz: "100",
+    po: "1",
+    np: "1",
+    fltt: "2",
+    invt: "2",
+    fid: "f6",
+    fs: "m:0+t:10,m:1+t:8",
+    fields: "f2,f3,f5,f6,f8,f10,f12,f14",
+  };
+  const first = (await fetchJson(url, { ...base, pn: "1" })).data;
+  const pages = Math.ceil(first.total / 100);
+  const rest = await mapConcurrent(
+    Array.from({ length: pages - 1 }, (_, index) => index + 2),
+    6,
+    async (page) => (await fetchJson(url, { ...base, pn: String(page) })).data.diff || []
+  );
+  const rows = [first.diff || [], ...rest].flat().map((row) => {
+    const code = String(row.f12 || "");
+    const name = String(row.f14 || "").trim();
+    if (!code || !name) return null;
+    return {
+      ticker: `${code.startsWith("5") ? "sh" : "sz"}${code}`,
+      name,
+      market: "CN",
+      price: number(row.f2),
+      amount: number(row.f6),
+      today_change_percent: number(row.f3),
+      turnover_rate: number(row.f8),
+      volume_ratio: number(row.f10),
+    };
+  }).filter(Boolean);
+  if (rows.length < 500) throw new Error(`ETF snapshot incomplete: ${rows.length}`);
+  return rows;
+}
+
 const generatedAt = new Date().toISOString();
-const [stocks, sectors] = await Promise.all([fetchStocks(), fetchSectors()]);
+const [stocks, sectors, etfs, hotHk, hotUs] = await Promise.all([
+  fetchStocks(),
+  fetchSectors(),
+  fetchEtfs(),
+  fetchHotMarket("HK"),
+  fetchHotMarket("US"),
+]);
 if (stocks.length < 4500) throw new Error(`Stock snapshot incomplete: ${stocks.length}`);
 if (sectors.length < 300) throw new Error(`Sector snapshot incomplete: ${sectors.length}`);
 await mkdir(outputDir, { recursive: true });
 await Promise.all([
   writeFile(resolve(outputDir, "latest.json"), JSON.stringify({ generated_at: generatedAt, rows: stocks })),
   writeFile(resolve(outputDir, "sectors.json"), JSON.stringify({ generated_at: generatedAt, rows: sectors })),
+  writeFile(resolve(outputDir, "hot-etfs.json"), JSON.stringify({ generated_at: generatedAt, source: "Eastmoney A-share ETF market", rows: etfs })),
+  writeFile(resolve(outputDir, "hot-hk.json"), JSON.stringify(hotHk)),
+  writeFile(resolve(outputDir, "hot-us.json"), JSON.stringify(hotUs)),
 ]);
-console.log(`Updated ${stocks.length} stocks and ${sectors.length} sectors at ${generatedAt}`);
+console.log(`Updated ${stocks.length} stocks, ${sectors.length} sectors, ${etfs.length} ETFs, ${hotHk.rows.length} HK hot stocks, and ${hotUs.rows.length} US hot stocks at ${generatedAt}`);

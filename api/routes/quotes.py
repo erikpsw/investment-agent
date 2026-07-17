@@ -91,6 +91,8 @@ async def get_market_overview():
                 MarketIndex(
                     code=idx.get("code", ""),
                     name=idx.get("name", ""),
+                    market=idx.get("market", ""),
+                    history_ticker=idx.get("history_ticker", idx.get("code", "")),
                     price=idx.get("price"),
                     change=idx.get("change"),
                     change_percent=idx.get("change_percent"),

@@ -3,21 +3,17 @@ from __future__ import annotations
 
 import json
 import math
+import time
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
-from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Callable, Dict, List, Optional
 
 import pandas as pd
 
 from investment.agents.llm import get_llm_client
 from investment.data.news_fetcher import get_stock_news
+from investment.data.portfolio_store import PortfolioStore, get_portfolio_store
 from investment.data.stock_fetcher import StockFetcher
-
-
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-PORTFOLIO_DIR = PROJECT_ROOT / "storage" / "portfolio"
-POSITIONS_PATH = PORTFOLIO_DIR / "positions.json"
 
 
 def _detect_market(ticker: str) -> str:
@@ -37,6 +33,15 @@ def _is_cash_position(position: Dict[str, Any]) -> bool:
     return ticker in {"cash", "现金"} or market == "CASH"
 
 
+def _currency_for_market(market: str, explicit: Any = None) -> str:
+    currency = str(explicit or "").strip().upper()
+    if currency in {"CNY", "HKD", "USD"}:
+        return currency
+    return {"CN": "CNY", "HK": "HKD", "US": "USD", "CASH": "CNY"}.get(
+        market.upper(), "CNY"
+    )
+
+
 def _to_float(value: Any) -> Optional[float]:
     try:
         if value is None or value == "":
@@ -51,52 +56,6 @@ def _to_float(value: Any) -> Optional[float]:
 
 def _safe_round(value: Optional[float], digits: int = 2) -> Optional[float]:
     return round(value, digits) if value is not None else None
-
-
-def _read_positions() -> List[Dict[str, Any]]:
-    if not POSITIONS_PATH.exists():
-        return []
-    try:
-        data = json.loads(POSITIONS_PATH.read_text(encoding="utf-8"))
-    except Exception:
-        return []
-    rows = data.get("positions") if isinstance(data, dict) else data
-    if not isinstance(rows, list):
-        return []
-    positions: List[Dict[str, Any]] = []
-    for row in rows:
-        if not isinstance(row, dict):
-            continue
-        ticker = str(row.get("ticker") or "").strip()
-        if not ticker:
-            continue
-        quantity = _to_float(row.get("quantity")) or 0.0
-        avg_cost = _to_float(row.get("avg_cost")) or _to_float(row.get("average_cost")) or 0.0
-        market = str(row.get("market") or _detect_market(ticker)).upper()
-        if ticker.lower() in {"cash", "现金"} or market == "CASH":
-            ticker = "CASH"
-            market = "CASH"
-            avg_cost = 1.0
-        positions.append(
-            {
-                "ticker": ticker,
-                "name": str(row.get("name") or ("现金" if market == "CASH" else "")).strip(),
-                "market": market,
-                "quantity": quantity,
-                "avg_cost": avg_cost,
-                "notes": str(row.get("notes") or "").strip(),
-            }
-        )
-    return positions
-
-
-def _write_positions(positions: List[Dict[str, Any]]) -> None:
-    PORTFOLIO_DIR.mkdir(parents=True, exist_ok=True)
-    payload = {
-        "updated_at": datetime.now().isoformat(),
-        "positions": positions,
-    }
-    POSITIONS_PATH.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
 
 def _column(df: pd.DataFrame, name: str) -> Optional[pd.Series]:
@@ -163,24 +122,71 @@ def _technical_summary(history: pd.DataFrame) -> Dict[str, Any]:
 
 
 class PortfolioService:
-    def __init__(self) -> None:
+    def __init__(
+        self,
+        store: Optional[PortfolioStore] = None,
+        fx_rate_provider: Optional[Callable[[], Dict[str, float]]] = None,
+    ) -> None:
         self.fetcher = StockFetcher()
+        self.store = store or get_portfolio_store()
+        self.fx_rate_provider = fx_rate_provider or self._fetch_fx_rates
+        self._cached_fx_rates: Dict[str, float] = {}
+        self._fx_cached_at = 0.0
 
-    def get_positions(self) -> Dict[str, Any]:
-        positions = _read_positions()
+    def _fetch_fx_rates(self) -> Dict[str, float]:
+        rates = {"CNY": 1.0, "USD": 7.0, "HKD": 0.9}
+        for currency, ticker in (("USD", "CNY=X"), ("HKD", "HKDCNY=X")):
+            try:
+                quote = self.fetcher.yfinance.get_quote(ticker)
+                price = _to_float(quote.get("price"))
+                if price and price > 0:
+                    rates[currency] = price
+            except Exception:
+                pass
+        return rates
+
+    def _get_fx_rates(self) -> Dict[str, float]:
+        now = time.time()
+        if not self._cached_fx_rates or now - self._fx_cached_at >= 600:
+            supplied = self.fx_rate_provider()
+            self._cached_fx_rates = {
+                "CNY": 1.0,
+                "USD": float(supplied.get("USD", 7.0)),
+                "HKD": float(supplied.get("HKD", 0.9)),
+            }
+            self._fx_cached_at = now
+        return dict(self._cached_fx_rates)
+
+    def get_positions(self, user_id: str) -> Dict[str, Any]:
+        document = self.store.load(user_id)
+        positions = self._normalize_positions(document.positions)
         return {
-            "updated_at": self._updated_at(),
+            "updated_at": document.updated_at,
             "positions": self._snapshot_positions(positions),
-            "path": str(POSITIONS_PATH),
+            "storage": document.storage,
+            "valuation_currency": "CNY",
+            "fx_rates": self._get_fx_rates(),
         }
 
-    def save_positions(self, positions: List[Dict[str, Any]]) -> Dict[str, Any]:
+    def save_positions(self, user_id: str, positions: List[Dict[str, Any]]) -> Dict[str, Any]:
+        normalized = self._normalize_positions(positions)
+        document = self.store.save(user_id, normalized)
+        return {
+            "updated_at": document.updated_at,
+            "positions": self._snapshot_positions(normalized),
+            "storage": document.storage,
+            "valuation_currency": "CNY",
+            "fx_rates": self._get_fx_rates(),
+        }
+
+    def _normalize_positions(self, positions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         normalized: List[Dict[str, Any]] = []
         for row in positions:
             ticker = str(row.get("ticker") or "").strip()
             if not ticker:
                 continue
             market = str(row.get("market") or _detect_market(ticker)).upper()
+            currency = _currency_for_market(market, row.get("currency"))
             quantity = _to_float(row.get("quantity")) or 0.0
             avg_cost = _to_float(row.get("avg_cost")) or 0.0
             name = str(row.get("name") or "").strip()
@@ -194,16 +200,17 @@ class PortfolioService:
                     "ticker": ticker,
                     "name": name,
                     "market": market,
+                    "currency": currency,
                     "quantity": quantity,
                     "avg_cost": avg_cost,
                     "notes": str(row.get("notes") or "").strip(),
                 }
             )
-        _write_positions(normalized)
-        return self.get_positions()
+        return normalized
 
-    def analyze(self) -> Dict[str, Any]:
-        positions = _read_positions()
+    def analyze(self, user_id: str) -> Dict[str, Any]:
+        document = self.store.load(user_id)
+        positions = self._normalize_positions(document.positions)
         if not positions:
             return {
                 "generated_at": datetime.now().isoformat(),
@@ -214,9 +221,12 @@ class PortfolioService:
                 "total_pnl": 0,
                 "total_pnl_percent": None,
                 "agent_view": "暂无持仓数据，无法形成仓位管理建议。",
+                "valuation_currency": "CNY",
+                "fx_rates": {"CNY": 1.0},
             }
+        fx_rates = self._get_fx_rates()
         with ThreadPoolExecutor(max_workers=min(6, max(1, len(positions)))) as executor:
-            futures = [executor.submit(self._analyze_position, position) for position in positions]
+            futures = [executor.submit(self._analyze_position, position, fx_rates) for position in positions]
             items = [future.result() for future in as_completed(futures)]
         order = {position["ticker"]: index for index, position in enumerate(positions)}
         items.sort(key=lambda item: order.get(str(item.get("ticker")), 999))
@@ -236,13 +246,16 @@ class PortfolioService:
             "total_pnl": _safe_round(total_pnl),
             "total_pnl_percent": _safe_round(total_pnl_percent),
             "agent_view": agent_view,
+            "valuation_currency": "CNY",
+            "fx_rates": fx_rates,
         }
 
     def _snapshot_positions(self, positions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         if not positions:
             return []
+        fx_rates = self._get_fx_rates()
         with ThreadPoolExecutor(max_workers=min(6, max(1, len(positions)))) as executor:
-            futures = [executor.submit(self._quote_snapshot, position) for position in positions]
+            futures = [executor.submit(self._quote_snapshot, position, fx_rates) for position in positions]
             items = [future.result() for future in as_completed(futures)]
         order = {position["ticker"]: index for index, position in enumerate(positions)}
         items.sort(key=lambda item: order.get(str(item.get("ticker")), 999))
@@ -251,23 +264,31 @@ class PortfolioService:
             item["weight"] = _safe_round((float(item.get("market_value") or 0) / total_market_value * 100) if total_market_value else None)
         return items
 
-    def _quote_snapshot(self, position: Dict[str, Any]) -> Dict[str, Any]:
+    def _quote_snapshot(self, position: Dict[str, Any], fx_rates: Dict[str, float]) -> Dict[str, Any]:
         ticker = str(position.get("ticker") or "").strip()
         market = str(position.get("market") or _detect_market(ticker)).upper()
         quantity = float(position.get("quantity") or 0)
         avg_cost = float(position.get("avg_cost") or 0)
+        currency = _currency_for_market(market, position.get("currency"))
+        fx_rate = fx_rates[currency]
         if _is_cash_position(position):
-            cost = quantity
+            cost_native = quantity
+            cost = cost_native * fx_rate
             return {
                 **position,
                 "ticker": "CASH",
                 "name": position.get("name") or "现金",
                 "market": "CASH",
+                "currency": currency,
+                "fx_rate_to_cny": _safe_round(fx_rate, 6),
                 "avg_cost": 1.0,
                 "current_price": 1.0,
                 "cost": _safe_round(cost),
-                "market_value": _safe_round(quantity),
+                "cost_native": _safe_round(cost_native),
+                "market_value": _safe_round(cost),
+                "market_value_native": _safe_round(quantity),
                 "pnl": 0.0,
+                "pnl_native": 0.0,
                 "pnl_percent": 0.0,
                 "day_change_percent": 0.0,
                 "errors": [],
@@ -281,48 +302,55 @@ class PortfolioService:
         except Exception as exc:
             errors.append(f"quote: {str(exc)[:120]}")
         price = _to_float(quote.get("price"))
-        cost = quantity * avg_cost
-        market_value = quantity * price if price is not None else None
-        pnl = market_value - cost if market_value is not None else None
-        pnl_percent = pnl / cost * 100 if pnl is not None and cost else None
+        cost_native = quantity * avg_cost
+        market_value_native = quantity * price if price is not None else None
+        pnl_native = market_value_native - cost_native if market_value_native is not None else None
+        cost = cost_native * fx_rate
+        market_value = market_value_native * fx_rate if market_value_native is not None else None
+        pnl = pnl_native * fx_rate if pnl_native is not None else None
+        pnl_percent = pnl_native / cost_native * 100 if pnl_native is not None and cost_native else None
         return {
             **position,
             "name": str(position.get("name") or quote.get("name") or ""),
             "market": market,
+            "currency": currency,
+            "fx_rate_to_cny": _safe_round(fx_rate, 6),
             "current_price": _safe_round(price),
             "cost": _safe_round(cost),
+            "cost_native": _safe_round(cost_native),
             "market_value": _safe_round(market_value),
+            "market_value_native": _safe_round(market_value_native),
             "pnl": _safe_round(pnl),
+            "pnl_native": _safe_round(pnl_native),
             "pnl_percent": _safe_round(pnl_percent),
             "day_change_percent": _safe_round(_to_float(quote.get("change_percent"))),
             "errors": errors,
         }
 
-    def _updated_at(self) -> Optional[str]:
-        if not POSITIONS_PATH.exists():
-            return None
-        try:
-            data = json.loads(POSITIONS_PATH.read_text(encoding="utf-8"))
-            return data.get("updated_at") if isinstance(data, dict) else None
-        except Exception:
-            return None
-
-    def _analyze_position(self, position: Dict[str, Any]) -> Dict[str, Any]:
+    def _analyze_position(self, position: Dict[str, Any], fx_rates: Dict[str, float]) -> Dict[str, Any]:
         ticker = str(position["ticker"])
         market = str(position.get("market") or _detect_market(ticker)).upper()
         quantity = float(position.get("quantity") or 0)
         avg_cost = float(position.get("avg_cost") or 0)
+        currency = _currency_for_market(market, position.get("currency"))
+        fx_rate = fx_rates[currency]
         if _is_cash_position(position):
+            market_value = quantity * fx_rate
             return {
                 "ticker": "CASH",
                 "name": position.get("name") or "现金",
                 "market": "CASH",
+                "currency": currency,
+                "fx_rate_to_cny": _safe_round(fx_rate, 6),
                 "quantity": quantity,
                 "avg_cost": 1.0,
                 "current_price": 1.0,
-                "cost": _safe_round(quantity),
-                "market_value": _safe_round(quantity),
+                "cost": _safe_round(market_value),
+                "cost_native": _safe_round(quantity),
+                "market_value": _safe_round(market_value),
+                "market_value_native": _safe_round(quantity),
                 "pnl": 0.0,
+                "pnl_native": 0.0,
                 "pnl_percent": 0.0,
                 "day_change_percent": 0.0,
                 "technical": {"status": "cash", "summary": "现金仓位，无价格波动，用于控制组合风险和保留加仓弹性。"},
@@ -350,21 +378,29 @@ class PortfolioService:
         except Exception as exc:
             errors.append(f"news: {str(exc)[:120]}")
         price = _to_float(quote.get("price"))
-        cost = quantity * avg_cost
-        market_value = quantity * price if price is not None else None
-        pnl = market_value - cost if market_value is not None else None
-        pnl_percent = pnl / cost * 100 if pnl is not None and cost else None
+        cost_native = quantity * avg_cost
+        market_value_native = quantity * price if price is not None else None
+        pnl_native = market_value_native - cost_native if market_value_native is not None else None
+        cost = cost_native * fx_rate
+        market_value = market_value_native * fx_rate if market_value_native is not None else None
+        pnl = pnl_native * fx_rate if pnl_native is not None else None
+        pnl_percent = pnl_native / cost_native * 100 if pnl_native is not None and cost_native else None
         technical = _technical_summary(history)
         return {
             "ticker": ticker,
             "name": name,
             "market": market,
+            "currency": currency,
+            "fx_rate_to_cny": _safe_round(fx_rate, 6),
             "quantity": quantity,
             "avg_cost": avg_cost,
             "current_price": _safe_round(price),
             "cost": _safe_round(cost),
+            "cost_native": _safe_round(cost_native),
             "market_value": _safe_round(market_value),
+            "market_value_native": _safe_round(market_value_native),
             "pnl": _safe_round(pnl),
+            "pnl_native": _safe_round(pnl_native),
             "pnl_percent": _safe_round(pnl_percent),
             "day_change_percent": _safe_round(_to_float(quote.get("change_percent"))),
             "technical": technical,
@@ -408,8 +444,8 @@ class PortfolioService:
 3. 仓位管理建议：哪些可继续持有，哪些应降低仓位或等待确认，哪些可观察加仓条件。
 4. 不要给出绝对收益承诺，不构成投资建议。
 
-组合汇总：
-总成本 {total_cost:.2f}，当前市值 {total_market_value:.2f}，浮动盈亏 {total_pnl:.2f}，盈亏比例 {total_pnl_percent if total_pnl_percent is not None else "未知"}%。
+组合汇总（以下金额均已折算为人民币）：
+总成本 CNY {total_cost:.2f}，当前市值 CNY {total_market_value:.2f}，浮动盈亏 CNY {total_pnl:.2f}，盈亏比例 {total_pnl_percent if total_pnl_percent is not None else "未知"}%。
 
 持仓数据：
 {json.dumps(compact, ensure_ascii=False)[:12000]}"""
