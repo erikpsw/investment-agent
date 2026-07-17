@@ -2,12 +2,11 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronDown, Loader2, Plus, RefreshCw, Save, Search, Trash2 } from "lucide-react";
+import { Loader2, Plus, RefreshCw, Save, Search, Trash2 } from "lucide-react";
 import { Header } from "@/components/header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
@@ -49,13 +48,13 @@ function PositionSearchInput({
   onInput: (value: string) => void;
   onSelect: (result: SearchResult) => void;
 }) {
+  const [query, setQuery] = useState(value);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [results, setResults] = useState<SearchResult[]>([]);
-  const [typingActive, setTypingActive] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [dropdownStyle, setDropdownStyle] = useState({ left: 0, top: 0, width: 320 });
-  const debouncedQuery = useDebounce(value, 250);
+  const debouncedQuery = useDebounce(query, 250);
 
   const syncDropdownPosition = useCallback(() => {
     const rect = wrapperRef.current?.getBoundingClientRect();
@@ -68,8 +67,16 @@ function PositionSearchInput({
   }, []);
 
   useEffect(() => {
+    setQuery(value);
+  }, [value]);
+
+  useEffect(() => {
     let cancelled = false;
-    if (!typingActive || !debouncedQuery.trim()) return;
+    if (!debouncedQuery.trim()) {
+      setResults([]);
+      return;
+    }
+    setLoading(true);
     api.search(debouncedQuery.trim(), "all", 8)
       .then((response) => {
         if (!cancelled) {
@@ -87,10 +94,11 @@ function PositionSearchInput({
     return () => {
       cancelled = true;
     };
-  }, [debouncedQuery, syncDropdownPosition, typingActive]);
+  }, [debouncedQuery, syncDropdownPosition]);
 
   useEffect(() => {
     if (!open) return;
+    syncDropdownPosition();
     window.addEventListener("resize", syncDropdownPosition);
     window.addEventListener("scroll", syncDropdownPosition, true);
     return () => {
@@ -104,22 +112,20 @@ function PositionSearchInput({
       <Search className="pointer-events-none absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
       <Input
         className="pl-8"
-        value={value}
+        value={query}
         placeholder="输入名称或代码"
-        onBlur={() => window.setTimeout(() => {
-          setOpen(false);
-          setTypingActive(false);
-        }, 150)}
+        onBlur={() => window.setTimeout(() => setOpen(false), 150)}
         onChange={(event) => {
           const next = event.target.value;
-          setTypingActive(true);
-          if (!next.trim()) setResults([]);
-          if (next.trim()) setLoading(true);
+          setQuery(next);
           syncDropdownPosition();
-          setOpen(Boolean(next.trim()));
+          setOpen(true);
           onInput(next);
         }}
-        onFocus={syncDropdownPosition}
+        onFocus={() => {
+          syncDropdownPosition();
+          setOpen(results.length > 0);
+        }}
       />
       {open && (
         <div
@@ -134,8 +140,8 @@ function PositionSearchInput({
               className="flex w-full items-center justify-between gap-2 rounded px-3 py-2 text-left text-sm hover:bg-muted"
               onMouseDown={(event) => event.preventDefault()}
               onClick={() => {
+                setQuery(result.code);
                 setOpen(false);
-                setTypingActive(false);
                 onSelect(result);
               }}
             >
@@ -143,6 +149,7 @@ function PositionSearchInput({
                 <span className="block truncate font-medium">{result.name || result.code}</span>
                 <span className="text-xs text-muted-foreground">{result.code}</span>
               </span>
+              <Badge variant="outline">{result.market}</Badge>
             </button>
           ))}
         </div>
@@ -339,7 +346,7 @@ export default function PortfolioPage() {
         <Card className="overflow-visible">
           <CardHeader>
             <CardTitle>持仓清单</CardTitle>
-            <CardDescription>输入名称或代码后选择候选项，系统会自动填入代码和名称；再填写数量与买入均价。</CardDescription>
+            <CardDescription>输入名称或代码后选择候选项，系统会自动填入代码、名称和市场；再填写数量与买入均价。</CardDescription>
           </CardHeader>
           <CardContent className="overflow-visible">
             <Table>
@@ -347,6 +354,7 @@ export default function PortfolioPage() {
                 <TableRow>
                   <TableHead>代码/名称</TableHead>
                   <TableHead>名称</TableHead>
+                  <TableHead>市场</TableHead>
                   <TableHead>数量</TableHead>
                   <TableHead>买入均价</TableHead>
                   <TableHead>现价</TableHead>
@@ -368,6 +376,7 @@ export default function PortfolioPage() {
                       />
                     </TableCell>
                     <TableCell><Input value={position.name || ""} onChange={(event) => updatePosition(index, { name: event.target.value })} placeholder="自动填入，可修改" /></TableCell>
+                    <TableCell><Input value={position.market || ""} onChange={(event) => updatePosition(index, { market: event.target.value.toUpperCase() })} placeholder="CN/HK/US" /></TableCell>
                     <TableCell><Input type="number" value={position.quantity} onChange={(event) => updatePosition(index, { quantity: Number(event.target.value) })} /></TableCell>
                     <TableCell><Input type="number" value={position.avg_cost} onChange={(event) => updatePosition(index, { avg_cost: Number(event.target.value) })} /></TableCell>
                     <TableCell className="tabular-nums">{formatNumber(position.current_price)}</TableCell>
@@ -406,27 +415,6 @@ export default function PortfolioPage() {
             </div>
           </>
         )}
-
-        <Card>
-          <Collapsible defaultOpen={false}>
-            <CardHeader>
-              <CollapsibleTrigger asChild>
-                <Button variant="ghost" className="h-auto w-full justify-between px-0 text-left">
-                  <div>
-                    <CardTitle>远程 MCP 接入</CardTitle>
-                    <CardDescription>默认收起，点击展开配置远程 MCP 接入。</CardDescription>
-                  </div>
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </CollapsibleTrigger>
-            </CardHeader>
-            <CollapsibleContent>
-              <CardContent className="pt-0 text-sm text-muted-foreground">
-                远程 MCP 接入界面已放在页面最下方。
-              </CardContent>
-            </CollapsibleContent>
-          </Collapsible>
-        </Card>
       </main>
     </div>
   );
