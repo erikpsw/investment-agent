@@ -56,7 +56,7 @@ def scan_cn_market() -> dict[str, Any]:
     normalized = [_normalize(row) for row in rows]
     filtered = [row for row in normalized if row is not None]
     generated_at = datetime.now().astimezone().isoformat()
-    if len(filtered) < 4500:
+    if len(filtered) < 2500:
         raise RuntimeError(f"全市场行情返回不完整，仅获取 {len(filtered)} 只")
 
     with _cache_lock:
@@ -78,7 +78,10 @@ def _read_snapshot() -> dict[str, Any] | None:
     except Exception:
         return None
     rows = payload.get("rows") if isinstance(payload, dict) else None
-    if not isinstance(rows, list) or len(rows) < 4500:
+    if not isinstance(rows, list):
+        return None
+    rows = [row for row in rows if _is_main_board_ticker(str(row.get("ticker") or ""))]
+    if len(rows) < 2500:
         return None
     return {
         "rows": rows,
@@ -206,7 +209,7 @@ def _normalize(row: dict[str, Any]) -> dict[str, Any] | None:
     name = str(row.get("f14") or "").strip()
     if not code or not name or "ST" in name.upper() or "退" in name:
         return None
-    if not code.startswith(("600", "601", "603", "605", "688", "000", "001", "002", "003", "300", "301")):
+    if not _is_main_board_code(code):
         return None
 
     price = _number(row.get("f2"))
@@ -235,6 +238,14 @@ def _normalize(row: dict[str, Any]) -> dict[str, Any] | None:
         "change_60d": _number(row.get("f24")),
         "change_ytd": _number(row.get("f25")),
     }
+
+
+def _is_main_board_ticker(ticker: str) -> bool:
+    return len(ticker) >= 8 and ticker[:2] in {"sh", "sz"} and _is_main_board_code(ticker[2:])
+
+
+def _is_main_board_code(code: str) -> bool:
+    return code.startswith(("600", "601", "603", "605", "000", "001", "002", "003"))
 
 
 def _number(value: Any) -> float | None:

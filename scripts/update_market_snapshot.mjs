@@ -1,25 +1,48 @@
+import dns from "node:dns";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
+dns.setDefaultResultOrder("ipv4first");
+
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const outputDir = resolve(root, "storage", "market");
 const headers = { "User-Agent": "Mozilla/5.0", Referer: "https://quote.eastmoney.com/" };
+const stockSnapshotPath = resolve(outputDir, "latest.json");
+const sectorSnapshotPath = resolve(outputDir, "sectors.json");
 
-async function fetchJson(url, params, attempts = 4) {
+const STOCK_URLS = [
+  "https://push2delay.eastmoney.com/api/qt/clist/get",
+  "https://push2.eastmoney.com/api/qt/clist/get",
+  "https://82.push2.eastmoney.com/api/qt/clist/get",
+];
+
+const SECTOR_URLS = [
+  "https://17.push2.eastmoney.com/api/qt/clist/get",
+  "https://push2.eastmoney.com/api/qt/clist/get",
+  "https://push2delay.eastmoney.com/api/qt/clist/get",
+];
+
+async function fetchJson(urls, params, attempts = 8) {
+  const candidates = Array.isArray(urls) ? urls : [urls];
   const query = new URLSearchParams(params);
   let lastError;
   for (let attempt = 0; attempt < attempts; attempt += 1) {
+    const url = candidates[attempt % candidates.length];
     try {
       const response = await fetch(`${url}?${query}`, {
         headers,
-        signal: AbortSignal.timeout(15000),
+        signal: AbortSignal.timeout(20000),
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json();
+      const payload = await response.json();
+      if (!payload?.data) throw new Error("Missing data payload");
+      return payload;
     } catch (error) {
       lastError = error;
-      await new Promise((done) => setTimeout(done, 500 * (attempt + 1)));
+      const label = error?.cause?.code || error?.code || error?.message || String(error);
+      console.warn(`fetch attempt ${attempt + 1}/${attempts} failed for ${url}: ${label}`);
+      await new Promise((done) => setTimeout(done, Math.min(3000, 600 * (attempt + 1))));
     }
   }
   throw lastError;
@@ -43,63 +66,11 @@ function number(value) {
   return typeof value === "number" && Number.isFinite(value) ? value : null;
 }
 
-async function readPrevious(name, minimumRows) {
-  try {
-    const payload = JSON.parse(await readFile(resolve(outputDir, name), "utf8"));
-    return Array.isArray(payload.rows) && payload.rows.length >= minimumRows ? payload : null;
-  } catch {
-    return null;
-  }
-}
-
-async function fetchHotMarket(market) {
-  const region = market === "HK" ? "HK" : "US";
-  try {
-    const payload = await fetchJson(
-      "https://query1.finance.yahoo.com/v1/finance/screener/predefined/saved",
-      {
-        scrIds: "most_actives",
-        count: "100",
-        formatted: "false",
-        region,
-        lang: market === "HK" ? "zh-Hant-HK" : "en-US",
-      }
-    );
-    const quotes = payload.finance?.result?.[0]?.quotes || [];
-    const rows = quotes.map((quote) => {
-      const symbol = String(quote.symbol || "");
-      const price = number(quote.regularMarketPrice);
-      const volume = number(quote.regularMarketVolume);
-      const averageVolume = number(quote.averageDailyVolume3Month);
-      const ticker = market === "HK"
-        ? `hk${symbol.toUpperCase().replace(".HK", "").padStart(5, "0")}`
-        : symbol.toUpperCase();
-      return {
-        ticker,
-        name: quote.longName || quote.shortName || ticker,
-        market,
-        price,
-        amount: price && volume ? price * volume : null,
-        today_change_percent: number(quote.regularMarketChangePercent),
-        turnover_rate: null,
-        volume_ratio: volume && averageVolume ? volume / averageVolume : null,
-      };
-    }).filter((row) => row.ticker && row.price > 0 && row.amount > 0);
-    if (rows.length < 10) throw new Error(`${market} hot snapshot incomplete: ${rows.length}`);
-    return {
-      generated_at: new Date().toISOString(),
-      source: `Yahoo Finance ${market} most active`,
-      rows,
-    };
-  } catch (error) {
-    const previous = await readPrevious(`hot-${market.toLowerCase()}.json`, 10);
-    if (previous) return previous;
-    throw error;
-  }
+function isMainBoardCode(code) {
+  return /^(600|601|603|605|000|001|002|003)/.test(code);
 }
 
 async function fetchStocks() {
-  const url = "https://push2delay.eastmoney.com/api/qt/clist/get";
   const base = {
     pz: "100",
     po: "1",
@@ -110,18 +81,18 @@ async function fetchStocks() {
     fs: "m:0+t:6,m:0+t:80,m:1+t:2,m:1+t:23",
     fields: "f2,f3,f5,f6,f8,f9,f10,f12,f14,f20,f21,f23,f24,f25",
   };
-  const first = (await fetchJson(url, { ...base, pn: "1" })).data;
+  const first = (await fetchJson(STOCK_URLS, { ...base, pn: "1" })).data;
   const pages = Math.ceil(first.total / 100);
   const rest = await mapConcurrent(
     Array.from({ length: pages - 1 }, (_, index) => index + 2),
-    10,
-    async (page) => (await fetchJson(url, { ...base, pn: String(page) })).data.diff || []
+    5,
+    async (page) => (await fetchJson(STOCK_URLS, { ...base, pn: String(page) })).data.diff || []
   );
   return [first.diff || [], ...rest].flat().map((row) => {
     const code = String(row.f12 || "");
     const name = String(row.f14 || "").trim();
     if (!code || !name || name.toUpperCase().includes("ST") || name.includes("退")) return null;
-    if (!/^(600|601|603|605|688|000|001|002|003|300|301)/.test(code)) return null;
+    if (!isMainBoardCode(code)) return null;
     if (!(row.f2 > 0) || !(row.f6 > 0) || !(row.f20 > 0)) return null;
     return {
       ticker: `${code.startsWith("6") ? "sh" : "sz"}${code}`,
@@ -143,7 +114,6 @@ async function fetchStocks() {
 }
 
 async function fetchSectors() {
-  const url = "https://17.push2.eastmoney.com/api/qt/clist/get";
   const base = {
     pz: "100",
     po: "1",
@@ -154,12 +124,12 @@ async function fetchSectors() {
     fs: "m:90 t:2 f:!50",
     fields: "f2,f3,f8,f12,f14,f20,f24,f25,f104,f105,f128,f136,f140,f141",
   };
-  const first = (await fetchJson(url, { ...base, pn: "1" })).data;
+  const first = (await fetchJson(SECTOR_URLS, { ...base, pn: "1" })).data;
   const pages = Math.ceil(first.total / 100);
   const rest = await mapConcurrent(
     Array.from({ length: pages - 1 }, (_, index) => index + 2),
-    4,
-    async (page) => (await fetchJson(url, { ...base, pn: String(page) })).data.diff || []
+    2,
+    async (page) => (await fetchJson(SECTOR_URLS, { ...base, pn: String(page) })).data.diff || []
   );
   return [first.diff || [], ...rest].flat().map((row) => {
     const up = number(row.f104) || 0;
@@ -189,60 +159,41 @@ async function fetchSectors() {
   }).filter((row) => row.code && row.name);
 }
 
-async function fetchEtfs() {
-  const url = "https://push2delay.eastmoney.com/api/qt/clist/get";
-  const base = {
-    pz: "100",
-    po: "1",
-    np: "1",
-    fltt: "2",
-    invt: "2",
-    fid: "f6",
-    fs: "m:0+t:10,m:1+t:8",
-    fields: "f2,f3,f5,f6,f8,f10,f12,f14",
-  };
-  const first = (await fetchJson(url, { ...base, pn: "1" })).data;
-  const pages = Math.ceil(first.total / 100);
-  const rest = await mapConcurrent(
-    Array.from({ length: pages - 1 }, (_, index) => index + 2),
-    6,
-    async (page) => (await fetchJson(url, { ...base, pn: String(page) })).data.diff || []
-  );
-  const rows = [first.diff || [], ...rest].flat().map((row) => {
-    const code = String(row.f12 || "");
-    const name = String(row.f14 || "").trim();
-    if (!code || !name) return null;
-    return {
-      ticker: `${code.startsWith("5") ? "sh" : "sz"}${code}`,
-      name,
-      market: "CN",
-      price: number(row.f2),
-      amount: number(row.f6),
-      today_change_percent: number(row.f3),
-      turnover_rate: number(row.f8),
-      volume_ratio: number(row.f10),
-    };
-  }).filter(Boolean);
-  if (rows.length < 500) throw new Error(`ETF snapshot incomplete: ${rows.length}`);
-  return rows;
+async function readExisting(path, minimumRows) {
+  try {
+    const payload = JSON.parse(await readFile(path, "utf8"));
+    if (Array.isArray(payload.rows) && payload.rows.length >= minimumRows) return payload;
+  } catch {
+    return null;
+  }
+  return null;
 }
 
-const generatedAt = new Date().toISOString();
-const [stocks, sectors, etfs, hotHk, hotUs] = await Promise.all([
-  fetchStocks(),
-  fetchSectors(),
-  fetchEtfs(),
-  fetchHotMarket("HK"),
-  fetchHotMarket("US"),
+async function fetchOrKeepExisting(label, fetcher, path, minimumRows) {
+  try {
+    const rows = await fetcher();
+    if (rows.length < minimumRows) throw new Error(`${label} snapshot incomplete: ${rows.length}`);
+    return { generated_at: new Date().toISOString(), rows };
+  } catch (error) {
+    const existing = await readExisting(path, minimumRows);
+    if (existing) {
+      console.warn(`${label} fetch failed; keeping existing snapshot from ${existing.generated_at}. Reason: ${error?.message || error}`);
+      return existing;
+    }
+    throw error;
+  }
+}
+
+const [stockPayload, sectorPayload] = await Promise.all([
+  fetchOrKeepExisting("Stock", fetchStocks, stockSnapshotPath, 2500),
+  fetchOrKeepExisting("Sector", fetchSectors, sectorSnapshotPath, 300),
 ]);
-if (stocks.length < 4500) throw new Error(`Stock snapshot incomplete: ${stocks.length}`);
-if (sectors.length < 300) throw new Error(`Sector snapshot incomplete: ${sectors.length}`);
 await mkdir(outputDir, { recursive: true });
 await Promise.all([
-  writeFile(resolve(outputDir, "latest.json"), JSON.stringify({ generated_at: generatedAt, rows: stocks })),
-  writeFile(resolve(outputDir, "sectors.json"), JSON.stringify({ generated_at: generatedAt, rows: sectors })),
-  writeFile(resolve(outputDir, "hot-etfs.json"), JSON.stringify({ generated_at: generatedAt, source: "Eastmoney A-share ETF market", rows: etfs })),
-  writeFile(resolve(outputDir, "hot-hk.json"), JSON.stringify(hotHk)),
-  writeFile(resolve(outputDir, "hot-us.json"), JSON.stringify(hotUs)),
+  writeFile(stockSnapshotPath, JSON.stringify(stockPayload)),
+  writeFile(sectorSnapshotPath, JSON.stringify(sectorPayload)),
 ]);
-console.log(`Updated ${stocks.length} stocks, ${sectors.length} sectors, ${etfs.length} ETFs, ${hotHk.rows.length} HK hot stocks, and ${hotUs.rows.length} US hot stocks at ${generatedAt}`);
+console.log(
+  `Snapshot ready: ${stockPayload.rows.length} stocks (${stockPayload.generated_at}), ` +
+    `${sectorPayload.rows.length} sectors (${sectorPayload.generated_at})`
+);

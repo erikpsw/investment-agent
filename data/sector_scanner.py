@@ -16,11 +16,13 @@ LIST_URLS = [
     "https://17.push2.eastmoney.com/api/qt/clist/get",
     "https://push2.eastmoney.com/api/qt/clist/get",
     "https://push2delay.eastmoney.com/api/qt/clist/get",
+    "https://82.push2.eastmoney.com/api/qt/clist/get",
 ]
 HISTORY_URL = "https://push2his.eastmoney.com/api/qt/stock/kline/get"
 CACHE_SECONDS = 600
 _lock = Lock()
 _cache: dict[str, Any] = {"expires_at": 0.0, "rows": [], "generated_at": None}
+_constituent_cache: dict[str, tuple[float, dict[str, Any]]] = {}
 SNAPSHOT_PATH = Path(__file__).resolve().parent.parent / "storage" / "market" / "sectors.json"
 
 
@@ -101,6 +103,38 @@ def sector_history(code: str, days: int = 120) -> dict[str, Any]:
     }
 
 
+def sector_constituents(code: str, limit: int = 120) -> dict[str, Any]:
+    normalized_code = code.upper().strip()
+    if not normalized_code.startswith("BK"):
+        raise ValueError("板块代码必须类似 BK1408")
+
+    now = time.time()
+    cache_key = f"{normalized_code}:{limit}"
+    cached = _constituent_cache.get(cache_key)
+    if cached and now < cached[0]:
+        return dict(cached[1])
+
+    first = _fetch_constituent_page(normalized_code, 1, limit)
+    total = int(first.get("total") or 0)
+    rows = list(first.get("diff") or [])
+    page_count = math.ceil(min(total or len(rows), limit) / 100)
+    for page in range(2, page_count + 1):
+        rows.extend(_fetch_constituent_page(normalized_code, page, limit).get("diff") or [])
+
+    items = [_normalize_constituent(row) for row in rows[:limit]]
+    result = {
+        "code": normalized_code,
+        "name": _sector_name(normalized_code),
+        "generated_at": datetime.now().astimezone().isoformat(),
+        "items": [item for item in items if item is not None],
+        "total": total,
+        "cached": False,
+        "source": "东方财富板块成分股",
+    }
+    _constituent_cache[cache_key] = (now + CACHE_SECONDS, result)
+    return result
+
+
 def _fetch_page(page: int) -> dict[str, Any]:
     params = {
         "pn": page,
@@ -127,6 +161,37 @@ def _fetch_page(page: int) -> dict[str, Any]:
             last_error = exc
             time.sleep(0.3 * (attempt + 1))
     raise RuntimeError(f"板块第 {page} 页获取失败: {last_error}")
+
+
+def _fetch_constituent_page(code: str, page: int, limit: int) -> dict[str, Any]:
+    params = {
+        "pn": page,
+        "pz": min(100, max(1, limit)),
+        "po": 1,
+        "np": 1,
+        "fltt": 2,
+        "invt": 2,
+        "fid": "f3",
+        "fs": f"b:{code}",
+        "fields": "f2,f3,f5,f6,f8,f9,f10,f12,f13,f14,f20,f21,f23,f24,f25",
+    }
+    headers = {
+        "User-Agent": "Mozilla/5.0",
+        "Referer": "https://quote.eastmoney.com/",
+    }
+    last_error: Exception | None = None
+    for attempt in range(8):
+        try:
+            url = LIST_URLS[attempt % len(LIST_URLS)]
+            response = requests.get(url, params=params, headers=headers, timeout=15)
+            response.raise_for_status()
+            data = response.json().get("data")
+            if isinstance(data, dict):
+                return data
+        except Exception as exc:
+            last_error = exc
+            time.sleep(min(3, 0.35 * (attempt + 1)))
+    raise RuntimeError(f"{code} 成分股第 {page} 页获取失败: {last_error}")
 
 
 def _normalize(row: dict[str, Any]) -> dict[str, Any] | None:
@@ -164,6 +229,68 @@ def _normalize(row: dict[str, Any]) -> dict[str, Any] | None:
             "today_change_percent": _number(row.get("f136")),
         },
     }
+
+
+def _normalize_constituent(row: dict[str, Any]) -> dict[str, Any] | None:
+    code = str(row.get("f12") or "").strip()
+    name = str(row.get("f14") or "").strip()
+    if not code or not name or "ST" in name.upper() or "退" in name:
+        return None
+    if not _is_cn_stock_code(code):
+        return None
+
+    price = _number(row.get("f2"))
+    amount = _number(row.get("f6"))
+    market_cap = _number(row.get("f20"))
+    if price is None or price <= 0 or amount is None or amount <= 0 or market_cap is None or market_cap <= 0:
+        return None
+
+    return {
+        "ticker": f"{_ticker_prefix(code)}{code}",
+        "name": name,
+        "market": "CN",
+        "price": price,
+        "today_change_percent": _number(row.get("f3")),
+        "turnover_rate": _number(row.get("f8")),
+        "pe_ratio": _number(row.get("f9")),
+        "volume_ratio": _number(row.get("f10")),
+        "market_cap": market_cap,
+        "float_market_cap": _number(row.get("f21")),
+        "pb_ratio": _number(row.get("f23")),
+        "change_60d": _number(row.get("f24")),
+        "change_ytd": _number(row.get("f25")),
+    }
+
+
+def _ticker_prefix(code: str) -> str:
+    if code.startswith("6"):
+        return "sh"
+    return "sz"
+
+
+def _is_cn_stock_code(code: str) -> bool:
+    return code.startswith(
+        (
+            "600",
+            "601",
+            "603",
+            "605",
+            "000",
+            "001",
+            "002",
+            "003",
+        )
+    )
+
+
+def _sector_name(code: str) -> str | None:
+    try:
+        for row in scan_sectors()["rows"]:
+            if row.get("code") == code:
+                return row.get("name")
+    except Exception:
+        return None
+    return None
 
 
 def _return(closes: list[float], days: int) -> float | None:
