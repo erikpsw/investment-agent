@@ -142,6 +142,15 @@ const authenticatedHandler = withMcpAuth(handler, verifyToken, {
 });
 
 async function publicAuthenticatedHandler(request: Request) {
+  const authorization = request.headers.get("authorization")?.trim() || "";
+  const hasBearerToken = /^Bearer\s+\S+/i.test(authorization);
+  const acceptsHtml = (request.headers.get("accept") || "").includes("text/html");
+  if (!hasBearerToken && request.method === "GET" && acceptsHtml) {
+    const loginUrl = new URL("/auth/login", getPublicOrigin(request));
+    loginUrl.searchParams.set("returnTo", "/mcp");
+    return Response.redirect(loginUrl, 302);
+  }
+
   const response = await authenticatedHandler(request);
   const challenge = response.headers.get("WWW-Authenticate");
   if (!challenge?.includes("resource_metadata=")) return response;

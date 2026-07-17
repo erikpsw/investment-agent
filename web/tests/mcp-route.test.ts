@@ -16,6 +16,7 @@ const originalFetch = globalThis.fetch;
 const apiRequests: Array<{ url: string; authorization: string | null }> = [];
 let privateKey: CryptoKey;
 let publicJwk: Awaited<ReturnType<typeof exportJWK>>;
+let GET: (request: Request) => Promise<Response>;
 let POST: (request: Request) => Promise<Response>;
 let registerPortfolioTools: typeof import("../src/app/mcp/route").registerPortfolioTools;
 let getProtectedResourceMetadata: (request: Request) => Promise<Response>;
@@ -98,7 +99,7 @@ test.before(async () => {
     return originalFetch(input, init);
   };
 
-  ({ POST, registerPortfolioTools } = await import("../src/app/mcp/route"));
+  ({ GET, POST, registerPortfolioTools } = await import("../src/app/mcp/route"));
   ({ GET: getProtectedResourceMetadata } = await import(
     "../src/app/.well-known/oauth-protected-resource/route"
   ));
@@ -129,6 +130,15 @@ function request(bearerToken?: string) {
   });
 }
 
+function browserNavigationRequest() {
+  return new Request("https://agent.test/mcp", {
+    method: "GET",
+    headers: {
+      accept: "text/html,application/xhtml+xml",
+    },
+  });
+}
+
 test("MCP HTTP route rejects missing, wrong-audience, and expired tokens", async () => {
   const missing = await POST(request());
   assert.equal(missing.status, 401);
@@ -148,6 +158,12 @@ test("MCP HTTP route rejects missing, wrong-audience, and expired tokens", async
     ).status,
     401
   );
+});
+
+test("MCP HTTP route redirects browser navigation to login when bearer token is missing", async () => {
+  const response = await GET(browserNavigationRequest());
+  assert.equal(response.status, 302);
+  assert.equal(response.headers.get("location"), "https://agent.test/auth/login?returnTo=%2Fmcp");
 });
 
 test("MCP reuses Auth0 userinfo tokens when no audience is configured", async () => {
