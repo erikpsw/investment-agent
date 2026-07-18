@@ -216,6 +216,15 @@ def _documents_from_cninfo_rows(rows: List[dict], category: str) -> List[Disclos
     return documents
 
 
+def _cninfo_categories(category: str) -> List[str]:
+    return {
+        "annual": ["年报"],
+        "interim": ["半年报"],
+        "quarterly": ["一季报", "三季报"],
+        "all": ["年报", "半年报", "一季报", "三季报"],
+    }.get(category, ["年报", "半年报", "一季报", "三季报"])
+
+
 def _fetch_cn_documents(ticker: str, category: str = "all") -> List[DisclosureItem]:
     """从巨潮资讯获取 A 股财报 PDF，失败时返回公开财务页面。"""
     code = ticker.lower().replace("sh", "").replace("sz", "")
@@ -226,16 +235,20 @@ def _fetch_cn_documents(ticker: str, category: str = "all") -> List[DisclosureIt
 
         end_date = datetime.now().strftime("%Y%m%d")
         start_date = (datetime.now() - timedelta(days=365 * 5)).strftime("%Y%m%d")
-        frame = ak.stock_zh_a_disclosure_report_cninfo(
-            symbol=code,
-            market="沪深京",
-            start_date=start_date,
-            end_date=end_date,
-        )
-        if frame is not None and not frame.empty:
-            documents = _documents_from_cninfo_rows(frame.to_dict("records"), category)
-            if documents:
-                return documents
+        rows: List[dict] = []
+        for remote_category in _cninfo_categories(category):
+            frame = ak.stock_zh_a_disclosure_report_cninfo(
+                symbol=code,
+                market="沪深京",
+                category=remote_category,
+                start_date=start_date,
+                end_date=end_date,
+            )
+            if frame is not None and not frame.empty:
+                rows.extend(frame.to_dict("records"))
+        documents = _documents_from_cninfo_rows(rows, category)
+        if documents:
+            return documents
     except Exception as error:
         logger.warning("CNInfo disclosure lookup failed for %s: %s", ticker, error)
 

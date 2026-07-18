@@ -1,4 +1,10 @@
-from api.routes.disclosure import _documents_from_cninfo_rows
+from api.routes.disclosure import _cninfo_categories, _documents_from_cninfo_rows
+
+
+def test_cninfo_categories_limit_remote_queries():
+    assert _cninfo_categories("annual") == ["年报"]
+    assert _cninfo_categories("interim") == ["半年报"]
+    assert _cninfo_categories("quarterly") == ["一季报", "三季报"]
 
 
 def test_cninfo_rows_become_filtered_pdf_documents():
