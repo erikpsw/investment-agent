@@ -12,7 +12,7 @@ export async function GET(request: Request) {
   try {
     const metadata = generateProtectedResourceMetadata({
       authServerUrls: [getAuth0Issuer()],
-      resourceUrl: getPublicOrigin(request),
+      resourceUrl: new URL("/mcp", getPublicOrigin(request)).toString(),
     });
     return Response.json(metadata, {
       headers: {

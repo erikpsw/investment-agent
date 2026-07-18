@@ -185,7 +185,7 @@ test("MCP accepts an active PAT and rejects a revoked PAT", async () => {
   assert.equal(revoked.status, 401);
 });
 
-test("protected-resource metadata uses the public request origin", async () => {
+test("protected-resource metadata uses the canonical MCP endpoint", async () => {
   delete process.env.APP_BASE_URL;
   const response = await getProtectedResourceMetadata(
     new Request("http://127.0.0.1:3000/.well-known/oauth-protected-resource", {
@@ -197,7 +197,7 @@ test("protected-resource metadata uses the public request origin", async () => {
   );
   assert.equal(response.status, 200);
   assert.deepEqual(await response.json(), {
-    resource: "https://agent.example.com",
+    resource: "https://agent.example.com/mcp",
     authorization_servers: [issuer],
   });
 });
