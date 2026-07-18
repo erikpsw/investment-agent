@@ -3,7 +3,7 @@ import re
 import logging
 import asyncio
 from typing import List, Optional, Dict
-from datetime import datetime
+from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel
@@ -173,32 +173,79 @@ async def _fetch_hkex_documents(code: str, category: str = "all", limit: int = 2
     return documents, False
 
 
+def _documents_from_cninfo_rows(rows: List[dict], category: str) -> List[DisclosureItem]:
+    """Convert CNInfo disclosure rows into direct PDF documents."""
+    keyword_map = {
+        "annual": ("年度报告",),
+        "interim": ("半年度报告",),
+        "quarterly": ("季度报告",),
+        "all": ("年度报告", "半年度报告", "季度报告"),
+    }
+    keywords = keyword_map.get(category, keyword_map["all"])
+    documents: List[DisclosureItem] = []
+
+    for row in rows:
+        title = str(row.get("公告标题") or "").strip()
+        if not title or "摘要" in title or not any(keyword in title for keyword in keywords):
+            continue
+
+        announcement_url = str(row.get("公告链接") or "")
+        announcement_id = re.search(r"announcementId=(\d+)", announcement_url)
+        if not announcement_id:
+            continue
+
+        raw_date = str(row.get("公告时间") or "")
+        date_match = re.search(r"(\d{4})[-/](\d{1,2})[-/](\d{1,2})", raw_date)
+        if not date_match:
+            continue
+        report_date = "-".join(
+            (date_match.group(1), date_match.group(2).zfill(2), date_match.group(3).zfill(2))
+        )
+        pdf_url = (
+            "https://static.cninfo.com.cn/finalpage/"
+            f"{report_date}/{announcement_id.group(1)}.PDF"
+        )
+        documents.append(DisclosureItem(
+            title=title,
+            url=pdf_url,
+            date=report_date,
+            category=category,
+            source="巨潮资讯",
+        ))
+
+    return documents
+
+
 def _fetch_cn_documents(ticker: str, category: str = "all") -> List[DisclosureItem]:
-    """从东方财富/巨潮获取A股财报链接"""
+    """从巨潮资讯获取 A 股财报 PDF，失败时返回公开财务页面。"""
     code = ticker.lower().replace("sh", "").replace("sz", "")
     market = "sh" if ticker.lower().startswith("sh") else "sz"
-    
-    documents = []
-    
+
     try:
-        # 东方财富财报链接
-        ef_url = f"https://emweb.securities.eastmoney.com/PC_HSF10/NewFinanceAnalysis/Index?type=web&code={market.upper()}{code}"
-        
-        # 巨潮资讯网
-        cninfo_url = f"http://www.cninfo.com.cn/new/disclosure/stock?stockCode={code}&orgId="
-        
-        # 暂时返回固定链接
-        documents.append(DisclosureItem(
-            title="财务分析 (东方财富)",
-            url=ef_url,
-            date=datetime.now().strftime("%Y-%m-%d"),
-            category="financial",
-        ))
-        
-    except Exception as e:
-        print(f"[CNInfo] Error: {e}")
-    
-    return documents
+        import akshare as ak
+
+        end_date = datetime.now().strftime("%Y%m%d")
+        start_date = (datetime.now() - timedelta(days=365 * 5)).strftime("%Y%m%d")
+        frame = ak.stock_zh_a_disclosure_report_cninfo(
+            symbol=code,
+            market="沪深京",
+            start_date=start_date,
+            end_date=end_date,
+        )
+        if frame is not None and not frame.empty:
+            documents = _documents_from_cninfo_rows(frame.to_dict("records"), category)
+            if documents:
+                return documents
+    except Exception as error:
+        logger.warning("CNInfo disclosure lookup failed for %s: %s", ticker, error)
+
+    return [DisclosureItem(
+        title="财务分析（东方财富）",
+        url=f"https://emweb.securities.eastmoney.com/PC_HSF10/NewFinanceAnalysis/Index?type=web&code={market.upper()}{code}",
+        date=datetime.now().strftime("%Y-%m-%d"),
+        category="financial",
+        source="东方财富",
+    )]
 
 
 @router.get("/disclosure/{ticker}", response_model=DisclosureResponse)

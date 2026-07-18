@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import {
@@ -60,4 +61,25 @@ test("invalid profile picture values are omitted", () => {
     { email: "e@example.com" }
   );
   assert.equal(profileInitials({ email: "e@example.com" }), "E");
+});
+
+test("financials page delegates A-share reports to a PDF-capable list", async () => {
+  const page = await readFile(
+    new URL("../src/app/financials/page.tsx", import.meta.url),
+    "utf8",
+  );
+  const list = await readFile(
+    new URL("../src/components/financial-report-list.tsx", import.meta.url),
+    "utf8",
+  );
+  const viewer = await readFile(
+    new URL("../src/components/pdf-viewer-dialog.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(page, /<FinancialReportList ticker=\{selectedTicker\}/);
+  assert.match(list, /useDisclosure/);
+  assert.match(list, /isAStockTicker/);
+  assert.match(viewer, /<iframe/);
+  assert.match(viewer, /新窗口打开/);
 });

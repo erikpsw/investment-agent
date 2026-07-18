@@ -15,6 +15,7 @@ import { useFinancials, useFinancialHistory } from "@/hooks/use-market";
 import { useDebounce } from "@/hooks/use-debounce";
 import { formatNumber } from "@/lib/utils";
 import { RevenueChart, ProfitabilityChart, FinancialSummaryTable } from "@/components/charts/financial-chart";
+import { FinancialReportList } from "@/components/financial-report-list";
 
 const FEATURED_STOCKS = [
   { ticker: "sh600519", name: "贵州茅台" },
@@ -204,6 +205,8 @@ export default function FinancialsPage() {
               data={historyData?.data || []} 
               isLoading={historyLoading} 
             />
+
+            <FinancialReportList ticker={selectedTicker} />
           </div>
         </div>
       </div>

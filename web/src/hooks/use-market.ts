@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { api, MarketOverview, FinancialMetrics, FinancialHistoryResponse } from "@/lib/api";
+import { api, MarketOverview, FinancialMetrics, FinancialHistoryResponse, type DisclosureResponse } from "@/lib/api";
 
 export function useMarketOverview() {
   return useQuery<MarketOverview>({
@@ -29,6 +29,19 @@ export function useFinancialHistory(
   return useQuery<FinancialHistoryResponse>({
     queryKey: ["financial-history", ticker, reportType],
     queryFn: () => api.getFinancialHistory(ticker!, reportType),
+    enabled: enabled && !!ticker,
+    staleTime: 300000,
+  });
+}
+
+export function useDisclosure(
+  ticker: string | null,
+  category: "annual" | "interim" | "quarterly" | "all" = "annual",
+  enabled = true,
+) {
+  return useQuery<DisclosureResponse>({
+    queryKey: ["disclosure", ticker, category],
+    queryFn: () => api.getDisclosure(ticker!, category),
     enabled: enabled && !!ticker,
     staleTime: 300000,
   });
