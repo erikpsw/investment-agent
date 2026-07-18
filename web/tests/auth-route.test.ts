@@ -90,6 +90,15 @@ test("header delegates authenticated account rendering to UserMenu", async () =>
   assert.match(userMenu, /href="\/auth\/logout"/);
 });
 
+test("user menu keeps the Base UI group label inside a menu group", async () => {
+  const userMenu = await readFile(
+    new URL("../src/components/user-menu.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(userMenu, /<DropdownMenuGroup>[\s\S]*?<DropdownMenuLabel[\s\S]*?<\/DropdownMenuGroup>/);
+});
+
 test("account profile route reads Auth0 session and returns only public fields", async () => {
   const route = await readFile(
     new URL("../src/app/account/profile/route.ts", import.meta.url),
