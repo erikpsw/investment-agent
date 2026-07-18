@@ -3,12 +3,12 @@
 import { useUser } from "@auth0/nextjs-auth0";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
-import { ChevronDown, Copy, KeyRound, Loader2, Plus, RefreshCw, Save, Search, Trash2 } from "lucide-react";
+import { Loader2, Plus, RefreshCw, Save, Search, Trash2 } from "lucide-react";
 import { Header } from "@/components/header";
+import { McpAccessPanel } from "@/components/mcp-access-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
@@ -343,7 +343,6 @@ export default function PortfolioPage() {
   const [newTokenName, setNewTokenName] = useState("Codex MCP");
   const [createdToken, setCreatedToken] = useState<CreatedPersonalAccessToken | null>(null);
   const [tokenLoading, setTokenLoading] = useState(false);
-  const [mcpOpen, setMcpOpen] = useState(false);
   const activePersonalTokens = useMemo(
     () => personalTokens.filter((token) => !token.revoked_at),
     [personalTokens],
@@ -602,91 +601,17 @@ export default function PortfolioPage() {
           </>
         )}
 
-        <Card>
-          <Collapsible open={mcpOpen} onOpenChange={setMcpOpen}>
-            <CardHeader className="flex flex-row items-center justify-between gap-3 space-y-0">
-              <div>
-                <CardTitle className="flex items-center gap-2"><KeyRound className="h-5 w-5" />远程 MCP 接入</CardTitle>
-                <CardDescription>创建可随时撤销的 90 天 Personal Access Token。Token 仅能读取和分析你的投资组合。</CardDescription>
-              </div>
-              <CollapsibleTrigger asChild>
-                <Button type="button" variant="ghost" size="sm">
-                  {mcpOpen ? "收起" : "展开"}
-                  <ChevronDown className={`ml-1 h-4 w-4 transition-transform ${mcpOpen ? "rotate-180" : ""}`} />
-                </Button>
-              </CollapsibleTrigger>
-            </CardHeader>
-            <CollapsibleContent>
-              <CardContent className="space-y-4">
-                <div className="grid gap-3 md:grid-cols-[180px_1fr]">
-                  <div className="text-sm text-muted-foreground">Streamable HTTP 地址</div>
-                  <code className="break-all rounded bg-muted px-3 py-2 text-sm">https://invest.erikai.top/mcp</code>
-                  <div className="text-sm text-muted-foreground">创建 Token</div>
-                  <div className="space-y-2">
-                    <div className="flex flex-wrap gap-2">
-                      <Input
-                        value={newTokenName}
-                        onChange={(event) => setNewTokenName(event.target.value)}
-                        maxLength={80}
-                        placeholder="例如：Codex MCP"
-                        className="max-w-sm"
-                      />
-                      <Button variant="outline" onClick={createMcpToken} disabled={tokenLoading || !newTokenName.trim()}>
-                        {tokenLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <KeyRound className="mr-2 h-4 w-4" />}创建 90 天 Token
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-                {createdToken && (
-                  <div className="space-y-2 rounded-lg border border-amber-500/40 bg-amber-500/10 p-4">
-                    <div className="font-medium">完整 Token 仅显示这一次</div>
-                    <Textarea value={createdToken.token} readOnly className="min-h-24 font-mono text-xs" />
-                    <div className="flex flex-wrap gap-2">
-                      <Button variant="outline" onClick={copyMcpToken}>
-                        <Copy className="mr-2 h-4 w-4" />复制 Token
-                      </Button>
-                      <Button variant="ghost" onClick={() => setCreatedToken(null)}>我已保存，关闭</Button>
-                    </div>
-                  </div>
-                )}
-                <div className="space-y-2">
-                  <div className="text-sm font-medium">已创建的 Token</div>
-                  {activePersonalTokens.length === 0 ? (
-                    <div className="rounded-lg border p-3 text-sm text-muted-foreground">还没有有效的 Personal Access Token</div>
-                  ) : activePersonalTokens.map((token) => {
-                    const expired = new Date(token.expires_at).getTime() <= Date.now();
-                    const state = expired ? "已过期" : "有效";
-                    return (
-                      <div key={token.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3 text-sm">
-                        <div>
-                          <div className="flex items-center gap-2 font-medium">
-                            {token.name}
-                            <Badge variant={state === "有效" ? "secondary" : "outline"}>{state}</Badge>
-                          </div>
-                          <div className="mt-1 text-xs text-muted-foreground">
-                            {token.token_prefix}... · 到期 {new Date(token.expires_at).toLocaleString("zh-CN")}
-                            {token.last_used_at ? ` · 最近使用 ${new Date(token.last_used_at).toLocaleString("zh-CN")}` : " · 尚未使用"}
-                          </div>
-                        </div>
-                        {!expired && (
-                          <Button variant="outline" size="sm" onClick={() => revokeMcpToken(token.id)} disabled={tokenLoading}>
-                            <Trash2 className="mr-2 h-4 w-4" />撤销
-                          </Button>
-                        )}
-                      </div>
-                    );
-                  })}
-                </div>
-                <div className="rounded-lg border bg-muted/40 p-4 text-sm leading-6">
-                  <div className="font-medium">Codex 配置</div>
-                  <code className="mt-2 block break-all">设置环境变量 ERIK_AI_ACCESS_TOKEN 为上面的 Token</code>
-                  <code className="block break-all">codex mcp add erik_ai --url https://invest.erikai.top/mcp --bearer-token-env-var ERIK_AI_ACCESS_TOKEN</code>
-                  <div className="mt-2 text-muted-foreground">Token 90 天后自动过期，也可以在此立即撤销。请勿把 Token 提交到 Git 或发送给他人。</div>
-                </div>
-              </CardContent>
-            </CollapsibleContent>
-          </Collapsible>
-        </Card>
+        <McpAccessPanel
+          tokens={activePersonalTokens}
+          createdToken={createdToken}
+          newTokenName={newTokenName}
+          tokenLoading={tokenLoading}
+          onNewTokenNameChange={setNewTokenName}
+          onCreateToken={createMcpToken}
+          onCopyToken={copyMcpToken}
+          onCloseCreatedToken={() => setCreatedToken(null)}
+          onRevokeToken={revokeMcpToken}
+        />
       </main>
     </div>
   );

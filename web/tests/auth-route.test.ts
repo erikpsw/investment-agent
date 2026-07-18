@@ -100,3 +100,20 @@ test("account profile route reads Auth0 session and returns only public fields",
   assert.match(route, /toPublicUserProfile\(session\?\.user\)/);
   assert.doesNotMatch(route, /accessToken|idToken|refreshToken/);
 });
+
+test("portfolio delegates OAuth-first MCP access to a dedicated panel", async () => {
+  const portfolio = await readFile(
+    new URL("../src/app/portfolio/page.tsx", import.meta.url),
+    "utf8",
+  );
+  const panel = await readFile(
+    new URL("../src/components/mcp-access-panel.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(portfolio, /<McpAccessPanel/);
+  assert.match(panel, /MCP_OAUTH_CLIENT_ID/);
+  assert.ok(panel.indexOf("OAuth 推荐接入") < panel.indexOf("备用 Token 接入"));
+  assert.match(panel, /CONNECTOR_SETTINGS_URLS\.claude/);
+  assert.match(panel, /CONNECTOR_SETTINGS_URLS\.chatgpt/);
+});
