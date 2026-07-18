@@ -73,3 +73,30 @@ test("portfolio uses mobile cards and a desktop table without the hot ETF panel"
   assert.match(portfolio, /className="hidden overflow-x-auto md:block"/);
   assert.match(portfolio, /className="relative w-full min-w-0"/);
 });
+
+test("header delegates authenticated account rendering to UserMenu", async () => {
+  const header = await readFile(
+    new URL("../src/components/header.tsx", import.meta.url),
+    "utf8",
+  );
+  const userMenu = await readFile(
+    new URL("../src/components/user-menu.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(header, /<UserMenu\s*\/>/);
+  assert.match(userMenu, /AvatarImage/);
+  assert.match(userMenu, /AvatarFallback/);
+  assert.match(userMenu, /href="\/auth\/logout"/);
+});
+
+test("account profile route reads Auth0 session and returns only public fields", async () => {
+  const route = await readFile(
+    new URL("../src/app/account/profile/route.ts", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(route, /auth0\.getSession\(\)/);
+  assert.match(route, /toPublicUserProfile\(session\?\.user\)/);
+  assert.doesNotMatch(route, /accessToken|idToken|refreshToken/);
+});

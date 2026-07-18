@@ -1,20 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Search, Bell, User, Menu } from "lucide-react";
+import { Search, Bell, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Sidebar } from "./sidebar";
 import { StockSearch } from "./stock-search";
+import { UserMenu } from "./user-menu";
 
 interface HeaderProps {
   onSearchClick?: () => void;
@@ -57,24 +49,7 @@ export function Header({ onSearchClick }: HeaderProps) {
             <span className="sr-only">Notifications</span>
           </Button>
 
-          <DropdownMenu>
-            <DropdownMenuTrigger className="inline-flex items-center justify-center rounded-lg p-2 hover:bg-muted">
-              <Avatar className="h-8 w-8">
-                <AvatarFallback>
-                  <User className="h-4 w-4" />
-                </AvatarFallback>
-              </Avatar>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>我的账户</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>自选股</DropdownMenuItem>
-              <DropdownMenuItem>持仓管理</DropdownMenuItem>
-              <DropdownMenuItem>设置</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>退出</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <UserMenu />
         </div>
       </header>
       {!onSearchClick && <StockSearch open={searchOpen} onOpenChange={setSearchOpen} />}
