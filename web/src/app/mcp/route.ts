@@ -3,6 +3,7 @@ import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { createMcpHandler, withMcpAuth } from "mcp-handler";
 import { z } from "zod";
 
+import { registerMarketRankingTools } from "@/lib/mcp-market-tools";
 import { getPublicOrigin } from "@/lib/public-origin";
 
 function portfolioApiBaseUrl(): string {
@@ -90,7 +91,10 @@ export function registerPortfolioTools(
 }
 
 const handler = createMcpHandler(
-  (server) => registerPortfolioTools(server),
+  (server) => {
+    registerPortfolioTools(server);
+    registerMarketRankingTools(server);
+  },
   {
     serverInfo: { name: "investment-portfolio", version: "1.0.0" },
   },

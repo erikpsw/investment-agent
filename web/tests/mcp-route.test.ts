@@ -14,11 +14,13 @@ process.env.API_URL = "https://portfolio.test";
 
 const originalFetch = globalThis.fetch;
 const apiRequests: Array<{ url: string; authorization: string | null }> = [];
+const marketApiRequests: string[] = [];
 let privateKey: CryptoKey;
 let publicJwk: Awaited<ReturnType<typeof exportJWK>>;
 let GET: (request: Request) => Promise<Response>;
 let POST: (request: Request) => Promise<Response>;
 let registerPortfolioTools: typeof import("../src/app/mcp/route").registerPortfolioTools;
+let registerMarketRankingTools: typeof import("../src/lib/mcp-market-tools").registerMarketRankingTools;
 let getProtectedResourceMetadata: (request: Request) => Promise<Response>;
 
 test.before(async () => {
@@ -82,6 +84,37 @@ test.before(async () => {
       }
       return Response.json({ detail: "invalid token" }, { status: 401 });
     }
+    if (request.url.startsWith("https://portfolio.test/api/formula-ranking?")) {
+      marketApiRequests.push(request.url);
+      if (new URL(request.url).searchParams.get("market") === "US") {
+        return Response.json({ detail: "upstream unavailable" }, { status: 503 });
+      }
+      return Response.json({
+        status: "ok",
+        result: {
+          market: "CN",
+          mode: "conservative",
+          formula: "test formula",
+          items: [{ ticker: "sh600519", formula_score: 88.5 }],
+        },
+      });
+    }
+    if (request.url === "https://portfolio.test/api/sectors") {
+      marketApiRequests.push(request.url);
+      return Response.json({
+        status: "ok",
+        result: {
+          generated_at: "2026-07-21T09:30:00+08:00",
+          sectors: [
+            { code: "B", name: "板块 B", score: -5 },
+            { code: "C", name: "板块 C", score: null },
+            { code: "A", name: "板块 A", score: 91 },
+          ],
+          coverage_count: 3,
+          source: "test sectors",
+        },
+      });
+    }
     if (request.url.startsWith("https://portfolio.test/api/portfolio/")) {
       apiRequests.push({
         url: request.url,
@@ -100,6 +133,7 @@ test.before(async () => {
   };
 
   ({ GET, POST, registerPortfolioTools } = await import("../src/app/mcp/route"));
+  ({ registerMarketRankingTools } = await import("../src/lib/mcp-market-tools"));
   ({ GET: getProtectedResourceMetadata } = await import(
     "../src/app/.well-known/oauth-protected-resource/route"
   ));
@@ -202,10 +236,11 @@ test("protected-resource metadata uses the canonical MCP endpoint", async () => 
   });
 });
 
-test("MCP protocol exposes and calls only the user-scoped portfolio tool", async () => {
+test("MCP protocol exposes portfolio and read-only market ranking tools", async () => {
   const bearerToken = await token();
   const server = new McpServer({ name: "investment-portfolio", version: "1.0.0" });
   registerPortfolioTools(server, () => bearerToken);
+  registerMarketRankingTools(server);
   const client = new Client({ name: "test-client", version: "1.0.0" });
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
 
@@ -214,8 +249,14 @@ test("MCP protocol exposes and calls only the user-scoped portfolio tool", async
   try {
     const listed = await client.listTools();
     const tool = listed.tools.find((candidate) => candidate.name === "get_portfolio_details");
+    const formulaTool = listed.tools.find((candidate) => candidate.name === "get_formula_stock_ranking");
+    const sectorTool = listed.tools.find((candidate) => candidate.name === "get_sector_ranking");
     assert.ok(tool);
+    assert.ok(formulaTool);
+    assert.ok(sectorTool);
     assert.equal("user_id" in (tool.inputSchema.properties || {}), false);
+    assert.equal("user_id" in (formulaTool.inputSchema.properties || {}), false);
+    assert.equal("user_id" in (sectorTool.inputSchema.properties || {}), false);
 
     const called = await client.callTool({
       name: "get_portfolio_details",
@@ -225,6 +266,37 @@ test("MCP protocol exposes and calls only the user-scoped portfolio tool", async
     assert.equal(apiRequests.length, 1);
     assert.equal(apiRequests[0].url, "https://portfolio.test/api/portfolio/positions");
     assert.equal(apiRequests[0].authorization, `Bearer ${bearerToken}`);
+
+    const formulaResult = await client.callTool({
+      name: "get_formula_stock_ranking",
+      arguments: { market: "CN", mode: "conservative", limit: 7 },
+    });
+    assert.equal(formulaResult.isError, undefined);
+    const formulaUrl = new URL(marketApiRequests[0]);
+    assert.equal(formulaUrl.searchParams.get("market"), "CN");
+    assert.equal(formulaUrl.searchParams.get("mode"), "conservative");
+    assert.equal(formulaUrl.searchParams.get("limit"), "7");
+
+    const sectorResult = await client.callTool({
+      name: "get_sector_ranking",
+      arguments: { limit: 2 },
+    });
+    assert.equal(sectorResult.isError, undefined);
+    assert.deepEqual(
+      (sectorResult.structuredContent as { sectors: Array<{ code: string }> }).sectors.map(
+        (item) => item.code,
+      ),
+      ["A", "B"],
+    );
+
+    const failedFormula = await client.callTool({
+      name: "get_formula_stock_ranking",
+      arguments: { market: "US", mode: "balanced", limit: 5 },
+    });
+    assert.equal(failedFormula.isError, true);
+    const failedText = (failedFormula.content as Array<{ text?: string }>)[0]?.text || "";
+    assert.match(failedText, /HTTP 503/);
+    assert.doesNotMatch(failedText, /Bearer|test-token/);
   } finally {
     await client.close();
     await server.close();
