@@ -13,12 +13,13 @@ import pandas as pd
 from investment.agents.llm import get_llm_client
 from investment.data.news_fetcher import get_stock_news
 from investment.data.portfolio_store import PortfolioStore, get_portfolio_store
+from investment.data.research_snapshot import ResearchSnapshotService
 from investment.data.stock_fetcher import StockFetcher
 
 
 def _detect_market(ticker: str) -> str:
     value = ticker.lower().strip()
-    if value in {"cash", "现金"}:
+    if value in {"cash", "现金"} or value.startswith("cash_"):
         return "CASH"
     if value.startswith(("sh", "sz")) or value.isdigit():
         return "CN"
@@ -30,7 +31,7 @@ def _detect_market(ticker: str) -> str:
 def _is_cash_position(position: Dict[str, Any]) -> bool:
     ticker = str(position.get("ticker") or "").strip().lower()
     market = str(position.get("market") or "").strip().upper()
-    return ticker in {"cash", "现金"} or market == "CASH"
+    return ticker in {"cash", "现金"} or ticker.startswith("cash_") or market == "CASH"
 
 
 def _currency_for_market(market: str, explicit: Any = None) -> str:
@@ -126,10 +127,12 @@ class PortfolioService:
         self,
         store: Optional[PortfolioStore] = None,
         fx_rate_provider: Optional[Callable[[], Dict[str, float]]] = None,
+        research_service: Optional[ResearchSnapshotService] = None,
     ) -> None:
         self.fetcher = StockFetcher()
         self.store = store or get_portfolio_store()
         self.fx_rate_provider = fx_rate_provider or self._fetch_fx_rates
+        self.research_service = research_service
         self._cached_fx_rates: Dict[str, float] = {}
         self._fx_cached_at = 0.0
 
@@ -157,12 +160,12 @@ class PortfolioService:
             self._fx_cached_at = now
         return dict(self._cached_fx_rates)
 
-    def get_positions(self, user_id: str) -> Dict[str, Any]:
+    def get_positions(self, user_id: str, include_history: bool = False) -> Dict[str, Any]:
         document = self.store.load(user_id)
         positions = self._normalize_positions(document.positions)
         return {
             "updated_at": document.updated_at,
-            "positions": self._snapshot_positions(positions),
+            "positions": self._snapshot_positions(positions, include_history=include_history),
             "storage": document.storage,
             "valuation_currency": "CNY",
             "fx_rates": self._get_fx_rates(),
@@ -181,6 +184,7 @@ class PortfolioService:
 
     def _normalize_positions(self, positions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         normalized: List[Dict[str, Any]] = []
+        seen_cash: set[str] = set()
         for row in positions:
             ticker = str(row.get("ticker") or "").strip()
             if not ticker:
@@ -190,10 +194,16 @@ class PortfolioService:
             quantity = _to_float(row.get("quantity")) or 0.0
             avg_cost = _to_float(row.get("avg_cost")) or 0.0
             name = str(row.get("name") or "").strip()
-            if ticker.lower() in {"cash", "现金"} or market == "CASH":
-                ticker = "CASH"
+            if _is_cash_position({"ticker": ticker, "market": market}):
+                suffix = ticker.upper().removeprefix("CASH_")
+                if suffix in {"CNY", "HKD", "USD"}:
+                    currency = suffix
+                ticker = f"CASH_{currency}"
+                if ticker in seen_cash:
+                    continue
+                seen_cash.add(ticker)
                 market = "CASH"
-                name = name or "现金"
+                name = name or {"CNY": "人民币现金", "HKD": "港币现金", "USD": "美元现金"}[currency]
                 avg_cost = 1.0
             normalized.append(
                 {
@@ -250,15 +260,26 @@ class PortfolioService:
             "fx_rates": fx_rates,
         }
 
-    def _snapshot_positions(self, positions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    def _snapshot_positions(
+        self,
+        positions: List[Dict[str, Any]],
+        include_history: bool = False,
+    ) -> List[Dict[str, Any]]:
         if not positions:
             return []
         fx_rates = self._get_fx_rates()
         with ThreadPoolExecutor(max_workers=min(6, max(1, len(positions)))) as executor:
-            futures = [executor.submit(self._quote_snapshot, position, fx_rates) for position in positions]
-            items = [future.result() for future in as_completed(futures)]
-        order = {position["ticker"]: index for index, position in enumerate(positions)}
-        items.sort(key=lambda item: order.get(str(item.get("ticker")), 999))
+            items = list(executor.map(lambda position: self._quote_snapshot(position, fx_rates), positions))
+
+        security_indexes = [index for index, item in enumerate(items) if not _is_cash_position(item)]
+        if security_indexes:
+            research_service = self.research_service or ResearchSnapshotService(fetcher=self.fetcher)
+            enriched = research_service.enrich(
+                [items[index] for index in security_indexes],
+                include_history=include_history,
+            )
+            for index, researched in zip(security_indexes, enriched):
+                items[index]["research"] = researched.get("research")
         total_market_value = sum(float(item.get("market_value") or 0) for item in items)
         for item in items:
             item["weight"] = _safe_round((float(item.get("market_value") or 0) / total_market_value * 100) if total_market_value else None)
@@ -276,8 +297,8 @@ class PortfolioService:
             cost = cost_native * fx_rate
             return {
                 **position,
-                "ticker": "CASH",
-                "name": position.get("name") or "现金",
+                "ticker": ticker,
+                "name": position.get("name") or {"CNY": "人民币现金", "HKD": "港币现金", "USD": "美元现金"}[currency],
                 "market": "CASH",
                 "currency": currency,
                 "fx_rate_to_cny": _safe_round(fx_rate, 6),
@@ -337,8 +358,8 @@ class PortfolioService:
         if _is_cash_position(position):
             market_value = quantity * fx_rate
             return {
-                "ticker": "CASH",
-                "name": position.get("name") or "现金",
+                "ticker": ticker,
+                "name": position.get("name") or {"CNY": "人民币现金", "HKD": "港币现金", "USD": "美元现金"}[currency],
                 "market": "CASH",
                 "currency": currency,
                 "fx_rate_to_cny": _safe_round(fx_rate, 6),

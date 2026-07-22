@@ -21,7 +21,7 @@ class FakeAuth0Verifier:
 
 
 class FakePortfolioService:
-    def get_positions(self, user_id: str):
+    def get_positions(self, user_id: str, include_history: bool = False):
         return {"positions": [], "storage": "fake", "owner": user_id}
 
     def save_positions(self, user_id: str, positions):

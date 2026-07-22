@@ -15,8 +15,8 @@ class FakePortfolioService:
     def __init__(self) -> None:
         self.calls: list[tuple[str, str]] = []
 
-    def get_positions(self, user_id: str):
-        self.calls.append(("get", user_id))
+    def get_positions(self, user_id: str, include_history: bool = False):
+        self.calls.append(("get", user_id, include_history))
         return {"positions": [], "storage": "fake"}
 
     def save_positions(self, user_id: str, positions):
@@ -56,6 +56,7 @@ class PortfolioAuthTests(unittest.TestCase):
         with patch.object(portfolio, "get_portfolio_service", return_value=service):
             client = TestClient(make_app(service, authenticated=True))
             get_response = client.get("/api/portfolio/positions")
+            history_response = client.get("/api/portfolio/positions?include_history=true")
             put_response = client.put(
                 "/api/portfolio/positions",
                 json={
@@ -74,12 +75,14 @@ class PortfolioAuthTests(unittest.TestCase):
             analyze_response = client.post("/api/portfolio/analyze", json={})
 
         self.assertEqual(get_response.status_code, 200)
+        self.assertEqual(history_response.status_code, 200)
         self.assertEqual(put_response.status_code, 200)
         self.assertEqual(analyze_response.status_code, 200)
         self.assertEqual(
             service.calls,
             [
-                ("get", "auth0|user-123"),
+                ("get", "auth0|user-123", False),
+                ("get", "auth0|user-123", True),
                 ("save", "auth0|user-123"),
                 ("analyze", "auth0|user-123"),
             ],
@@ -99,7 +102,7 @@ class PortfolioAuthTests(unittest.TestCase):
 
     def test_cloud_storage_failure_returns_service_unavailable(self) -> None:
         service = FakePortfolioService()
-        service.get_positions = lambda user_id: (_ for _ in ()).throw(
+        service.get_positions = lambda user_id, include_history=False: (_ for _ in ()).throw(
             PortfolioStorageError("secret internal storage error")
         )
         with patch.object(portfolio, "get_portfolio_service", return_value=service):

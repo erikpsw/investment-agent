@@ -4,7 +4,7 @@ from __future__ import annotations
 import asyncio
 from typing import Any, Callable, List
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field
 
 from investment.api.auth import AuthenticatedUser, get_auth0_user, require_scope
@@ -43,8 +43,15 @@ class PortfolioPositionsRequest(BaseModel):
 
 
 @router.get("/portfolio/positions")
-async def get_positions(current_user: AuthenticatedUser = Depends(get_portfolio_reader)):
-    result = await _run_portfolio_call(get_portfolio_service().get_positions, current_user.sub)
+async def get_positions(
+    include_history: bool = Query(default=False),
+    current_user: AuthenticatedUser = Depends(get_portfolio_reader),
+):
+    result = await _run_portfolio_call(
+        get_portfolio_service().get_positions,
+        current_user.sub,
+        include_history,
+    )
     return {"status": "ok", "result": result}
 
 
