@@ -1,0 +1,126 @@
+from __future__ import annotations
+
+from unittest.mock import patch
+
+from fastapi import FastAPI
+from fastapi.testclient import TestClient
+
+from investment.api.auth import AuthenticatedUser, get_current_user
+from investment.api.routes import watchlists
+from investment.data.watchlist_store import WatchlistStorageError
+from investment.data.watchlists import WatchlistGroupNotFound
+
+
+class FakeWatchlistService:
+    def __init__(self) -> None:
+        self.calls = []
+
+    def get_watchlists(self, user_id, group_id=None, include_history=False):
+        self.calls.append(("get", user_id, group_id, include_history))
+        return {"groups": [], "storage": "fake"}
+
+    def save_watchlists(self, user_id, groups):
+        self.calls.append(("save", user_id, groups))
+        return {"groups": groups, "storage": "fake"}
+
+
+def make_app(service: FakeWatchlistService, user: AuthenticatedUser | None) -> FastAPI:
+    app = FastAPI()
+    app.include_router(watchlists.router, prefix="/api")
+    if user is not None:
+        app.dependency_overrides[get_current_user] = lambda: user
+    return app
+
+
+def test_missing_token_is_rejected_before_service_call() -> None:
+    service = FakeWatchlistService()
+    with patch.object(watchlists, "get_watchlist_service", return_value=service):
+        response = TestClient(make_app(service, None)).get("/api/watchlists")
+
+    assert response.status_code == 401
+    assert service.calls == []
+
+
+def test_get_forwards_authenticated_subject_filter_and_history() -> None:
+    service = FakeWatchlistService()
+    user = AuthenticatedUser(sub="auth0|alice")
+    with patch.object(watchlists, "get_watchlist_service", return_value=service):
+        response = TestClient(make_app(service, user)).get(
+            "/api/watchlists?group_id=core&include_history=true"
+        )
+
+    assert response.status_code == 200
+    assert service.calls == [("get", "auth0|alice", "core", True)]
+
+
+def test_put_uses_subject_and_rejects_client_user_id() -> None:
+    service = FakeWatchlistService()
+    user = AuthenticatedUser(sub="auth0|alice")
+    with patch.object(watchlists, "get_watchlist_service", return_value=service):
+        client = TestClient(make_app(service, user))
+        saved = client.put(
+            "/api/watchlists",
+            json={
+                "groups": [
+                    {
+                        "id": "core",
+                        "name": "Core",
+                        "items": [
+                            {"ticker": "AAPL", "name": "Apple", "market": "US", "notes": ""}
+                        ],
+                    }
+                ]
+            },
+        )
+        injected = client.put(
+            "/api/watchlists",
+            json={"user_id": "auth0|victim", "groups": []},
+        )
+
+    assert saved.status_code == 200
+    assert service.calls[0][0:2] == ("save", "auth0|alice")
+    assert injected.status_code == 422
+
+
+def test_read_only_pat_cannot_write() -> None:
+    service = FakeWatchlistService()
+    user = AuthenticatedUser(
+        sub="auth0|alice",
+        auth_type="pat",
+        scopes=("portfolio:read",),
+    )
+    with patch.object(watchlists, "get_watchlist_service", return_value=service):
+        response = TestClient(make_app(service, user)).put(
+            "/api/watchlists", json={"groups": []}
+        )
+
+    assert response.status_code == 403
+    assert service.calls == []
+
+
+def test_unknown_group_returns_not_found() -> None:
+    service = FakeWatchlistService()
+    service.get_watchlists = lambda user_id, group_id=None, include_history=False: (_ for _ in ()).throw(
+        WatchlistGroupNotFound(group_id)
+    )
+    with patch.object(watchlists, "get_watchlist_service", return_value=service):
+        response = TestClient(
+            make_app(service, AuthenticatedUser(sub="auth0|alice"))
+        ).get("/api/watchlists?group_id=missing")
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Watchlist group was not found"
+
+
+def test_storage_failure_returns_service_unavailable() -> None:
+    service = FakeWatchlistService()
+    service.get_watchlists = lambda user_id, group_id=None, include_history=False: (_ for _ in ()).throw(
+        WatchlistStorageError("secret storage detail")
+    )
+    with patch.object(watchlists, "get_watchlist_service", return_value=service):
+        response = TestClient(
+            make_app(service, AuthenticatedUser(sub="auth0|alice"))
+        ).get("/api/watchlists")
+
+    assert response.status_code == 503
+    assert response.json()["detail"] == "Watchlist storage is unavailable"

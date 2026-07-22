@@ -41,6 +41,7 @@ from investment.api.routes import (
     search,
     sectors,
     tokens,
+    watchlists,
 )
 
 
@@ -86,6 +87,7 @@ app.include_router(financial_history.router, prefix="/api", tags=["financial-his
 app.include_router(news.router, prefix="/api", tags=["news"])
 app.include_router(portfolio.router, prefix="/api", tags=["portfolio"])
 app.include_router(tokens.router, prefix="/api", tags=["tokens"])
+app.include_router(watchlists.router, prefix="/api", tags=["watchlists"])
 app.include_router(sectors.router, prefix="/api", tags=["sectors"])
 app.include_router(formula_ranking.router, prefix="/api", tags=["formula-ranking"])
 app.include_router(disclosure.router, prefix="/api", tags=["disclosure"])

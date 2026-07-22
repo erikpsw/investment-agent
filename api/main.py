@@ -24,7 +24,7 @@ from fastapi.middleware.cors import CORSMiddleware
 if os.getenv("SUPABASE_KEY") and not os.getenv("SUPABASE_ANON_KEY"):
     os.environ["SUPABASE_ANON_KEY"] = os.environ["SUPABASE_KEY"]
 
-from investment.api.routes import quotes, search, history, financials, analysis, reports, financial_history, report_analysis, pdf_analysis, news, foreign_reports, disclosure, stock_picker, monitor, sectors, portfolio, formula_ranking
+from investment.api.routes import quotes, search, history, financials, analysis, reports, financial_history, report_analysis, pdf_analysis, news, foreign_reports, disclosure, stock_picker, monitor, sectors, portfolio, formula_ranking, watchlists
 
 
 @asynccontextmanager
@@ -73,6 +73,7 @@ app.include_router(stock_picker.router, prefix="/api", tags=["stock-picker"])
 app.include_router(monitor.router, prefix="/api", tags=["monitor"])
 app.include_router(sectors.router, prefix="/api", tags=["sectors"])
 app.include_router(portfolio.router, prefix="/api", tags=["portfolio"])
+app.include_router(watchlists.router, prefix="/api", tags=["watchlists"])
 app.include_router(formula_ranking.router, prefix="/api", tags=["formula-ranking"])
 
 
