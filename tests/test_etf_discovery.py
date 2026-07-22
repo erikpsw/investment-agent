@@ -1,13 +1,42 @@
 from __future__ import annotations
 
+import asyncio
 import unittest
 
+from investment.api.routes.search import search_stocks
 from investment.data.portfolio import PortfolioService
 from investment.data.portfolio_store import InMemoryPortfolioStore
-from investment.data.stock_search import StockSearch
+from investment.data.stock_search import StockSearch, _instrument_type, search_etf_catalog
 
 
 class EtfDiscoveryTests(unittest.TestCase):
+    def test_cn_etf_catalog_is_searchable_by_code_and_name(self) -> None:
+        searcher = StockSearch()
+
+        by_code = searcher.search("510300", market="cn", limit=5)
+        by_name = searcher.search("沪深300ETF华泰柏瑞", market="cn", limit=5)
+
+        self.assertTrue(any(item["code"] == "sh510300" for item in by_code))
+        self.assertTrue(any(item["code"] == "sh510300" for item in by_name))
+        self.assertEqual(by_code[0]["instrument_type"], "etf")
+
+        lightweight = search_etf_catalog("510300", market="all", limit=5)
+        self.assertEqual(lightweight[0]["code"], "sh510300")
+
+    def test_instrument_name_can_identify_us_etf(self) -> None:
+        self.assertEqual(
+            _instrument_type("QQQ", listed_type="stock", name="Invesco QQQ ETF"),
+            "etf",
+        )
+
+    def test_search_api_prioritizes_bundled_etf_catalog(self) -> None:
+        response = asyncio.run(
+            search_stocks(q="510300", market="all", limit=8)
+        )
+
+        self.assertEqual(response.results[0].code, "sh510300")
+        self.assertEqual(response.results[0].instrument_type, "etf")
+
     def test_shanghai_and_shenzhen_etf_codes_resolve_with_instrument_type(self) -> None:
         searcher = StockSearch()
 

@@ -2,7 +2,9 @@
 股票搜索模块 - 基于本地CSV数据，支持 A股/港股/美股 名称搜索
 数据来源: https://github.com/irachex/open-stock-data
 """
+import json
 import pandas as pd
+from functools import lru_cache
 from typing import Any, Optional, List, Dict, Tuple
 from pathlib import Path
 import threading
@@ -12,10 +14,63 @@ _search_instance: Optional["StockSearch"] = None
 _search_lock = threading.Lock()
 
 
-def _instrument_type(code: str, listed_type: Any = None) -> str:
+@lru_cache(maxsize=1)
+def _etf_catalog_rows() -> tuple[Dict[str, Any], ...]:
+    path = Path(__file__).parent / "stock_lists" / "ETF.json"
+    if not path.exists():
+        return ()
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    rows = payload.get("rows") if isinstance(payload, dict) else None
+    if not isinstance(rows, list):
+        return ()
+    return tuple(dict(row) for row in rows if isinstance(row, dict))
+
+
+def search_etf_catalog(
+    query: str, market: str = "all", limit: int = 10
+) -> List[Dict[str, Any]]:
+    if market.upper() not in {"ALL", "CN"}:
+        return []
+    term = str(query or "").strip().lower()
+    if not term:
+        return []
+    results = []
+    for row in _etf_catalog_rows():
+        code = str(row.get("code") or "").zfill(6)
+        name = str(row.get("name") or "").strip()
+        ticker = f"{'sh' if code.startswith('5') else 'sz'}{code}"
+        if term not in code.lower() and term not in ticker.lower() and term not in name.lower():
+            continue
+        results.append(
+            {
+                "code": ticker,
+                "name": name,
+                "market": "CN",
+                "display": f"{name} ({ticker})",
+                "exchange": "SSE" if code.startswith("5") else "SZSE",
+                "instrument_type": "etf",
+            }
+        )
+
+    def score(item: Dict[str, Any]) -> Tuple[int, int]:
+        name = str(item.get("name") or "").lower()
+        code = str(item.get("code") or "").lower()
+        if name == term or code == term or code.removeprefix("sh").removeprefix("sz") == term:
+            return (0, len(name))
+        if name.startswith(term) or code.startswith(term):
+            return (1, len(name))
+        return (2, len(name))
+
+    return sorted(results, key=score)[: max(0, limit)]
+
+
+def _instrument_type(code: str, listed_type: Any = None, name: Any = None) -> str:
     normalized_type = str(listed_type or "").strip().lower()
     normalized_code = str(code or "").lower().replace("sh", "").replace("sz", "")
+    normalized_name = str(name or "").strip().lower()
     if normalized_type in {"fund", "etf"}:
+        return "etf"
+    if "etf" in normalized_name or "exchange traded fund" in normalized_name:
         return "etf"
     if len(normalized_code) == 6 and (
         normalized_code.startswith("5") or normalized_code.startswith("159")
@@ -62,6 +117,20 @@ class StockSearch:
             df["market"] = "CN"
             df["ticker"] = "sz" + df["code"].astype(str).str.zfill(6)
             dfs.append(df)
+
+        etf_rows = _etf_catalog_rows()
+        if etf_rows:
+            df = pd.DataFrame(etf_rows)
+            df["code"] = df["code"].astype(str).str.zfill(6)
+            df["market"] = "CN"
+            df["ticker"] = df["code"].map(
+                lambda code: f"{'sh' if code.startswith('5') else 'sz'}{code}"
+            )
+            df["exchange"] = df["code"].map(
+                lambda code: "SSE" if code.startswith("5") else "SZSE"
+            )
+            df["type"] = "etf"
+            dfs.append(df)
         
         hkex_path = self._data_dir / "HKEX.csv"
         if hkex_path.exists():
@@ -87,7 +156,9 @@ class StockSearch:
         if dfs:
             self._stocks = pd.concat(dfs, ignore_index=True)
             self._stocks["instrument_type"] = self._stocks.apply(
-                lambda row: _instrument_type(row.get("code"), row.get("type")),
+                lambda row: _instrument_type(
+                    row.get("code"), row.get("type"), row.get("name")
+                ),
                 axis=1,
             )
             self._stocks["name_lower"] = self._stocks["name"].str.lower()

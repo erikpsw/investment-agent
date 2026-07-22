@@ -95,6 +95,26 @@ test("security research details supports four trend windows and structured metri
   assert.match(details, /research\.moving_averages/);
   assert.match(details, /research\.technical/);
   assert.match(details, /ResponsiveContainer/);
+  assert.match(details, /max-w-full overflow-hidden/);
+  assert.match(details, /break-words[^\"]*\[overflow-wrap:anywhere\]/);
+});
+
+test("desktop holdings keep each research panel directly below its security row", async () => {
+  const portfolio = await readFile(
+    new URL("../src/app/portfolio/page.tsx", import.meta.url),
+    "utf8",
+  );
+  const watchlist = await readFile(
+    new URL("../src/components/watchlist-group-card.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(portfolio, /<TableRow[^>]*data-testid="portfolio-research-row"/);
+  assert.match(portfolio, /colSpan=\{10\}/);
+  assert.match(portfolio, /table-fixed/);
+  assert.match(watchlist, /<TableRow[^>]*data-testid="watchlist-research-row"/);
+  assert.match(watchlist, /colSpan=\{6\}/);
+  assert.match(watchlist, /table-fixed/);
 });
 
 test("watchlist API client uses authenticated cloud endpoints", async () => {

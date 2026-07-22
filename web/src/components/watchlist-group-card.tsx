@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { ArrowDown, ArrowUp, Search, Trash2 } from "lucide-react";
 
 import { SecurityResearchDetails } from "@/components/security-research-details";
@@ -76,7 +76,10 @@ function SearchToAdd({ onSelect }: { onSelect: (result: SearchResult) => void })
               }}
             >
               <span><strong>{result.name || result.code}</strong><span className="ml-2 text-muted-foreground">{result.code}</span></span>
-              <Badge variant="outline">{result.market}</Badge>
+              <span className="flex items-center gap-1">
+                {result.instrument_type === "etf" && <Badge variant="secondary">ETF</Badge>}
+                <Badge variant="outline">{result.market}</Badge>
+              </span>
             </button>
           ))}
         </div>
@@ -147,20 +150,21 @@ export function WatchlistGroupCard({
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <Table>
+            <Table className="min-w-[920px] table-fixed">
               <TableHeader>
                 <TableRow>
-                  <TableHead>代码 / 名称</TableHead>
-                  <TableHead>市场</TableHead>
-                  <TableHead>现价</TableHead>
-                  <TableHead>5 / 20 / 60 / 250日</TableHead>
+                  <TableHead className="w-48">代码 / 名称</TableHead>
+                  <TableHead className="w-20">市场</TableHead>
+                  <TableHead className="w-32">现价</TableHead>
+                  <TableHead className="w-60">5 / 20 / 60 / 250日</TableHead>
                   <TableHead>备注</TableHead>
                   <TableHead className="w-12" />
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {group.items.map((item, index) => (
-                  <TableRow key={`${item.ticker}-${index}`}>
+                  <Fragment key={`${item.ticker}-${index}`}>
+                  <TableRow>
                     <TableCell className="min-w-44"><div className="font-medium">{item.ticker}</div><div className="text-xs text-muted-foreground">{item.name}</div></TableCell>
                     <TableCell><Badge variant="outline">{item.market}</Badge></TableCell>
                     <TableCell>{price(item.research?.quote?.price)} {item.research?.quote?.currency}</TableCell>
@@ -168,11 +172,14 @@ export function WatchlistGroupCard({
                     <TableCell className="min-w-56"><Input value={item.notes} placeholder="备注" onChange={(event) => onUpdateItem(index, { notes: event.target.value })} /></TableCell>
                     <TableCell><Button type="button" size="icon" variant="ghost" onClick={() => onDeleteItem(index)}><Trash2 /></Button></TableCell>
                   </TableRow>
-                ))}
-                {group.items.map((item, index) => (
-                  <TableRow key={`${item.ticker}-${index}-research`}>
-                    <TableCell colSpan={6}><SecurityResearchDetails research={item.research} /></TableCell>
+                  <TableRow data-testid="watchlist-research-row" className="border-b bg-muted/10">
+                    <TableCell colSpan={6} className="max-w-0 p-3">
+                      <div className="min-w-0 max-w-full overflow-hidden">
+                        <SecurityResearchDetails research={item.research} />
+                      </div>
+                    </TableCell>
                   </TableRow>
+                  </Fragment>
                 ))}
               </TableBody>
             </Table>

@@ -17,7 +17,7 @@ ETF_LIST_URLS = [
     "https://push2delay.eastmoney.com/api/qt/clist/get",
     "https://push2.eastmoney.com/api/qt/clist/get",
 ]
-ETF_FILTER = "m:0+t:10,m:1+t:8"
+ETF_FILTER = "b:MK0021,b:MK0022,b:MK0023,b:MK0024,b:MK0827"
 ETF_FIELDS = "f2,f3,f5,f6,f8,f10,f12,f14"
 SNAPSHOT_PATH = Path(__file__).resolve().parent.parent / "storage" / "market" / "hot-etfs.json"
 CACHE_SECONDS = 600

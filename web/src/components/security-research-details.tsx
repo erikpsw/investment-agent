@@ -49,9 +49,9 @@ export function SecurityResearchDetails({ research }: { research?: SecurityResea
   }
 
   return (
-    <details className="rounded-lg border bg-background p-3">
+    <details className="w-full min-w-0 max-w-full overflow-hidden rounded-lg border bg-background p-3">
       <summary className="cursor-pointer text-sm font-medium">走势与关键数据</summary>
-      <div className="mt-3 space-y-4">
+      <div className="mt-3 min-w-0 max-w-full space-y-4 overflow-hidden">
         <div className="flex flex-wrap gap-2">
           {PERIODS.map((days) => {
             const value = research.returns?.[`${days}d` as keyof NonNullable<SecurityResearch["returns"]>];
@@ -103,7 +103,7 @@ export function SecurityResearchDetails({ research }: { research?: SecurityResea
         </div>
 
         {research.recent_news && research.recent_news.length > 0 && (
-          <div className="space-y-2">
+          <div className="min-w-0 max-w-full space-y-2 overflow-hidden">
             <div className="text-sm font-medium">最近新闻</div>
             {research.recent_news.slice(0, 5).map((article, index) => (
               <a
@@ -111,14 +111,14 @@ export function SecurityResearchDetails({ research }: { research?: SecurityResea
                 href={article.link || "#"}
                 target="_blank"
                 rel="noreferrer"
-                className="block rounded-md border p-2 text-sm hover:bg-muted/50"
+                className="block min-w-0 max-w-full overflow-hidden rounded-md border p-2 text-sm hover:bg-muted/50"
               >
-                <div className="font-medium">{article.title || "--"}</div>
+                <div className="break-words font-medium [overflow-wrap:anywhere]">{article.title || "--"}</div>
                 <div className="mt-1 flex flex-wrap gap-2 text-xs text-muted-foreground">
                   {article.source && <Badge variant="outline">{article.source}</Badge>}
                   {article.published && <span>{article.published}</span>}
                 </div>
-                {article.summary && <p className="mt-1 line-clamp-2 text-muted-foreground">{article.summary}</p>}
+                {article.summary && <p className="mt-1 line-clamp-2 break-words text-muted-foreground [overflow-wrap:anywhere]">{article.summary}</p>}
               </a>
             ))}
           </div>

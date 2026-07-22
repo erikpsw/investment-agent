@@ -10,6 +10,7 @@ const outputDir = resolve(root, "storage", "market");
 const headers = { "User-Agent": "Mozilla/5.0", Referer: "https://quote.eastmoney.com/" };
 const stockSnapshotPath = resolve(outputDir, "latest.json");
 const sectorSnapshotPath = resolve(outputDir, "sectors.json");
+const etfCatalogPath = resolve(root, "data", "stock_lists", "ETF.json");
 
 const STOCK_URLS = [
   "https://push2delay.eastmoney.com/api/qt/clist/get",
@@ -159,6 +160,38 @@ async function fetchSectors() {
   }).filter((row) => row.code && row.name);
 }
 
+async function fetchEtfs() {
+  const base = {
+    pz: "100",
+    po: "1",
+    np: "1",
+    fltt: "2",
+    invt: "2",
+    fid: "f6",
+    fs: "b:MK0021,b:MK0022,b:MK0023,b:MK0024,b:MK0827",
+    fields: "f12,f14",
+  };
+  const first = (await fetchJson(STOCK_URLS, { ...base, pn: "1" })).data;
+  const pages = Math.ceil(first.total / 100);
+  const rest = await mapConcurrent(
+    Array.from({ length: pages - 1 }, (_, index) => index + 2),
+    5,
+    async (page) => (await fetchJson(STOCK_URLS, { ...base, pn: String(page) })).data.diff || []
+  );
+  return [first.diff || [], ...rest].flat().map((row) => {
+    const code = String(row.f12 || "");
+    const name = String(row.f14 || "").trim();
+    if (!/^5\d{5}$|^159\d{3}$/.test(code) || !name) return null;
+    return {
+      code,
+      region: code.startsWith("5") ? "SH" : "SZ",
+      name,
+      exchange: code.startsWith("5") ? "SSE" : "SZSE",
+      type: "etf",
+    };
+  }).filter(Boolean);
+}
+
 async function readExisting(path, minimumRows) {
   try {
     const payload = JSON.parse(await readFile(path, "utf8"));
@@ -184,16 +217,27 @@ async function fetchOrKeepExisting(label, fetcher, path, minimumRows) {
   }
 }
 
-const [stockPayload, sectorPayload] = await Promise.all([
-  fetchOrKeepExisting("Stock", fetchStocks, stockSnapshotPath, 2500),
-  fetchOrKeepExisting("Sector", fetchSectors, sectorSnapshotPath, 300),
-]);
-await mkdir(outputDir, { recursive: true });
-await Promise.all([
-  writeFile(stockSnapshotPath, JSON.stringify(stockPayload)),
-  writeFile(sectorSnapshotPath, JSON.stringify(sectorPayload)),
-]);
-console.log(
-  `Snapshot ready: ${stockPayload.rows.length} stocks (${stockPayload.generated_at}), ` +
-    `${sectorPayload.rows.length} sectors (${sectorPayload.generated_at})`
-);
+if (process.argv.includes("--etf-only")) {
+  const etfPayload = await fetchOrKeepExisting("ETF", fetchEtfs, etfCatalogPath, 500);
+  await mkdir(dirname(etfCatalogPath), { recursive: true });
+  await writeFile(etfCatalogPath, JSON.stringify(etfPayload));
+  console.log(`ETF catalog ready: ${etfPayload.rows.length} funds (${etfPayload.generated_at})`);
+} else {
+  const [stockPayload, sectorPayload, etfPayload] = await Promise.all([
+    fetchOrKeepExisting("Stock", fetchStocks, stockSnapshotPath, 2500),
+    fetchOrKeepExisting("Sector", fetchSectors, sectorSnapshotPath, 300),
+    fetchOrKeepExisting("ETF", fetchEtfs, etfCatalogPath, 500),
+  ]);
+  await mkdir(outputDir, { recursive: true });
+  await mkdir(dirname(etfCatalogPath), { recursive: true });
+  await Promise.all([
+    writeFile(stockSnapshotPath, JSON.stringify(stockPayload)),
+    writeFile(sectorSnapshotPath, JSON.stringify(sectorPayload)),
+    writeFile(etfCatalogPath, JSON.stringify(etfPayload)),
+  ]);
+  console.log(
+    `Snapshot ready: ${stockPayload.rows.length} stocks (${stockPayload.generated_at}), ` +
+      `${sectorPayload.rows.length} sectors (${sectorPayload.generated_at}), ` +
+      `${etfPayload.rows.length} ETFs (${etfPayload.generated_at})`
+  );
+}

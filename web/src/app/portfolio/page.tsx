@@ -574,19 +574,18 @@ export default function PortfolioPage() {
             </div>
 
             <div className="hidden overflow-x-auto md:block">
-              <Table>
+              <Table className="min-w-[1120px] table-fixed">
               <TableHeader>
                 <TableRow>
-                  <TableHead>代码/名称</TableHead>
-                  <TableHead>名称</TableHead>
-                  <TableHead>数量</TableHead>
-                  <TableHead>买入均价</TableHead>
-                  <TableHead>现价</TableHead>
-                  <TableHead>市值</TableHead>
-                  <TableHead>浮盈亏</TableHead>
-                  <TableHead>盈亏比例</TableHead>
-                  <TableHead>备注</TableHead>
-                  <TableHead className="min-w-96">走势/关键数据</TableHead>
+                  <TableHead className="w-52">代码/名称</TableHead>
+                  <TableHead className="w-40">名称</TableHead>
+                  <TableHead className="w-28">数量</TableHead>
+                  <TableHead className="w-32">买入均价</TableHead>
+                  <TableHead className="w-32">现价</TableHead>
+                  <TableHead className="w-32">市值</TableHead>
+                  <TableHead className="w-32">浮盈亏</TableHead>
+                  <TableHead className="w-28">盈亏比例</TableHead>
+                  <TableHead className="w-48">备注</TableHead>
                   <TableHead className="w-12"></TableHead>
                 </TableRow>
               </TableHeader>
@@ -613,13 +612,21 @@ export default function PortfolioPage() {
                     <TableCell className={`tabular-nums ${pnlClass(position.pnl)}`}>{cash ? "--" : `¥${formatNumber(position.pnl)}`}</TableCell>
                     <TableCell className={`tabular-nums ${pnlClass(position.pnl_percent)}`}>{cash ? "--" : formatPct(position.pnl_percent)}</TableCell>
                     <TableCell><Input value={position.notes || ""} onChange={(event) => updatePosition(index, { notes: event.target.value })} placeholder="策略/原因" /></TableCell>
-                    <TableCell>{cash ? <span className="text-sm text-muted-foreground">{position.currency} 现金按当前汇率折算为人民币</span> : <SecurityResearchDetails research={position.research} />}</TableCell>
                     <TableCell>
                       <Button variant="ghost" size="icon" onClick={() => setPositions((current) => current.filter((_, itemIndex) => itemIndex !== index))}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </TableCell>
                   </TableRow>
+                  {!cash && (
+                    <TableRow data-testid="portfolio-research-row" className="border-b bg-muted/10">
+                      <TableCell colSpan={10} className="max-w-0 p-3">
+                        <div className="min-w-0 max-w-full overflow-hidden">
+                          <SecurityResearchDetails research={position.research} />
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  )}
                   </Fragment>
                   );
                 })}

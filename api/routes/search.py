@@ -19,6 +19,7 @@ except ImportError:
     pass
 
 from investment.data import StockFetcher
+from investment.data.stock_search import search_etf_catalog
 from investment.api.schemas import SearchResponse, SearchResult
 
 router = APIRouter()
@@ -303,9 +304,20 @@ async def search_stocks(
     loop = asyncio.get_event_loop()
     results = []
     seen_codes = set()
+
+    # ETF catalogs are bundled with the app and refreshed daily. Prefer these
+    # deterministic matches so ETF lookup never waits for remote stock search.
+    catalog_results = search_etf_catalog(q, market=market, limit=limit)
+    for result in catalog_results:
+        if result.get("instrument_type") != "etf":
+            continue
+        code = result.get("code")
+        if code and code not in seen_codes:
+            seen_codes.add(code)
+            results.append(result)
     
     # 先尝试别名搜索（最快，毫秒级）
-    if market in ("all", "hk", "HK"):
+    if not results and market in ("all", "hk", "HK"):
         for r in _search_hk_by_alias(q):
             if r["code"] not in seen_codes:
                 seen_codes.add(r["code"])
@@ -317,7 +329,7 @@ async def search_stocks(
                     seen_codes.add(r["code"])
                     results.append(r)
     
-    if market in ("all", "us", "US"):
+    if not results and market in ("all", "us", "US"):
         for r in _search_us_by_alias(q):
             if r["code"] not in seen_codes:
                 seen_codes.add(r["code"])
