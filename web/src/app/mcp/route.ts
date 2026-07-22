@@ -1,9 +1,8 @@
 import type { AuthInfo } from "@modelcontextprotocol/sdk/server/auth/types.js";
-import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { createMcpHandler, withMcpAuth } from "mcp-handler";
-import { z } from "zod";
 
 import { registerMarketRankingTools } from "@/lib/mcp-market-tools";
+import { registerUserDataTools } from "@/lib/mcp-user-data-tools";
 import { getPublicOrigin } from "@/lib/public-origin";
 
 function portfolioApiBaseUrl(): string {
@@ -14,85 +13,9 @@ function portfolioApiBaseUrl(): string {
   );
 }
 
-function addPortfolioTotals(result: Record<string, unknown>) {
-  const positions = Array.isArray(result.positions)
-    ? (result.positions as Array<Record<string, unknown>>)
-    : [];
-  const totalCost = positions.reduce((sum, item) => sum + Number(item.cost || 0), 0);
-  const totalMarketValue = positions.reduce(
-    (sum, item) => sum + Number(item.market_value || 0),
-    0
-  );
-  const totalPnl = totalMarketValue - totalCost;
-  return {
-    ...result,
-    total_cost: totalCost,
-    total_market_value: totalMarketValue,
-    total_pnl: totalPnl,
-    total_pnl_percent: totalCost ? (totalPnl / totalCost) * 100 : null,
-  };
-}
-
-type PortfolioTokenProvider = (extra: { authInfo?: AuthInfo }) => string | undefined;
-
-export function registerPortfolioTools(
-  server: McpServer,
-  tokenProvider: PortfolioTokenProvider = (extra) => extra.authInfo?.token
-) {
-  server.tool(
-      "get_portfolio_details",
-      "Get the authenticated user's portfolio with live price, market value, profit/loss, weights, and optional AI analysis.",
-      { include_analysis: z.boolean().optional().default(false) },
-      async ({ include_analysis }, extra) => {
-        const token = tokenProvider(extra);
-        if (!token) {
-          return {
-            content: [{ type: "text", text: "Authentication required" }],
-            isError: true,
-          };
-        }
-
-        const endpoint = include_analysis
-          ? "/api/portfolio/analyze"
-          : "/api/portfolio/positions";
-        const response = await fetch(`${portfolioApiBaseUrl()}${endpoint}`, {
-          method: include_analysis ? "POST" : "GET",
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-          body: include_analysis ? "{}" : undefined,
-          cache: "no-store",
-        });
-        if (!response.ok) {
-          return {
-            content: [
-              {
-                type: "text",
-                text: `Portfolio API request failed with HTTP ${response.status}`,
-              },
-            ],
-            isError: true,
-          };
-        }
-
-        const payload = (await response.json()) as {
-          result?: Record<string, unknown>;
-        };
-        const result = include_analysis
-          ? payload.result || {}
-          : addPortfolioTotals(payload.result || {});
-        return {
-          content: [{ type: "text", text: JSON.stringify(result) }],
-          structuredContent: result,
-        };
-      }
-    );
-}
-
 const handler = createMcpHandler(
   (server) => {
-    registerPortfolioTools(server);
+    registerUserDataTools(server);
     registerMarketRankingTools(server);
   },
   {

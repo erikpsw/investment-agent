@@ -19,7 +19,7 @@ let privateKey: CryptoKey;
 let publicJwk: Awaited<ReturnType<typeof exportJWK>>;
 let GET: (request: Request) => Promise<Response>;
 let POST: (request: Request) => Promise<Response>;
-let registerPortfolioTools: typeof import("../src/app/mcp/route").registerPortfolioTools;
+let registerUserDataTools: typeof import("../src/lib/mcp-user-data-tools").registerUserDataTools;
 let registerMarketRankingTools: typeof import("../src/lib/mcp-market-tools").registerMarketRankingTools;
 let getProtectedResourceMetadata: (request: Request) => Promise<Response>;
 
@@ -146,6 +146,24 @@ test.before(async () => {
         result: { code: "BK0477", history_enriched_count: 30, items: [{ ticker: "sh600519" }] },
       });
     }
+    if (request.url.startsWith("https://portfolio.test/api/watchlists?")) {
+      apiRequests.push({
+        url: request.url,
+        authorization: request.headers.get("authorization"),
+      });
+      return Response.json({
+        status: "ok",
+        result: {
+          groups: [
+            {
+              id: "core",
+              name: "Core",
+              items: [{ ticker: "AAPL", research: { returns: { "5d": 2.1 } } }],
+            },
+          ],
+        },
+      });
+    }
     if (request.url.startsWith("https://portfolio.test/api/portfolio/")) {
       apiRequests.push({
         url: request.url,
@@ -157,13 +175,15 @@ test.before(async () => {
           positions: [
             { ticker: "hk07709", cost: 20400, market_value: 21000 },
           ],
+          agent_view: "mechanical analysis must not reach MCP",
         },
       });
     }
     return originalFetch(input, init);
   };
 
-  ({ GET, POST, registerPortfolioTools } = await import("../src/app/mcp/route"));
+  ({ GET, POST } = await import("../src/app/mcp/route"));
+  ({ registerUserDataTools } = await import("../src/lib/mcp-user-data-tools"));
   ({ registerMarketRankingTools } = await import("../src/lib/mcp-market-tools"));
   ({ GET: getProtectedResourceMetadata } = await import(
     "../src/app/.well-known/oauth-protected-resource/route"
@@ -270,7 +290,7 @@ test("protected-resource metadata uses the canonical MCP endpoint", async () => 
 test("MCP protocol exposes portfolio and read-only market research tools", async () => {
   const bearerToken = await token();
   const server = new McpServer({ name: "investment-portfolio", version: "1.0.0" });
-  registerPortfolioTools(server, () => bearerToken);
+  registerUserDataTools(server, () => bearerToken);
   registerMarketRankingTools(server);
   const client = new Client({ name: "test-client", version: "1.0.0" });
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair();
@@ -280,6 +300,7 @@ test("MCP protocol exposes portfolio and read-only market research tools", async
   try {
     const listed = await client.listTools();
     const tool = listed.tools.find((candidate) => candidate.name === "get_portfolio_details");
+    const watchlistTool = listed.tools.find((candidate) => candidate.name === "get_watchlists");
     const formulaTool = listed.tools.find((candidate) => candidate.name === "get_formula_stock_ranking");
     const sectorTool = listed.tools.find((candidate) => candidate.name === "get_sector_ranking");
     const overviewTool = listed.tools.find((candidate) => candidate.name === "get_market_overview");
@@ -288,6 +309,7 @@ test("MCP protocol exposes portfolio and read-only market research tools", async
     const sectorHistoryTool = listed.tools.find((candidate) => candidate.name === "get_sector_history");
     const constituentTool = listed.tools.find((candidate) => candidate.name === "get_sector_constituents");
     assert.ok(tool);
+    assert.ok(watchlistTool);
     assert.ok(formulaTool);
     assert.ok(sectorTool);
     assert.ok(overviewTool);
@@ -296,6 +318,9 @@ test("MCP protocol exposes portfolio and read-only market research tools", async
     assert.ok(sectorHistoryTool);
     assert.ok(constituentTool);
     assert.equal("user_id" in (tool.inputSchema.properties || {}), false);
+    assert.equal("include_analysis" in (tool.inputSchema.properties || {}), false);
+    assert.equal("include_history" in (tool.inputSchema.properties || {}), true);
+    assert.equal("user_id" in (watchlistTool.inputSchema.properties || {}), false);
     assert.equal("user_id" in (formulaTool.inputSchema.properties || {}), false);
     assert.equal("user_id" in (sectorTool.inputSchema.properties || {}), false);
 
@@ -337,12 +362,25 @@ test("MCP protocol exposes portfolio and read-only market research tools", async
 
     const called = await client.callTool({
       name: "get_portfolio_details",
-      arguments: { include_analysis: false, user_id: "auth0|victim" },
+      arguments: { include_history: true, user_id: "auth0|victim" },
     });
     assert.equal(called.isError, undefined);
+    assert.equal("agent_view" in (called.structuredContent as Record<string, unknown>), false);
     assert.equal(apiRequests.length, 1);
-    assert.equal(apiRequests[0].url, "https://portfolio.test/api/portfolio/positions");
+    assert.equal(apiRequests[0].url, "https://portfolio.test/api/portfolio/positions?include_history=true");
     assert.equal(apiRequests[0].authorization, `Bearer ${bearerToken}`);
+
+    const watchlists = await client.callTool({
+      name: "get_watchlists",
+      arguments: { group_id: "core", include_history: false },
+    });
+    assert.equal(watchlists.isError, undefined);
+    assert.equal(apiRequests.length, 2);
+    assert.equal(
+      apiRequests[1].url,
+      "https://portfolio.test/api/watchlists?group_id=core&include_history=false",
+    );
+    assert.equal(apiRequests[1].authorization, `Bearer ${bearerToken}`);
 
     const formulaResult = await client.callTool({
       name: "get_formula_stock_ranking",
