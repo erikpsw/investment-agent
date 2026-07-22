@@ -115,6 +115,37 @@ test.before(async () => {
         },
       });
     }
+    if (request.url === "https://portfolio.test/api/market/overview") {
+      marketApiRequests.push(request.url);
+      return Response.json({
+        indices: [{ code: "000001", name: "上证指数", market: "CN", price: 3500 }],
+        timestamp: "2026-07-21T15:00:00+08:00",
+      });
+    }
+    if (request.url === "https://portfolio.test/api/quote/sh600519") {
+      marketApiRequests.push(request.url);
+      return Response.json({ ticker: "sh600519", price: 1500, timestamp: "2026-07-21T15:00:00+08:00" });
+    }
+    if (request.url === "https://portfolio.test/api/history/sh600519?period=3mo&interval=1d") {
+      marketApiRequests.push(request.url);
+      return Response.json({
+        ticker: "sh600519",
+        period: "3mo",
+        interval: "1d",
+        bars: [{ time: "2026-07-21", open: 1490, high: 1510, low: 1480, close: 1500, volume: 100 }],
+      });
+    }
+    if (request.url === "https://portfolio.test/api/sectors/BK0477/history?days=90") {
+      marketApiRequests.push(request.url);
+      return Response.json({ status: "ok", result: { code: "BK0477", change_20d: 8.2, bars: [] } });
+    }
+    if (request.url === "https://portfolio.test/api/sectors/BK0477/constituents?limit=30&mode=balanced") {
+      marketApiRequests.push(request.url);
+      return Response.json({
+        status: "ok",
+        result: { code: "BK0477", history_enriched_count: 30, items: [{ ticker: "sh600519" }] },
+      });
+    }
     if (request.url.startsWith("https://portfolio.test/api/portfolio/")) {
       apiRequests.push({
         url: request.url,
@@ -236,7 +267,7 @@ test("protected-resource metadata uses the canonical MCP endpoint", async () => 
   });
 });
 
-test("MCP protocol exposes portfolio and read-only market ranking tools", async () => {
+test("MCP protocol exposes portfolio and read-only market research tools", async () => {
   const bearerToken = await token();
   const server = new McpServer({ name: "investment-portfolio", version: "1.0.0" });
   registerPortfolioTools(server, () => bearerToken);
@@ -251,12 +282,58 @@ test("MCP protocol exposes portfolio and read-only market ranking tools", async 
     const tool = listed.tools.find((candidate) => candidate.name === "get_portfolio_details");
     const formulaTool = listed.tools.find((candidate) => candidate.name === "get_formula_stock_ranking");
     const sectorTool = listed.tools.find((candidate) => candidate.name === "get_sector_ranking");
+    const overviewTool = listed.tools.find((candidate) => candidate.name === "get_market_overview");
+    const quoteTool = listed.tools.find((candidate) => candidate.name === "get_stock_quote");
+    const historyTool = listed.tools.find((candidate) => candidate.name === "get_price_history");
+    const sectorHistoryTool = listed.tools.find((candidate) => candidate.name === "get_sector_history");
+    const constituentTool = listed.tools.find((candidate) => candidate.name === "get_sector_constituents");
     assert.ok(tool);
     assert.ok(formulaTool);
     assert.ok(sectorTool);
+    assert.ok(overviewTool);
+    assert.ok(quoteTool);
+    assert.ok(historyTool);
+    assert.ok(sectorHistoryTool);
+    assert.ok(constituentTool);
     assert.equal("user_id" in (tool.inputSchema.properties || {}), false);
     assert.equal("user_id" in (formulaTool.inputSchema.properties || {}), false);
     assert.equal("user_id" in (sectorTool.inputSchema.properties || {}), false);
+
+    const overviewResult = await client.callTool({ name: "get_market_overview", arguments: {} });
+    assert.equal(overviewResult.isError, undefined);
+    assert.equal(
+      (overviewResult.structuredContent as { indices: Array<{ code: string }> }).indices[0].code,
+      "000001",
+    );
+
+    const quoteResult = await client.callTool({
+      name: "get_stock_quote",
+      arguments: { ticker: "sh600519" },
+    });
+    assert.equal(quoteResult.isError, undefined);
+
+    const historyResult = await client.callTool({
+      name: "get_price_history",
+      arguments: { ticker: "sh600519", period: "3mo", interval: "1d" },
+    });
+    assert.equal(historyResult.isError, undefined);
+    assert.equal((historyResult.structuredContent as { bars: unknown[] }).bars.length, 1);
+
+    const sectorHistoryResult = await client.callTool({
+      name: "get_sector_history",
+      arguments: { code: "BK0477", days: 90 },
+    });
+    assert.equal(sectorHistoryResult.isError, undefined);
+
+    const constituentResult = await client.callTool({
+      name: "get_sector_constituents",
+      arguments: { code: "BK0477", limit: 30, mode: "balanced" },
+    });
+    assert.equal(constituentResult.isError, undefined);
+    assert.equal(
+      (constituentResult.structuredContent as { history_enriched_count: number }).history_enriched_count,
+      30,
+    );
 
     const called = await client.callTool({
       name: "get_portfolio_details",
@@ -272,7 +349,9 @@ test("MCP protocol exposes portfolio and read-only market ranking tools", async 
       arguments: { market: "CN", mode: "conservative", limit: 7 },
     });
     assert.equal(formulaResult.isError, undefined);
-    const formulaUrl = new URL(marketApiRequests[0]);
+    const formulaRequest = marketApiRequests.find((url) => url.includes("/api/formula-ranking?"));
+    assert.ok(formulaRequest);
+    const formulaUrl = new URL(formulaRequest);
     assert.equal(formulaUrl.searchParams.get("market"), "CN");
     assert.equal(formulaUrl.searchParams.get("mode"), "conservative");
     assert.equal(formulaUrl.searchParams.get("limit"), "7");

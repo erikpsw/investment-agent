@@ -18,7 +18,11 @@ LIST_URLS = [
     "https://push2delay.eastmoney.com/api/qt/clist/get",
     "https://82.push2.eastmoney.com/api/qt/clist/get",
 ]
-HISTORY_URL = "https://push2his.eastmoney.com/api/qt/stock/kline/get"
+HISTORY_URLS = [
+    "https://push2his.eastmoney.com/api/qt/stock/kline/get",
+    "https://33.push2his.eastmoney.com/api/qt/stock/kline/get",
+    "https://41.push2his.eastmoney.com/api/qt/stock/kline/get",
+]
 CACHE_SECONDS = 600
 _lock = Lock()
 _cache: dict[str, Any] = {"expires_at": 0.0, "rows": [], "generated_at": None}
@@ -76,9 +80,25 @@ def sector_history(code: str, days: int = 120) -> dict[str, Any]:
         "end": end.strftime("%Y%m%d"),
         "lmt": str(days + 20),
     }
-    response = requests.get(HISTORY_URL, params=params, headers={"User-Agent": "Mozilla/5.0"}, timeout=12)
-    response.raise_for_status()
-    data = response.json().get("data") or {}
+    data: dict[str, Any] = {}
+    last_error: Exception | None = None
+    for attempt in range(6):
+        try:
+            response = requests.get(
+                HISTORY_URLS[attempt % len(HISTORY_URLS)],
+                params=params,
+                headers={"User-Agent": "Mozilla/5.0", "Referer": "https://quote.eastmoney.com/"},
+                timeout=12,
+            )
+            response.raise_for_status()
+            data = response.json().get("data") or {}
+            if data.get("klines"):
+                break
+        except Exception as exc:
+            last_error = exc
+            time.sleep(min(2, 0.3 * (attempt + 1)))
+    if not data.get("klines"):
+        raise RuntimeError(f"{code} 板块历史行情获取失败: {last_error}")
     bars = []
     for raw in (data.get("klines") or [])[-days:]:
         values = str(raw).split(",")

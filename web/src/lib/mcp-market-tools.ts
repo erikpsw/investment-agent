@@ -17,10 +17,10 @@ async function requestResult(path: string): Promise<Record<string, unknown>> {
     throw new Error(`Market API request failed with HTTP ${response.status}`);
   }
 
-  const payload = (await response.json()) as {
+  const payload = (await response.json()) as Record<string, unknown> & {
     result?: Record<string, unknown>;
   };
-  return payload.result || {};
+  return payload.result || payload;
 }
 
 function success(result: Record<string, unknown>) {
@@ -54,6 +54,58 @@ function sectorScore(item: Record<string, unknown>): number {
 }
 
 export function registerMarketRankingTools(server: McpServer) {
+  server.tool(
+    "get_market_overview",
+    "Get current major-market index levels, changes, market labels, and source timestamp for broad-market regime analysis.",
+    {},
+    async () => {
+      try {
+        return success(await requestResult("/api/market/overview"));
+      } catch (error) {
+        return failure(error);
+      }
+    },
+  );
+
+  server.tool(
+    "get_stock_quote",
+    "Get a current quote for a CN, HK, or US instrument, including price, daily change, volume, amount, valuation fields, and timestamp when available.",
+    {
+      ticker: z.string().trim().min(1).max(32),
+    },
+    async ({ ticker }) => {
+      try {
+        return success(
+          await requestResult(`/api/quote/${encodeURIComponent(ticker)}`),
+        );
+      } catch (error) {
+        return failure(error);
+      }
+    },
+  );
+
+  server.tool(
+    "get_price_history",
+    "Get OHLCV price history for a CN, HK, or US instrument for technical trend and entry analysis.",
+    {
+      ticker: z.string().trim().min(1).max(32),
+      period: z.enum(["1d", "5d", "1mo", "3mo", "6mo", "1y"]).default("3mo"),
+      interval: z.enum(["1m", "5m", "15m", "60m", "1d", "1wk"]).default("1d"),
+    },
+    async ({ ticker, period, interval }) => {
+      try {
+        const query = new URLSearchParams({ period, interval });
+        return success(
+          await requestResult(
+            `/api/history/${encodeURIComponent(ticker)}?${query.toString()}`,
+          ),
+        );
+      } catch (error) {
+        return failure(error);
+      }
+    },
+  );
+
   server.tool(
     "get_formula_stock_ranking",
     "Get a configurable formula-based stock ranking with scores, components, risks, and source metadata.",
@@ -96,6 +148,52 @@ export function registerMarketRankingTools(server: McpServer) {
               .slice(0, limit)
           : [];
         return success({ ...result, sectors });
+      } catch (error) {
+        return failure(error);
+      }
+    },
+  );
+
+  server.tool(
+    "get_sector_history",
+    "Get daily sector trend history and 5-day, 20-day, and 60-day returns for a sector code returned by get_sector_ranking.",
+    {
+      code: z.string().trim().regex(/^BK\d+$/i),
+      days: z.number().int().min(30).max(250).default(120),
+    },
+    async ({ code, days }) => {
+      try {
+        const query = new URLSearchParams({ days: String(days) });
+        return success(
+          await requestResult(
+            `/api/sectors/${encodeURIComponent(code.toUpperCase())}/history?${query.toString()}`,
+          ),
+        );
+      } catch (error) {
+        return failure(error);
+      }
+    },
+  );
+
+  server.tool(
+    "get_sector_constituents",
+    "Get and formula-rank constituent stocks for a sector code returned by get_sector_ranking, with current market fields, history enrichment metadata, and risks.",
+    {
+      code: z.string().trim().regex(/^BK\d+$/i),
+      limit: z.number().int().min(1).max(200).default(80),
+      mode: z.enum(["balanced", "conservative", "aggressive"]).default("balanced"),
+    },
+    async ({ code, limit, mode }) => {
+      try {
+        const query = new URLSearchParams({
+          limit: String(limit),
+          mode,
+        });
+        return success(
+          await requestResult(
+            `/api/sectors/${encodeURIComponent(code.toUpperCase())}/constituents?${query.toString()}`,
+          ),
+        );
       } catch (error) {
         return failure(error);
       }

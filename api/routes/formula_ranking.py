@@ -30,8 +30,18 @@ async def formula_ranking(
     if market.upper() == "CN":
         try:
             scan = scan_cn_market()
-            ranked = [_rank_live_item(item, mode) for item in scan["rows"]]
+            enrichment_limit = min(max(limit * 3, 60), 120)
+            enriched_rows = enrich_stock_history(scan["rows"], limit=enrichment_limit)
+            ranked = [_rank_live_item(item, mode) for item in enriched_rows]
             ranked.sort(key=lambda item: item["formula_score"], reverse=True)
+            history_enriched_count = sum(
+                1
+                for item in ranked
+                if all(
+                    isinstance(item.get(key), (int, float))
+                    for key in ("change_5d", "change_20d", "change_60d")
+                )
+            )
             return {
                 "status": "ok",
                 "result": {
@@ -42,7 +52,7 @@ async def formula_ranking(
                     "items": ranked[:limit],
                     "total": len(ranked),
                     "scanned_count": len(scan["rows"]),
-                    "history_enriched_count": 0,
+                    "history_enriched_count": history_enriched_count,
                     "cached": scan["cached"],
                     "fallback": False,
                     "source": scan.get("source") or "沪深 A 股全市场快照",
