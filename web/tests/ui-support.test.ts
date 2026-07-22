@@ -83,3 +83,28 @@ test("financials page delegates A-share reports to a PDF-capable list", async ()
   assert.match(viewer, /<iframe/);
   assert.match(viewer, /新窗口打开/);
 });
+
+test("security research details supports four trend windows and structured metrics", async () => {
+  const details = await readFile(
+    new URL("../src/components/security-research-details.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(details, /\[5, 20, 60, 250\]/);
+  assert.match(details, /research\.returns/);
+  assert.match(details, /research\.moving_averages/);
+  assert.match(details, /research\.technical/);
+  assert.match(details, /ResponsiveContainer/);
+});
+
+test("watchlist API client uses authenticated cloud endpoints", async () => {
+  const api = await readFile(
+    new URL("../src/lib/api.ts", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(api, /async getWatchlists\(/);
+  assert.match(api, /async saveWatchlists\(/);
+  assert.match(api, /"\/api\/watchlists"/);
+  assert.match(api, /authenticated[^\n]*true|\}, true\)/);
+});

@@ -74,6 +74,39 @@ test("portfolio uses mobile cards and a desktop table without the hot ETF panel"
   assert.match(portfolio, /className="relative w-full min-w-0"/);
 });
 
+test("portfolio supports unique CNY HKD and USD cash plus research details", async () => {
+  const portfolio = await readFile(
+    new URL("../src/app/portfolio/page.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(portfolio, /CASH_CNY/);
+  assert.match(portfolio, /CASH_HKD/);
+  assert.match(portfolio, /CASH_USD/);
+  assert.match(portfolio, /cashCurrenciesInUse/);
+  assert.match(portfolio, /<SecurityResearchDetails/);
+});
+
+test("sidebar and grouped watchlist page expose cloud-synced mobile and desktop UI", async () => {
+  const sidebar = await readFile(
+    new URL("../src/components/sidebar.tsx", import.meta.url),
+    "utf8",
+  );
+  const watchlist = await readFile(
+    new URL("../src/app/watchlist/page.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(sidebar, /href: "\/watchlist"/);
+  assert.match(sidebar, /href: "\/watchlist\/monitor"/);
+  assert.match(watchlist, /api\.getWatchlists\(/);
+  assert.match(watchlist, /api\.saveWatchlists\(/);
+  assert.match(watchlist, /crypto\.randomUUID\(\)/);
+  assert.match(watchlist, /window\.confirm\(/);
+  assert.match(watchlist, /data-testid="mobile-watchlist-groups"/);
+  assert.match(watchlist, /data-testid="desktop-watchlist-groups"/);
+});
+
 test("header delegates authenticated account rendering to UserMenu", async () => {
   const header = await readFile(
     new URL("../src/components/header.tsx", import.meta.url),

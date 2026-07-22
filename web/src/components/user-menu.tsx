@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { LogOut, Settings, User, WalletCards } from "lucide-react";
+import Link from "next/link";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -58,14 +59,14 @@ export function UserMenu() {
           <DropdownMenuLabel className="max-w-56 truncate">{accountLabel}</DropdownMenuLabel>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
-        <DropdownMenuItem render={<a href="/portfolio" />}>
+        <DropdownMenuItem render={<Link href="/portfolio" />}>
           <WalletCards />投资组合
         </DropdownMenuItem>
-        <DropdownMenuItem render={<a href="/settings" />}>
+        <DropdownMenuItem render={<Link href="/settings" />}>
           <Settings />设置
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem variant="destructive" render={<a href="/auth/logout" />}>
+        <DropdownMenuItem variant="destructive" render={<Link href="/auth/logout" prefetch={false} />}>
           <LogOut />退出登录
         </DropdownMenuItem>
       </DropdownMenuContent>

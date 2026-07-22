@@ -319,6 +319,66 @@ export interface PortfolioPosition {
   day_change_percent?: number | null;
   weight?: number | null;
   errors?: string[];
+  research?: SecurityResearch | null;
+}
+
+export interface ResearchHistoryBar {
+  time: string;
+  open?: number | null;
+  high?: number | null;
+  low?: number | null;
+  close: number;
+  volume?: number | null;
+}
+
+export interface SecurityResearch {
+  quote?: {
+    price?: number | null;
+    currency?: string;
+    day_change_percent?: number | null;
+    volume?: number | null;
+  };
+  returns?: Record<"5d" | "20d" | "60d" | "250d", number | null>;
+  moving_averages?: Record<"ma5" | "ma20" | "ma60" | "ma250", number | null>;
+  technical?: {
+    volatility_20d?: number | null;
+    volatility_60d?: number | null;
+    rsi14?: number | null;
+    volume_ratio_20d?: number | null;
+    high_250d?: number | null;
+    low_250d?: number | null;
+    max_drawdown_250d?: number | null;
+    distance_to_high_250d?: number | null;
+  };
+  recent_news?: Array<{
+    title?: string | null;
+    published?: string | null;
+    source?: string | null;
+    link?: string | null;
+    summary?: string | null;
+  }>;
+  history?: ResearchHistoryBar[] | null;
+  errors?: string[];
+}
+
+export interface WatchlistItem {
+  ticker: string;
+  name: string;
+  market: string;
+  notes: string;
+  research?: SecurityResearch | null;
+}
+
+export interface WatchlistGroup {
+  id: string;
+  name: string;
+  items: WatchlistItem[];
+}
+
+export interface WatchlistResult {
+  updated_at?: string | null;
+  storage: string;
+  groups: WatchlistGroup[];
 }
 
 export interface PortfolioAnalysisItem extends PortfolioPosition {
@@ -543,14 +603,41 @@ class ApiClient {
     return this.fetch<{ status: string; result: { generated_at?: string; sectors: SectorItem[]; coverage_count: number; source: string } }>("/api/sectors");
   }
 
-  async getPortfolioPositions(): Promise<{ status: string; result: { updated_at?: string | null; positions: PortfolioPosition[]; storage: string } }> {
-    return this.fetch<{ status: string; result: { updated_at?: string | null; positions: PortfolioPosition[]; storage: string } }>("/api/portfolio/positions", undefined, true);
+  async getPortfolioPositions(includeHistory = false): Promise<{ status: string; result: { updated_at?: string | null; positions: PortfolioPosition[]; storage: string } }> {
+    return this.fetch<{ status: string; result: { updated_at?: string | null; positions: PortfolioPosition[]; storage: string } }>(`/api/portfolio/positions?include_history=${includeHistory}`, undefined, true);
   }
 
   async savePortfolioPositions(positions: PortfolioPosition[]): Promise<{ status: string; result: { updated_at?: string | null; positions: PortfolioPosition[]; storage: string } }> {
     return this.fetch<{ status: string; result: { updated_at?: string | null; positions: PortfolioPosition[]; storage: string } }>("/api/portfolio/positions", {
       method: "PUT",
       body: JSON.stringify({ positions }),
+    }, true);
+  }
+
+  async getWatchlists(groupId?: string, includeHistory = false): Promise<{ status: string; result: WatchlistResult }> {
+    const params = new URLSearchParams({ include_history: String(includeHistory) });
+    if (groupId) params.set("group_id", groupId);
+    return this.fetch<{ status: string; result: WatchlistResult }>(
+      `/api/watchlists?${params}`,
+      undefined,
+      true,
+    );
+  }
+
+  async saveWatchlists(groups: WatchlistGroup[]): Promise<{ status: string; result: WatchlistResult }> {
+    const writableGroups = groups.map((group) => ({
+      id: group.id,
+      name: group.name,
+      items: group.items.map((item) => ({
+        ticker: item.ticker,
+        name: item.name,
+        market: item.market,
+        notes: item.notes || "",
+      })),
+    }));
+    return this.fetch<{ status: string; result: WatchlistResult }>("/api/watchlists", {
+      method: "PUT",
+      body: JSON.stringify({ groups: writableGroups }),
     }, true);
   }
 

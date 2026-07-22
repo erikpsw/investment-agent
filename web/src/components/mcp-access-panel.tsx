@@ -50,6 +50,7 @@ export function McpAccessPanel({
   const [open, setOpen] = useState(true);
   const [tokenOpen, setTokenOpen] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
+  const [renderedAt] = useState(() => Date.now());
 
   const copyValue = async (label: string, value: string) => {
     await navigator.clipboard.writeText(value);
@@ -167,7 +168,7 @@ export function McpAccessPanel({
                     {tokens.length === 0 ? (
                       <div className="rounded-lg border p-3 text-sm text-muted-foreground">还没有有效的 Personal Access Token</div>
                     ) : tokens.map((token) => {
-                      const expired = new Date(token.expires_at).getTime() <= Date.now();
+                      const expired = new Date(token.expires_at).getTime() <= renderedAt;
                       return (
                         <div key={token.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border p-3 text-sm">
                           <div>

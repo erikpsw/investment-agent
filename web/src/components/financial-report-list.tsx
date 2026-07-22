@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { AlertCircle, ExternalLink, FileText, Loader2, RefreshCw } from "lucide-react";
 
 import { PdfViewerDialog } from "@/components/pdf-viewer-dialog";
@@ -22,11 +22,11 @@ const CATEGORIES: Array<{ value: ReportCategory; label: string }> = [
 
 export function FinancialReportList({ ticker }: { ticker: string }) {
   const [category, setCategory] = useState<ReportCategory>("annual");
-  const [selectedReport, setSelectedReport] = useState<DisclosureItem | null>(null);
+  const [selection, setSelection] = useState<{ key: string; report: DisclosureItem } | null>(null);
   const supported = isAStockTicker(ticker);
   const disclosure = useDisclosure(ticker, category, supported);
-
-  useEffect(() => setSelectedReport(null), [ticker, category]);
+  const selectionKey = `${ticker}:${category}`;
+  const selectedReport = selection?.key === selectionKey ? selection.report : null;
 
   const documents = useMemo(
     () => (disclosure.data?.documents || []).filter((item) => safeReportUrl(item.url)),
@@ -95,7 +95,7 @@ export function FinancialReportList({ ticker }: { ticker: string }) {
                       <div className="text-xs text-muted-foreground">{report.date}</div>
                     </div>
                     {pdf ? (
-                      <Button type="button" variant="outline" onClick={() => setSelectedReport(report)}>
+                      <Button type="button" variant="outline" onClick={() => setSelection({ key: selectionKey, report })}>
                         查看 PDF
                       </Button>
                     ) : (
@@ -111,7 +111,7 @@ export function FinancialReportList({ ticker }: { ticker: string }) {
         </CardContent>
       </Card>
 
-      <PdfViewerDialog report={selectedReport} onOpenChange={(nextOpen) => !nextOpen && setSelectedReport(null)} />
+      <PdfViewerDialog report={selectedReport} onOpenChange={(nextOpen) => !nextOpen && setSelection(null)} />
     </>
   );
 }

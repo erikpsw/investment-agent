@@ -1,15 +1,17 @@
 "use client";
 
 import { useUser } from "@auth0/nextjs-auth0";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Loader2, Plus, RefreshCw, Save, Search, Trash2 } from "lucide-react";
 import { Header } from "@/components/header";
 import { McpAccessPanel } from "@/components/mcp-access-panel";
+import { SecurityResearchDetails } from "@/components/security-research-details";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { useDebounce } from "@/hooks/use-debounce";
@@ -41,8 +43,19 @@ function emptyPosition(): PortfolioPosition {
   return { ticker: "", name: "", market: "", currency: "CNY", quantity: 0, avg_cost: 0, notes: "" };
 }
 
-function cashPosition(): PortfolioPosition {
-  return { ticker: "CASH", name: "现金", market: "CASH", currency: "CNY", quantity: 0, avg_cost: 1, notes: "" };
+const CASH_OPTIONS = [
+  { currency: "CNY", ticker: "CASH_CNY", name: "人民币现金" },
+  { currency: "HKD", ticker: "CASH_HKD", name: "港币现金" },
+  { currency: "USD", ticker: "CASH_USD", name: "美元现金" },
+] as const;
+
+function isCashPosition(position: PortfolioPosition) {
+  return position.market === "CASH" || position.ticker.toUpperCase().startsWith("CASH_");
+}
+
+function cashPosition(currency: "CNY" | "HKD" | "USD"): PortfolioPosition {
+  const option = CASH_OPTIONS.find((item) => item.currency === currency) || CASH_OPTIONS[0];
+  return { ticker: option.ticker, name: option.name, market: "CASH", currency, quantity: 0, avg_cost: 1, notes: "" };
 }
 
 function PositionSearchInput({
@@ -195,10 +208,13 @@ function MobilePositionCard({
   onUpdate: (index: number, patch: Partial<PortfolioPosition>) => void;
   onRemove: (index: number) => void;
 }) {
+  const isCash = isCashPosition(position);
   return (
     <Card data-testid="mobile-position-card">
       <CardContent className="space-y-4 pt-6">
-        <PositionSearchInput
+        {isCash ? (
+          <div><div className="font-semibold">{position.name}</div><div className="text-sm text-muted-foreground">{position.ticker} · {position.currency}</div></div>
+        ) : <PositionSearchInput
           value={position.ticker}
           onInput={(value) => {
             const market = marketFor(value);
@@ -214,17 +230,17 @@ function MobilePositionCard({
             market: result.market,
             currency: currencyForMarket(result.market),
           })}
-        />
+        />}
 
-        <Input
+        {!isCash && <Input
           value={position.name || ""}
           onChange={(event) => onUpdate(index, { name: event.target.value })}
           placeholder="名称（选择标的后自动填入）"
-        />
+        />}
 
-        <div className="grid grid-cols-2 gap-3">
+        <div className={`grid gap-3 ${isCash ? "grid-cols-1" : "grid-cols-2"}`}>
           <label className="space-y-1 text-xs text-muted-foreground">
-            数量
+            {isCash ? `现金余额 (${position.currency})` : "数量"}
             <Input
               type="number"
               inputMode="decimal"
@@ -232,7 +248,7 @@ function MobilePositionCard({
               onChange={(event) => onUpdate(index, { quantity: Number(event.target.value) })}
             />
           </label>
-          <label className="space-y-1 text-xs text-muted-foreground">
+          {!isCash && <label className="space-y-1 text-xs text-muted-foreground">
             买入均价
             <Input
               type="number"
@@ -240,15 +256,22 @@ function MobilePositionCard({
               value={position.avg_cost}
               onChange={(event) => onUpdate(index, { avg_cost: Number(event.target.value) })}
             />
-          </label>
+          </label>}
         </div>
 
-        <div className="grid grid-cols-2 gap-3">
+        {isCash ? <div className="grid grid-cols-2 gap-3">
+          <Metric label={`余额 (${position.currency})`} value={formatNumber(position.market_value_native ?? position.quantity)} />
+          <Metric label="兑人民币汇率" value={formatNumber(position.fx_rate_to_cny, 4)} />
+          <Metric label="人民币市值" value={`¥${formatNumber(position.market_value)}`} />
+          <Metric label="组合占比" value={formatPct(position.weight)} />
+        </div> : <div className="grid grid-cols-2 gap-3">
           <Metric label={`现价 (${position.currency || "CNY"})`} value={formatNumber(position.current_price)} />
           <Metric label="市值 (人民币)" value={`¥${formatNumber(position.market_value)}`} />
           <Metric label="浮盈亏 (人民币)" value={`¥${formatNumber(position.pnl)}`} className={pnlClass(position.pnl)} />
           <Metric label="盈亏比例" value={formatPct(position.pnl_percent)} className={pnlClass(position.pnl_percent)} />
-        </div>
+        </div>}
+
+        {!isCash && <SecurityResearchDetails research={position.research} />}
 
         <Input
           value={position.notes || ""}
@@ -347,6 +370,10 @@ export default function PortfolioPage() {
     () => personalTokens.filter((token) => !token.revoked_at),
     [personalTokens],
   );
+  const cashCurrenciesInUse = useMemo(
+    () => new Set(positions.filter(isCashPosition).map((position) => position.currency || "CNY")),
+    [positions],
+  );
 
   const totals = useMemo(() => analysis ? [
     { label: "总成本 (人民币)", value: `¥${formatNumber(analysis.total_cost)}` },
@@ -355,7 +382,7 @@ export default function PortfolioPage() {
   ] : [], [analysis]);
 
   const loadPositions = useCallback(async () => {
-    const response = await api.getPortfolioPositions();
+    const response = await api.getPortfolioPositions(true);
     setPositions(response.result.positions.length ? response.result.positions : [emptyPosition()]);
   }, []);
 
@@ -427,9 +454,6 @@ export default function PortfolioPage() {
   const refreshPortfolioAnalysis = async () => {
     const response = await api.analyzePortfolio();
     setAnalysis(response.result);
-    if (response.result.positions.length) {
-      setPositions(response.result.positions);
-    }
     return response.result;
   };
 
@@ -438,6 +462,7 @@ export default function PortfolioPage() {
     try {
       await savePositionsOnly();
       await refreshPortfolioAnalysis();
+      await loadPositions();
       setMessage("持仓已保存，估值已更新");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "保存失败");
@@ -451,6 +476,7 @@ export default function PortfolioPage() {
     try {
       await savePositionsOnly();
       await refreshPortfolioAnalysis();
+      await loadPositions();
       setMessage("分析完成");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "分析失败");
@@ -502,9 +528,22 @@ export default function PortfolioPage() {
             <Button variant="outline" onClick={() => setPositions((current) => [...current, emptyPosition()])} disabled={busy}>
               <Plus className="mr-2 h-4 w-4" /> 添加
             </Button>
-            <Button variant="outline" onClick={() => setPositions((current) => [...current, cashPosition()])} disabled={busy}>
-              <Plus className="mr-2 h-4 w-4" /> 现金
-            </Button>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="inline-flex h-9 items-center justify-center rounded-md border px-3 text-sm font-medium hover:bg-muted">
+                <Plus className="mr-2 h-4 w-4" />现金
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {CASH_OPTIONS.map((option) => (
+                  <DropdownMenuItem
+                    key={option.currency}
+                    disabled={busy || cashCurrenciesInUse.has(option.currency)}
+                    onClick={() => setPositions((current) => [...current, cashPosition(option.currency)])}
+                  >
+                    {option.name}{cashCurrenciesInUse.has(option.currency) ? "（已添加）" : ""}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
             <Button variant="outline" onClick={save} disabled={busy}>
               {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />} 保存
             </Button>
@@ -547,34 +586,43 @@ export default function PortfolioPage() {
                   <TableHead>浮盈亏</TableHead>
                   <TableHead>盈亏比例</TableHead>
                   <TableHead>备注</TableHead>
+                  <TableHead className="min-w-96">走势/关键数据</TableHead>
                   <TableHead className="w-12"></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {positions.map((position, index) => (
-                  <TableRow key={index}>
+                {positions.map((position, index) => {
+                  const cash = isCashPosition(position);
+                  return (
+                  <Fragment key={`${position.ticker}-${index}`}>
+                  <TableRow>
                     <TableCell>
-                      <PositionSearchInput
+                      {cash ? (
+                        <div><div className="font-medium">{position.name}</div><div className="text-xs text-muted-foreground">{position.ticker}</div></div>
+                      ) : <PositionSearchInput
                         value={position.ticker}
                         onInput={(value) => { const market = marketFor(value); updatePosition(index, { ticker: value, market, currency: currencyForMarket(market) }); }}
                         onSelect={(result) => updatePosition(index, { ticker: result.code, name: result.name, market: result.market, currency: currencyForMarket(result.market) })}
-                      />
+                      />}
                     </TableCell>
-                    <TableCell><Input value={position.name || ""} onChange={(event) => updatePosition(index, { name: event.target.value })} placeholder="自动填入，可修改" /></TableCell>
+                    <TableCell>{cash ? position.currency : <Input value={position.name || ""} onChange={(event) => updatePosition(index, { name: event.target.value })} placeholder="自动填入，可修改" />}</TableCell>
                     <TableCell><Input type="number" value={position.quantity} onChange={(event) => updatePosition(index, { quantity: Number(event.target.value) })} /></TableCell>
-                    <TableCell><Input type="number" value={position.avg_cost} onChange={(event) => updatePosition(index, { avg_cost: Number(event.target.value) })} /></TableCell>
-                    <TableCell className="tabular-nums">{formatNumber(position.current_price)} {position.currency}</TableCell>
+                    <TableCell>{cash ? "--" : <Input type="number" value={position.avg_cost} onChange={(event) => updatePosition(index, { avg_cost: Number(event.target.value) })} />}</TableCell>
+                    <TableCell className="tabular-nums">{cash ? `汇率 ${formatNumber(position.fx_rate_to_cny, 4)}` : `${formatNumber(position.current_price)} ${position.currency}`}</TableCell>
                     <TableCell className="tabular-nums">¥{formatNumber(position.market_value)}</TableCell>
-                    <TableCell className={`tabular-nums ${pnlClass(position.pnl)}`}>¥{formatNumber(position.pnl)}</TableCell>
-                    <TableCell className={`tabular-nums ${pnlClass(position.pnl_percent)}`}>{formatPct(position.pnl_percent)}</TableCell>
+                    <TableCell className={`tabular-nums ${pnlClass(position.pnl)}`}>{cash ? "--" : `¥${formatNumber(position.pnl)}`}</TableCell>
+                    <TableCell className={`tabular-nums ${pnlClass(position.pnl_percent)}`}>{cash ? "--" : formatPct(position.pnl_percent)}</TableCell>
                     <TableCell><Input value={position.notes || ""} onChange={(event) => updatePosition(index, { notes: event.target.value })} placeholder="策略/原因" /></TableCell>
+                    <TableCell>{cash ? <span className="text-sm text-muted-foreground">{position.currency} 现金按当前汇率折算为人民币</span> : <SecurityResearchDetails research={position.research} />}</TableCell>
                     <TableCell>
                       <Button variant="ghost" size="icon" onClick={() => setPositions((current) => current.filter((_, itemIndex) => itemIndex !== index))}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </TableCell>
                   </TableRow>
-                ))}
+                  </Fragment>
+                  );
+                })}
               </TableBody>
               </Table>
             </div>

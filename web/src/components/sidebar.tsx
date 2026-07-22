@@ -17,6 +17,7 @@ import {
   PanelLeftClose,
   Search,
   Settings,
+  Star,
   Target,
   TrendingUp,
 } from "lucide-react";
@@ -35,6 +36,7 @@ const navigation = [
   { name: "仪表盘", href: "/", icon: LayoutDashboard },
   { name: "行情搜索", href: "/search", icon: Search },
   { name: "个股分析", href: "/stock", icon: LineChart },
+  { name: "自选股", href: "/watchlist", icon: Star },
   { name: "实时盯盘", href: "/watchlist/monitor", icon: Activity },
   { name: "投资组合", href: "/portfolio", icon: BriefcaseBusiness },
   { name: "板块分析", href: "/sectors", icon: Layers3 },
@@ -72,7 +74,8 @@ export function Sidebar() {
         <ScrollArea className="flex-1 px-2 py-4">
           <nav className="flex flex-col gap-1">
             {navigation.map((item) => {
-              const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+              const isActive = pathname === item.href
+                || (item.href !== "/" && item.href !== "/watchlist" && pathname.startsWith(item.href));
               const navItem = (
                 <Link
                   key={item.name}
