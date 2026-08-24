@@ -23,6 +23,10 @@ class FakePortfolioService:
         self.calls.append(("save", user_id))
         return {"positions": positions, "storage": "fake"}
 
+    def apply_transaction(self, user_id: str, transaction):
+        self.calls.append(("transaction", user_id, transaction["action"]))
+        return {"positions": [], "transaction": transaction, "storage": "fake"}
+
     def analyze(self, user_id: str):
         self.calls.append(("analyze", user_id))
         return {"positions": [], "summary": "ok"}
@@ -99,6 +103,51 @@ class PortfolioAuthTests(unittest.TestCase):
 
         self.assertEqual(response.status_code, 422)
         self.assertEqual(service.calls, [])
+
+    def test_transaction_uses_existing_authenticated_reader_token(self) -> None:
+        service = FakePortfolioService()
+        app = make_app(service, authenticated=False)
+        app.dependency_overrides[get_current_user] = lambda: AuthenticatedUser(
+            sub="auth0|user-123",
+            auth_type="pat",
+            scopes=("portfolio:read",),
+        )
+        with patch.object(portfolio, "get_portfolio_service", return_value=service):
+            response = TestClient(app).post(
+                "/api/portfolio/transactions",
+                json={
+                    "action": "buy",
+                    "instrument_id": "AAPL",
+                    "name": "Apple Inc.",
+                    "market": "US",
+                    "quantity": 2,
+                    "price": 150,
+                },
+            )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(service.calls, [("transaction", "auth0|user-123", "buy")])
+
+    def test_transaction_validation_error_is_returned_as_unprocessable(self) -> None:
+        service = FakePortfolioService()
+        service.apply_transaction = lambda user_id, transaction: (_ for _ in ()).throw(
+            ValueError("insufficient USD cash")
+        )
+        with patch.object(portfolio, "get_portfolio_service", return_value=service):
+            response = TestClient(make_app(service, authenticated=True)).post(
+                "/api/portfolio/transactions",
+                json={
+                    "action": "buy",
+                    "instrument_id": "AAPL",
+                    "name": "Apple Inc.",
+                    "market": "US",
+                    "quantity": 2,
+                    "price": 150,
+                },
+            )
+
+        self.assertEqual(response.status_code, 422)
+        self.assertEqual(response.json()["detail"], "insufficient USD cash")
 
     def test_cloud_storage_failure_returns_service_unavailable(self) -> None:
         service = FakePortfolioService()

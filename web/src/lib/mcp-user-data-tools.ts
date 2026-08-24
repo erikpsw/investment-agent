@@ -51,6 +51,7 @@ async function authenticatedResult(
   path: string,
   token: string | undefined,
   label: string,
+  init: RequestInit = {},
 ) {
   if (!token) {
     return {
@@ -59,10 +60,12 @@ async function authenticatedResult(
     };
   }
   const response = await fetch(`${apiBaseUrl()}${path}`, {
-    method: "GET",
+    ...init,
+    method: init.method || "GET",
     headers: {
       Authorization: `Bearer ${token}`,
       "Content-Type": "application/json",
+      ...init.headers,
     },
     cache: "no-store",
   });
@@ -78,8 +81,13 @@ async function authenticatedResult(
       isError: true,
     };
   }
-  const payload = (await response.json()) as { result?: Record<string, unknown> };
-  const result = withoutGeneratedAnalysis(payload.result || {});
+  const payload = (await response.json()) as Record<string, unknown>;
+  const nested = payload.result;
+  const result = withoutGeneratedAnalysis(
+    nested && typeof nested === "object" && !Array.isArray(nested)
+      ? (nested as Record<string, unknown>)
+      : payload,
+  );
   return {
     content: [{ type: "text" as const, text: JSON.stringify(result) }],
     structuredContent: result,
@@ -107,6 +115,114 @@ export function registerUserDataTools(
         content: [{ type: "text", text: JSON.stringify(result) }],
         structuredContent: result,
       };
+    },
+  );
+
+  server.tool(
+    "search_portfolio_instruments",
+    "Search the system instrument catalog before adding a portfolio position. Use the returned instrument_id with update_portfolio; never invent an ID.",
+    {
+      query: z.string().trim().min(1).max(100),
+      market: z.enum(["all", "CN", "HK", "US"]).optional().default("all"),
+      limit: z.number().int().min(1).max(20).optional().default(10),
+    },
+    async ({ query, market, limit }, extra) => {
+      const params = new URLSearchParams({
+        q: query,
+        market,
+        limit: String(limit),
+      });
+      const response = await authenticatedResult(
+        `/api/search?${params}`,
+        tokenProvider(extra),
+        "Instrument search",
+      );
+      if (response.isError || !response.structuredContent) return response;
+      const rawResults = Array.isArray(response.structuredContent.results)
+        ? (response.structuredContent.results as Array<Record<string, unknown>>)
+        : [];
+      const result = {
+        ...response.structuredContent,
+        results: rawResults.map(({ code, ...item }) => ({
+          ...item,
+          instrument_id: code,
+        })),
+      };
+      return {
+        content: [{ type: "text" as const, text: JSON.stringify(result) }],
+        structuredContent: result,
+      };
+    },
+  );
+
+  server.tool(
+    "update_portfolio",
+    "Buy or sell a system instrument, or set/adjust a currency cash balance. Buying requires an instrument_id returned by search_portfolio_instruments. Buys deduct cash and use weighted average cost; sells add cash and dilute remaining average cost.",
+    {
+      action: z.enum(["buy", "sell", "set_cash", "adjust_cash"]),
+      instrument_id: z.string().trim().min(1).max(32).optional(),
+      quantity: z.number().positive().optional(),
+      price: z.number().positive().optional(),
+      currency: z.enum(["CNY", "HKD", "USD"]).optional(),
+      amount: z.number().finite().optional(),
+    },
+    async ({ action, instrument_id, quantity, price, currency, amount }, extra) => {
+      const token = tokenProvider(extra);
+      const toolError = (message: string) => ({
+        content: [{ type: "text" as const, text: message }],
+        isError: true,
+      });
+
+      if (action === "buy" || action === "sell") {
+        if (!instrument_id || quantity === undefined || price === undefined) {
+          return toolError("instrument_id, quantity, and price are required for buy and sell");
+        }
+      } else if (!currency || amount === undefined) {
+        return toolError("currency and amount are required for cash updates");
+      }
+
+      const body: Record<string, unknown> = {
+        action,
+        instrument_id,
+        quantity,
+        price,
+        currency,
+        amount,
+      };
+
+      if (action === "buy" && instrument_id) {
+        const params = new URLSearchParams({ q: instrument_id, market: "all", limit: "10" });
+        const resolved = await authenticatedResult(
+          `/api/search?${params}`,
+          token,
+          "Instrument validation",
+        );
+        if (resolved.isError || !resolved.structuredContent) return resolved;
+        const matches = Array.isArray(resolved.structuredContent.results)
+          ? (resolved.structuredContent.results as Array<Record<string, unknown>>)
+          : [];
+        const match = matches.find(
+          (item) => String(item.code || "").toLowerCase() === instrument_id.toLowerCase(),
+        );
+        if (!match) {
+          return toolError(
+            "instrument_id was not found in the system catalog; call search_portfolio_instruments first",
+          );
+        }
+        body.instrument_id = match.code;
+        body.name = match.name;
+        body.market = match.market;
+      }
+
+      for (const key of Object.keys(body)) {
+        if (body[key] === undefined) delete body[key];
+      }
+      return authenticatedResult(
+        "/api/portfolio/transactions",
+        token,
+        "Portfolio transaction",
+        { method: "POST", body: JSON.stringify(body) },
+      );
     },
   );
 

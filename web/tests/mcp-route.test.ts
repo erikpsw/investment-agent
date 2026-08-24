@@ -14,6 +14,11 @@ process.env.API_URL = "https://portfolio.test";
 
 const originalFetch = globalThis.fetch;
 const apiRequests: Array<{ url: string; authorization: string | null }> = [];
+const instrumentSearchRequests: string[] = [];
+const portfolioTransactionRequests: Array<{
+  authorization: string | null;
+  body: Record<string, unknown>;
+}> = [];
 const marketApiRequests: string[] = [];
 let privateKey: CryptoKey;
 let publicJwk: Awaited<ReturnType<typeof exportJWK>>;
@@ -164,6 +169,38 @@ test.before(async () => {
         },
       });
     }
+    if (request.url.startsWith("https://portfolio.test/api/search?")) {
+      instrumentSearchRequests.push(request.url);
+      const query = new URL(request.url).searchParams.get("q") || "";
+      const results = ["Apple", "AAPL"].includes(query)
+        ? [
+            {
+              code: "AAPL",
+              name: "Apple Inc.",
+              market: "US",
+              display: "Apple Inc. (AAPL)",
+              instrument_type: "stock",
+            },
+          ]
+        : [];
+      return Response.json({ query, total: results.length, results });
+    }
+    if (
+      request.url === "https://portfolio.test/api/portfolio/transactions" &&
+      request.method === "POST"
+    ) {
+      portfolioTransactionRequests.push({
+        authorization: request.headers.get("authorization"),
+        body: (await request.json()) as Record<string, unknown>,
+      });
+      return Response.json({
+        status: "ok",
+        result: {
+          transaction: { action: "buy", instrument_id: "AAPL" },
+          positions: [{ ticker: "AAPL", quantity: 2, avg_cost: 150 }],
+        },
+      });
+    }
     if (request.url.startsWith("https://portfolio.test/api/portfolio/")) {
       apiRequests.push({
         url: request.url,
@@ -301,6 +338,12 @@ test("MCP protocol exposes portfolio and read-only market research tools", async
     const listed = await client.listTools();
     const tool = listed.tools.find((candidate) => candidate.name === "get_portfolio_details");
     const watchlistTool = listed.tools.find((candidate) => candidate.name === "get_watchlists");
+    const searchInstrumentTool = listed.tools.find(
+      (candidate) => candidate.name === "search_portfolio_instruments",
+    );
+    const updatePortfolioTool = listed.tools.find(
+      (candidate) => candidate.name === "update_portfolio",
+    );
     const formulaTool = listed.tools.find((candidate) => candidate.name === "get_formula_stock_ranking");
     const sectorTool = listed.tools.find((candidate) => candidate.name === "get_sector_ranking");
     const overviewTool = listed.tools.find((candidate) => candidate.name === "get_market_overview");
@@ -310,6 +353,8 @@ test("MCP protocol exposes portfolio and read-only market research tools", async
     const constituentTool = listed.tools.find((candidate) => candidate.name === "get_sector_constituents");
     assert.ok(tool);
     assert.ok(watchlistTool);
+    assert.ok(searchInstrumentTool);
+    assert.ok(updatePortfolioTool);
     assert.ok(formulaTool);
     assert.ok(sectorTool);
     assert.ok(overviewTool);
@@ -321,6 +366,7 @@ test("MCP protocol exposes portfolio and read-only market research tools", async
     assert.equal("include_analysis" in (tool.inputSchema.properties || {}), false);
     assert.equal("include_history" in (tool.inputSchema.properties || {}), true);
     assert.equal("user_id" in (watchlistTool.inputSchema.properties || {}), false);
+    assert.equal("user_id" in (updatePortfolioTool.inputSchema.properties || {}), false);
     assert.equal("user_id" in (formulaTool.inputSchema.properties || {}), false);
     assert.equal("user_id" in (sectorTool.inputSchema.properties || {}), false);
 
@@ -381,6 +427,55 @@ test("MCP protocol exposes portfolio and read-only market research tools", async
       "https://portfolio.test/api/watchlists?group_id=core&include_history=false",
     );
     assert.equal(apiRequests[1].authorization, `Bearer ${bearerToken}`);
+
+    const searchResult = await client.callTool({
+      name: "search_portfolio_instruments",
+      arguments: { query: "Apple", market: "US", limit: 5 },
+    });
+    assert.equal(searchResult.isError, undefined);
+    assert.equal(
+      (searchResult.structuredContent as { results: Array<{ instrument_id: string }> })
+        .results[0].instrument_id,
+      "AAPL",
+    );
+
+    const updateResult = await client.callTool({
+      name: "update_portfolio",
+      arguments: {
+        action: "buy",
+        instrument_id: "AAPL",
+        quantity: 2,
+        price: 150,
+      },
+    });
+    assert.equal(updateResult.isError, undefined);
+    assert.equal(instrumentSearchRequests.length, 2);
+    assert.equal(
+      new URL(instrumentSearchRequests[1]).searchParams.get("q"),
+      "AAPL",
+    );
+    assert.equal(portfolioTransactionRequests.length, 1);
+    assert.equal(portfolioTransactionRequests[0].authorization, `Bearer ${bearerToken}`);
+    assert.deepEqual(portfolioTransactionRequests[0].body, {
+      action: "buy",
+      instrument_id: "AAPL",
+      name: "Apple Inc.",
+      market: "US",
+      quantity: 2,
+      price: 150,
+    });
+
+    const invalidInstrument = await client.callTool({
+      name: "update_portfolio",
+      arguments: {
+        action: "buy",
+        instrument_id: "NOT-A-SYSTEM-ID",
+        quantity: 1,
+        price: 1,
+      },
+    });
+    assert.equal(invalidInstrument.isError, true);
+    assert.equal(portfolioTransactionRequests.length, 1);
 
     const formulaResult = await client.callTool({
       name: "get_formula_stock_ranking",

@@ -1,6 +1,6 @@
 ---
 name: analyze-investment-portfolio
-description: Use when a user asks to diagnose, deeply analyze, review, or rebalance a cloud-connected investment portfolio obtained from the Portfolio Management MCP, review current broad-market conditions, or identify sector-led new-position opportunities, including A-shares or US stocks, index/market-breadth analysis, sector trends, formula-based quantitative stock screening, and conditional entry plans, especially when holdings, valuation, market regime, rankings, and recent news must be reconciled without using local portfolio files, caches, or broker position endpoints.
+description: Use when a user asks to diagnose, deeply analyze, review, rebalance, or explicitly modify a cloud-connected investment portfolio obtained from the Portfolio Management MCP, review current broad-market conditions, or identify sector-led new-position opportunities, including A-shares or US stocks, index/market-breadth analysis, sector trends, formula-based quantitative stock screening, conditional entry plans, position buys/sells, and cash adjustments.
 ---
 
 # Analyze Investment Portfolio
@@ -29,6 +29,19 @@ Build one evidence-backed view of every cloud-connected account before recommend
 7. Establish the broad-market regime before interpreting sectors: major indexes, price direction, turnover/volume, breadth, volatility/risk appetite, and cross-market context relevant to the holdings. Then use sector ranking to identify leadership and formula ranking to compare held names with candidates.
 8. Build new-position opportunities from confirmed sector leadership, not from an isolated stock rank. For each candidate, verify sector membership, score drivers, fundamentals, valuation, liquidity, technical entry state, current news, incremental portfolio correlation, and event risk. Give an entry trigger, staged sizing, invalidation condition, and maximum risk; otherwise label it watchlist-only.
 9. Treat rankings as research signals, not holdings or trade instructions. Reconcile them with fundamentals, valuation, liquidity, news, and portfolio fit before producing condition-based recommendations. Never place orders or create IBKR instructions unless the user explicitly asks.
+10. When the user explicitly asks to change the Portfolio Management portfolio record, follow **Explicit Portfolio Mutations** below. Analysis and recommendations alone never authorize a mutation.
+
+## Explicit Portfolio Mutations
+
+Portfolio record changes are allowed only when the user explicitly requests them. They update the cloud portfolio ledger; they do not place a broker order.
+
+1. Before adding or buying an instrument, call `search_portfolio_instruments` with the user's name/code and optional market. Never invent or normalize an identifier yourself.
+2. Present or select an unambiguous search result, then pass its returned `instrument_id` to `update_portfolio`. If multiple materially different matches remain, ask the user which one they mean.
+3. Use `buy` with `instrument_id`, positive `quantity`, and positive execution `price`. The tool deducts `quantity × price` from the matching CNY/HKD/USD cash balance and recalculates weighted average cost as `(old quantity × old average cost + bought quantity × price) / new quantity`. Insufficient cash is an error.
+4. Use `sell` with the existing `instrument_id`, positive `quantity`, and positive execution `price`. The tool adds gross proceeds to the matching currency cash balance. A partial sale recalculates diluted average cost as `(old quantity × old average cost - sold quantity × price) / remaining quantity`; this value may be negative. A full sale removes the position.
+5. Use `set_cash` to replace one CNY/HKD/USD cash balance with an exact non-negative amount. Use `adjust_cash` to apply a signed increment; the resulting balance cannot be negative.
+6. The mutation uses the same authenticated MCP token as portfolio reads; do not request a new token or change scopes.
+7. After every successful mutation, call `get_portfolio_details` and verify the changed quantity, average cost, matching cash balance, currency, and timestamp. Report that the calculation excludes commissions, taxes, FX conversion, settlement delay, and broker execution unless the user supplied and explicitly requested those adjustments.
 
 ## Completeness Gate
 
@@ -78,3 +91,6 @@ Fetch portfolio details, current broad-market conditions, sector and formula ran
 - Using industrial-company leverage heuristics for brokers.
 - Giving precise targets from one technical source or uncited current news.
 - Treating a local portfolio file or cached report as a fallback when cloud access fails.
+- Adding a position with a guessed ticker instead of a returned `instrument_id`.
+- Changing a portfolio during analysis without an explicit mutation request.
+- Forgetting the automatic same-currency cash deduction/addition or applying the conventional unchanged-cost sell rule instead of this portfolio's diluted-cost formula.

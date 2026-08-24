@@ -7,6 +7,115 @@ from investment.data.portfolio_store import InMemoryPortfolioStore
 
 
 class PortfolioStoreTests(unittest.TestCase):
+    def test_buy_uses_weighted_average_cost_and_deducts_native_cash(self) -> None:
+        store = InMemoryPortfolioStore()
+        store.save(
+            "auth0|alice",
+            [
+                {"ticker": "AAPL", "name": "Apple", "market": "US", "currency": "USD", "quantity": 10, "avg_cost": 100},
+                {"ticker": "CASH_USD", "market": "CASH", "currency": "USD", "quantity": 1000, "avg_cost": 1},
+            ],
+        )
+        service = PortfolioService(store=store)
+
+        result = service.apply_transaction(
+            "auth0|alice",
+            {
+                "action": "buy",
+                "instrument_id": "AAPL",
+                "name": "Apple Inc.",
+                "market": "US",
+                "quantity": 5,
+                "price": 160,
+            },
+        )
+
+        positions = {item["ticker"]: item for item in result["positions"]}
+        self.assertEqual(positions["AAPL"]["quantity"], 15)
+        self.assertAlmostEqual(positions["AAPL"]["avg_cost"], 120)
+        self.assertEqual(positions["CASH_USD"]["quantity"], 200)
+
+    def test_partial_sell_adds_cash_and_recalculates_diluted_average_cost(self) -> None:
+        store = InMemoryPortfolioStore()
+        store.save(
+            "auth0|alice",
+            [
+                {"ticker": "AAPL", "name": "Apple", "market": "US", "currency": "USD", "quantity": 10, "avg_cost": 100},
+                {"ticker": "CASH_USD", "market": "CASH", "currency": "USD", "quantity": 50, "avg_cost": 1},
+            ],
+        )
+        service = PortfolioService(store=store)
+
+        result = service.apply_transaction(
+            "auth0|alice",
+            {"action": "sell", "instrument_id": "AAPL", "quantity": 4, "price": 150},
+        )
+
+        positions = {item["ticker"]: item for item in result["positions"]}
+        self.assertEqual(positions["AAPL"]["quantity"], 6)
+        self.assertAlmostEqual(positions["AAPL"]["avg_cost"], 400 / 6)
+        self.assertEqual(positions["CASH_USD"]["quantity"], 650)
+
+    def test_full_sell_removes_position_and_creates_matching_currency_cash(self) -> None:
+        store = InMemoryPortfolioStore()
+        store.save(
+            "auth0|alice",
+            [{"ticker": "hk00700", "name": "Tencent", "market": "HK", "currency": "HKD", "quantity": 20, "avg_cost": 300}],
+        )
+        service = PortfolioService(store=store)
+
+        result = service.apply_transaction(
+            "auth0|alice",
+            {"action": "sell", "instrument_id": "hk00700", "quantity": 20, "price": 400},
+        )
+
+        positions = {item["ticker"]: item for item in result["positions"]}
+        self.assertNotIn("hk00700", positions)
+        self.assertEqual(positions["CASH_HKD"]["quantity"], 8000)
+
+    def test_cash_can_be_set_or_adjusted_but_cannot_become_negative(self) -> None:
+        store = InMemoryPortfolioStore()
+        service = PortfolioService(store=store)
+
+        service.apply_transaction(
+            "auth0|alice",
+            {"action": "set_cash", "currency": "CNY", "amount": 1000},
+        )
+        result = service.apply_transaction(
+            "auth0|alice",
+            {"action": "adjust_cash", "currency": "CNY", "amount": -250},
+        )
+        self.assertEqual(result["positions"][0]["ticker"], "CASH_CNY")
+        self.assertEqual(result["positions"][0]["quantity"], 750)
+
+        with self.assertRaisesRegex(ValueError, "cash balance cannot be negative"):
+            service.apply_transaction(
+                "auth0|alice",
+                {"action": "adjust_cash", "currency": "CNY", "amount": -751},
+            )
+
+    def test_transaction_rejects_overselling_and_insufficient_cash(self) -> None:
+        store = InMemoryPortfolioStore()
+        store.save(
+            "auth0|alice",
+            [
+                {"ticker": "AAPL", "market": "US", "currency": "USD", "quantity": 2, "avg_cost": 100},
+                {"ticker": "CASH_USD", "market": "CASH", "currency": "USD", "quantity": 10, "avg_cost": 1},
+            ],
+        )
+        service = PortfolioService(store=store)
+
+        with self.assertRaisesRegex(ValueError, "sell quantity exceeds position"):
+            service.apply_transaction(
+                "auth0|alice",
+                {"action": "sell", "instrument_id": "AAPL", "quantity": 3, "price": 150},
+            )
+        with self.assertRaisesRegex(ValueError, "insufficient USD cash"):
+            service.apply_transaction(
+                "auth0|alice",
+                {"action": "buy", "instrument_id": "AAPL", "market": "US", "quantity": 1, "price": 11},
+            )
+
     def test_portfolio_values_are_converted_to_cny(self) -> None:
         class FakeFetcher:
             prices = {"AAPL": 100, "hk00700": 60, "sh600000": 12}

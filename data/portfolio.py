@@ -182,6 +182,156 @@ class PortfolioService:
             "fx_rates": self._get_fx_rates(),
         }
 
+    def apply_transaction(self, user_id: str, transaction: Dict[str, Any]) -> Dict[str, Any]:
+        action = str(transaction.get("action") or "").strip().lower()
+        if action not in {"buy", "sell", "set_cash", "adjust_cash"}:
+            raise ValueError("unsupported portfolio transaction action")
+
+        document = self.store.load(user_id)
+        positions = self._normalize_positions(document.positions)
+
+        if action in {"set_cash", "adjust_cash"}:
+            currency = str(transaction.get("currency") or "").strip().upper()
+            if currency not in {"CNY", "HKD", "USD"}:
+                raise ValueError("currency must be CNY, HKD, or USD")
+            amount = _to_float(transaction.get("amount"))
+            if amount is None:
+                raise ValueError("cash amount is required")
+            cash_ticker = f"CASH_{currency}"
+            cash_index = next(
+                (index for index, item in enumerate(positions) if item["ticker"] == cash_ticker),
+                None,
+            )
+            current = float(positions[cash_index]["quantity"]) if cash_index is not None else 0.0
+            balance = amount if action == "set_cash" else current + amount
+            if balance < 0:
+                raise ValueError("cash balance cannot be negative")
+            cash = {
+                "ticker": cash_ticker,
+                "name": {"CNY": "人民币现金", "HKD": "港币现金", "USD": "美元现金"}[currency],
+                "market": "CASH",
+                "currency": currency,
+                "quantity": balance,
+                "avg_cost": 1.0,
+                "notes": positions[cash_index].get("notes", "") if cash_index is not None else "",
+            }
+            if cash_index is None:
+                positions.append(cash)
+            else:
+                positions[cash_index] = cash
+        else:
+            instrument_id = str(transaction.get("instrument_id") or "").strip()
+            quantity = _to_float(transaction.get("quantity"))
+            price = _to_float(transaction.get("price"))
+            if not instrument_id:
+                raise ValueError("instrument_id is required")
+            if quantity is None or quantity <= 0:
+                raise ValueError("quantity must be greater than zero")
+            if price is None or price <= 0:
+                raise ValueError("price must be greater than zero")
+
+            position_index = next(
+                (
+                    index
+                    for index, item in enumerate(positions)
+                    if str(item.get("ticker") or "").casefold() == instrument_id.casefold()
+                    and not _is_cash_position(item)
+                ),
+                None,
+            )
+
+            if action == "buy":
+                market = str(transaction.get("market") or _detect_market(instrument_id)).strip().upper()
+                currency = _currency_for_market(market)
+                cash_ticker = f"CASH_{currency}"
+                cash_index = next(
+                    (index for index, item in enumerate(positions) if item["ticker"] == cash_ticker),
+                    None,
+                )
+                cash_balance = (
+                    float(positions[cash_index]["quantity"]) if cash_index is not None else 0.0
+                )
+                required_cash = quantity * price
+                if cash_balance + 1e-9 < required_cash:
+                    raise ValueError(f"insufficient {currency} cash")
+
+                if position_index is None:
+                    positions.append(
+                        {
+                            "ticker": instrument_id,
+                            "name": str(transaction.get("name") or "").strip(),
+                            "market": market,
+                            "currency": currency,
+                            "quantity": quantity,
+                            "avg_cost": price,
+                            "notes": "",
+                        }
+                    )
+                else:
+                    position = dict(positions[position_index])
+                    old_quantity = float(position["quantity"])
+                    new_quantity = old_quantity + quantity
+                    position["quantity"] = new_quantity
+                    position["avg_cost"] = (
+                        old_quantity * float(position["avg_cost"]) + required_cash
+                    ) / new_quantity
+                    positions[position_index] = position
+
+                cash = dict(positions[cash_index])
+                cash["quantity"] = cash_balance - required_cash
+                positions[cash_index] = cash
+            else:
+                if position_index is None:
+                    raise ValueError("portfolio position was not found")
+                position = dict(positions[position_index])
+                old_quantity = float(position["quantity"])
+                if quantity > old_quantity + 1e-9:
+                    raise ValueError("sell quantity exceeds position")
+                currency = _currency_for_market(
+                    str(position.get("market") or _detect_market(instrument_id)),
+                    position.get("currency"),
+                )
+                proceeds = quantity * price
+                remaining = old_quantity - quantity
+                if remaining <= 1e-9:
+                    positions.pop(position_index)
+                else:
+                    position["quantity"] = remaining
+                    position["avg_cost"] = (
+                        old_quantity * float(position["avg_cost"]) - proceeds
+                    ) / remaining
+                    positions[position_index] = position
+
+                cash_ticker = f"CASH_{currency}"
+                cash_index = next(
+                    (index for index, item in enumerate(positions) if item["ticker"] == cash_ticker),
+                    None,
+                )
+                if cash_index is None:
+                    positions.append(
+                        {
+                            "ticker": cash_ticker,
+                            "name": {"CNY": "人民币现金", "HKD": "港币现金", "USD": "美元现金"}[currency],
+                            "market": "CASH",
+                            "currency": currency,
+                            "quantity": proceeds,
+                            "avg_cost": 1.0,
+                            "notes": "",
+                        }
+                    )
+                else:
+                    cash = dict(positions[cash_index])
+                    cash["quantity"] = float(cash["quantity"]) + proceeds
+                    positions[cash_index] = cash
+
+        saved = self.store.save(user_id, self._normalize_positions(positions))
+        return {
+            "updated_at": saved.updated_at,
+            "positions": saved.positions,
+            "storage": saved.storage,
+            "transaction": {key: value for key, value in transaction.items() if value is not None},
+        }
+
     def _normalize_positions(self, positions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         normalized: List[Dict[str, Any]] = []
         seen_cash: set[str] = set()

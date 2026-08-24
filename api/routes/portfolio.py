@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any, Callable, List
+from typing import Any, Callable, List, Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field
@@ -32,7 +32,7 @@ class PortfolioPosition(BaseModel):
     market: str = ""
     currency: str = ""
     quantity: float = Field(default=0, ge=0)
-    avg_cost: float = Field(default=0, ge=0)
+    avg_cost: float = 0
     notes: str = ""
 
 
@@ -40,6 +40,19 @@ class PortfolioPositionsRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     positions: List[PortfolioPosition]
+
+
+class PortfolioTransactionRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    action: Literal["buy", "sell", "set_cash", "adjust_cash"]
+    instrument_id: str = ""
+    name: str = ""
+    market: str = ""
+    quantity: Optional[float] = Field(default=None, gt=0)
+    price: Optional[float] = Field(default=None, gt=0)
+    currency: Optional[Literal["CNY", "HKD", "USD"]] = None
+    amount: Optional[float] = None
 
 
 @router.get("/portfolio/positions")
@@ -66,6 +79,22 @@ async def save_positions(
         current_user.sub,
         payload,
     )
+    return {"status": "ok", "result": result}
+
+
+@router.post("/portfolio/transactions")
+async def apply_portfolio_transaction(
+    request: PortfolioTransactionRequest,
+    current_user: AuthenticatedUser = Depends(get_portfolio_reader),
+):
+    try:
+        result = await _run_portfolio_call(
+            get_portfolio_service().apply_transaction,
+            current_user.sub,
+            request.model_dump(),
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
     return {"status": "ok", "result": result}
 
 

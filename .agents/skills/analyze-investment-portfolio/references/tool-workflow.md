@@ -2,7 +2,7 @@
 
 ## Source Order
 
-Run independent reads in parallel when possible. Use read-only calls only.
+Run independent reads in parallel when possible. During analysis, use read-only calls only. The only exception is a separate, explicit user request to change the Portfolio Management portfolio record, which must follow the mutation workflow below.
 
 ### Cloud-only boundary
 
@@ -22,6 +22,17 @@ Portfolio Management tools may be lazy-loaded. Find them by semantic description
 | formula stock ranking | market/mode-specific scores, components, risks, and source metadata |
 
 Retry one transient read failure. These tools are research inputs; do not create, edit, or delete holdings, orders, plans, or instructions during analysis.
+
+#### Explicit portfolio mutation tool map
+
+These tools are outside the read-only analysis flow and may be used only after an explicit user request:
+
+| Semantic operation | Tool | Call notes |
+|---|---|---|
+| resolve system instrument ID | `search_portfolio_instruments` | required before every new position or buy; preserve the returned `instrument_id`, name, market, and type |
+| update portfolio ledger | `update_portfolio` | supports `buy`, `sell`, `set_cash`, and `adjust_cash`; uses the same authenticated token as reads |
+
+For `buy`, pass only an `instrument_id` returned by search plus positive quantity and execution price. The MCP revalidates the ID, deducts matching-currency cash, and calculates a weighted average cost. For `sell`, pass the existing position ID plus positive quantity and execution price; proceeds are added to matching-currency cash, a partial sale uses the diluted-cost formula, and a full sale removes the holding. Cash updates use CNY, HKD, or USD and cannot produce a negative balance. Always re-read `get_portfolio_details` after mutation and reconcile the resulting position and cash. These are portfolio-ledger changes, not broker orders.
 
 #### Current semantic tool map
 
