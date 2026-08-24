@@ -4,6 +4,7 @@ Stock Search API Routes
 """
 import asyncio
 import os
+import re
 from pathlib import Path
 from typing import List, Dict, Any
 from concurrent.futures import ThreadPoolExecutor
@@ -19,7 +20,7 @@ except ImportError:
     pass
 
 from investment.data import StockFetcher
-from investment.data.stock_search import search_etf_catalog
+from investment.data.stock_search import _instrument_type, search_etf_catalog
 from investment.api.schemas import SearchResponse, SearchResult
 
 router = APIRouter()
@@ -273,17 +274,35 @@ def _search_yfinance(query: str, limit: int = 5) -> List[Dict[str, Any]]:
         # 检查是否有中文别名
         search_term = US_ALIASES.get(query, query).upper()
         
-        ticker = yf.Ticker(search_term)
-        info = ticker.info
-        
-        if info and info.get("symbol"):
-            return [{
-                "code": info.get("symbol", search_term),
-                "name": info.get("shortName") or info.get("longName") or search_term,
+        search = yf.Search(search_term, max_results=max(5, limit), news_count=0)
+        results = []
+        for info in search.quotes:
+            symbol = str(info.get("symbol") or "").upper()
+            if not symbol:
+                continue
+            short_name = info.get("shortname") or info.get("shortName")
+            long_name = info.get("longname") or info.get("longName")
+            name = short_name or long_name or symbol
+            classification_name = " ".join(
+                str(value)
+                for value in (short_name, long_name)
+                if value
+            )
+            results.append({
+                "code": symbol,
+                "name": name,
                 "market": "US",
-                "display": f"{info.get('shortName', search_term)} ({info.get('symbol', search_term)})",
-                "exchange": info.get("exchange", ""),
-            }]
+                "display": f"{name} ({symbol})",
+                "exchange": info.get("exchDisp") or info.get("fullExchangeName") or info.get("exchange") or "",
+                "instrument_type": _instrument_type(
+                    symbol,
+                    listed_type=info.get("quoteType"),
+                    name=classification_name or name,
+                ),
+            })
+            if len(results) >= limit:
+                break
+        return results
     except Exception as e:
         print(f"[Search] yfinance search failed for '{query}': {e}")
     
@@ -363,13 +382,36 @@ async def search_stocks(
                     seen_codes.add(r["code"])
                     results.append(r)
     
-    # 最后 yfinance 兜底
-    if not results and market in ("all", "us", "US"):
-        print(f"[Search] No results, trying yfinance for '{q}'")
+    # 对看起来像美股代码的查询始终实时验证完全匹配项。这样新上市的
+    # 股票或 ETF 不会被过期本地目录中的模糊结果覆盖。
+    exact_us_symbol = bool(re.fullmatch(r"[A-Za-z][A-Za-z0-9.-]{0,14}", q.strip()))
+    should_search_yfinance = market in ("all", "us", "US") and (
+        exact_us_symbol or not results
+    )
+    if should_search_yfinance:
+        print(f"[Search] Verifying US symbol with yfinance for '{q}'")
         yf_results = await loop.run_in_executor(
             executor, lambda: _search_yfinance(q, limit)
         )
-        results.extend(yf_results)
+        exact_matches = [
+            item
+            for item in yf_results
+            if str(item.get("code") or "").casefold() == q.strip().casefold()
+        ]
+        merged = exact_matches + results + [
+            item for item in yf_results if item not in exact_matches
+        ]
+        results = []
+        seen_codes = set()
+        for item in merged:
+            code = str(item.get("code") or "")
+            normalized = code.casefold()
+            if not code or normalized in seen_codes:
+                continue
+            seen_codes.add(normalized)
+            results.append(item)
+            if len(results) >= limit:
+                break
     
     return SearchResponse(
         results=[
