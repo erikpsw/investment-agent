@@ -38,7 +38,7 @@ export default function MarketIndexPage() {
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex-1 space-y-6 p-4 sm:p-6">
-        <Button variant="ghost" nativeButton={false} render={<Link href="/" />}>
+        <Button variant="ghost" nativeButton={false} render={<Link href="/dashboard" />}>
           <ArrowLeft className="mr-2 h-4 w-4" />返回市场概览
         </Button>
 

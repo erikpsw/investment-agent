@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useUser } from "@auth0/nextjs-auth0";
 import { useState } from "react";
@@ -33,7 +33,7 @@ import {
 import { cn } from "@/lib/utils";
 
 const navigation = [
-  { name: "仪表盘", href: "/", icon: LayoutDashboard },
+  { name: "仪表盘", href: "/dashboard", icon: LayoutDashboard },
   { name: "行情搜索", href: "/search", icon: Search },
   { name: "个股分析", href: "/stock", icon: LineChart },
   { name: "自选股", href: "/watchlist", icon: Star },

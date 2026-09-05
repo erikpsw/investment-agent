@@ -44,7 +44,7 @@ export default function StockDetailPage({ params }: PageProps) {
 
       <div className="flex-1 p-6 space-y-6">
         <div className="flex items-center gap-4">
-          <Link href="/">
+          <Link href="/dashboard">
             <Button variant="ghost" size="icon">
               <ArrowLeft className="h-5 w-5" />
             </Button>

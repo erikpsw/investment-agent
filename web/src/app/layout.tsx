@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { Providers } from "@/components/providers";
-import { Sidebar } from "@/components/sidebar";
+import { AppShell } from "@/components/app-shell";
 
 export const metadata: Metadata = {
   title: "Investment Agent",
@@ -16,14 +15,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN" suppressHydrationWarning>
       <body className="min-h-screen bg-background font-sans antialiased">
-        <Providers>
-          <div className="flex min-h-screen">
-            <aside className="hidden lg:block">
-              <Sidebar />
-            </aside>
-            <main className="flex-1 flex flex-col">{children}</main>
-          </div>
-        </Providers>
+        <AppShell>{children}</AppShell>
       </body>
     </html>
   );

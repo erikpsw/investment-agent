@@ -33,7 +33,7 @@ export function VercelLiteUnavailable({
             <p className="text-sm leading-6 text-muted-foreground">
               当前 Vercel 轻量版优先开放搜索、行情、K 线、财务数据、新闻和公告查询。需要 PDF/RAG、长任务 Agent 或实时监控时，请使用本地完整后端或后续迁移到独立任务服务。
             </p>
-            <Link href="/">
+            <Link href="/dashboard">
               <Button variant="outline">
                 <ArrowLeft className="mr-2 h-4 w-4" />
                 返回仪表盘
