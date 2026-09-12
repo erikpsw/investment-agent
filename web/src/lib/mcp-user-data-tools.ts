@@ -47,6 +47,21 @@ function withPortfolioTotals(result: Record<string, unknown>) {
 }
 
 
+const watchlistBatchOperationSchema = z.object({
+  action: z.enum(["create", "get", "update", "delete"]),
+  resource: z.enum(["group", "item"]),
+  group_id: z.string().trim().min(1).max(100).optional(),
+  id: z.string().trim().min(1).max(100).optional(),
+  name: z.string().trim().max(160).optional(),
+  parent_id: z.string().trim().min(1).max(100).nullable().optional(),
+  ticker: z.string().trim().min(1).max(40).optional(),
+  tickers: z.array(z.string().trim().min(1).max(40)).max(500).optional(),
+  market: z.enum(["CN", "HK", "US"]).optional(),
+  notes: z.string().max(1000).optional(),
+  target_group_id: z.string().trim().min(1).max(100).optional(),
+});
+
+
 async function authenticatedResult(
   path: string,
   token: string | undefined,
@@ -243,6 +258,20 @@ export function registerUserDataTools(
         "Watchlist",
       );
     },
+  );
+
+  server.tool(
+    "batch_update_watchlists",
+    "Batch create, read, update, or delete watchlist groups and stocks atomically. Prefer this tool when changing multiple entries: it performs one load and at most one save, and returns only affected records instead of the full enriched watchlist.",
+    {
+      operations: z.array(watchlistBatchOperationSchema).min(1).max(100),
+    },
+    async ({ operations }, extra) => authenticatedResult(
+      "/api/watchlists/batch",
+      tokenProvider(extra),
+      "Watchlist batch",
+      { method: "POST", body: JSON.stringify({ operations }) },
+    ),
   );
 
   server.tool(
