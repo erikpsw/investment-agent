@@ -107,7 +107,7 @@ class WatchlistService:
 
     def _save_and_result(self, user_id: str, groups: List[Dict[str, Any]]) -> Dict[str, Any]:
         document = self.store.save(user_id, groups)
-        return {"updated_at": document.updated_at, "storage": document.storage, "groups": self._enrich_groups(self._tree(groups), False)}
+        return {"updated_at": document.updated_at, "storage": document.storage}
 
     @staticmethod
     def _group(groups: List[Dict[str, Any]], group_id: str) -> Dict[str, Any]:
@@ -205,6 +205,114 @@ class WatchlistService:
             raise WatchlistItemNotFound(ticker)
         group["items"] = filtered
         return self._save_and_result(user_id, groups)
+
+    def batch(self, user_id: str, operations: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Apply watchlist CRUD operations atomically with one load and at most one save."""
+        document = self.store.load(user_id)
+        groups = self._normalize_groups(document.groups)
+        results: List[Dict[str, Any]] = []
+        mutations = 0
+
+        for index, operation in enumerate(operations):
+            action = str(operation.get("action") or "").strip().lower()
+            resource = str(operation.get("resource") or "").strip().lower()
+            group_id = str(operation.get("group_id") or "").strip()
+            result: Dict[str, Any] = {"index": index, "action": action, "resource": resource}
+
+            if resource == "group":
+                if action == "create":
+                    new_id = group_id or str(operation.get("id") or uuid4()).strip()
+                    if not new_id or any(group["id"] == new_id for group in groups):
+                        raise ValueError("Watchlist group id already exists or is invalid")
+                    parent_id = str(operation.get("parent_id") or "").strip() or None
+                    self._assert_parent(groups, new_id, parent_id)
+                    group = {"id": new_id, "name": str(operation.get("name") or "").strip() or "未命名分组", "parent_id": parent_id, "items": []}
+                    groups.append(group)
+                    result["group"] = {**group}
+                elif action == "get":
+                    if group_id:
+                        result["group"] = {**self._group(groups, group_id)}
+                    else:
+                        result["groups"] = [{**group} for group in groups]
+                elif action == "update":
+                    group = self._group(groups, group_id)
+                    if "name" in operation:
+                        name = str(operation.get("name") or "").strip()
+                        if not name:
+                            raise ValueError("Watchlist group name is required")
+                        group["name"] = name
+                    if "parent_id" in operation:
+                        parent_id = str(operation.get("parent_id") or "").strip() or None
+                        self._assert_parent(groups, group_id, parent_id)
+                        group["parent_id"] = parent_id
+                    result["group"] = {**group}
+                elif action == "delete":
+                    self._group(groups, group_id)
+                    deleted = {group_id}
+                    changed = True
+                    while changed:
+                        changed = False
+                        for group in groups:
+                            if group.get("parent_id") in deleted and group["id"] not in deleted:
+                                deleted.add(group["id"])
+                                changed = True
+                    groups = [group for group in groups if group["id"] not in deleted]
+                    result["deleted_group_ids"] = sorted(deleted)
+                else:
+                    raise ValueError(f"Unsupported group action: {action}")
+            elif resource == "item":
+                group = self._group(groups, group_id)
+                ticker = str(operation.get("ticker") or "").strip()
+                if action == "create":
+                    if not ticker:
+                        raise ValueError("Ticker is required")
+                    if any(str(item["ticker"]).casefold() == ticker.casefold() for item in group["items"]):
+                        raise ValueError("Ticker already exists in this group")
+                    item = {"ticker": ticker, "name": str(operation.get("name") or "").strip(), "market": _market_for(ticker, operation.get("market")), "notes": str(operation.get("notes") or "").strip()}
+                    group["items"].append(item)
+                    result["item"] = {**item, "group_id": group_id}
+                elif action == "get":
+                    requested = operation.get("tickers")
+                    keys = {str(value).casefold() for value in requested} if isinstance(requested, list) else ({ticker.casefold()} if ticker else set())
+                    result["items"] = [{**item, "group_id": group_id} for item in group["items"] if not keys or str(item["ticker"]).casefold() in keys]
+                elif action == "update":
+                    item = next((entry for entry in group["items"] if str(entry["ticker"]).casefold() == ticker.casefold()), None)
+                    if item is None:
+                        raise WatchlistItemNotFound(ticker)
+                    target_id = str(operation.get("target_group_id") or group_id).strip()
+                    target = self._group(groups, target_id)
+                    if target is not group:
+                        if any(str(entry["ticker"]).casefold() == ticker.casefold() for entry in target["items"]):
+                            raise ValueError("Ticker already exists in the target group")
+                        group["items"].remove(item)
+                        target["items"].append(item)
+                    for field in ("name", "market", "notes"):
+                        if field in operation:
+                            item[field] = _market_for(item["ticker"], operation[field]) if field == "market" else str(operation[field] or "").strip()
+                    result["item"] = {**item, "group_id": target_id}
+                elif action == "delete":
+                    original_size = len(group["items"])
+                    group["items"] = [item for item in group["items"] if str(item["ticker"]).casefold() != ticker.casefold()]
+                    if len(group["items"]) == original_size:
+                        raise WatchlistItemNotFound(ticker)
+                    result.update({"deleted": True, "group_id": group_id, "ticker": ticker})
+                else:
+                    raise ValueError(f"Unsupported item action: {action}")
+            else:
+                raise ValueError(f"Unsupported resource: {resource}")
+
+            if action != "get":
+                mutations += 1
+            results.append(result)
+
+        if mutations:
+            document = self.store.save(user_id, groups)
+        return {
+            "updated_at": document.updated_at,
+            "storage": document.storage,
+            "summary": {"total": len(operations), "mutations": mutations, "queries": len(operations) - mutations},
+            "results": results,
+        }
 
     def get_watchlists(
         self,
