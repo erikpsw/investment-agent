@@ -132,3 +132,71 @@ def test_group_and_stock_crud_support_rename_move_and_cascade_delete() -> None:
 
     service.delete_group("auth0|alice", "tech")
     assert service.get_watchlists("auth0|alice")["groups"] == [{"id": "us", "name": "美国", "parent_id": None, "items": [], "children": []}]
+
+
+def test_mutations_return_compact_metadata_without_full_watchlist() -> None:
+    service = WatchlistService(store=InMemoryWatchlistStore(), research_service=FakeResearchService())
+
+    result = service.create_group("auth0|alice", {"id": "tech", "name": "科技"})
+
+    assert "groups" not in result
+    assert result["storage"] == "memory"
+
+
+def test_batch_operations_load_and_save_once_and_return_only_affected_rows() -> None:
+    store = InMemoryWatchlistStore()
+    service = WatchlistService(store=store, research_service=FakeResearchService())
+    service.create_group("auth0|alice", {"id": "core", "name": "Core"})
+    load_count = 0
+    save_count = 0
+    loads_before_save = None
+    original_load = store.load
+    original_save = store.save
+
+    def counted_load(user_id):
+        nonlocal load_count
+        load_count += 1
+        return original_load(user_id)
+
+    def counted_save(user_id, groups):
+        nonlocal save_count, loads_before_save
+        save_count += 1
+        loads_before_save = load_count
+        return original_save(user_id, groups)
+
+    store.load = counted_load
+    store.save = counted_save
+    result = service.batch(
+        "auth0|alice",
+        [
+            {"action": "create", "resource": "item", "group_id": "core", "ticker": "AAPL", "name": "Apple", "market": "US"},
+            {"action": "create", "resource": "item", "group_id": "core", "ticker": "MSFT", "name": "Microsoft", "market": "US"},
+            {"action": "update", "resource": "item", "group_id": "core", "ticker": "AAPL", "notes": "core holding"},
+            {"action": "get", "resource": "item", "group_id": "core", "tickers": ["AAPL", "MSFT"]},
+        ],
+    )
+
+    # InMemoryWatchlistStore.save calls load once to build its return value;
+    # only one load happens before the single persistence call.
+    assert loads_before_save == 1
+    assert save_count == 1
+    assert result["summary"] == {"total": 4, "mutations": 3, "queries": 1}
+    assert "groups" not in result
+    assert [entry["ticker"] for entry in result["results"][3]["items"]] == ["AAPL", "MSFT"]
+
+
+def test_batch_is_atomic_when_a_later_operation_fails() -> None:
+    store = InMemoryWatchlistStore()
+    service = WatchlistService(store=store, research_service=FakeResearchService())
+    service.create_group("auth0|alice", {"id": "core", "name": "Core"})
+
+    with pytest.raises(WatchlistGroupNotFound):
+        service.batch(
+            "auth0|alice",
+            [
+                {"action": "create", "resource": "item", "group_id": "core", "ticker": "AAPL"},
+                {"action": "delete", "resource": "group", "group_id": "missing"},
+            ],
+        )
+
+    assert service.get_watchlists("auth0|alice")["groups"][0]["items"] == []
