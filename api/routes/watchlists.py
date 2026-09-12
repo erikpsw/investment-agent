@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any, Callable, List, Optional
+from typing import Any, Callable, List, Literal, Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 from pydantic import BaseModel, ConfigDict, Field
@@ -69,6 +69,28 @@ class WatchlistsRequest(BaseModel):
     groups: List[WatchlistGroupRequest] = Field(default_factory=list, max_length=100)
 
 
+class WatchlistBatchOperation(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    action: Literal["create", "get", "update", "delete"]
+    resource: Literal["group", "item"]
+    group_id: Optional[str] = Field(default=None, min_length=1, max_length=100)
+    id: Optional[str] = Field(default=None, min_length=1, max_length=100)
+    name: Optional[str] = Field(default=None, max_length=160)
+    parent_id: Optional[str] = Field(default=None, min_length=1, max_length=100)
+    ticker: Optional[str] = Field(default=None, min_length=1, max_length=40)
+    tickers: Optional[List[str]] = Field(default=None, max_length=500)
+    market: Optional[str] = Field(default=None, max_length=12)
+    notes: Optional[str] = Field(default=None, max_length=1000)
+    target_group_id: Optional[str] = Field(default=None, min_length=1, max_length=100)
+
+
+class WatchlistBatchRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    operations: List[WatchlistBatchOperation] = Field(min_length=1, max_length=100)
+
+
 async def _run_watchlist_call(call: Callable[..., Any], *args: Any) -> Any:
     try:
         return await asyncio.to_thread(call, *args)
@@ -112,6 +134,23 @@ async def save_watchlists(
         current_user.sub,
         groups,
     )
+    return {"status": "ok", "result": result}
+
+
+@router.post("/watchlists/batch")
+async def batch_watchlists(
+    request: WatchlistBatchRequest,
+    current_user: AuthenticatedUser = Depends(get_watchlist_writer),
+):
+    """Atomically apply up to 100 watchlist CRUD operations."""
+    try:
+        result = await _run_watchlist_call(
+            get_watchlist_service().batch,
+            current_user.sub,
+            [operation.model_dump(exclude_unset=True) for operation in request.operations],
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
     return {"status": "ok", "result": result}
 
 
