@@ -1,4 +1,4 @@
-export const MCP_SERVER_URL = "https://invest.erikai.top/mcp";
+export const MCP_SERVER_URL = "https://www.erikai.top/mcp";
 
 export const MCP_OAUTH_CLIENT_ID = "IrvtRzsuLDheMJokS88tjMwg4o2clrCN";
 

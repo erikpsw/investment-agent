@@ -18,7 +18,7 @@ import {
 } from "../src/lib/user-profile";
 
 test("MCP connector configuration exposes the production OAuth client", () => {
-  assert.equal(MCP_SERVER_URL, "https://invest.erikai.top/mcp");
+  assert.equal(MCP_SERVER_URL, "https://www.erikai.top/mcp");
   assert.equal(MCP_OAUTH_CLIENT_ID, "IrvtRzsuLDheMJokS88tjMwg4o2clrCN");
 });
 
@@ -99,7 +99,7 @@ test("security research details supports four trend windows and structured metri
   assert.match(details, /break-words[^\"]*\[overflow-wrap:anywhere\]/);
 });
 
-test("desktop holdings keep each research panel directly below its security row", async () => {
+test("watchlist research opens from the right-side action instead of a dedicated row", async () => {
   const portfolio = await readFile(
     new URL("../src/app/portfolio/page.tsx", import.meta.url),
     "utf8",
@@ -112,9 +112,10 @@ test("desktop holdings keep each research panel directly below its security row"
   assert.match(portfolio, /<TableRow[^>]*data-testid="portfolio-research-row"/);
   assert.match(portfolio, /colSpan=\{10\}/);
   assert.match(portfolio, /table-fixed/);
-  assert.match(watchlist, /<TableRow[^>]*data-testid="watchlist-research-row"/);
-  assert.match(watchlist, /colSpan=\{6\}/);
-  assert.match(watchlist, /table-fixed/);
+  assert.match(watchlist, /function ResearchButton/);
+  assert.match(watchlist, /<SheetContent side="right"/);
+  assert.match(watchlist, /走势与数据/);
+  assert.doesNotMatch(watchlist, /watchlist-research-row/);
 });
 
 test("watchlist API client uses authenticated cloud endpoints", async () => {
