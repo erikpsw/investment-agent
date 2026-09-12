@@ -31,6 +31,10 @@ class FakeWatchlistService:
         self.calls.append(("add_item", user_id, group_id, item))
         return {"groups": [], "storage": "fake"}
 
+    def batch(self, user_id, operations):
+        self.calls.append(("batch", user_id, operations))
+        return {"summary": {"total": len(operations)}, "results": []}
+
 
 def make_app(service: FakeWatchlistService, user: AuthenticatedUser | None) -> FastAPI:
     app = FastAPI()
@@ -148,3 +152,19 @@ def test_group_and_item_mutations_use_the_authenticated_subject() -> None:
         ("create_group", "auth0|alice", {"id": "us", "name": "美国", "parent_id": None}),
         ("add_item", "auth0|alice", "us", {"ticker": "AAPL", "name": "", "market": "", "notes": ""}),
     ]
+
+
+def test_batch_forwards_all_operations_in_one_authenticated_call() -> None:
+    service = FakeWatchlistService()
+    user = AuthenticatedUser(sub="auth0|alice")
+    operations = [
+        {"action": "create", "resource": "item", "group_id": "core", "ticker": "AAPL"},
+        {"action": "delete", "resource": "item", "group_id": "core", "ticker": "MSFT"},
+    ]
+    with patch.object(watchlists, "get_watchlist_service", return_value=service):
+        response = TestClient(make_app(service, user)).post(
+            "/api/watchlists/batch", json={"operations": operations}
+        )
+
+    assert response.status_code == 200
+    assert service.calls == [("batch", "auth0|alice", operations)]
