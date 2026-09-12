@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import os
+import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from functools import lru_cache
@@ -76,18 +77,26 @@ class SupabasePortfolioStore:
             client = create_client(url.strip(), service_key.strip())
         self._client = client
 
+    def _execute(self, query: Any, operation: str) -> Any:
+        """Retry only transient Supabase gateway failures before surfacing them."""
+        for attempt in range(3):
+            try:
+                return query.execute()
+            except Exception as exc:
+                transient = any(marker in str(exc).lower() for marker in ("502", "503", "504", "gateway timeout", "bad gateway"))
+                if not transient or attempt == 2:
+                    raise PortfolioStorageError(f"Unable to {operation} portfolio from Supabase") from exc
+                time.sleep(0.25 * (attempt + 1))
+
     def load(self, user_id: str) -> PortfolioDocument:
         owner = _require_user_id(user_id)
-        try:
-            response = (
-                self._client.table(self.TABLE)
-                .select("positions,updated_at")
-                .eq("user_id", owner)
-                .limit(1)
-                .execute()
-            )
-        except Exception as exc:
-            raise PortfolioStorageError("Unable to load portfolio from Supabase") from exc
+        response = self._execute(
+            self._client.table(self.TABLE)
+            .select("positions,updated_at")
+            .eq("user_id", owner)
+            .limit(1),
+            "load",
+        )
 
         rows = getattr(response, "data", None) or []
         row = rows[0] if isinstance(rows, list) and rows else rows if isinstance(rows, dict) else None
@@ -110,14 +119,10 @@ class SupabasePortfolioStore:
             "positions": [dict(item) for item in positions],
             "updated_at": updated_at,
         }
-        try:
-            response = (
-                self._client.table(self.TABLE)
-                .upsert(payload, on_conflict="user_id")
-                .execute()
-            )
-        except Exception as exc:
-            raise PortfolioStorageError("Unable to save portfolio to Supabase") from exc
+        response = self._execute(
+            self._client.table(self.TABLE).upsert(payload, on_conflict="user_id"),
+            "save",
+        )
 
         rows = getattr(response, "data", None) or []
         row = rows[0] if isinstance(rows, list) and rows else payload

@@ -3,10 +3,31 @@ from __future__ import annotations
 import unittest
 
 from investment.data.portfolio import PortfolioService
-from investment.data.portfolio_store import InMemoryPortfolioStore
+from investment.data.portfolio_store import InMemoryPortfolioStore, SupabasePortfolioStore
 
 
 class PortfolioStoreTests(unittest.TestCase):
+    def test_supabase_load_retries_a_transient_gateway_timeout(self) -> None:
+        class Query:
+            attempts = 0
+
+            def select(self, _fields): return self
+            def eq(self, _field, _value): return self
+            def limit(self, _count): return self
+            def execute(self):
+                self.attempts += 1
+                if self.attempts == 1:
+                    raise RuntimeError("HTTP 504 Gateway Timeout")
+                return type("Response", (), {"data": []})()
+
+        query = Query()
+        client = type("Client", (), {"table": lambda self, _table: query})()
+        store = SupabasePortfolioStore("https://example.supabase.co", "service-key", client)
+
+        document = store.load("auth0|alice")
+
+        self.assertEqual(query.attempts, 2)
+        self.assertEqual(document.positions, [])
     def test_buy_uses_weighted_average_cost_and_deducts_native_cash(self) -> None:
         store = InMemoryPortfolioStore()
         store.save(
