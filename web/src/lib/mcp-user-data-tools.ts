@@ -228,7 +228,7 @@ export function registerUserDataTools(
 
   server.tool(
     "get_watchlists",
-    "Get the authenticated user's grouped watchlists with live quotes, structured trend metrics, recent news, and optional OHLCV history. This tool is read-only.",
+    "Get the authenticated user's tree-structured watchlists with live quotes, structured trend metrics, recent news, and optional OHLCV history.",
     {
       group_id: z.string().trim().min(1).max(100).optional(),
       include_history: z.boolean().optional().default(false),
@@ -243,5 +243,64 @@ export function registerUserDataTools(
         "Watchlist",
       );
     },
+  );
+
+  server.tool(
+    "create_watchlist_group",
+    "Create a watchlist group. Set parent_id to nest it under another group; parent groups may also hold stocks.",
+    { id: z.string().trim().min(1).max(100).optional(), name: z.string().trim().min(1).max(100), parent_id: z.string().trim().min(1).max(100).optional() },
+    async ({ id, name, parent_id }, extra) => authenticatedResult(
+      "/api/watchlists/groups", tokenProvider(extra), "Watchlist group",
+      { method: "POST", body: JSON.stringify({ id, name, parent_id }) },
+    ),
+  );
+
+  server.tool(
+    "update_watchlist_group",
+    "Rename a watchlist group or move it under another group. Omit parent_id to keep its current parent; set root to true to move it to the root.",
+    { group_id: z.string().trim().min(1).max(100), name: z.string().trim().min(1).max(100).optional(), parent_id: z.string().trim().min(1).max(100).optional(), root: z.boolean().optional().default(false) },
+    async ({ group_id, name, parent_id, root }, extra) => {
+      const body: Record<string, unknown> = {};
+      if (name !== undefined) body.name = name;
+      if (parent_id !== undefined) body.parent_id = parent_id;
+      if (root) body.parent_id = null;
+      return authenticatedResult(`/api/watchlists/groups/${encodeURIComponent(group_id)}`, tokenProvider(extra), "Watchlist group", { method: "PATCH", body: JSON.stringify(body) });
+    },
+  );
+
+  server.tool(
+    "delete_watchlist_group",
+    "Delete a watchlist group and all of its nested subgroups and stocks. This cannot be undone.",
+    { group_id: z.string().trim().min(1).max(100) },
+    async ({ group_id }, extra) => authenticatedResult(`/api/watchlists/groups/${encodeURIComponent(group_id)}`, tokenProvider(extra), "Watchlist group", { method: "DELETE" }),
+  );
+
+  server.tool(
+    "add_watchlist_stock",
+    "Add a stock to a watchlist group. Search the instrument catalog first to get its code, name, and market.",
+    { group_id: z.string().trim().min(1).max(100), ticker: z.string().trim().min(1).max(40), name: z.string().max(160).optional().default(""), market: z.enum(["CN", "HK", "US"]).optional(), notes: z.string().max(1000).optional().default("") },
+    async ({ group_id, ticker, name, market, notes }, extra) => authenticatedResult(
+      `/api/watchlists/groups/${encodeURIComponent(group_id)}/items`, tokenProvider(extra), "Watchlist stock",
+      { method: "POST", body: JSON.stringify({ ticker, name, market, notes }) },
+    ),
+  );
+
+  server.tool(
+    "update_watchlist_stock",
+    "Update a watchlist stock's display details or move it to a different group.",
+    { group_id: z.string().trim().min(1).max(100), ticker: z.string().trim().min(1).max(40), name: z.string().max(160).optional(), market: z.enum(["CN", "HK", "US"]).optional(), notes: z.string().max(1000).optional(), target_group_id: z.string().trim().min(1).max(100).optional() },
+    async ({ group_id, ticker, ...body }, extra) => authenticatedResult(
+      `/api/watchlists/groups/${encodeURIComponent(group_id)}/items/${encodeURIComponent(ticker)}`, tokenProvider(extra), "Watchlist stock",
+      { method: "PATCH", body: JSON.stringify(body) },
+    ),
+  );
+
+  server.tool(
+    "delete_watchlist_stock",
+    "Remove a stock from one watchlist group.",
+    { group_id: z.string().trim().min(1).max(100), ticker: z.string().trim().min(1).max(40) },
+    async ({ group_id, ticker }, extra) => authenticatedResult(
+      `/api/watchlists/groups/${encodeURIComponent(group_id)}/items/${encodeURIComponent(ticker)}`, tokenProvider(extra), "Watchlist stock", { method: "DELETE" },
+    ),
   );
 }

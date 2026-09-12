@@ -1,147 +1,25 @@
 "use client";
 
 import { useUser } from "@auth0/nextjs-auth0";
-import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
-import { Loader2, Plus, Save } from "lucide-react";
-
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { ChevronDown, ChevronRight, FolderPlus, Loader2, Plus } from "lucide-react";
 import { Header } from "@/components/header";
 import { WatchlistGroupCard } from "@/components/watchlist-group-card";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { api, type SearchResult, type WatchlistGroup, type WatchlistItem } from "@/lib/api";
+import { api, type WatchlistGroup } from "@/lib/api";
 
+function flatten(groups: WatchlistGroup[], depth = 0): Array<WatchlistGroup & { depth: number }> { return groups.flatMap((group) => [{ ...group, depth }, ...flatten(group.children || [], depth + 1)]); }
+function flattenVisible(groups: WatchlistGroup[], expanded: Set<string>, depth = 0): Array<WatchlistGroup & { depth: number }> { return groups.flatMap((group) => [{ ...group, depth }, ...(expanded.has(group.id) ? flattenVisible(group.children || [], expanded, depth + 1) : [])]); }
 
 export default function WatchlistPage() {
-  const { user, isLoading: authLoading } = useUser();
-  const [groups, setGroups] = useState<WatchlistGroup[]>([]);
-  const [busy, setBusy] = useState(false);
-  const [message, setMessage] = useState("");
-
-  const load = useCallback(async () => {
-    const response = await api.getWatchlists(undefined, true);
-    setGroups(response.result.groups);
-  }, []);
-
-  useEffect(() => {
-    if (authLoading || !user) return;
-    setBusy(true);
-    void load()
-      .catch((error) => setMessage(error instanceof Error ? error.message : "加载自选股失败"))
-      .finally(() => setBusy(false));
-  }, [authLoading, load, user]);
-
-  const addGroup = () => {
-    setGroups((current) => [
-      ...current,
-      { id: crypto.randomUUID(), name: `自选分组 ${current.length + 1}`, items: [] },
-    ]);
-  };
-
-  const updateGroup = (index: number, patch: Partial<WatchlistGroup>) => {
-    setGroups((current) => current.map((group, currentIndex) => currentIndex === index ? { ...group, ...patch } : group));
-  };
-
-  const moveGroup = (index: number, direction: -1 | 1) => {
-    setGroups((current) => {
-      const target = index + direction;
-      if (target < 0 || target >= current.length) return current;
-      const next = [...current];
-      [next[index], next[target]] = [next[target], next[index]];
-      return next;
-    });
-  };
-
-  const deleteGroup = (index: number) => {
-    const group = groups[index];
-    if (group.items.length && !window.confirm(`分组“${group.name}”包含 ${group.items.length} 只股票，确认删除？`)) return;
-    setGroups((current) => current.filter((_, currentIndex) => currentIndex !== index));
-  };
-
-  const addItem = (groupIndex: number, result: SearchResult) => {
-    const group = groups[groupIndex];
-    if (!group) return;
-    if (group.items.some((item) => item.ticker.toLowerCase() === result.code.toLowerCase())) {
-      setMessage(`${result.code} 已在“${group.name}”中`);
-      return;
-    }
-    setGroups((current) => current.map((currentGroup, index) => {
-      if (index !== groupIndex) return currentGroup;
-      return {
-        ...currentGroup,
-        items: [...currentGroup.items, { ticker: result.code, name: result.name, market: result.market, notes: "" }],
-      };
-    }));
-  };
-
-  const updateItem = (groupIndex: number, itemIndex: number, patch: Partial<WatchlistItem>) => {
-    setGroups((current) => current.map((group, index) => index === groupIndex ? {
-      ...group,
-      items: group.items.map((item, currentItemIndex) => currentItemIndex === itemIndex ? { ...item, ...patch } : item),
-    } : group));
-  };
-
-  const deleteItem = (groupIndex: number, itemIndex: number) => {
-    setGroups((current) => current.map((group, index) => index === groupIndex ? {
-      ...group,
-      items: group.items.filter((_, currentItemIndex) => currentItemIndex !== itemIndex),
-    } : group));
-  };
-
-  const save = async () => {
-    setBusy(true);
-    try {
-      await api.saveWatchlists(groups);
-      await load();
-      setMessage("自选股已保存并同步到云端");
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "保存自选股失败");
-    } finally {
-      setBusy(false);
-    }
-  };
-
-  if (authLoading) return <Loading />;
-  if (!user) {
-    return (
-      <div className="flex min-h-screen flex-col"><Header /><main className="flex flex-1 items-center justify-center p-6"><Card className="w-full max-w-md"><CardHeader><CardTitle>登录后管理自选股</CardTitle><CardDescription>分组和自选股会按账户保存到云端。</CardDescription></CardHeader><CardContent><Button className="w-full" render={<Link href="/auth/login?returnTo=/watchlist" prefetch={false} />}>登录 / 注册</Button></CardContent></Card></main></div>
-    );
-  }
-
-  const groupProps = (group: WatchlistGroup, index: number) => ({
-    group,
-    canMoveUp: index > 0,
-    canMoveDown: index < groups.length - 1,
-    onRename: (name: string) => updateGroup(index, { name }),
-    onMove: (direction: -1 | 1) => moveGroup(index, direction),
-    onDelete: () => deleteGroup(index),
-    onAdd: (result: SearchResult) => addItem(index, result),
-    onUpdateItem: (itemIndex: number, patch: Partial<WatchlistItem>) => updateItem(index, itemIndex, patch),
-    onDeleteItem: (itemIndex: number) => deleteItem(index, itemIndex),
-  });
-
-  return (
-    <div className="flex min-h-screen flex-col">
-      <Header />
-      <main className="flex-1 space-y-6 p-4 sm:p-6">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div><h1 className="text-3xl font-bold tracking-tight">自选股</h1><p className="text-muted-foreground">按分组维护关注标的，查看多周期走势与关键数据。</p></div>
-          <div className="flex gap-2"><Button variant="outline" onClick={addGroup} disabled={busy}><Plus className="mr-2" />新建分组</Button><Button onClick={save} disabled={busy}>{busy ? <Loader2 className="mr-2 animate-spin" /> : <Save className="mr-2" />}保存</Button></div>
-        </div>
-        {message && <div className="rounded-lg border px-4 py-3 text-sm">{message}</div>}
-        {groups.length === 0 && <Card><CardContent className="p-8 text-center text-muted-foreground">暂无分组，点击“新建分组”开始添加自选股。</CardContent></Card>}
-        <div data-testid="mobile-watchlist-groups" className="space-y-4 md:hidden">
-          {groups.map((group, index) => <WatchlistGroupCard key={group.id} {...groupProps(group, index)} mobile />)}
-        </div>
-        <div data-testid="desktop-watchlist-groups" className="hidden space-y-4 md:block">
-          {groups.map((group, index) => <WatchlistGroupCard key={group.id} {...groupProps(group, index)} mobile={false} />)}
-        </div>
-      </main>
-    </div>
-  );
-}
-
-
-function Loading() {
-  return <div className="flex min-h-screen flex-col"><Header /><main className="flex flex-1 items-center justify-center"><Loader2 className="animate-spin" /></main></div>;
+  const { user, isLoading: authLoading } = useUser(); const [groups, setGroups] = useState<WatchlistGroup[]>([]); const [selectedId, setSelectedId] = useState(""); const [expanded, setExpanded] = useState<Set<string>>(new Set()); const [busy, setBusy] = useState(false); const [message, setMessage] = useState("");
+  const load = useCallback(async () => { const response = await api.getWatchlists(undefined, true); setGroups(response.result.groups); const ids = flatten(response.result.groups).map((group) => group.id); setExpanded(new Set(ids)); setSelectedId((current) => ids.includes(current) ? current : ids[0] || ""); }, []);
+  useEffect(() => { if (!authLoading && user) void load().catch((error) => setMessage(error instanceof Error ? error.message : "加载自选股失败")); }, [authLoading, load, user]);
+  const nodes = useMemo(() => flatten(groups), [groups]); const visibleNodes = useMemo(() => flattenVisible(groups, expanded), [groups, expanded]); const selected = nodes.find((group) => group.id === selectedId);
+  const addGroup = async (parentId?: string) => { setBusy(true); try { const id = crypto.randomUUID(); await api.createWatchlistGroup({ id, name: parentId ? "新子分组" : "新分组", parent_id: parentId || null }); await load(); setSelectedId(id); } catch (error) { setMessage(error instanceof Error ? error.message : "创建分组失败"); } finally { setBusy(false); } };
+  if (authLoading) return <div className="flex min-h-screen flex-col"><Header /><main className="flex flex-1 items-center justify-center"><Loader2 className="animate-spin" /></main></div>;
+  if (!user) return <div className="flex min-h-screen flex-col"><Header /><main className="flex flex-1 items-center justify-center p-6"><Card className="w-full max-w-md"><CardHeader><CardTitle>登录后管理自选股</CardTitle><CardDescription>分组和自选股会按账户保存到云端。</CardDescription></CardHeader><CardContent><Button className="w-full" render={<Link href="/auth/login?returnTo=/watchlist" prefetch={false} />}>登录 / 注册</Button></CardContent></Card></main></div>;
+  return <div className="flex min-h-screen flex-col"><Header /><main className="flex-1 p-4 sm:p-6"><div className="mb-6 flex flex-wrap items-start justify-between gap-4"><div><h1 className="text-3xl font-bold tracking-tight">自选股</h1><p className="text-muted-foreground">用树状分组组织关注标的。</p></div><Button onClick={() => void addGroup()} disabled={busy}>{busy ? <Loader2 className="mr-2 animate-spin" /> : <Plus className="mr-2" />}新建分组</Button></div>{message && <div className="mb-4 rounded-lg border px-4 py-3 text-sm">{message}</div>}<div className="grid gap-4 lg:grid-cols-[17rem_minmax(0,1fr)]"><Card className="h-fit"><CardHeader className="flex-row items-center justify-between"><CardTitle className="text-base">分组</CardTitle><Button size="icon" variant="ghost" onClick={() => void addGroup()} aria-label="新建根分组"><FolderPlus /></Button></CardHeader><CardContent className="space-y-1">{visibleNodes.map((group) => { const hasChildren = (group.children || []).length > 0; const open = expanded.has(group.id); return <button key={group.id} type="button" style={{ paddingLeft: `${group.depth * 16 + 8}px` }} className={`flex w-full items-center gap-1 rounded-md py-2 pr-2 text-left text-sm hover:bg-muted ${selectedId === group.id ? "bg-muted font-medium" : ""}`} onClick={() => setSelectedId(group.id)}>{hasChildren ? <span role="button" tabIndex={0} className="rounded p-0.5 hover:bg-background" onClick={(event) => { event.stopPropagation(); setExpanded((current) => { const next = new Set(current); if (next.has(group.id)) next.delete(group.id); else next.add(group.id); return next; }); }}>{open ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}</span> : <span className="size-5" />}{group.name}</button>; })}</CardContent></Card><section>{selected ? <WatchlistGroupCard group={selected} groups={nodes} onReload={load} onAddChild={(parentId) => void addGroup(parentId)} /> : <Card><CardContent className="p-8 text-center text-muted-foreground">新建分组后即可开始管理自选股。</CardContent></Card>}</section></div></main></div>;
 }

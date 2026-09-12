@@ -96,3 +96,39 @@ def test_unknown_group_raises_domain_error() -> None:
 
     with pytest.raises(WatchlistGroupNotFound):
         service.get_watchlists("auth0|alice", group_id="missing")
+
+
+def test_groups_form_a_tree_and_parent_group_can_hold_stocks() -> None:
+    service = WatchlistService(store=InMemoryWatchlistStore(), research_service=FakeResearchService())
+
+    service.create_group("auth0|alice", {"id": "us", "name": "美国"})
+    service.create_group("auth0|alice", {"id": "finance", "name": "金融", "parent_id": "us"})
+    service.create_group("auth0|alice", {"id": "banks", "name": "银行", "parent_id": "finance"})
+    service.add_item("auth0|alice", "us", item("AAPL"))
+    service.add_item("auth0|alice", "banks", item("JPM"))
+
+    groups = service.get_watchlists("auth0|alice")["groups"]
+
+    assert groups[0]["id"] == "us"
+    assert groups[0]["items"][0]["ticker"] == "AAPL"
+    assert groups[0]["children"][0]["children"][0]["items"][0]["ticker"] == "JPM"
+
+
+def test_group_and_stock_crud_support_rename_move_and_cascade_delete() -> None:
+    service = WatchlistService(store=InMemoryWatchlistStore(), research_service=FakeResearchService())
+    service.create_group("auth0|alice", {"id": "us", "name": "美国"})
+    service.create_group("auth0|alice", {"id": "finance", "name": "金融", "parent_id": "us"})
+    service.create_group("auth0|alice", {"id": "tech", "name": "科技", "parent_id": "us"})
+    service.add_item("auth0|alice", "finance", item("JPM", notes="watch"))
+
+    service.update_group("auth0|alice", "finance", {"name": "金融服务", "parent_id": "tech"})
+    service.update_item("auth0|alice", "finance", "JPM", {"notes": "core", "target_group_id": "tech"})
+    groups = service.get_watchlists("auth0|alice")["groups"]
+
+    tech = groups[0]["children"][0]
+    assert tech["name"] == "科技"
+    assert tech["children"][0]["name"] == "金融服务"
+    assert tech["items"][0]["notes"] == "core"
+
+    service.delete_group("auth0|alice", "tech")
+    assert service.get_watchlists("auth0|alice")["groups"] == [{"id": "us", "name": "美国", "parent_id": None, "items": [], "children": []}]

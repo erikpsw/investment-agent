@@ -23,6 +23,14 @@ class FakeWatchlistService:
         self.calls.append(("save", user_id, groups))
         return {"groups": groups, "storage": "fake"}
 
+    def create_group(self, user_id, group):
+        self.calls.append(("create_group", user_id, group))
+        return {"groups": [], "storage": "fake"}
+
+    def add_item(self, user_id, group_id, item):
+        self.calls.append(("add_item", user_id, group_id, item))
+        return {"groups": [], "storage": "fake"}
+
 
 def make_app(service: FakeWatchlistService, user: AuthenticatedUser | None) -> FastAPI:
     app = FastAPI()
@@ -124,3 +132,19 @@ def test_storage_failure_returns_service_unavailable() -> None:
 
     assert response.status_code == 503
     assert response.json()["detail"] == "Watchlist storage is unavailable"
+
+
+def test_group_and_item_mutations_use_the_authenticated_subject() -> None:
+    service = FakeWatchlistService()
+    user = AuthenticatedUser(sub="auth0|alice")
+    with patch.object(watchlists, "get_watchlist_service", return_value=service):
+        client = TestClient(make_app(service, user))
+        group = client.post("/api/watchlists/groups", json={"id": "us", "name": "美国"})
+        item = client.post("/api/watchlists/groups/us/items", json={"ticker": "AAPL"})
+
+    assert group.status_code == 200
+    assert item.status_code == 200
+    assert service.calls == [
+        ("create_group", "auth0|alice", {"id": "us", "name": "美国", "parent_id": None}),
+        ("add_item", "auth0|alice", "us", {"ticker": "AAPL", "name": "", "market": "", "notes": ""}),
+    ]

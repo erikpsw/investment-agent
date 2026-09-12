@@ -372,7 +372,9 @@ export interface WatchlistItem {
 export interface WatchlistGroup {
   id: string;
   name: string;
+  parent_id?: string | null;
   items: WatchlistItem[];
+  children?: WatchlistGroup[];
 }
 
 export interface WatchlistResult {
@@ -639,6 +641,30 @@ class ApiClient {
       method: "PUT",
       body: JSON.stringify({ groups: writableGroups }),
     }, true);
+  }
+
+  async createWatchlistGroup(group: Pick<WatchlistGroup, "id" | "name" | "parent_id">): Promise<{ status: string; result: WatchlistResult }> {
+    return this.fetch("/api/watchlists/groups", { method: "POST", body: JSON.stringify(group) }, true);
+  }
+
+  async updateWatchlistGroup(groupId: string, patch: Partial<Pick<WatchlistGroup, "name" | "parent_id">>): Promise<{ status: string; result: WatchlistResult }> {
+    return this.fetch(`/api/watchlists/groups/${encodeURIComponent(groupId)}`, { method: "PATCH", body: JSON.stringify(patch) }, true);
+  }
+
+  async deleteWatchlistGroup(groupId: string): Promise<{ status: string; result: WatchlistResult }> {
+    return this.fetch(`/api/watchlists/groups/${encodeURIComponent(groupId)}`, { method: "DELETE" }, true);
+  }
+
+  async addWatchlistItem(groupId: string, item: WatchlistItem): Promise<{ status: string; result: WatchlistResult }> {
+    return this.fetch(`/api/watchlists/groups/${encodeURIComponent(groupId)}/items`, { method: "POST", body: JSON.stringify({ ticker: item.ticker, name: item.name, market: item.market, notes: item.notes || "" }) }, true);
+  }
+
+  async updateWatchlistItem(groupId: string, ticker: string, patch: Partial<WatchlistItem> & { target_group_id?: string }): Promise<{ status: string; result: WatchlistResult }> {
+    return this.fetch(`/api/watchlists/groups/${encodeURIComponent(groupId)}/items/${encodeURIComponent(ticker)}`, { method: "PATCH", body: JSON.stringify(patch) }, true);
+  }
+
+  async deleteWatchlistItem(groupId: string, ticker: string): Promise<{ status: string; result: WatchlistResult }> {
+    return this.fetch(`/api/watchlists/groups/${encodeURIComponent(groupId)}/items/${encodeURIComponent(ticker)}`, { method: "DELETE" }, true);
   }
 
   async analyzePortfolio(): Promise<{ status: string; result: PortfolioAnalysisResult }> {
