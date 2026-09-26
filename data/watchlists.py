@@ -93,13 +93,12 @@ class WatchlistService:
         self,
         groups: List[Dict[str, Any]],
         include_history: bool,
+        quotes_only: bool = False,
     ) -> List[Dict[str, Any]]:
         enriched: List[Dict[str, Any]] = []
         for group in groups:
-            items = self.research_service.enrich(
-                group.get("items", []), include_history=include_history
-            ) if group.get("items") else []
-            enriched.append({**group, "items": items, "children": self._enrich_groups(group.get("children", []), include_history)})
+            items = (self.research_service.enrich_quotes(group.get("items", [])) if quotes_only else self.research_service.enrich(group.get("items", []), include_history=include_history)) if group.get("items") else []
+            enriched.append({**group, "items": items, "children": self._enrich_groups(group.get("children", []), include_history, quotes_only)})
         return enriched
 
     def _document_groups(self, user_id: str) -> List[Dict[str, Any]]:
@@ -319,6 +318,8 @@ class WatchlistService:
         user_id: str,
         group_id: Optional[str] = None,
         include_history: bool = False,
+        include_research: bool = True,
+        quotes_only: bool = False,
     ) -> Dict[str, Any]:
         document = self.store.load(user_id)
         groups = self._normalize_groups(document.groups)
@@ -330,8 +331,15 @@ class WatchlistService:
         return {
             "updated_at": document.updated_at,
             "storage": document.storage,
-            "groups": self._enrich_groups(self._tree(groups), include_history),
+            "groups": self._enrich_groups(self._tree(groups), include_history, quotes_only) if include_research else self._tree(groups),
         }
+
+    def get_item_research(self, user_id: str, group_id: str, ticker: str) -> Dict[str, Any]:
+        group = self._group(self._document_groups(user_id), group_id)
+        item = next((entry for entry in group["items"] if str(entry["ticker"]).casefold() == ticker.casefold()), None)
+        if item is None:
+            raise WatchlistItemNotFound(ticker)
+        return self.research_service.snapshot(item["ticker"], item["name"], item["market"])
 
     def save_watchlists(
         self,

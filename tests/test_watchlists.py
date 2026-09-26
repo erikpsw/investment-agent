@@ -13,6 +13,14 @@ def item(ticker: str, name: str = "Example", market: str = "US", notes: str = ""
 class FakeResearchService:
     def __init__(self) -> None:
         self.include_history_calls: list[bool] = []
+        self.quote_calls: list[list[str]] = []
+
+    def enrich_quotes(self, items):
+        self.quote_calls.append([item["ticker"] for item in items])
+        return [{**item, "research": {"quote": {"price": 100}}} for item in items]
+
+    def snapshot(self, ticker, name, market):
+        return {"quote": {"price": 100}, "ticker": ticker}
 
     def enrich(self, items, include_history=False):
         self.include_history_calls.append(include_history)
@@ -86,6 +94,34 @@ def test_get_watchlists_filters_group_and_forwards_history_flag() -> None:
     assert [group["id"] for group in result["groups"]] == ["hk"]
     assert result["groups"][0]["items"][0]["research"]["history"]
     assert research.include_history_calls == [True]
+
+
+def test_lightweight_list_skips_research_for_every_group() -> None:
+    store = InMemoryWatchlistStore()
+    research = FakeResearchService()
+    service = WatchlistService(store=store, research_service=research)
+    store.save("auth0|alice", [{"id": "core", "name": "Core", "items": [item("AAPL")]}])
+
+    result = service.get_watchlists("auth0|alice", include_research=False)
+
+    assert result["groups"][0]["items"][0]["ticker"] == "AAPL"
+    assert "research" not in result["groups"][0]["items"][0]
+    assert research.include_history_calls == []
+
+
+def test_selected_group_quotes_skip_history_and_news() -> None:
+    store = InMemoryWatchlistStore()
+    research = FakeResearchService()
+    service = WatchlistService(store=store, research_service=research)
+    store.save("auth0|alice", [
+        {"id": "core", "name": "Core", "items": [item("AAPL")]},
+        {"id": "other", "name": "Other", "items": [item("MSFT")]},
+    ])
+    result = service.get_watchlists("auth0|alice", group_id="core", quotes_only=True)
+    assert result["groups"][0]["items"][0]["research"]["quote"]["price"] == 100
+    assert research.quote_calls == [["AAPL"]]
+    assert research.include_history_calls == []
+    assert service.get_item_research("auth0|alice", "core", "AAPL")["ticker"] == "AAPL"
 
 
 def test_unknown_group_raises_domain_error() -> None:

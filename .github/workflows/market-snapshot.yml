@@ -24,7 +24,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add storage/market/latest.json storage/market/sectors.json data/stock_lists/ETF.json
+          git add -A storage/market data/stock_lists/ETF.json
           git diff --cached --quiet && exit 0
           git commit -m "chore: update market snapshots"
           git push origin main

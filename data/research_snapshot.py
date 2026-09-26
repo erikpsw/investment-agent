@@ -217,6 +217,28 @@ class ResearchSnapshotService:
             "errors": errors,
         }
 
+    def quote(self, item: Dict[str, Any]) -> Dict[str, Any]:
+        ticker = str(item.get("ticker") or "")
+        market = str(item.get("market") or "").upper()
+        try:
+            quote = dict(self.fetcher.get_quote(ticker) or {})
+            if quote.get("error"):
+                raise ValueError(str(quote["error"]))
+            result = {
+                "price": _rounded(quote.get("price")),
+                "currency": quote.get("currency") or {"CN": "CNY", "HK": "HKD", "US": "USD"}.get(market, ""),
+                "day_change_percent": _rounded(quote.get("change_percent")),
+            }
+            return {**item, "research": {"quote": result, "errors": []}}
+        except Exception as exc:
+            return {**item, "research": {"quote": {"price": None}, "errors": [_error("quote", exc)]}}
+
+    def enrich_quotes(self, items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        if not items:
+            return []
+        with ThreadPoolExecutor(max_workers=min(6, len(items))) as executor:
+            return list(executor.map(self.quote, items))
+
     def enrich(
         self,
         items: List[Dict[str, Any]],

@@ -616,14 +616,18 @@ class ApiClient {
     }, true);
   }
 
-  async getWatchlists(groupId?: string, includeHistory = false): Promise<{ status: string; result: WatchlistResult }> {
-    const params = new URLSearchParams({ include_history: String(includeHistory) });
+  async getWatchlists(groupId?: string, includeHistory = false, includeResearch = true, quotesOnly = false): Promise<{ status: string; result: WatchlistResult }> {
+    const params = new URLSearchParams({ include_history: String(includeHistory), include_research: String(includeResearch), quotes_only: String(quotesOnly) });
     if (groupId) params.set("group_id", groupId);
     return this.fetch<{ status: string; result: WatchlistResult }>(
       `/api/watchlists?${params}`,
       undefined,
       true,
     );
+  }
+
+  async getWatchlistItemResearch(groupId: string, ticker: string): Promise<{ status: string; result: SecurityResearch }> {
+    return this.fetch<{ status: string; result: SecurityResearch }>(`/api/watchlists/groups/${encodeURIComponent(groupId)}/items/${encodeURIComponent(ticker)}/research`, undefined, true);
   }
 
   async saveWatchlists(groups: WatchlistGroup[]): Promise<{ status: string; result: WatchlistResult }> {

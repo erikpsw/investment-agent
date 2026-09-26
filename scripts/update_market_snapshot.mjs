@@ -11,6 +11,8 @@ const headers = { "User-Agent": "Mozilla/5.0", Referer: "https://quote.eastmoney
 const stockSnapshotPath = resolve(outputDir, "latest.json");
 const sectorSnapshotPath = resolve(outputDir, "sectors.json");
 const etfCatalogPath = resolve(root, "data", "stock_lists", "ETF.json");
+const hkSnapshotPath = resolve(outputDir, "hot-hk.json");
+const usSnapshotPath = resolve(outputDir, "hot-us.json");
 
 const STOCK_URLS = [
   "https://push2delay.eastmoney.com/api/qt/clist/get",
@@ -192,6 +194,48 @@ async function fetchEtfs() {
   }).filter(Boolean);
 }
 
+async function fetchHotHk() {
+  const response = await fetchJson("https://72.push2.eastmoney.com/api/qt/clist/get", {
+    pn: "1", pz: "100", po: "1", np: "1", fltt: "2", fid: "f6",
+    fs: "m:128 t:3,m:128 t:4,m:128 t:1,m:128 t:2",
+    fields: "f2,f3,f6,f8,f10,f12,f14",
+  }, 3);
+  const entries = Object.values(response.data.diff || {});
+  return entries.filter((row) => /^\d{1,5}$/.test(String(row.f12 || "")) && row.f2 > 0 && row.f6 > 0).map((row) => ({
+    ticker: `hk${String(row.f12).padStart(5, "0")}`, name: String(row.f14 || row.f12), market: "HK",
+    price: number(row.f2), amount: number(row.f6), today_change_percent: number(row.f3),
+    turnover_rate: number(row.f8), volume_ratio: number(row.f10),
+  }));
+}
+
+async function fetchHotUs() {
+  const url = new URL("https://query1.finance.yahoo.com/v1/finance/screener/predefined/saved");
+  url.search = new URLSearchParams({ scrIds: "most_actives", count: "100", formatted: "false", region: "US", lang: "en-US" }).toString();
+  const response = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" }, signal: AbortSignal.timeout(15000) });
+  if (!response.ok) throw new Error(`Yahoo US HTTP ${response.status}`);
+  const quotes = (await response.json()).finance?.result?.[0]?.quotes || [];
+  return quotes.filter((row) => /^[A-Z][A-Z0-9.-]{0,14}$/.test(String(row.symbol || "")) && row.regularMarketPrice > 0 && row.regularMarketVolume > 0).map((row) => ({
+    ticker: row.symbol, name: row.longName || row.shortName || row.symbol, market: "US",
+    price: row.regularMarketPrice, amount: row.regularMarketPrice * row.regularMarketVolume,
+    today_change_percent: number(row.regularMarketChangePercent),
+    turnover_rate: null,
+    volume_ratio: row.averageDailyVolume3Month ? row.regularMarketVolume / row.averageDailyVolume3Month : null,
+  }));
+}
+
+async function updateHotSnapshot(market, path, fetcher) {
+  try {
+    const rows = await fetcher();
+    if (rows.length < 10) throw new Error(`${market} provider returned only ${rows.length} valid rows`);
+    await writeFile(path, JSON.stringify({ market, generated_at: new Date().toISOString(), source: market === "HK" ? "Eastmoney HK market" : "Yahoo Finance US most active", rows }));
+    console.log(`${market} hot snapshot ready: ${rows.length} stocks`);
+  } catch (error) {
+    const existing = await readExisting(path, 10);
+    if (existing) console.warn(`${market} hot snapshot fetch failed; retaining ${existing.generated_at}: ${error}`);
+    else console.warn(`${market} hot snapshot unavailable: ${error}`);
+  }
+}
+
 async function readExisting(path, minimumRows) {
   try {
     const payload = JSON.parse(await readFile(path, "utf8"));
@@ -240,4 +284,8 @@ if (process.argv.includes("--etf-only")) {
       `${sectorPayload.rows.length} sectors (${sectorPayload.generated_at}), ` +
       `${etfPayload.rows.length} ETFs (${etfPayload.generated_at})`
   );
+  await Promise.all([
+    updateHotSnapshot("HK", hkSnapshotPath, fetchHotHk),
+    updateHotSnapshot("US", usSnapshotPath, fetchHotUs),
+  ]);
 }

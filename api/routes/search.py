@@ -413,6 +413,20 @@ async def search_stocks(
             if len(results) >= limit:
                 break
     
+    term = q.strip().casefold()
+    def priority(result: Dict[str, Any]) -> int:
+        code = str(result.get("code") or "").casefold()
+        if code == term:
+            return 0
+        if term.isdigit() and len(term) in (4, 5) and code == "hk" + term.zfill(5):
+            return 0
+        if code.removeprefix("hk") == term:
+            return 1
+        if code.endswith(term):
+            return 2
+        return 3
+    results.sort(key=priority)
+
     return SearchResponse(
         results=[
             SearchResult(
