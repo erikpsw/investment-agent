@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { BarChart3, FolderPlus, Search, Trash2 } from "lucide-react";
+import { useMemo, useState } from "react";
+import { ArrowDown, ArrowDownUp, ArrowUp, BarChart3, FolderPlus, Search, Trash2 } from "lucide-react";
 import { SecurityResearchDetails } from "@/components/security-research-details";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,22 @@ import { useSearch } from "@/hooks/use-search";
 import { api, type SearchResult, type WatchlistGroup, type WatchlistItem } from "@/lib/api";
 
 function price(value?: number | null) { return value == null || Number.isNaN(value) ? "--" : value.toLocaleString("zh-CN", { maximumFractionDigits: 3 }); }
+function percent(value?: number | null) { return value == null || Number.isNaN(value) ? "--" : `${value > 0 ? "+" : ""}${value.toFixed(2)}%`; }
+function volume(value?: number | null) { return value == null || Number.isNaN(value) ? "--" : value.toLocaleString("zh-CN", { maximumFractionDigits: 0 }); }
+function quoteTime(value?: string | null) { if (!value) return "--"; const date = new Date(value); return Number.isNaN(date.getTime()) ? "--" : date.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" }); }
+
+type SortKey = "ticker" | "market" | "price" | "day" | "fiveDay" | "volume";
+type SortState = { key: SortKey; direction: "asc" | "desc" };
+
+function ChangeValue({ value }: { value?: number | null }) {
+  return <span className={value == null ? "text-muted-foreground" : value > 0 ? "text-emerald-600 dark:text-emerald-400" : value < 0 ? "text-red-600 dark:text-red-400" : "text-muted-foreground"}>{percent(value)}</span>;
+}
+
+function SortHeader({ label, sortKey, sort, onSort, className }: { label: string; sortKey: SortKey; sort: SortState; onSort: (key: SortKey) => void; className?: string }) {
+  const active = sort.key === sortKey;
+  const Icon = active ? sort.direction === "asc" ? ArrowUp : ArrowDown : ArrowDownUp;
+  return <TableHead aria-sort={active ? sort.direction === "asc" ? "ascending" : "descending" : "none"} className={className}><Button type="button" variant="ghost" size="sm" className="-ml-2 h-8 px-2 font-medium" onClick={() => onSort(sortKey)}>{label}<Icon className="ml-1 h-3.5 w-3.5" /></Button></TableHead>;
+}
 
 function NotesEditor({ item, onSave }: { item: WatchlistItem; onSave: (notes: string) => Promise<void> }) {
   const [notes, setNotes] = useState(item.notes);
@@ -61,6 +77,26 @@ function ResearchButton({ item, groupId }: { item: WatchlistItem; groupId: strin
 }
 
 export function WatchlistGroupCard({ group, groups, onReload, onAddChild }: { group: WatchlistGroup; groups: WatchlistGroup[]; onReload: () => Promise<void>; onAddChild: (parentId: string) => void }) {
+  const [sort, setSort] = useState<SortState>({ key: "ticker", direction: "asc" });
+  const sortedItems = useMemo(() => [...group.items].sort((left, right) => {
+    const value = (item: WatchlistItem) => {
+      const quote = item.research?.quote;
+      switch (sort.key) {
+        case "ticker": return item.ticker.toLocaleLowerCase();
+        case "market": return item.market.toLocaleLowerCase();
+        case "price": return quote?.price;
+        case "day": return quote?.day_change_percent;
+        case "fiveDay": return quote?.five_day_change_percent;
+        case "volume": return quote?.volume;
+      }
+    };
+    const a = value(left); const b = value(right);
+    if (a == null) return b == null ? 0 : 1;
+    if (b == null) return -1;
+    const compared = typeof a === "number" && typeof b === "number" ? a - b : String(a).localeCompare(String(b), "zh-CN");
+    return sort.direction === "asc" ? compared : -compared;
+  }), [group.items, sort]);
+  const toggleSort = (key: SortKey) => setSort((current) => ({ key, direction: current.key === key ? current.direction === "asc" ? "desc" : "asc" : key === "ticker" || key === "market" ? "asc" : "desc" }));
   const call = async (action: () => Promise<unknown>) => { await action(); await onReload(); };
-  return <Card className="overflow-visible"><CardHeader className="space-y-3"><div className="flex items-center gap-2"><Input key={group.id} aria-label="分组名称" className="min-w-0 flex-1 text-base font-semibold" defaultValue={group.name} onBlur={(event) => { const name = event.currentTarget.value.trim(); if (name && name !== group.name) void call(() => api.updateWatchlistGroup(group.id, { name })); }} /><Button type="button" size="icon" variant="outline" onClick={() => onAddChild(group.id)} aria-label="新建子分组"><FolderPlus /></Button><Button type="button" size="icon" variant="outline" onClick={() => { if (window.confirm(`删除“${group.name}”及其所有子分组和股票？`)) void call(() => api.deleteWatchlistGroup(group.id)); }} aria-label="删除分组"><Trash2 /></Button></div><label className="flex items-center gap-2 text-sm text-muted-foreground">移动到<select aria-label="移动分组" className="h-9 min-w-0 flex-1 rounded-md border bg-background px-2 text-foreground" value={group.parent_id || ""} onChange={(event) => void call(() => api.updateWatchlistGroup(group.id, { parent_id: event.target.value || null }))}><option value="">根分组</option>{groups.filter((candidate) => candidate.id !== group.id).map((candidate) => <option key={candidate.id} value={candidate.id}>{candidate.name}</option>)}</select></label><SearchToAdd onSelect={(result) => void call(() => api.addWatchlistItem(group.id, { ticker: result.code, name: result.name, market: result.market, notes: "" }))} /></CardHeader><CardContent>{group.items.length === 0 ? <div className="rounded-md border border-dashed p-6 text-center text-sm text-muted-foreground">该分组暂无自选股</div> : <div className="overflow-x-auto"><Table className="w-full min-w-0 text-xs sm:min-w-[720px] sm:text-sm"><TableHeader><TableRow><TableHead>代码 / 名称</TableHead><TableHead>市场</TableHead><TableHead>现价</TableHead><TableHead className="hidden sm:table-cell">备注</TableHead><TableHead className="w-32 text-right">操作</TableHead></TableRow></TableHeader><TableBody>{group.items.map((item) => <TableRow key={item.ticker}><TableCell><div className="font-medium">{item.ticker}</div><div className="text-xs text-muted-foreground">{item.name}</div></TableCell><TableCell><Badge variant="outline">{item.market}</Badge></TableCell><TableCell>{price(item.research?.quote?.price)} {item.research?.quote?.currency}</TableCell><TableCell className="hidden sm:table-cell"><NotesEditor key={`${group.id}:${item.ticker}`} item={item} onSave={async (notes) => { await api.updateWatchlistItem(group.id, item.ticker, { notes }); }} /></TableCell><TableCell className="text-right"><ResearchButton item={item} groupId={group.id} /><Button type="button" size="icon" variant="ghost" onClick={() => { if (window.confirm(`从“${group.name}”移除 ${item.ticker}？`)) void call(() => api.deleteWatchlistItem(group.id, item.ticker)); }} aria-label={`删除 ${item.ticker}`}><Trash2 /></Button></TableCell></TableRow>)}</TableBody></Table></div>}</CardContent></Card>;
+  return <Card className="overflow-visible"><CardHeader className="space-y-3"><div className="flex items-center gap-2"><Input key={group.id} aria-label="分组名称" className="min-w-0 flex-1 text-base font-semibold" defaultValue={group.name} onBlur={(event) => { const name = event.currentTarget.value.trim(); if (name && name !== group.name) void call(() => api.updateWatchlistGroup(group.id, { name })); }} /><Button type="button" size="icon" variant="outline" onClick={() => onAddChild(group.id)} aria-label="新建子分组"><FolderPlus /></Button><Button type="button" size="icon" variant="outline" onClick={() => { if (window.confirm(`删除“${group.name}”及其所有子分组和股票？`)) void call(() => api.deleteWatchlistGroup(group.id)); }} aria-label="删除分组"><Trash2 /></Button></div><label className="flex items-center gap-2 text-sm text-muted-foreground">移动到<select aria-label="移动分组" className="h-9 min-w-0 flex-1 rounded-md border bg-background px-2 text-foreground" value={group.parent_id || ""} onChange={(event) => void call(() => api.updateWatchlistGroup(group.id, { parent_id: event.target.value || null }))}><option value="">根分组</option>{groups.filter((candidate) => candidate.id !== group.id).map((candidate) => <option key={candidate.id} value={candidate.id}>{candidate.name}</option>)}</select></label><SearchToAdd onSelect={(result) => void call(() => api.addWatchlistItem(group.id, { ticker: result.code, name: result.name, market: result.market, notes: "" }))} /></CardHeader><CardContent>{group.items.length === 0 ? <div className="rounded-md border border-dashed p-6 text-center text-sm text-muted-foreground">该分组暂无自选股</div> : <div className="overflow-x-auto"><Table className="w-full min-w-[1120px] text-xs sm:text-sm"><TableHeader><TableRow><SortHeader label="代码 / 名称" sortKey="ticker" sort={sort} onSort={toggleSort} /><SortHeader label="市场" sortKey="market" sort={sort} onSort={toggleSort} /><SortHeader label="现价" sortKey="price" sort={sort} onSort={toggleSort} /><SortHeader label="当日涨跌" sortKey="day" sort={sort} onSort={toggleSort} /><SortHeader label="5 日涨跌" sortKey="fiveDay" sort={sort} onSort={toggleSort} /><SortHeader label="成交量" sortKey="volume" sort={sort} onSort={toggleSort} /><TableHead>报价时间</TableHead><TableHead>备注</TableHead><TableHead className="w-36 text-right">操作</TableHead></TableRow></TableHeader><TableBody>{sortedItems.map((item) => { const quote = item.research?.quote; return <TableRow key={item.ticker}><TableCell><div className="font-medium">{item.ticker}</div><div className="text-xs text-muted-foreground">{item.name}</div></TableCell><TableCell><Badge variant="outline">{item.market}</Badge></TableCell><TableCell>{price(quote?.price)} {quote?.currency}</TableCell><TableCell><ChangeValue value={quote?.day_change_percent} /></TableCell><TableCell title={quote?.five_day_asof ? `截至 ${quote.five_day_asof}` : undefined}><ChangeValue value={quote?.five_day_change_percent} /></TableCell><TableCell>{volume(quote?.volume)}</TableCell><TableCell title={quote?.fetched_at || undefined}>{quoteTime(quote?.fetched_at)}</TableCell><TableCell><NotesEditor key={`${group.id}:${item.ticker}`} item={item} onSave={async (notes) => { await api.updateWatchlistItem(group.id, item.ticker, { notes }); }} /></TableCell><TableCell className="text-right"><ResearchButton item={item} groupId={group.id} /><Button type="button" size="icon" variant="ghost" onClick={() => { if (window.confirm(`从“${group.name}”移除 ${item.ticker}？`)) void call(() => api.deleteWatchlistItem(group.id, item.ticker)); }} aria-label={`删除 ${item.ticker}`}><Trash2 /></Button></TableCell></TableRow>; })}</TableBody></Table></div>}</CardContent></Card>;
 }

@@ -2,7 +2,10 @@
 from __future__ import annotations
 
 import math
+import time
 from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime, timezone
+from functools import lru_cache
 from typing import Any, Callable, Dict, List, Optional
 
 import pandas as pd
@@ -217,9 +220,18 @@ class ResearchSnapshotService:
             "errors": errors,
         }
 
+    @lru_cache(maxsize=1024)
+    def _recent_return(self, ticker: str, cache_window: int) -> Dict[str, Any]:
+        history = self.fetcher.get_history(ticker, period="1mo", interval="1d")
+        frame = history if isinstance(history, pd.DataFrame) else pd.DataFrame(history)
+        close = _numeric_column(frame, "close").dropna()
+        value = (float(close.iloc[-1]) / float(close.iloc[-6]) - 1) * 100 if len(close) >= 6 and float(close.iloc[-6]) else None
+        return {"five_day_change_percent": _rounded(value), "five_day_asof": str(_time_values(frame).iloc[-1]) if not frame.empty else None}
+
     def quote(self, item: Dict[str, Any]) -> Dict[str, Any]:
         ticker = str(item.get("ticker") or "")
         market = str(item.get("market") or "").upper()
+        errors = []
         try:
             quote = dict(self.fetcher.get_quote(ticker) or {})
             if quote.get("error"):
@@ -228,10 +240,18 @@ class ResearchSnapshotService:
                 "price": _rounded(quote.get("price")),
                 "currency": quote.get("currency") or {"CN": "CNY", "HK": "HKD", "US": "USD"}.get(market, ""),
                 "day_change_percent": _rounded(quote.get("change_percent")),
+                "volume": _rounded(quote.get("volume")),
+                "fetched_at": datetime.now(timezone.utc).isoformat(),
             }
-            return {**item, "research": {"quote": result, "errors": []}}
         except Exception as exc:
-            return {**item, "research": {"quote": {"price": None}, "errors": [_error("quote", exc)]}}
+            result = {"price": None, "fetched_at": datetime.now(timezone.utc).isoformat()}
+            errors.append(_error("quote", exc))
+        try:
+            recent = self._recent_return(ticker, int(time.time() // 300))
+        except Exception as exc:
+            recent = {"five_day_change_percent": None, "five_day_asof": None}
+            errors.append(_error("5d history", exc))
+        return {**item, "research": {"quote": {**result, **recent}, "errors": errors}}
 
     def enrich_quotes(self, items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         if not items:

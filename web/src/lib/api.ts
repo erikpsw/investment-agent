@@ -336,6 +336,9 @@ export interface SecurityResearch {
     price?: number | null;
     currency?: string;
     day_change_percent?: number | null;
+    five_day_change_percent?: number | null;
+    five_day_asof?: string | null;
+    fetched_at?: string | null;
     volume?: number | null;
   };
   returns?: Record<"5d" | "20d" | "60d" | "250d", number | null>;
