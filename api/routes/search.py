@@ -382,11 +382,16 @@ async def search_stocks(
                     seen_codes.add(r["code"])
                     results.append(r)
     
-    # 对看起来像美股代码的查询始终实时验证完全匹配项。这样新上市的
-    # 股票或 ETF 不会被过期本地目录中的模糊结果覆盖。
+    # 已有完全匹配的目录记录时直接返回，避免每次输入代码都等待远程搜索。
+    # 目录未收录的新代码仍通过 yfinance 验证。
     exact_us_symbol = bool(re.fullmatch(r"[A-Za-z][A-Za-z0-9.-]{0,14}", q.strip()))
+    has_exact_us = any(
+        str(item.get("code") or "").casefold() == q.strip().casefold()
+        and str(item.get("market") or "").upper() == "US"
+        for item in results
+    )
     should_search_yfinance = market in ("all", "us", "US") and (
-        exact_us_symbol or not results
+        (exact_us_symbol and not has_exact_us) or not results
     )
     if should_search_yfinance:
         print(f"[Search] Verifying US symbol with yfinance for '{q}'")
