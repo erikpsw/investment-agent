@@ -83,7 +83,8 @@ class HotStockRankingTests(unittest.TestCase):
                     {
                         "generated_at": "2026-07-15T20:00:00+00:00",
                         "source": "saved",
-                        "rows": [row("AAPL", 100, 2)],
+                        "market": "US",
+                        "rows": [{**row("AAPL", 100, 2), "market": "US"}],
                     }
                 ),
                 encoding="utf-8",

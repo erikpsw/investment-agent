@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import math
+import re
 import time
 from datetime import datetime, timezone
 from pathlib import Path
@@ -18,6 +19,23 @@ CACHE_SECONDS = 600
 SNAPSHOT_DIR = Path(__file__).resolve().parent.parent / "storage" / "market"
 _cache_lock = Lock()
 _cache: dict[str, tuple[float, dict[str, Any]]] = {}
+
+
+def _valid_market_rows(rows: list[dict[str, Any]], market: str) -> list[dict[str, Any]]:
+    valid = []
+    for row in rows:
+        if not isinstance(row, dict):
+            continue
+        ticker = str(row.get("ticker") or "")
+        declared = str(row.get("market") or market).upper()
+        if declared != market:
+            continue
+        if market == "HK" and not re.fullmatch(r"hk\d{5}", ticker, re.I):
+            continue
+        if market == "US" and not re.fullmatch(r"[A-Z][A-Z0-9.-]{0,14}", ticker):
+            continue
+        valid.append(row)
+    return valid
 
 
 def _number(value: Any) -> float | None:
@@ -137,7 +155,7 @@ def load_hot_stock_snapshot(
     source: str | None = None,
 ) -> dict[str, Any]:
     try:
-        rows = fetch_rows()
+        rows = _valid_market_rows(fetch_rows(), market)
         if not rows:
             raise RuntimeError("Hot-stock provider returned no rows")
         return {
@@ -151,8 +169,11 @@ def load_hot_stock_snapshot(
         if not snapshot_path.exists():
             raise
         payload = json.loads(snapshot_path.read_text(encoding="utf-8"))
-        rows = payload.get("rows") if isinstance(payload, dict) else None
-        if not isinstance(rows, list) or not rows:
+        if not isinstance(payload, dict) or payload.get("market", market) != market:
+            raise ValueError(f"Snapshot market does not match {market}")
+        raw_rows = payload.get("rows")
+        rows = _valid_market_rows(raw_rows, market) if isinstance(raw_rows, list) else []
+        if not rows:
             raise RuntimeError(f"No valid {market} hot-stock snapshot is available")
         return {
             "market": market,
@@ -165,6 +186,48 @@ def load_hot_stock_snapshot(
 
 def _cn_rows() -> list[dict[str, Any]]:
     return list(scan_cn_market()["rows"])
+
+
+def _hk_eastmoney_rows() -> list[dict[str, Any]]:
+    """Fetch the most traded HK securities from Eastmoney's HK market list."""
+    response = requests.get(
+        "https://72.push2.eastmoney.com/api/qt/clist/get",
+        params={
+            "pn": "1", "pz": "100", "po": "1", "np": "1", "fltt": "2",
+            "fid": "f6", "fs": "m:128 t:3,m:128 t:4,m:128 t:1,m:128 t:2",
+            "fields": "f2,f3,f6,f8,f10,f12,f14",
+        },
+        headers={"User-Agent": "Mozilla/5.0"},
+        timeout=12,
+    )
+    response.raise_for_status()
+    entries = (response.json().get("data") or {}).get("diff") or []
+    if isinstance(entries, dict):
+        entries = list(entries.values())
+    rows = []
+    for entry in entries:
+        code = str(entry.get("f12") or "")
+        if not re.fullmatch(r"\d{1,5}", code):
+            continue
+        rows.append({
+            "ticker": f"hk{code.zfill(5)}", "name": entry.get("f14") or code,
+            "market": "HK", "price": _number(entry.get("f2")),
+            "amount": _number(entry.get("f6")),
+            "today_change_percent": _number(entry.get("f3")),
+            "turnover_rate": _number(entry.get("f8")),
+            "volume_ratio": _number(entry.get("f10")),
+        })
+    return [row for row in rows if row["price"] and row["amount"]]
+
+
+def _hk_rows() -> list[dict[str, Any]]:
+    try:
+        rows = _hk_eastmoney_rows()
+        if rows:
+            return rows
+    except (requests.RequestException, ValueError, KeyError):
+        pass
+    return _yahoo_active_rows("HK")
 
 
 def _yahoo_active_rows(market: str) -> list[dict[str, Any]]:
@@ -192,9 +255,14 @@ def _yahoo_active_rows(market: str) -> list[dict[str, Any]]:
         volume = _number(quote.get("regularMarketVolume"))
         average_volume = _number(quote.get("averageDailyVolume3Month"))
         if market == "HK":
-            code = symbol.upper().replace(".HK", "").zfill(5)
+            match = re.fullmatch(r"(\d{1,5})\.HK", symbol, re.I)
+            if not match:
+                continue
+            code = match.group(1).zfill(5)
             ticker = f"hk{code}"
         else:
+            if symbol.upper().endswith(".HK"):
+                continue
             ticker = symbol.upper()
         rows.append(
             {
@@ -225,6 +293,10 @@ def get_hot_stock_snapshot(market: str) -> dict[str, Any]:
         fetch_rows = _cn_rows
         snapshot_path = SNAPSHOT_DIR / "latest.json"
         source = "Eastmoney A-share market snapshot"
+    elif normalized_market == "HK":
+        fetch_rows = _hk_rows
+        snapshot_path = SNAPSHOT_DIR / "hot-hk.json"
+        source = "Eastmoney HK market / Yahoo HK fallback"
     else:
         fetch_rows = lambda: _yahoo_active_rows(normalized_market)
         snapshot_path = SNAPSHOT_DIR / f"hot-{normalized_market.lower()}.json"

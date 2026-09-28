@@ -25,6 +25,7 @@ def history_for(closes: list[float]) -> pd.DataFrame:
 class FakeFetcher:
     def __init__(self, closes: list[float]) -> None:
         self.history = history_for(closes)
+        self.history_calls = 0
 
     def get_quote(self, ticker: str):
         return {
@@ -36,8 +37,9 @@ class FakeFetcher:
         }
 
     def get_history(self, ticker: str, period: str = "2y", interval: str = "1d"):
-        assert period == "2y"
+        assert period in {"2y", "1mo"}
         assert interval == "1d"
+        self.history_calls += 1
         return self.history.copy()
 
 
@@ -112,6 +114,24 @@ def test_enrich_preserves_input_order_and_attaches_research() -> None:
 
     assert [item["ticker"] for item in result] == ["AAPL", "hk00700"]
     assert all("research" in item for item in result)
+
+
+def test_quote_adds_five_day_change_volume_and_caches_history() -> None:
+    fetcher = FakeFetcher([100.0, 101.0, 102.0, 103.0, 104.0, 110.0])
+    service = ResearchSnapshotService(fetcher=fetcher, news_provider=lambda **_: [])
+    item = {"ticker": "AAPL", "name": "Apple", "market": "US"}
+
+    first = service.quote(item)
+    second = service.quote(item)
+
+    quote = first["research"]["quote"]
+    assert quote["day_change_percent"] == pytest.approx(1.25)
+    assert quote["five_day_change_percent"] == pytest.approx(10.0)
+    assert quote["five_day_asof"] == "2025-01-06"
+    assert quote["volume"] == 5000
+    assert quote["fetched_at"]
+    assert second["research"]["quote"]["five_day_change_percent"] == pytest.approx(10.0)
+    assert fetcher.history_calls == 1
 
 
 def test_snapshot_keeps_partial_results_when_history_and_news_fail() -> None:

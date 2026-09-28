@@ -112,6 +112,8 @@ async def _run_watchlist_call(call: Callable[..., Any], *args: Any) -> Any:
 async def get_watchlists(
     group_id: Optional[str] = Query(default=None, min_length=1, max_length=100),
     include_history: bool = Query(default=False),
+    include_research: bool = Query(default=True),
+    quotes_only: bool = Query(default=False),
     current_user: AuthenticatedUser = Depends(get_watchlist_reader),
 ):
     result = await _run_watchlist_call(
@@ -119,6 +121,23 @@ async def get_watchlists(
         current_user.sub,
         group_id,
         include_history,
+        include_research,
+        quotes_only,
+    )
+    return {"status": "ok", "result": result}
+
+
+@router.get("/watchlists/groups/{group_id}/items/{ticker}/research")
+async def get_watchlist_item_research(
+    group_id: str,
+    ticker: str,
+    current_user: AuthenticatedUser = Depends(get_watchlist_reader),
+):
+    result = await _run_watchlist_call(
+        get_watchlist_service().get_item_research,
+        current_user.sub,
+        group_id,
+        ticker,
     )
     return {"status": "ok", "result": result}
 
