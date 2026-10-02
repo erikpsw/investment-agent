@@ -16,6 +16,12 @@ class MutableClock:
 
 
 class PersonalAccessTokenStoreTests(unittest.TestCase):
+    def test_postgres_variable_fractional_timestamp_is_supported(self) -> None:
+        from investment.data.pat_store import _parse_datetime
+        parsed = _parse_datetime("2026-07-22T02:46:12.17274+00:00")
+        self.assertEqual(parsed, datetime(2026, 7, 22, 2, 46, 12, 172740, tzinfo=timezone.utc))
+        self.assertEqual(_parse_datetime("2026-07-22T02:46:12.1Z").microsecond, 100000)
+
     def setUp(self) -> None:
         self.clock = MutableClock(datetime(2026, 7, 16, 8, 0, tzinfo=timezone.utc))
         self.store = InMemoryPersonalAccessTokenStore(

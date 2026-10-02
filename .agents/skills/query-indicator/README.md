@@ -40,17 +40,17 @@ export HT_APIKEY="<your-api-key>"
 OpenClaw 内核会按 `SKILL.md` 中的"**执行**"指令调用本 skill。所有工具走统一入口：
 
 ```bash
-python3 query_indicator.py <toolName> [args]
+python query_indicator.py <toolName> [args]
 ```
 
 开发者也可直接命令行调用：
 
 ```bash
 # 查询金融指标
-python3 query_indicator.py queryIndicator --query "看看华泰证券最新价"
+python query_indicator.py queryIndicator --query "看看华泰证券最新价"
 
 # 查看参数说明
-python3 query_indicator.py queryIndicator --help
+python query_indicator.py queryIndicator --help
 ```
 
 所有调用输出统一的 JSON 结构 `{ ok, data, error }`，详见 SKILL.md "响应结构"段。

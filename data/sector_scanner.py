@@ -118,6 +118,7 @@ def sector_history(code: str, days: int = 120) -> dict[str, Any]:
         "name": data.get("name"),
         "bars": bars,
         "change_5d": _return(closes, 5),
+        "change_10d": _return(closes, 10),
         "change_20d": _return(closes, 20),
         "change_60d": _return(closes, 60),
     }

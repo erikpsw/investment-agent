@@ -25,7 +25,7 @@ export function Header({ onSearchClick }: HeaderProps) {
             <span className="sr-only">Toggle menu</span>
           </SheetTrigger>
           <SheetContent side="left" className="p-0 w-64">
-            <Sidebar />
+            <Sidebar collapsible={false} />
           </SheetContent>
         </Sheet>
 

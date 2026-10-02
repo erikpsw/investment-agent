@@ -91,6 +91,9 @@ class YFinanceClient:
                 "volume": info.get("regularMarketVolume"),
                 "market_cap": info.get("marketCap"),
                 "pe_ratio": info.get("trailingPE"),
+                "source": "Yahoo Finance",
+                "pe_source": "Yahoo Finance",
+                "pe_basis": "TTM",
                 "eps": info.get("trailingEps"),
                 "dividend_yield": info.get("dividendYield"),
                 "52_week_high": info.get("fiftyTwoWeekHigh"),
@@ -183,6 +186,13 @@ class YFinanceClient:
             
             return {
                 "ticker": ticker,
+                "name": info.get("shortName") or info.get("longName"),
+                "pe_ratio": info.get("trailingPE"),
+                "pb_ratio": info.get("priceToBook"),
+                "eps": info.get("trailingEps"),
+                "source": "Yahoo Finance",
+                "pe_source": "Yahoo Finance",
+                "pe_basis": "TTM",
                 "revenue": info.get("totalRevenue"),
                 "gross_profit": info.get("grossProfits"),
                 "operating_income": info.get("operatingIncome"),

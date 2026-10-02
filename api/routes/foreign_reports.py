@@ -1,11 +1,14 @@
 """
 港股/美股财报 API 路由
 """
+import asyncio
+
 from fastapi import APIRouter, HTTPException, Query
 from typing import List, Optional, Any
 from pydantic import BaseModel
 
-from investment.data import SECEdgarClient, HKEXClient
+from investment.data.sec_edgar_client import SECEdgarClient
+from investment.data.hkex_client import HKEXClient
 
 router = APIRouter()
 
@@ -50,7 +53,7 @@ async def get_us_filings(
 ):
     """获取美股财报列表（SEC EDGAR）"""
     try:
-        filings = sec_client.get_filings_list(ticker, filing_type, limit)
+        filings = await asyncio.to_thread(sec_client.get_filings_list, ticker, (["10-K", "20-F", "20-F/A"] if filing_type == "10-K" else [] if not filing_type else filing_type), limit)
         
         return FilingsResponse(
             ticker=ticker.upper(),
@@ -78,7 +81,7 @@ async def get_us_annual_reports(
 ):
     """获取美股年报列表 (10-K)"""
     try:
-        filings = sec_client.get_annual_reports(ticker, limit)
+        filings = await asyncio.to_thread(sec_client.get_annual_reports, ticker, limit)
         
         return FilingsResponse(
             ticker=ticker.upper(),
@@ -106,7 +109,7 @@ async def get_us_quarterly_reports(
 ):
     """获取美股季报列表 (10-Q)"""
     try:
-        filings = sec_client.get_quarterly_reports(ticker, limit)
+        filings = await asyncio.to_thread(sec_client.get_quarterly_reports, ticker, limit)
         
         return FilingsResponse(
             ticker=ticker.upper(),
@@ -131,7 +134,7 @@ async def get_us_quarterly_reports(
 async def get_us_company_info(ticker: str):
     """获取美股公司信息"""
     try:
-        info = sec_client.get_company_info(ticker)
+        info = await asyncio.to_thread(sec_client.get_company_info, ticker)
         if "error" in info:
             raise HTTPException(status_code=404, detail=info["error"])
         return info
@@ -147,7 +150,7 @@ async def get_us_company_info(ticker: str):
 async def get_hk_company_info(ticker: str):
     """获取港股公司信息"""
     try:
-        info = hkex_client.get_company_info(ticker)
+        info = await asyncio.to_thread(hkex_client.get_company_info, ticker)
         if "error" in info:
             raise HTTPException(status_code=404, detail=info["error"])
         return info
@@ -164,7 +167,7 @@ async def get_hk_financial_report(
 ):
     """获取港股财务报告数据"""
     try:
-        df = hkex_client.get_financial_report(ticker, indicator)
+        df = await asyncio.to_thread(hkex_client.get_financial_report, ticker, indicator)
         
         if df.empty:
             return {"ticker": ticker, "data": [], "message": "No data available"}
@@ -195,7 +198,7 @@ async def get_hk_financial_report(
 async def get_hk_financial_indicators(ticker: str):
     """获取港股财务分析指标"""
     try:
-        df = hkex_client.get_financial_indicators(ticker)
+        df = await asyncio.to_thread(hkex_client.get_financial_indicators, ticker)
         
         if df.empty:
             return {"ticker": ticker, "data": [], "message": "No data available"}
@@ -228,7 +231,7 @@ async def get_hk_announcements(
 ):
     """获取港股公告列表"""
     try:
-        announcements = hkex_client.get_announcements(ticker, category, limit)
+        announcements = await asyncio.to_thread(hkex_client.get_announcements, ticker, category, limit)
         
         return FilingsResponse(
             ticker=ticker,
@@ -252,7 +255,7 @@ async def get_hk_announcements(
 async def get_hk_valuation(ticker: str):
     """获取港股估值指标"""
     try:
-        data = hkex_client.get_hk_indicator_eniu(ticker)
+        data = await asyncio.to_thread(hkex_client.get_hk_indicator_eniu, ticker)
         return data
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))

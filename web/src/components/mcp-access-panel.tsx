@@ -47,7 +47,7 @@ export function McpAccessPanel({
   onCloseCreatedToken,
   onRevokeToken,
 }: McpAccessPanelProps) {
-  const [open, setOpen] = useState(true);
+  const [open, setOpen] = useState(false);
   const [tokenOpen, setTokenOpen] = useState(false);
   const [copied, setCopied] = useState<string | null>(null);
   const [renderedAt] = useState(() => Date.now());

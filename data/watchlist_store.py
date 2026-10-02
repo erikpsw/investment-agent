@@ -2,6 +2,9 @@
 from __future__ import annotations
 
 import os
+import time
+from copy import deepcopy
+from collections import OrderedDict
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from functools import lru_cache
@@ -132,10 +135,47 @@ class SupabaseWatchlistStore:
         )
 
 
+class CachedWatchlistStore:
+    """Short, owner-scoped read cache; writes replace cached data immediately."""
+    def __init__(self, store: WatchlistStore, ttl_seconds: float = 10) -> None:
+        self.store = store
+        self.ttl_seconds = ttl_seconds
+        self._entries = OrderedDict()
+        self._lock = RLock()
+        self._owner_locks = [RLock() for _ in range(32)]
+
+    def _remember(self, owner: str, document: WatchlistDocument) -> None:
+        with self._lock:
+            self._entries[owner] = (time.monotonic(), deepcopy(document))
+            self._entries.move_to_end(owner)
+            while len(self._entries) > 128:
+                self._entries.popitem(last=False)
+
+    def load(self, user_id: str) -> WatchlistDocument:
+        owner = _owner(user_id)
+        with self._owner_locks[hash(owner) % len(self._owner_locks)]:
+            with self._lock:
+                entry = self._entries.get(owner)
+                if entry and time.monotonic() - entry[0] < self.ttl_seconds:
+                    return deepcopy(entry[1])
+            document = self.store.load(owner)
+            self._remember(owner, document)
+            return deepcopy(document)
+
+    def save(self, user_id: str, groups: List[Dict[str, Any]]) -> WatchlistDocument:
+        owner = _owner(user_id)
+        with self._owner_locks[hash(owner) % len(self._owner_locks)]:
+            with self._lock:
+                self._entries.pop(owner, None)
+            document = self.store.save(owner, groups)
+            self._remember(owner, document)
+            return deepcopy(document)
+
+
 @lru_cache(maxsize=1)
 def get_watchlist_store() -> WatchlistStore:
     service_key = os.getenv("SUPABASE_SERVICE_KEY") or os.getenv("SUPABASE_SERVICE_ROLE_KEY") or ""
-    return SupabaseWatchlistStore(
+    return CachedWatchlistStore(SupabaseWatchlistStore(
         url=os.getenv("SUPABASE_URL", ""),
         service_key=service_key,
-    )
+    ))

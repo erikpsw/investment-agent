@@ -103,3 +103,21 @@ class HotStockRankingTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+def test_local_backend_registers_hot_stock_route():
+    import subprocess
+    import sys
+    result = subprocess.run([sys.executable, "-c", """
+from unittest.mock import patch
+from fastapi.testclient import TestClient
+from investment.api.main import app
+snapshot = {'rows': [{'ticker': 'TEST', 'name': 'Test', 'price': 100, 'amount': 1000, 'today_change_percent': 2}], 'source': 'test'}
+with patch('investment.api.routes.hot_stocks.get_hot_stock_snapshot', return_value=snapshot):
+    client = TestClient(app)
+    for market in ['CN', 'HK', 'US']:
+        response = client.get('/api/market/hot-stocks', params={'market': market})
+        assert response.status_code == 200, response.text
+        assert response.json()['result']['items'][0]['ticker'] == 'TEST'
+"""], capture_output=True, text=True, timeout=60)
+    assert result.returncode == 0, result.stderr

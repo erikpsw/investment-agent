@@ -11,10 +11,12 @@ from typing import Any, Callable, Dict, List, Optional
 import pandas as pd
 
 from investment.data.news_fetcher import get_stock_news
+from investment.data.market_cache import MarketDataCache, get_market_data_cache
 from investment.data.stock_fetcher import StockFetcher
 
 
-WINDOWS = (5, 20, 60, 250)
+WINDOWS = (5, 10, 20, 60, 250)
+RESEARCH_CACHE_KIND = "research-v4"
 
 
 def _number(value: Any) -> Optional[float]:
@@ -153,9 +155,67 @@ class ResearchSnapshotService:
         self,
         fetcher: Optional[Any] = None,
         news_provider: Optional[Callable[..., List[Dict[str, Any]]]] = None,
+        market_cache: Optional[MarketDataCache] = None,
     ) -> None:
         self.fetcher = fetcher or StockFetcher()
         self.news_provider = news_provider or get_stock_news
+        self.market_cache = market_cache or get_market_data_cache()
+
+    @staticmethod
+    def _quote_research(quote: Dict[str, Any], market: str) -> Dict[str, Any]:
+        currency = str(quote.get("currency") or {"CN": "CNY", "HK": "HKD", "US": "USD"}.get(market.upper(), ""))
+        return {
+            "quote": {
+                "price": _rounded(quote.get("price")),
+                "currency": currency,
+                "day_change_percent": _rounded(quote.get("change_percent")),
+                "volume": _rounded(quote.get("volume")),
+                "turnover_rate": _rounded(quote.get("turnover_rate")),
+                "fetched_at": datetime.now(timezone.utc).isoformat(),
+            },
+            "history": None,
+            "errors": [f"quote: {str(quote['error'])[:160]}"] if quote.get("error") else [],
+        }
+
+    def enrich_quotes(self, items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Attach quote-only research without fetching history or news."""
+        if not items:
+            return []
+        quotes: Dict[str, Dict[str, Any]] = {}
+        missing: List[Dict[str, Any]] = []
+        cached_quotes = self.market_cache.get_many(
+            [(str(item.get("market") or ""), str(item.get("ticker") or "")) for item in items],
+            "quote",
+        )
+        for item in items:
+            ticker = str(item.get("ticker") or "")
+            market = str(item.get("market") or "")
+            cached = cached_quotes.get((market.upper(), ticker.upper()))
+            if cached is None:
+                missing.append(item)
+            else:
+                quotes[ticker] = cached
+        if missing:
+            try:
+                fetched = self.fetcher.get_quotes(missing)
+            except AttributeError:
+                with ThreadPoolExecutor(max_workers=min(6, len(missing))) as executor:
+                    fetched = dict(executor.map(
+                        lambda item: (str(item.get("ticker") or ""), self.fetcher.get_quote(str(item.get("ticker") or ""))),
+                        missing,
+                    ))
+            cache_entries = []
+            for item in missing:
+                ticker = str(item.get("ticker") or "")
+                quote = dict(fetched.get(ticker) or {"ticker": ticker, "error": "Quote unavailable"})
+                quotes[ticker] = quote
+                if not quote.get("error"):
+                    cache_entries.append((str(item.get("market") or ""), ticker, quote))
+            self.market_cache.set_many(cache_entries, "quote")
+        return [
+            {**item, "research": self._quote_research(quotes.get(str(item.get("ticker") or ""), {}), str(item.get("market") or ""))}
+            for item in items
+        ]
 
     def snapshot(
         self,
@@ -163,37 +223,37 @@ class ResearchSnapshotService:
         name: str,
         market: str,
         include_history: bool = False,
+        read_cache: bool = True,
     ) -> Dict[str, Any]:
+        cached = self.market_cache.get(market, ticker, RESEARCH_CACHE_KIND) if read_cache else None
+        if cached is not None:
+            return {**cached, "history": cached.get("history") if include_history else None}
         errors: List[str] = []
         quote: Dict[str, Any] = {}
         history = pd.DataFrame()
         news: List[Dict[str, Any]] = []
 
-        try:
-            quote = dict(self.fetcher.get_quote(ticker) or {})
-            if quote.get("error"):
-                errors.append(f"quote: {str(quote['error'])[:160]}")
-        except Exception as exc:
-            errors.append(_error("quote", exc))
-
-        try:
-            fetched = self.fetcher.get_history(ticker, period="2y", interval="1d")
-            history = fetched.copy() if isinstance(fetched, pd.DataFrame) else pd.DataFrame(fetched)
-        except Exception as exc:
-            errors.append(_error("history", exc))
-
-        try:
-            news = list(
-                self.news_provider(
-                    ticker=ticker,
-                    stock_name=name,
-                    market=market,
-                    limit=5,
-                )
-                or []
-            )
-        except Exception as exc:
-            errors.append(_error("news", exc))
+        # Fetch independent providers concurrently so detail latency is bounded
+        # by the slowest source rather than their combined response times.
+        with ThreadPoolExecutor(max_workers=3) as executor:
+            quote_future = executor.submit(self.fetcher.get_quote, ticker)
+            history_future = executor.submit(lambda: self.fetcher.get_history(ticker, period="2y", interval="1d"))
+            news_future = executor.submit(self.news_provider, ticker=ticker, stock_name=name, market=market, limit=5)
+            try:
+                quote = dict(quote_future.result() or {})
+                if quote.get("error"):
+                    errors.append(f"quote: {str(quote['error'])[:160]}")
+            except Exception as exc:
+                errors.append(_error("quote", exc))
+            try:
+                fetched = history_future.result()
+                history = fetched.copy() if isinstance(fetched, pd.DataFrame) else pd.DataFrame(fetched)
+            except Exception as exc:
+                errors.append(_error("history", exc))
+            try:
+                news = list(news_future.result() or [])
+            except Exception as exc:
+                errors.append(_error("news", exc))
 
         metrics = _history_metrics(history)
         currency = str(quote.get("currency") or {"CN": "CNY", "HK": "HKD", "US": "USD"}.get(market.upper(), ""))
@@ -207,18 +267,23 @@ class ResearchSnapshotService:
             }
             for item in news[:5]
         ]
-        return {
+        result = {
             "quote": {
                 "price": _rounded(quote.get("price")),
                 "currency": currency,
                 "day_change_percent": _rounded(quote.get("change_percent")),
                 "volume": _rounded(quote.get("volume")),
+                "turnover_rate": _rounded(quote.get("turnover_rate")),
+                "fetched_at": datetime.now(timezone.utc).isoformat(),
             },
             **metrics,
             "recent_news": recent_news,
-            "history": _history_records(history) if include_history else None,
+            "history": _history_records(history),
             "errors": errors,
         }
+        if not errors:
+            self.market_cache.set(market, ticker, RESEARCH_CACHE_KIND, result)
+        return {**result, "history": result["history"] if include_history else None}
 
     @lru_cache(maxsize=1024)
     def _recent_return(self, ticker: str, cache_window: int) -> Dict[str, Any]:
@@ -253,12 +318,6 @@ class ResearchSnapshotService:
             errors.append(_error("5d history", exc))
         return {**item, "research": {"quote": {**result, **recent}, "errors": errors}}
 
-    def enrich_quotes(self, items: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        if not items:
-            return []
-        with ThreadPoolExecutor(max_workers=min(6, len(items))) as executor:
-            return list(executor.map(self.quote, items))
-
     def enrich(
         self,
         items: List[Dict[str, Any]],
@@ -267,16 +326,45 @@ class ResearchSnapshotService:
         if not items:
             return []
 
-        def enrich_one(item: Dict[str, Any]) -> Dict[str, Any]:
+        cached_research = self.market_cache.get_many(
+            [(str(item.get("market") or ""), str(item.get("ticker") or "")) for item in items],
+            RESEARCH_CACHE_KIND,
+        )
+        cached_by_position: Dict[int, Dict[str, Any]] = {}
+        missing: List[tuple[int, Dict[str, Any]]] = []
+        for index, item in enumerate(items):
+            market = str(item.get("market") or "").upper()
+            ticker = str(item.get("ticker") or "").upper()
+            cached = cached_research.get((market, ticker))
+            if cached is None:
+                missing.append((index, item))
+            else:
+                cached_by_position[index] = {
+                    **cached,
+                    "history": cached.get("history") if include_history else None,
+                }
+
+        def enrich_one(indexed_item: tuple[int, Dict[str, Any]]) -> tuple[int, Dict[str, Any]]:
+            index, item = indexed_item
             return {
-                **item,
-                "research": self.snapshot(
-                    ticker=str(item.get("ticker") or ""),
-                    name=str(item.get("name") or ""),
-                    market=str(item.get("market") or ""),
-                    include_history=include_history,
-                ),
+                index: {
+                    **item,
+                    "research": self.snapshot(
+                        ticker=str(item.get("ticker") or ""),
+                        name=str(item.get("name") or ""),
+                        market=str(item.get("market") or ""),
+                        include_history=include_history,
+                        read_cache=False,
+                    ),
+                },
             }
 
-        with ThreadPoolExecutor(max_workers=min(6, len(items))) as executor:
-            return list(executor.map(enrich_one, items))
+        enriched_by_position: Dict[int, Dict[str, Any]] = {
+            index: {**items[index], "research": research}
+            for index, research in cached_by_position.items()
+        }
+        if missing:
+            with ThreadPoolExecutor(max_workers=min(6, len(missing))) as executor:
+                for enriched in executor.map(enrich_one, missing):
+                    enriched_by_position.update(enriched)
+        return [enriched_by_position[index] for index in range(len(items))]

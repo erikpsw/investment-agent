@@ -24,7 +24,8 @@ from fastapi.middleware.cors import CORSMiddleware
 if os.getenv("SUPABASE_KEY") and not os.getenv("SUPABASE_ANON_KEY"):
     os.environ["SUPABASE_ANON_KEY"] = os.environ["SUPABASE_KEY"]
 
-from investment.api.routes import quotes, search, history, financials, analysis, reports, financial_history, report_analysis, pdf_analysis, news, foreign_reports, disclosure, stock_picker, monitor, sectors, portfolio, formula_ranking, watchlists
+from investment.api.routes import quotes, search, history, futures, financials, analysis, reports, financial_history, report_analysis, pdf_analysis, news, foreign_reports, disclosure, stock_picker, monitor, sectors, portfolio, formula_ranking, watchlists, tokens
+from investment.api.routes import hot_stocks
 
 
 @asynccontextmanager
@@ -60,6 +61,8 @@ app.add_middleware(
 app.include_router(quotes.router, prefix="/api", tags=["quotes"])
 app.include_router(search.router, prefix="/api", tags=["search"])
 app.include_router(history.router, prefix="/api", tags=["history"])
+app.include_router(hot_stocks.router, prefix="/api", tags=["hot-stocks"])
+app.include_router(futures.router, prefix="/api", tags=["futures"])
 app.include_router(financials.router, prefix="/api", tags=["financials"])
 app.include_router(analysis.router, prefix="/api", tags=["analysis"])
 app.include_router(reports.router, prefix="/api", tags=["reports"])
@@ -73,6 +76,7 @@ app.include_router(stock_picker.router, prefix="/api", tags=["stock-picker"])
 app.include_router(monitor.router, prefix="/api", tags=["monitor"])
 app.include_router(sectors.router, prefix="/api", tags=["sectors"])
 app.include_router(portfolio.router, prefix="/api", tags=["portfolio"])
+app.include_router(tokens.router, prefix="/api", tags=["tokens"])
 app.include_router(watchlists.router, prefix="/api", tags=["watchlists"])
 app.include_router(formula_ranking.router, prefix="/api", tags=["formula-ranking"])
 

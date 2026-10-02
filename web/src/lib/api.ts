@@ -1,5 +1,8 @@
 // 使用相对路径，通过 Next.js rewrites 代理到后端
-import { AuthenticationRequiredError, getPortfolioAccessToken } from "@/lib/auth-token";
+import {
+  AuthenticationRequiredError,
+  getPortfolioAccessToken,
+} from "@/lib/auth-token";
 
 const API_BASE = "";
 
@@ -16,6 +19,10 @@ export interface StockQuote {
   change: number | null;
   change_percent: number | null;
   pe_ratio: number | null;
+  eps?: number | null;
+  source?: string | null;
+  pe_source?: string | null;
+  pe_basis?: string | null;
   market_cap: number | null;
   timestamp: string | null;
   market: string | null;
@@ -96,6 +103,10 @@ export interface FinancialMetrics {
   ticker: string;
   name: string | null;
   pe_ratio: number | null;
+  eps?: number | null;
+  source?: string | null;
+  pe_source?: string | null;
+  pe_basis?: string | null;
   pb_ratio: number | null;
   roe: number | null;
   roa: number | null;
@@ -120,7 +131,7 @@ export interface FinancialHistoryItem {
   gross_margin: number | null;
   net_margin: number | null;
   profit_margin?: number | null; // 兼容旧 API
-  revenue_yoy?: number | null;   // 计算字段
+  revenue_yoy?: number | null; // 计算字段
   net_profit_yoy?: number | null; // 计算字段
 }
 
@@ -233,6 +244,7 @@ export interface SectorHistoryResult {
   code: string;
   name?: string | null;
   change_5d?: number | null;
+  change_10d?: number | null;
   change_20d?: number | null;
   change_60d?: number | null;
   bars: Array<{
@@ -340,9 +352,13 @@ export interface SecurityResearch {
     five_day_asof?: string | null;
     fetched_at?: string | null;
     volume?: number | null;
+    turnover_rate?: number | null;
   };
-  returns?: Record<"5d" | "20d" | "60d" | "250d", number | null>;
-  moving_averages?: Record<"ma5" | "ma20" | "ma60" | "ma250", number | null>;
+  returns?: Record<"5d" | "10d" | "20d" | "60d" | "250d", number | null>;
+  moving_averages?: Record<
+    "ma5" | "ma10" | "ma20" | "ma60" | "ma250",
+    number | null
+  >;
   technical?: {
     volatility_20d?: number | null;
     volatility_60d?: number | null;
@@ -472,10 +488,15 @@ class ApiClient {
     this.baseUrl = baseUrl;
   }
 
-  private async fetch<T>(path: string, options?: RequestInit, authenticated = false): Promise<T> {
+  private async fetch<T>(
+    path: string,
+    options?: RequestInit,
+    authenticated = false,
+  ): Promise<T> {
     const url = `${this.baseUrl}${path}`;
     const headers = new Headers(options?.headers);
-    if (!headers.has("Content-Type")) headers.set("Content-Type", "application/json");
+    if (!headers.has("Content-Type"))
+      headers.set("Content-Type", "application/json");
     if (authenticated) {
       headers.set("Authorization", `Bearer ${await getPortfolioAccessToken()}`);
     }
@@ -485,7 +506,9 @@ class ApiClient {
     });
 
     if (!response.ok) {
-      const error = await response.json().catch(() => ({ detail: "Unknown error" }));
+      const error = await response
+        .json()
+        .catch(() => ({ detail: "Unknown error" }));
       if (authenticated && response.status === 401) {
         throw new AuthenticationRequiredError();
       }
@@ -500,10 +523,16 @@ class ApiClient {
   }
 
   async getQuoteByName(name: string): Promise<StockQuote> {
-    return this.fetch<StockQuote>(`/api/quote/by-name/${encodeURIComponent(name)}`);
+    return this.fetch<StockQuote>(
+      `/api/quote/by-name/${encodeURIComponent(name)}`,
+    );
   }
 
-  async search(query: string, market = "all", limit = 10): Promise<SearchResponse> {
+  async search(
+    query: string,
+    market = "all",
+    limit = 10,
+  ): Promise<SearchResponse> {
     const params = new URLSearchParams({
       q: query,
       market,
@@ -515,11 +544,11 @@ class ApiClient {
   async getHistory(
     ticker: string,
     period = "1mo",
-    interval = "1d"
+    interval = "1d",
   ): Promise<HistoryResponse> {
     const params = new URLSearchParams({ period, interval });
     return this.fetch<HistoryResponse>(
-      `/api/history/${encodeURIComponent(ticker)}?${params}`
+      `/api/history/${encodeURIComponent(ticker)}?${params}`,
     );
   }
 
@@ -530,11 +559,11 @@ class ApiClient {
   async getHotStocks(
     market: HotStockMarket,
     mode: HotStockMode = "hot",
-    limit = 6
+    limit = 6,
   ): Promise<{ status: string; result: HotStockResult }> {
     const params = new URLSearchParams({ market, mode, limit: String(limit) });
     return this.fetch<{ status: string; result: HotStockResult }>(
-      `/api/market/hot-stocks?${params}`
+      `/api/market/hot-stocks?${params}`,
     );
   }
 
@@ -543,84 +572,207 @@ class ApiClient {
     limit: number;
     notes?: string;
   }): Promise<{ status: string; result: StockPickerResult }> {
-    return this.fetch<{ status: string; result: StockPickerResult }>("/api/stock-picker/analyze", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
+    return this.fetch<{ status: string; result: StockPickerResult }>(
+      "/api/stock-picker/analyze",
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      },
+    );
   }
 
-  async getStockPickerResults(limit = 20): Promise<{ status: string; result: StockPickerResult[] }> {
-    return this.fetch<{ status: string; result: StockPickerResult[] }>(`/api/stock-picker/results?limit=${limit}`);
+  async getStockPickerResults(
+    limit = 20,
+  ): Promise<{ status: string; result: StockPickerResult[] }> {
+    return this.fetch<{ status: string; result: StockPickerResult[] }>(
+      `/api/stock-picker/results?limit=${limit}`,
+    );
   }
 
-  async clearStockPickerResults(): Promise<{ status: string; result: { removed: number; path: string } }> {
-    return this.fetch<{ status: string; result: { removed: number; path: string } }>("/api/stock-picker/results", {
+  async clearStockPickerResults(): Promise<{
+    status: string;
+    result: { removed: number; path: string };
+  }> {
+    return this.fetch<{
+      status: string;
+      result: { removed: number; path: string };
+    }>("/api/stock-picker/results", {
       method: "DELETE",
     });
   }
 
   async getMonitorStatus(): Promise<{ status: string; result: MonitorStatus }> {
-    return this.fetch<{ status: string; result: MonitorStatus }>("/api/monitor/status");
+    return this.fetch<{ status: string; result: MonitorStatus }>(
+      "/api/monitor/status",
+    );
   }
 
-  async startMonitor(payload: { interval_seconds: number; dry_run: boolean; channels: string[] }): Promise<{ status: string; result: MonitorStatus }> {
-    return this.fetch<{ status: string; result: MonitorStatus }>("/api/monitor/start", {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
+  async startMonitor(payload: {
+    interval_seconds: number;
+    dry_run: boolean;
+    channels: string[];
+  }): Promise<{ status: string; result: MonitorStatus }> {
+    return this.fetch<{ status: string; result: MonitorStatus }>(
+      "/api/monitor/start",
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      },
+    );
   }
 
   async stopMonitor(): Promise<{ status: string; result: MonitorStatus }> {
-    return this.fetch<{ status: string; result: MonitorStatus }>("/api/monitor/stop", { method: "POST" });
+    return this.fetch<{ status: string; result: MonitorStatus }>(
+      "/api/monitor/stop",
+      { method: "POST" },
+    );
   }
 
-  async refreshMonitorEvents(payload: { dry_run: boolean; limit: number; channels: string[] }): Promise<{ status: string; result: { added: number; fetched: number; events: MonitorEvent[] } }> {
-    return this.fetch<{ status: string; result: { added: number; fetched: number; events: MonitorEvent[] } }>("/api/monitor/analyze-once", {
+  async refreshMonitorEvents(payload: {
+    dry_run: boolean;
+    limit: number;
+    channels: string[];
+  }): Promise<{
+    status: string;
+    result: { added: number; fetched: number; events: MonitorEvent[] };
+  }> {
+    return this.fetch<{
+      status: string;
+      result: { added: number; fetched: number; events: MonitorEvent[] };
+    }>("/api/monitor/analyze-once", {
       method: "POST",
       body: JSON.stringify(payload),
     });
   }
 
-  async getMonitorEvents(limit = 80): Promise<{ status: string; result: MonitorEvent[] }> {
-    return this.fetch<{ status: string; result: MonitorEvent[] }>(`/api/monitor/events?limit=${limit}`);
+  async getMonitorEvents(
+    limit = 80,
+  ): Promise<{ status: string; result: MonitorEvent[] }> {
+    return this.fetch<{ status: string; result: MonitorEvent[] }>(
+      `/api/monitor/events?limit=${limit}`,
+    );
   }
 
-  async getMonitorLogs(limit = 80): Promise<{ status: string; result: Array<Record<string, unknown>> }> {
-    return this.fetch<{ status: string; result: Array<Record<string, unknown>> }>(`/api/monitor/logs?limit=${limit}`);
+  async getMonitorLogs(
+    limit = 80,
+  ): Promise<{ status: string; result: Array<Record<string, unknown>> }> {
+    return this.fetch<{
+      status: string;
+      result: Array<Record<string, unknown>>;
+    }>(`/api/monitor/logs?limit=${limit}`);
   }
 
-  async getMonitorDecisions(limit = 20): Promise<{ status: string; result: MonitorDecision[] }> {
-    return this.fetch<{ status: string; result: MonitorDecision[] }>(`/api/monitor/decisions?limit=${limit}`);
+  async getMonitorDecisions(
+    limit = 20,
+  ): Promise<{ status: string; result: MonitorDecision[] }> {
+    return this.fetch<{ status: string; result: MonitorDecision[] }>(
+      `/api/monitor/decisions?limit=${limit}`,
+    );
   }
 
-  async getUserProfile(): Promise<{ status: string; result: { content: string } }> {
-    return this.fetch<{ status: string; result: { content: string } }>("/api/user-profile");
+  async getUserProfile(): Promise<{
+    status: string;
+    result: { content: string };
+  }> {
+    return this.fetch<{ status: string; result: { content: string } }>(
+      "/api/user-profile",
+    );
   }
 
-  async updateUserProfile(content: string): Promise<{ status: string; result: { saved_at: string } }> {
-    return this.fetch<{ status: string; result: { saved_at: string } }>("/api/user-profile", {
-      method: "PUT",
-      body: JSON.stringify({ content }),
+  async updateUserProfile(
+    content: string,
+  ): Promise<{ status: string; result: { saved_at: string } }> {
+    return this.fetch<{ status: string; result: { saved_at: string } }>(
+      "/api/user-profile",
+      {
+        method: "PUT",
+        body: JSON.stringify({ content }),
+      },
+    );
+  }
+
+  async getSectors(): Promise<{
+    status: string;
+    result: {
+      generated_at?: string;
+      sectors: SectorItem[];
+      coverage_count: number;
+      source: string;
+    };
+  }> {
+    return this.fetch<{
+      status: string;
+      result: {
+        generated_at?: string;
+        sectors: SectorItem[];
+        coverage_count: number;
+        source: string;
+      };
+    }>("/api/sectors");
+  }
+
+  async getPortfolioPositions(
+    includeHistory = false,
+    includeResearch = true,
+  ): Promise<{
+    status: string;
+    result: {
+      updated_at?: string | null;
+      positions: PortfolioPosition[];
+      storage: string;
+    };
+  }> {
+    return this.fetch<{
+      status: string;
+      result: {
+        updated_at?: string | null;
+        positions: PortfolioPosition[];
+        storage: string;
+      };
+    }>(
+      `/api/portfolio/positions?include_history=${includeHistory}&include_research=${includeResearch}`,
+      undefined,
+      true,
+    );
+  }
+
+  async savePortfolioPositions(
+    positions: PortfolioPosition[],
+  ): Promise<{
+    status: string;
+    result: {
+      updated_at?: string | null;
+      positions: PortfolioPosition[];
+      storage: string;
+    };
+  }> {
+    return this.fetch<{
+      status: string;
+      result: {
+        updated_at?: string | null;
+        positions: PortfolioPosition[];
+        storage: string;
+      };
+    }>(
+      "/api/portfolio/positions",
+      {
+        method: "PUT",
+        body: JSON.stringify({ positions }),
+      },
+      true,
+    );
+  }
+
+  async getWatchlists(
+    groupId?: string,
+    includeHistory = false,
+    includeQuotes = true,
+  ): Promise<{ status: string; result: WatchlistResult }> {
+    const params = new URLSearchParams({
+      include_history: String(includeHistory),
+      include_quotes: String(includeQuotes),
     });
-  }
 
-  async getSectors(): Promise<{ status: string; result: { generated_at?: string; sectors: SectorItem[]; coverage_count: number; source: string } }> {
-    return this.fetch<{ status: string; result: { generated_at?: string; sectors: SectorItem[]; coverage_count: number; source: string } }>("/api/sectors");
-  }
-
-  async getPortfolioPositions(includeHistory = false): Promise<{ status: string; result: { updated_at?: string | null; positions: PortfolioPosition[]; storage: string } }> {
-    return this.fetch<{ status: string; result: { updated_at?: string | null; positions: PortfolioPosition[]; storage: string } }>(`/api/portfolio/positions?include_history=${includeHistory}`, undefined, true);
-  }
-
-  async savePortfolioPositions(positions: PortfolioPosition[]): Promise<{ status: string; result: { updated_at?: string | null; positions: PortfolioPosition[]; storage: string } }> {
-    return this.fetch<{ status: string; result: { updated_at?: string | null; positions: PortfolioPosition[]; storage: string } }>("/api/portfolio/positions", {
-      method: "PUT",
-      body: JSON.stringify({ positions }),
-    }, true);
-  }
-
-  async getWatchlists(groupId?: string, includeHistory = false, includeResearch = true, quotesOnly = false): Promise<{ status: string; result: WatchlistResult }> {
-    const params = new URLSearchParams({ include_history: String(includeHistory), include_research: String(includeResearch), quotes_only: String(quotesOnly) });
     if (groupId) params.set("group_id", groupId);
     return this.fetch<{ status: string; result: WatchlistResult }>(
       `/api/watchlists?${params}`,
@@ -630,10 +782,26 @@ class ApiClient {
   }
 
   async getWatchlistItemResearch(groupId: string, ticker: string): Promise<{ status: string; result: SecurityResearch }> {
-    return this.fetch<{ status: string; result: SecurityResearch }>(`/api/watchlists/groups/${encodeURIComponent(groupId)}/items/${encodeURIComponent(ticker)}/research`, undefined, true);
+    return this.fetch<{ status: string; result: SecurityResearch }>(`/api/watchlists/groups/${encodeURIComponent(groupId)}/items/${encodeURIComponent(ticker)}/research`, { cache: "no-store", signal: AbortSignal.timeout(45_000) }, true);
   }
 
-  async saveWatchlists(groups: WatchlistGroup[]): Promise<{ status: string; result: WatchlistResult }> {
+  async prefetchWatchlistResearch(
+    tickers: string[],
+  ): Promise<{ status: string; result: { items: WatchlistItem[] } }> {
+    return this.fetch<{ status: string; result: { items: WatchlistItem[] } }>(
+      "/api/watchlists/research",
+      {
+        method: "POST",
+        body: JSON.stringify({ tickers }),
+      },
+      true,
+    );
+  }
+
+  async saveWatchlists(
+    groups: WatchlistGroup[],
+  ): Promise<{ status: string; result: WatchlistResult }> {
+
     const writableGroups = groups.map((group) => ({
       id: group.id,
       name: group.name,
@@ -644,140 +812,238 @@ class ApiClient {
         notes: item.notes || "",
       })),
     }));
-    return this.fetch<{ status: string; result: WatchlistResult }>("/api/watchlists", {
-      method: "PUT",
-      body: JSON.stringify({ groups: writableGroups }),
-    }, true);
-  }
-
-  async createWatchlistGroup(group: Pick<WatchlistGroup, "id" | "name" | "parent_id">): Promise<{ status: string; result: WatchlistResult }> {
-    return this.fetch("/api/watchlists/groups", { method: "POST", body: JSON.stringify(group) }, true);
-  }
-
-  async updateWatchlistGroup(groupId: string, patch: Partial<Pick<WatchlistGroup, "name" | "parent_id">>): Promise<{ status: string; result: WatchlistResult }> {
-    return this.fetch(`/api/watchlists/groups/${encodeURIComponent(groupId)}`, { method: "PATCH", body: JSON.stringify(patch) }, true);
-  }
-
-  async deleteWatchlistGroup(groupId: string): Promise<{ status: string; result: WatchlistResult }> {
-    return this.fetch(`/api/watchlists/groups/${encodeURIComponent(groupId)}`, { method: "DELETE" }, true);
-  }
-
-  async addWatchlistItem(groupId: string, item: WatchlistItem): Promise<{ status: string; result: WatchlistResult }> {
-    return this.fetch(`/api/watchlists/groups/${encodeURIComponent(groupId)}/items`, { method: "POST", body: JSON.stringify({ ticker: item.ticker, name: item.name, market: item.market, notes: item.notes || "" }) }, true);
-  }
-
-  async updateWatchlistItem(groupId: string, ticker: string, patch: Partial<WatchlistItem> & { target_group_id?: string }): Promise<{ status: string; result: WatchlistResult }> {
-    return this.fetch(`/api/watchlists/groups/${encodeURIComponent(groupId)}/items/${encodeURIComponent(ticker)}`, { method: "PATCH", body: JSON.stringify(patch) }, true);
-  }
-
-  async deleteWatchlistItem(groupId: string, ticker: string): Promise<{ status: string; result: WatchlistResult }> {
-    return this.fetch(`/api/watchlists/groups/${encodeURIComponent(groupId)}/items/${encodeURIComponent(ticker)}`, { method: "DELETE" }, true);
-  }
-
-  async analyzePortfolio(): Promise<{ status: string; result: PortfolioAnalysisResult }> {
-    return this.fetch<{ status: string; result: PortfolioAnalysisResult }>("/api/portfolio/analyze", {
-      method: "POST",
-      body: JSON.stringify({}),
-    }, true);
-  }
-
-  async listPersonalAccessTokens(): Promise<{ status: string; result: { tokens: PersonalAccessToken[] } }> {
-    return this.fetch<{ status: string; result: { tokens: PersonalAccessToken[] } }>(
-      "/api/portfolio/tokens",
-      undefined,
-      true
+    return this.fetch<{ status: string; result: WatchlistResult }>(
+      "/api/watchlists",
+      {
+        method: "PUT",
+        body: JSON.stringify({ groups: writableGroups }),
+      },
+      true,
     );
   }
 
-  async createPersonalAccessToken(name: string): Promise<{ status: string; result: CreatedPersonalAccessToken }> {
+  async createWatchlistGroup(
+    group: Pick<WatchlistGroup, "id" | "name" | "parent_id">,
+  ): Promise<{ status: string; result: WatchlistResult }> {
+    return this.fetch(
+      "/api/watchlists/groups",
+      { method: "POST", body: JSON.stringify(group) },
+      true,
+    );
+  }
+
+  async updateWatchlistGroup(
+    groupId: string,
+    patch: Partial<Pick<WatchlistGroup, "name" | "parent_id">>,
+  ): Promise<{ status: string; result: WatchlistResult }> {
+    return this.fetch(
+      `/api/watchlists/groups/${encodeURIComponent(groupId)}`,
+      { method: "PATCH", body: JSON.stringify(patch) },
+      true,
+    );
+  }
+
+  async deleteWatchlistGroup(
+    groupId: string,
+  ): Promise<{ status: string; result: WatchlistResult }> {
+    return this.fetch(
+      `/api/watchlists/groups/${encodeURIComponent(groupId)}`,
+      { method: "DELETE" },
+      true,
+    );
+  }
+
+  async addWatchlistItem(
+    groupId: string,
+    item: WatchlistItem,
+  ): Promise<{ status: string; result: WatchlistResult }> {
+    return this.fetch(
+      `/api/watchlists/groups/${encodeURIComponent(groupId)}/items`,
+      {
+        method: "POST",
+        body: JSON.stringify({
+          ticker: item.ticker,
+          name: item.name,
+          market: item.market,
+          notes: item.notes || "",
+        }),
+      },
+      true,
+    );
+  }
+
+  async updateWatchlistItem(
+    groupId: string,
+    ticker: string,
+    patch: Partial<WatchlistItem> & { target_group_id?: string },
+  ): Promise<{ status: string; result: WatchlistResult }> {
+    return this.fetch(
+      `/api/watchlists/groups/${encodeURIComponent(groupId)}/items/${encodeURIComponent(ticker)}`,
+      { method: "PATCH", body: JSON.stringify(patch) },
+      true,
+    );
+  }
+
+  async deleteWatchlistItem(
+    groupId: string,
+    ticker: string,
+  ): Promise<{ status: string; result: WatchlistResult }> {
+    return this.fetch(
+      `/api/watchlists/groups/${encodeURIComponent(groupId)}/items/${encodeURIComponent(ticker)}`,
+      { method: "DELETE" },
+      true,
+    );
+  }
+
+  async analyzePortfolio(): Promise<{
+    status: string;
+    result: PortfolioAnalysisResult;
+  }> {
+    return this.fetch<{ status: string; result: PortfolioAnalysisResult }>(
+      "/api/portfolio/analyze",
+      {
+        method: "POST",
+        body: JSON.stringify({}),
+      },
+      true,
+    );
+  }
+
+  async listPersonalAccessTokens(): Promise<{
+    status: string;
+    result: { tokens: PersonalAccessToken[] };
+  }> {
+    return this.fetch<{
+      status: string;
+      result: { tokens: PersonalAccessToken[] };
+    }>("/api/portfolio/tokens", undefined, true);
+  }
+
+  async createPersonalAccessToken(
+    name: string,
+  ): Promise<{ status: string; result: CreatedPersonalAccessToken }> {
     return this.fetch<{ status: string; result: CreatedPersonalAccessToken }>(
       "/api/portfolio/tokens",
       { method: "POST", body: JSON.stringify({ name }) },
-      true
+      true,
     );
   }
 
-  async revokePersonalAccessToken(id: string): Promise<{ status: string; result: { revoked: boolean } }> {
+  async revokePersonalAccessToken(
+    id: string,
+  ): Promise<{ status: string; result: { revoked: boolean } }> {
     return this.fetch<{ status: string; result: { revoked: boolean } }>(
       `/api/portfolio/tokens/${encodeURIComponent(id)}`,
       { method: "DELETE" },
-      true
+      true,
     );
   }
 
-  async getHotEtfSectors(limit = 10): Promise<{ status: string; result: HotEtfSectorResult }> {
+  async getHotEtfSectors(
+    limit = 10,
+  ): Promise<{ status: string; result: HotEtfSectorResult }> {
     return this.fetch<{ status: string; result: HotEtfSectorResult }>(
-      `/api/etfs/hot-sectors?limit=${limit}`
+      `/api/etfs/hot-sectors?limit=${limit}`,
     );
   }
 
-  async getSectorHistory(code: string, days = 120): Promise<{ status: string; result: SectorHistoryResult }> {
+  async getSectorHistory(
+    code: string,
+    days = 120,
+  ): Promise<{ status: string; result: SectorHistoryResult }> {
     return this.fetch<{ status: string; result: SectorHistoryResult }>(
-      `/api/sectors/${encodeURIComponent(code)}/history?days=${days}`
+      `/api/sectors/${encodeURIComponent(code)}/history?days=${days}`,
     );
   }
 
   async getSectorConstituents(
     code: string,
     limit = 80,
-    mode: "balanced" | "conservative" | "aggressive" = "balanced"
+    mode: "balanced" | "conservative" | "aggressive" = "balanced",
   ): Promise<{ status: string; result: SectorConstituentsResult }> {
     const params = new URLSearchParams({
       limit: limit.toString(),
       mode,
     });
     return this.fetch<{ status: string; result: SectorConstituentsResult }>(
-      `/api/sectors/${encodeURIComponent(code)}/constituents?${params}`
+      `/api/sectors/${encodeURIComponent(code)}/constituents?${params}`,
     );
   }
 
   async getFormulaRanking(
     market: "CN" | "US" | "HK" | "all" = "CN",
     limit = 30,
-    mode: "balanced" | "conservative" | "aggressive" = "balanced"
+    mode: "balanced" | "conservative" | "aggressive" = "balanced",
   ): Promise<{ status: string; result: FormulaRankingResult }> {
     const params = new URLSearchParams({
       market,
       limit: limit.toString(),
       mode,
     });
-    return this.fetch<{ status: string; result: FormulaRankingResult }>(`/api/formula-ranking?${params}`);
+    return this.fetch<{ status: string; result: FormulaRankingResult }>(
+      `/api/formula-ranking?${params}`,
+    );
   }
 
   async getFormulaRankingHistory(
     tickers: string[],
-    mode: "balanced" | "conservative" | "aggressive"
-  ): Promise<{ status: string; result: { items: FormulaRankingItem[]; history_enriched_count: number; requested_count: number } }> {
+    mode: "balanced" | "conservative" | "aggressive",
+  ): Promise<{
+    status: string;
+    result: {
+      items: FormulaRankingItem[];
+      history_enriched_count: number;
+      requested_count: number;
+    };
+  }> {
     const params = new URLSearchParams({ tickers: tickers.join(","), mode });
-    return this.fetch<{ status: string; result: { items: FormulaRankingItem[]; history_enriched_count: number; requested_count: number } }>(
-      `/api/formula-ranking/history?${params}`
-    );
+    return this.fetch<{
+      status: string;
+      result: {
+        items: FormulaRankingItem[];
+        history_enriched_count: number;
+        requested_count: number;
+      };
+    }>(`/api/formula-ranking/history?${params}`);
+  }
+
+  async getSecurityReports(ticker: string, market: import("./financial-reports").ReportMarket, category: import("./financial-reports").ReportCategory): Promise<DisclosureResponse> {
+    const { reportApiPath } = await import("./financial-reports");
+    const payload = await this.fetch<DisclosureResponse & { filings?: Array<{ description: string; type: string; date: string; url: string }> }>(reportApiPath(ticker, market, category), { signal: AbortSignal.timeout(45000) });
+    if (market === "CN") return payload;
+    return { ticker, market, source_url: market === "HK" ? "https://www.hkexnews.hk/" : "https://www.sec.gov/", documents: (payload.filings || []).map(filing => ({ title: filing.description || filing.type, date: filing.date, url: filing.url, category: filing.type, source: market === "HK" ? "披露易" : "SEC EDGAR" })) };
+  }
+
+  async getSecurityNews(ticker: string, market: string, name = ""): Promise<{ news: Array<{ title: string; link: string; source: string; published?: string; published_date?: string; summary?: string; matched_entity?: string }> }> {
+    const query = new URLSearchParams({ market, stock_name: name, limit: "20" });
+    return this.fetch(`/api/news/${encodeURIComponent(ticker)}?${query}`, { signal: AbortSignal.timeout(45000) });
   }
 
   async getFinancials(ticker: string): Promise<FinancialMetrics> {
     return this.fetch<FinancialMetrics>(
-      `/api/financials/${encodeURIComponent(ticker)}`
+      `/api/financials/${encodeURIComponent(ticker)}`,
     );
   }
 
   async getFinancialHistory(
     ticker: string,
     reportType: "annual" | "q1" | "q2" | "q3" | "all" = "annual",
-    limit = 10
+    limit = 10,
   ): Promise<FinancialHistoryResponse> {
     // 使用 financial-history 端点（支持 A股、港股、美股）
     return this.fetch<FinancialHistoryResponse>(
-      `/api/financial-history/${encodeURIComponent(ticker)}`
+      `/api/financial-history/${encodeURIComponent(ticker)}`,
+      { signal: AbortSignal.timeout(45000) },
     );
   }
 
   async getDisclosure(
     ticker: string,
-    category: "annual" | "interim" | "quarterly" | "all" = "annual"
+    category: "annual" | "interim" | "quarterly" | "all" = "annual",
   ): Promise<DisclosureResponse> {
     const params = new URLSearchParams({ category });
     return this.fetch<DisclosureResponse>(
-      `/api/disclosure/${encodeURIComponent(ticker)}?${params}`
+      `/api/disclosure/${encodeURIComponent(ticker)}?${params}`,
     );
   }
 }

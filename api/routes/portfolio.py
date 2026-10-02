@@ -58,12 +58,14 @@ class PortfolioTransactionRequest(BaseModel):
 @router.get("/portfolio/positions")
 async def get_positions(
     include_history: bool = Query(default=False),
+    include_research: bool = Query(default=True),
     current_user: AuthenticatedUser = Depends(get_portfolio_reader),
 ):
     result = await _run_portfolio_call(
         get_portfolio_service().get_positions,
         current_user.sub,
         include_history,
+        include_research,
     )
     return {"status": "ok", "result": result}
 

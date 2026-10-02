@@ -17,6 +17,7 @@ class NewsItem(BaseModel):
     published_date: Optional[str] = None
     summary: Optional[str] = None
     thumbnail: Optional[str] = None
+    matched_entity: Optional[str] = None
 
 
 class NewsResponse(BaseModel):

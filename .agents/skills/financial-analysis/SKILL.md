@@ -8,7 +8,7 @@ metadata:
     skillKey: financial-analysis
     author: Huatai Securities
     requires:
-      bins: ["python3"]
+      bins: ["python"]
 ---
 
 # 金融分析与资讯查询工具 Skill
@@ -77,7 +77,7 @@ metadata:
 **参数**：
 - `query`：用户问题（必填）
 
-**执行**：`python3 financial_analysis.py diagnosisStock --query <query>`
+**执行**：`python financial_analysis.py diagnosisStock --query <query>`
 
 ---
 
@@ -89,7 +89,7 @@ metadata:
 **参数**：
 - `query`：用户问题（必填）
 
-**执行**：`python3 financial_analysis.py marketInsight --query <query>`
+**执行**：`python financial_analysis.py marketInsight --query <query>`
 
 ## 调用模式速查
 

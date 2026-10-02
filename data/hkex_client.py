@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 from datetime import datetime, timedelta
 from bs4 import BeautifulSoup
+from .runtime_paths import cache_directory
 
 # Lazy import akshare to avoid blocking
 _ak = None
@@ -28,7 +29,7 @@ class HKEXClient:
     """港股财报客户端，基于港交所披露易"""
     
     def __init__(self, cache_dir: str = None):
-        self.cache_dir = Path(cache_dir or "cache/hkex_filings")
+        self.cache_dir = Path(cache_dir) if cache_dir else cache_directory("hkex_filings") if os.getenv("VERCEL") else Path("cache/hkex_filings")
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         
         self.session = requests.Session()

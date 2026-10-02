@@ -45,3 +45,23 @@ def test_sector_history_retries_an_alternate_endpoint(monkeypatch):
     assert calls[0] != calls[1]
     assert result["name"] == "测试板块"
     assert len(result["bars"]) == 2
+
+
+def test_sector_history_includes_ten_day_return(monkeypatch):
+    module = load_module()
+    response = Mock()
+    response.raise_for_status.return_value = None
+    response.json.return_value = {
+        "data": {
+            "name": "测试板块",
+            "klines": [
+                f"2026-07-{index + 1:02d},1,{100 + index},1,1,1,1,1,0,0,0"
+                for index in range(11)
+            ],
+        }
+    }
+    monkeypatch.setattr(module.requests, "get", lambda *_, **__: response)
+
+    result = module.sector_history("BK1326", days=30)
+
+    assert result["change_10d"] == 10.0

@@ -43,20 +43,20 @@ export HT_APIKEY="<your-api-key>"
 OpenClaw 内核会按 `SKILL.md` 中的"**执行**"指令调用本 skill。所有工具走统一入口：
 
 ```bash
-python3 financial_analysis.py <toolName> [args]
+python financial_analysis.py <toolName> [args]
 ```
 
 开发者也可直接命令行调用：
 
 ```bash
 # 分析诊断
-python3 financial_analysis.py diagnosisStock --query "帮我分析一下比亚迪"
+python financial_analysis.py diagnosisStock --query "帮我分析一下比亚迪"
 
 # 市场洞察
-python3 financial_analysis.py marketInsight --query "今天大盘为什么跌了？"
+python financial_analysis.py marketInsight --query "今天大盘为什么跌了？"
 
 # 查看某个工具的参数说明
-python3 financial_analysis.py marketInsight --help
+python financial_analysis.py marketInsight --help
 ```
 
 所有调用输出统一的 JSON 结构 `{ ok, data, error }`，详见 SKILL.md "响应结构"段。

@@ -14,7 +14,7 @@ fetcher = StockFetcher()
 @router.get("/history/{ticker}", response_model=HistoryResponse)
 async def get_history(
     ticker: str,
-    period: str = Query("1mo", description="Period: 1d, 5d, 1mo, 3mo, 6mo, 1y"),
+    period: str = Query("1mo", description="Period: 1d, 5d, 1mo, 3mo, 6mo, 1y, 2y, 5y, 10y, max"),
     interval: str = Query("1d", description="Interval: 1m, 5m, 15m, 60m, 1d, 1wk"),
 ):
     """Get historical price data for a stock"""

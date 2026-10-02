@@ -169,6 +169,26 @@ test.before(async () => {
         },
       });
     }
+    if (request.url === "https://portfolio.test/api/futures/quote/RB0") {
+      marketApiRequests.push(request.url);
+      return Response.json({
+        ticker: "RB0", name: "螺纹钢连续", price: 3102, open_interest: 1591303,
+      });
+    }
+    if (request.url === "https://portfolio.test/api/futures/search?q=%E8%9E%BA%E7%BA%B9%E9%92%A2&limit=5") {
+      marketApiRequests.push(request.url);
+      return Response.json({
+        query: "螺纹钢", total: 1,
+        results: [{ code: "RB0", name: "螺纹钢连续", instrument_type: "futures" }],
+      });
+    }
+    if (request.url === "https://portfolio.test/api/futures/history/RB0?period=5d") {
+      marketApiRequests.push(request.url);
+      return Response.json({
+        ticker: "RB0", period: "5d", interval: "1d",
+        bars: [{ time: "2026-09-11", open: 3142, high: 3143, low: 3100, close: 3108, volume: 932720 }],
+      });
+    }
     if (request.url.startsWith("https://portfolio.test/api/search?")) {
       instrumentSearchRequests.push(request.url);
       const query = new URL(request.url).searchParams.get("q") || "";
@@ -349,6 +369,9 @@ test("MCP protocol exposes portfolio and read-only market research tools", async
     const overviewTool = listed.tools.find((candidate) => candidate.name === "get_market_overview");
     const quoteTool = listed.tools.find((candidate) => candidate.name === "get_stock_quote");
     const historyTool = listed.tools.find((candidate) => candidate.name === "get_price_history");
+    const futuresQuoteTool = listed.tools.find((candidate) => candidate.name === "get_cn_futures_quote");
+    const futuresSearchTool = listed.tools.find((candidate) => candidate.name === "search_cn_futures");
+    const futuresHistoryTool = listed.tools.find((candidate) => candidate.name === "get_cn_futures_history");
     const sectorHistoryTool = listed.tools.find((candidate) => candidate.name === "get_sector_history");
     const constituentTool = listed.tools.find((candidate) => candidate.name === "get_sector_constituents");
     assert.ok(tool);
@@ -360,6 +383,9 @@ test("MCP protocol exposes portfolio and read-only market research tools", async
     assert.ok(overviewTool);
     assert.ok(quoteTool);
     assert.ok(historyTool);
+    assert.ok(futuresQuoteTool);
+    assert.ok(futuresSearchTool);
+    assert.ok(futuresHistoryTool);
     assert.ok(sectorHistoryTool);
     assert.ok(constituentTool);
     assert.equal("user_id" in (tool.inputSchema.properties || {}), false);
@@ -389,6 +415,27 @@ test("MCP protocol exposes portfolio and read-only market research tools", async
     });
     assert.equal(historyResult.isError, undefined);
     assert.equal((historyResult.structuredContent as { bars: unknown[] }).bars.length, 1);
+
+    const futuresQuoteResult = await client.callTool({
+      name: "get_cn_futures_quote",
+      arguments: { ticker: "RB0" },
+    });
+    assert.equal(futuresQuoteResult.isError, undefined);
+    assert.equal((futuresQuoteResult.structuredContent as { ticker: string }).ticker, "RB0");
+
+    const futuresSearchResult = await client.callTool({
+      name: "search_cn_futures",
+      arguments: { query: "螺纹钢", limit: 5 },
+    });
+    assert.equal(futuresSearchResult.isError, undefined);
+    assert.equal((futuresSearchResult.structuredContent as { results: unknown[] }).results.length, 1);
+
+    const futuresHistoryResult = await client.callTool({
+      name: "get_cn_futures_history",
+      arguments: { ticker: "RB0", period: "5d" },
+    });
+    assert.equal(futuresHistoryResult.isError, undefined);
+    assert.equal((futuresHistoryResult.structuredContent as { bars: unknown[] }).bars.length, 1);
 
     const sectorHistoryResult = await client.callTool({
       name: "get_sector_history",

@@ -15,6 +15,7 @@ export function useMarketOverview() {
 export function useFinancials(ticker: string | null, enabled = true) {
   return useQuery<FinancialMetrics>({
     queryKey: ["financials", ticker],
+    refetchInterval: 300000,
     queryFn: () => api.getFinancials(ticker!),
     enabled: enabled && !!ticker,
     staleTime: 300000,

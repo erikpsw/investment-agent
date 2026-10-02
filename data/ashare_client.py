@@ -3,6 +3,7 @@ Ashare A股行情客户端 - 基于新浪/腾讯双数据源，完全免费无�
 原项目: https://github.com/mpquant/Ashare
 """
 import json
+from concurrent.futures import ThreadPoolExecutor
 import requests
 import datetime
 import pandas as pd
@@ -73,10 +74,10 @@ class AshareQuoteClient:
         xcode = self._normalize_code(code)
         
         try:
-            return self._get_realtime_sina(xcode)
+            return self._get_realtime_tx(xcode)
         except Exception:
             try:
-                return self._get_realtime_tx(xcode)
+                return self._get_realtime_sina(xcode)
             except Exception as e:
                 return {"error": str(e), "ticker": code}
     
@@ -89,17 +90,41 @@ class AshareQuoteClient:
         Returns:
             行情数据列表
         """
-        results = []
-        normalized = [self._normalize_code(c) for c in codes]
-        
+        normalized = [self._normalize_code(code) for code in codes]
+        if not normalized:
+            return []
+        quotes_by_code = {}
         try:
-            quotes = self._get_batch_realtime_sina(normalized)
-            return quotes
+            for quote in self._get_batch_realtime_tx(normalized):
+                if not quote.get("error"):
+                    quotes_by_code[quote["ticker"]] = quote
         except Exception:
-            for code in codes:
-                results.append(self.get_realtime_quote(code))
-            return results
-    
+            pass
+        missing = [code for code in normalized if code not in quotes_by_code]
+        if missing:
+            try:
+                for quote in self._get_batch_realtime_sina(missing):
+                    if not quote.get("error"):
+                        quotes_by_code[quote["ticker"]] = quote
+            except Exception:
+                pass
+        missing = [code for code in normalized if code not in quotes_by_code]
+        if missing:
+            with ThreadPoolExecutor(max_workers=min(6, len(missing))) as executor:
+                quotes_by_code.update(zip(missing, executor.map(self.get_realtime_quote, missing)))
+        return [quotes_by_code[code] for code in normalized]
+
+    def _get_batch_realtime_tx(self, codes: List[str]) -> List[Dict[str, Any]]:
+        response = self.session.get(f"http://qt.gtimg.cn/q={','.join(codes)}", timeout=5)
+        response.encoding = "gbk"
+        quotes = []
+        for code in codes:
+            try:
+                quotes.append(self._parse_realtime_tx(code, response.text))
+            except Exception as exc:
+                quotes.append({"ticker": code, "error": str(exc)})
+        return quotes
+
     def _normalize_code(self, code: str) -> str:
         """标准化股票代码"""
         code = code.strip()
@@ -260,8 +285,9 @@ class AshareQuoteClient:
         url = f'http://qt.gtimg.cn/q={code}'
         resp = self.session.get(url, timeout=5)
         resp.encoding = 'gbk'
-        text = resp.text
-        
+        return self._parse_realtime_tx(code, resp.text)
+
+    def _parse_realtime_tx(self, code: str, text: str) -> Dict[str, Any]:
         for line in text.split('\n'):
             if f'v_{code}' in line:
                 start = line.find('"') + 1
@@ -280,14 +306,18 @@ class AshareQuoteClient:
                             "price": price,
                             "prev_close": prev_close,
                             "open": float(parts[5]) if parts[5] else None,
-                            "volume": float(parts[6]) if parts[6] else None,
+                            "volume": float(parts[6]) * 100 if parts[6] else None,
                             "high": float(parts[33]) if parts[33] else None,
                             "low": float(parts[34]) if parts[34] else None,
-                            "amount": float(parts[37]) if parts[37] else None,
+                            "amount": float(parts[37]) * 1e4 if parts[37] else None,
+                            "turnover_rate": float(parts[38]) if parts[38] else None,
                             "change": change,
                             "change_percent": change_pct,
-                            "pe_ratio": float(parts[39]) if parts[39] else None,
-                            "market_cap": float(parts[45]) if parts[45] else None,
+                            "pe_ratio": float(parts[53]) if len(parts) > 53 and parts[53] else None,
+                            "source": "Tencent",
+                            "pe_source": "Tencent",
+                            "pe_basis": "TTM",
+                            "market_cap": float(parts[45]) * 1e8 if parts[45] else None,
                             "timestamp": datetime.datetime.now().isoformat(),
                         }
         

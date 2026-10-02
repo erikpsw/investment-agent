@@ -37,5 +37,5 @@ test("index detail link opts out of native button semantics", async () => {
     new URL("../src/app/market/index/[ticker]/page.tsx", import.meta.url),
     "utf8",
   );
-  assert.match(page, /<Button variant="ghost" nativeButton=\{false\} render=\{<Link href="\/" \/>\}>/);
+  assert.match(page, /<Button variant="ghost" nativeButton=\{false\} render=\{<Link href="\/dashboard" \/>\}>/);
 });

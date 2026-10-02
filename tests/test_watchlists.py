@@ -19,8 +19,9 @@ class FakeResearchService:
         self.quote_calls.append([item["ticker"] for item in items])
         return [{**item, "research": {"quote": {"price": 100}}} for item in items]
 
-    def snapshot(self, ticker, name, market):
+    def snapshot(self, ticker, name, market, **kwargs):
         return {"quote": {"price": 100}, "ticker": ticker}
+
 
     def enrich(self, items, include_history=False):
         self.include_history_calls.append(include_history)
@@ -97,6 +98,7 @@ def test_get_watchlists_filters_group_and_forwards_history_flag() -> None:
 
 
 def test_lightweight_list_skips_research_for_every_group() -> None:
+
     store = InMemoryWatchlistStore()
     research = FakeResearchService()
     service = WatchlistService(store=store, research_service=research)
@@ -122,6 +124,7 @@ def test_selected_group_quotes_skip_history_and_news() -> None:
     assert research.quote_calls == [["AAPL"]]
     assert research.include_history_calls == []
     assert service.get_item_research("auth0|alice", "core", "AAPL")["ticker"] == "AAPL"
+
 
 
 def test_unknown_group_raises_domain_error() -> None:
@@ -236,3 +239,41 @@ def test_batch_is_atomic_when_a_later_operation_fails() -> None:
         )
 
     assert service.get_watchlists("auth0|alice")["groups"][0]["items"] == []
+
+
+def test_cached_store_reuses_user_reads_and_updates_after_save():
+    from investment.data.watchlist_store import CachedWatchlistStore
+    class CountingStore(InMemoryWatchlistStore):
+        loads = 0
+        def load(self, user_id):
+            self.loads += 1
+            return super().load(user_id)
+    backing = CountingStore()
+    cached = CachedWatchlistStore(backing)
+    cached.load("alice")
+    cached.load("alice")
+    assert backing.loads == 1
+    cached.load("bob")
+    assert backing.loads == 2
+    cached.save("alice", [{"id": "new", "name": "New", "items": []}])
+    document = cached.load("alice")
+    assert document.groups[0]["id"] == "new"
+    document.groups[0]["name"] = "mutated"
+    assert cached.load("alice").groups[0]["name"] == "New"
+
+
+def test_cached_store_expires_and_does_not_reuse_failed_reads(monkeypatch):
+    from investment.data import watchlist_store
+    now = [100.0]
+    monkeypatch.setattr(watchlist_store.time, "monotonic", lambda: now[0])
+    class Store(InMemoryWatchlistStore):
+        loads = 0
+        def load(self, user_id):
+            self.loads += 1
+            return super().load(user_id)
+    store = Store()
+    cached = watchlist_store.CachedWatchlistStore(store, ttl_seconds=10)
+    cached.load("alice")
+    now[0] += 11
+    cached.load("alice")
+    assert store.loads == 2

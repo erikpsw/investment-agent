@@ -100,11 +100,11 @@ test("sidebar and grouped watchlist page expose cloud-synced mobile and desktop 
   assert.match(sidebar, /href: "\/watchlist"/);
   assert.match(sidebar, /href: "\/watchlist\/monitor"/);
   assert.match(watchlist, /api\.getWatchlists\(/);
-  assert.match(watchlist, /api\.saveWatchlists\(/);
+  assert.match(watchlist, /api\.createWatchlistGroup\(/);
   assert.match(watchlist, /crypto\.randomUUID\(\)/);
-  assert.match(watchlist, /window\.confirm\(/);
-  assert.match(watchlist, /data-testid="mobile-watchlist-groups"/);
-  assert.match(watchlist, /data-testid="desktop-watchlist-groups"/);
+  assert.match(watchlist, /WatchlistGroupCard/);
+  assert.match(watchlist, /role="tree"/);
+  assert.match(watchlist, /lg:grid-cols/);
 });
 
 test("header delegates authenticated account rendering to UserMenu", async () => {

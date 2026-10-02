@@ -101,18 +101,21 @@ class TencentClient:
                             "price": self._safe_float(parts[3]),
                             "prev_close": self._safe_float(parts[4]),
                             "open": self._safe_float(parts[5]),
-                            "volume": self._safe_float(parts[6]),
+                            "volume": self._safe_float(parts[6]) * 100 if self._safe_float(parts[6]) is not None else None,
                             "buy_volume": self._safe_float(parts[7]),
                             "sell_volume": self._safe_float(parts[8]),
                             "change": self._safe_float(parts[31]),
                             "change_percent": self._safe_float(parts[32]),
                             "high": self._safe_float(parts[33]),
                             "low": self._safe_float(parts[34]),
-                            "amount": self._safe_float(parts[37]),
+                            "amount": self._safe_float(parts[37]) * 1e4 if self._safe_float(parts[37]) is not None else None,
                             "turnover_rate": self._safe_float(parts[38]),
-                            "pe_ratio": self._safe_float(parts[39]),
+                            "pe_ratio": self._safe_float(parts[53]) if len(parts) > 53 else None,
+                            "source": "Tencent",
+                            "pe_source": "Tencent",
+                            "pe_basis": "TTM",
                             "amplitude": self._safe_float(parts[43]),
-                            "market_cap": self._safe_float(parts[45]),
+                            "market_cap": self._safe_float(parts[45]) * 1e8 if self._safe_float(parts[45]) is not None else None,
                             "timestamp": datetime.now().isoformat(),
                         }
         
@@ -122,14 +125,26 @@ class TencentClient:
         """解析港股行情数据"""
         for line in text.split("\n"):
             if f"v_{ticker}" in line:
-                parts = line.split("~")
-                if len(parts) > 5:
+                parts = line[line.find('"') + 1:line.rfind('"')].split("~")
+                if len(parts) > 45:
                     return {
                         "ticker": ticker,
                         "name": parts[1] if len(parts) > 1 else ticker,
                         "price": self._safe_float(parts[3]) if len(parts) > 3 else None,
-                        "change_percent": self._safe_float(parts[5]) if len(parts) > 5 else None,
-                        "timestamp": datetime.now().isoformat(),
+                        "prev_close": self._safe_float(parts[4]),
+                        "open": self._safe_float(parts[5]),
+                        "change": self._safe_float(parts[31]),
+                        "change_percent": self._safe_float(parts[32]),
+                        "high": self._safe_float(parts[33]),
+                        "low": self._safe_float(parts[34]),
+                        "volume": self._safe_float(parts[6]),
+                        "amount": self._safe_float(parts[37]),
+                        "pe_ratio": self._safe_float(parts[39]),
+                        "market_cap": self._safe_float(parts[45]) * 1e8 if self._safe_float(parts[45]) is not None else None,
+                        "source": "Tencent",
+                        "pe_source": "Tencent",
+                        "pe_basis": "供应商口径",
+                        "timestamp": parts[30],
                     }
         
         return {"ticker": ticker, "error": "解析失败", "timestamp": datetime.now().isoformat()}

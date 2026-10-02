@@ -14,6 +14,7 @@ from investment.agents.llm import get_llm_client
 from investment.data.news_fetcher import get_stock_news
 from investment.data.portfolio_store import PortfolioStore, get_portfolio_store
 from investment.data.research_snapshot import ResearchSnapshotService
+from investment.data.market_cache import MarketDataCache, get_market_data_cache
 from investment.data.stock_fetcher import StockFetcher
 
 
@@ -128,11 +129,13 @@ class PortfolioService:
         store: Optional[PortfolioStore] = None,
         fx_rate_provider: Optional[Callable[[], Dict[str, float]]] = None,
         research_service: Optional[ResearchSnapshotService] = None,
+        market_cache: Optional[MarketDataCache] = None,
     ) -> None:
         self.fetcher = StockFetcher()
         self.store = store or get_portfolio_store()
         self.fx_rate_provider = fx_rate_provider or self._fetch_fx_rates
         self.research_service = research_service
+        self.market_cache = market_cache or get_market_data_cache()
         self._cached_fx_rates: Dict[str, float] = {}
         self._fx_cached_at = 0.0
 
@@ -160,12 +163,12 @@ class PortfolioService:
             self._fx_cached_at = now
         return dict(self._cached_fx_rates)
 
-    def get_positions(self, user_id: str, include_history: bool = False) -> Dict[str, Any]:
+    def get_positions(self, user_id: str, include_history: bool = False, include_research: bool = True) -> Dict[str, Any]:
         document = self.store.load(user_id)
         positions = self._normalize_positions(document.positions)
         return {
             "updated_at": document.updated_at,
-            "positions": self._snapshot_positions(positions, include_history=include_history),
+            "positions": self._snapshot_positions(positions, include_history=include_history, include_research=include_research),
             "storage": document.storage,
             "valuation_currency": "CNY",
             "fx_rates": self._get_fx_rates(),
@@ -176,7 +179,7 @@ class PortfolioService:
         document = self.store.save(user_id, normalized)
         return {
             "updated_at": document.updated_at,
-            "positions": self._snapshot_positions(normalized),
+            "positions": self._snapshot_positions(normalized, include_research=False),
             "storage": document.storage,
             "valuation_currency": "CNY",
             "fx_rates": self._get_fx_rates(),
@@ -414,15 +417,35 @@ class PortfolioService:
         self,
         positions: List[Dict[str, Any]],
         include_history: bool = False,
+        include_research: bool = True,
     ) -> List[Dict[str, Any]]:
         if not positions:
             return []
         fx_rates = self._get_fx_rates()
-        with ThreadPoolExecutor(max_workers=min(6, max(1, len(positions)))) as executor:
-            items = list(executor.map(lambda position: self._quote_snapshot(position, fx_rates), positions))
+        def quote_key(item):
+            ticker = str(item["ticker"])
+            return str(item.get("market") or _detect_market(ticker)).upper(), ticker.upper()
+
+        securities = [position for position in positions if not _is_cash_position(position)]
+        quotes = self.market_cache.get_many([quote_key(item) for item in securities], "quote")
+        missing = [item for item in securities if quote_key(item) not in quotes]
+        if missing:
+            def load_quote(item):
+                ticker = str(item["ticker"])
+                market = str(item.get("market") or _detect_market(ticker)).upper()
+                try:
+                    quote = self.fetcher.get_quote(ticker)
+                except Exception as exc:
+                    quote = {"error": f"quote: {str(exc)[:120]}"}
+                return market, ticker, quote
+            with ThreadPoolExecutor(max_workers=min(6, len(missing))) as executor:
+                fetched = list(executor.map(load_quote, missing))
+            self.market_cache.set_many([(market, ticker, quote) for market, ticker, quote in fetched if not quote.get("error")], "quote")
+            quotes.update({(market, ticker.upper()): quote for market, ticker, quote in fetched})
+        items = [self._quote_snapshot(position, fx_rates, quotes.get(quote_key(position))) for position in positions]
 
         security_indexes = [index for index, item in enumerate(items) if not _is_cash_position(item)]
-        if security_indexes:
+        if security_indexes and include_research:
             research_service = self.research_service or ResearchSnapshotService(fetcher=self.fetcher)
             enriched = research_service.enrich(
                 [items[index] for index in security_indexes],
@@ -435,7 +458,7 @@ class PortfolioService:
             item["weight"] = _safe_round((float(item.get("market_value") or 0) / total_market_value * 100) if total_market_value else None)
         return items
 
-    def _quote_snapshot(self, position: Dict[str, Any], fx_rates: Dict[str, float]) -> Dict[str, Any]:
+    def _quote_snapshot(self, position: Dict[str, Any], fx_rates: Dict[str, float], cached_quote: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
         ticker = str(position.get("ticker") or "").strip()
         market = str(position.get("market") or _detect_market(ticker)).upper()
         quantity = float(position.get("quantity") or 0)
@@ -467,7 +490,7 @@ class PortfolioService:
         errors: List[str] = []
         quote: Dict[str, Any] = {}
         try:
-            quote = self.fetcher.get_quote(ticker)
+            quote = cached_quote if cached_quote is not None else self.fetcher.get_quote(ticker)
             if quote.get("error"):
                 errors.append(str(quote.get("error")))
         except Exception as exc:

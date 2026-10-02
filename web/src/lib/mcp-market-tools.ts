@@ -1,5 +1,6 @@
 import type { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
+import { reportApiPath, securityMarket } from "./financial-reports";
 
 function marketApiBaseUrl(): string {
   return (
@@ -12,6 +13,7 @@ function marketApiBaseUrl(): string {
 async function requestResult(path: string): Promise<Record<string, unknown>> {
   const response = await fetch(`${marketApiBaseUrl()}${path}`, {
     cache: "no-store",
+    signal: AbortSignal.timeout(45000),
   });
   if (!response.ok) {
     throw new Error(`Market API request failed with HTTP ${response.status}`);
@@ -54,6 +56,30 @@ function sectorScore(item: Record<string, unknown>): number {
 }
 
 export function registerMarketRankingTools(server: McpServer) {
+  for (const [name, path, description] of [
+    ["get_financial_metrics", "financials", "Get current financial ratios for a CN, HK or US security. Missing fields remain null."],
+    ["get_financial_history", "financial-history", "Get reported revenue, net profit, assets, liabilities, cash flow and report periods. Preserve source units and updated_at; absent data is not zero."],
+  ]) {
+    server.tool(name, description, { ticker: z.string().trim().min(1).max(32) }, async ({ ticker }) => {
+      try { return success(await requestResult(`/api/${path}/${encodeURIComponent(ticker)}`)); }
+      catch (error) { return failure(error); }
+    });
+  }
+  server.tool("get_financial_reports", "List original financial report links and disclosure dates from CNINFO (CN), HKEX (HK) or SEC EDGAR (US). An empty list means unavailable.", {
+    ticker: z.string().trim().min(1).max(32), market: z.enum(["CN", "HK", "US"]).optional(),
+    category: z.enum(["annual", "interim", "quarterly", "all"]).default("annual"),
+  }, async ({ ticker, market, category }) => {
+    try { return success(await requestResult(reportApiPath(ticker, securityMarket(ticker, market), category))); }
+    catch (error) { return failure(error); }
+  });
+  server.tool("get_stock_news", "Get recent security news with source, date and original links for CN, HK or US. News is not a company financial filing.", {
+    ticker: z.string().trim().min(1).max(32), market: z.enum(["CN", "HK", "US"]).optional(),
+    stock_name: z.string().trim().max(100).default(""), limit: z.number().int().min(1).max(50).default(20),
+  }, async ({ ticker, market, stock_name, limit }) => {
+    try { const query = new URLSearchParams({ market: securityMarket(ticker, market), stock_name, limit: String(limit) }); return success(await requestResult(`/api/news/${encodeURIComponent(ticker)}?${query}`)); }
+    catch (error) { return failure(error); }
+  });
+
   server.tool(
     "get_market_overview",
     "Get current major-market index levels, changes, market labels, and source timestamp for broad-market regime analysis.",
@@ -89,7 +115,7 @@ export function registerMarketRankingTools(server: McpServer) {
     "Get OHLCV price history for a CN, HK, or US instrument for technical trend and entry analysis.",
     {
       ticker: z.string().trim().min(1).max(32),
-      period: z.enum(["1d", "5d", "1mo", "3mo", "6mo", "1y"]).default("3mo"),
+      period: z.enum(["1d", "5d", "1mo", "3mo", "6mo", "1y", "2y", "5y", "10y", "max"]).default("3mo"),
       interval: z.enum(["1m", "5m", "15m", "60m", "1d", "1wk"]).default("1d"),
     },
     async ({ ticker, period, interval }) => {
@@ -100,6 +126,53 @@ export function registerMarketRankingTools(server: McpServer) {
             `/api/history/${encodeURIComponent(ticker)}?${query.toString()}`,
           ),
         );
+      } catch (error) {
+        return failure(error);
+      }
+    },
+  );
+
+  server.tool(
+    "get_cn_futures_quote",
+    "Get the current quote for a domestic Chinese futures contract or continuous contract, such as RB2601 or RB0. Includes settlement, volume, open interest, and timestamp.",
+    { ticker: z.string().trim().regex(/^[A-Za-z]+\d+$/).max(16) },
+    async ({ ticker }) => {
+      try {
+        return success(await requestResult(`/api/futures/quote/${encodeURIComponent(ticker)}`));
+      } catch (error) {
+        return failure(error);
+      }
+    },
+  );
+
+  server.tool(
+    "search_cn_futures",
+    "Find domestic Chinese futures varieties and their continuous-contract codes. Use this before requesting a quote when the contract code is unknown.",
+    {
+      query: z.string().trim().min(1).max(32),
+      limit: z.number().int().min(1).max(50).default(20),
+    },
+    async ({ query, limit }) => {
+      try {
+        const params = new URLSearchParams({ q: query, limit: String(limit) });
+        return success(await requestResult(`/api/futures/search?${params}`));
+      } catch (error) {
+        return failure(error);
+      }
+    },
+  );
+
+  server.tool(
+    "get_cn_futures_history",
+    "Get daily OHLCV history for a domestic Chinese futures contract or continuous contract, such as RB2601 or RB0.",
+    {
+      ticker: z.string().trim().regex(/^[A-Za-z]+\d+$/).max(16),
+      period: z.enum(["1d", "5d", "1mo", "3mo", "6mo", "1y"]).default("3mo"),
+    },
+    async ({ ticker, period }) => {
+      try {
+        const query = new URLSearchParams({ period });
+        return success(await requestResult(`/api/futures/history/${encodeURIComponent(ticker)}?${query}`));
       } catch (error) {
         return failure(error);
       }

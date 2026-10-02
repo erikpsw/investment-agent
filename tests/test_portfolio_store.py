@@ -7,6 +7,33 @@ from investment.data.portfolio_store import InMemoryPortfolioStore, SupabasePort
 
 
 class PortfolioStoreTests(unittest.TestCase):
+    def setUp(self) -> None:
+        from unittest.mock import patch
+        from investment.data.market_cache import MarketDataCache
+        cache_patch = patch("investment.data.portfolio.get_market_data_cache", side_effect=MarketDataCache)
+        cache_patch.start()
+        self.addCleanup(cache_patch.stop)
+
+    def test_fast_load_and_save_value_positions_without_research_calls(self) -> None:
+        from unittest.mock import Mock
+        from investment.data.market_cache import MarketDataCache
+        store = InMemoryPortfolioStore()
+        research = Mock()
+        research.enrich.side_effect = AssertionError("Fast valuation must not fetch history or news")
+        service = PortfolioService(store=store, research_service=research, market_cache=MarketDataCache(),
+            fx_rate_provider=lambda: {"CNY": 1, "USD": 7, "HKD": 0.9})
+        service.fetcher = Mock()
+        service.fetcher.get_quote.return_value = {"price": 120, "name": "Apple"}
+        saved = service.save_positions("alice", [{"ticker": "AAPL", "market": "US", "quantity": 2, "avg_cost": 100}])
+        loaded = service.get_positions("alice", include_research=False)
+        for result in (saved, loaded):
+            position = result["positions"][0]
+            self.assertEqual(position["market_value"], 1680)
+            self.assertEqual(position["pnl"], 280)
+            self.assertEqual(position["weight"], 100)
+        research.enrich.assert_not_called()
+        service.fetcher.get_quote.assert_called_once_with("AAPL")
+
     def test_supabase_load_retries_a_transient_gateway_timeout(self) -> None:
         class Query:
             attempts = 0

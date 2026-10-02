@@ -4,6 +4,7 @@ from __future__ import annotations
 import hashlib
 import hmac
 import os
+import re
 import secrets
 import uuid
 from dataclasses import dataclass
@@ -85,7 +86,14 @@ def _parse_datetime(value: Any) -> Optional[datetime]:
     if isinstance(value, datetime):
         parsed = value
     elif value:
-        parsed = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        # PostgreSQL omits trailing fractional zeros; Python 3.10 requires
+        # three or six digits when parsing an ISO fractional second.
+        normalized = re.sub(r"\.(\d+)(?=Z|[+-]|$)",
+            lambda match: "." + match.group(1)[:6].ljust(6, "0"), str(value))
+        try:
+            parsed = datetime.fromisoformat(normalized.replace("Z", "+00:00"))
+        except ValueError as exc:
+            raise PersonalAccessTokenStorageError("PAT timestamps are invalid") from exc
     else:
         return None
     if parsed.tzinfo is None:

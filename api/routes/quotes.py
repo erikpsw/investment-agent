@@ -34,6 +34,10 @@ async def get_quote(ticker: str):
             change=quote.get("change"),
             change_percent=quote.get("change_percent"),
             pe_ratio=quote.get("pe_ratio"),
+            eps=quote.get("eps"),
+            source=quote.get("source"),
+            pe_source=quote.get("pe_source"),
+            pe_basis=quote.get("pe_basis"),
             market_cap=quote.get("market_cap"),
             timestamp=quote.get("timestamp", datetime.now().isoformat()),
             market=_detect_market(ticker),
@@ -69,6 +73,10 @@ async def get_quote_by_name(name: str):
             change=quote.get("change"),
             change_percent=quote.get("change_percent"),
             pe_ratio=quote.get("pe_ratio"),
+            eps=quote.get("eps"),
+            source=quote.get("source"),
+            pe_source=quote.get("pe_source"),
+            pe_basis=quote.get("pe_basis"),
             market_cap=quote.get("market_cap"),
             timestamp=quote.get("timestamp", datetime.now().isoformat()),
             market=resolved.get("market", _detect_market(ticker)),
@@ -108,9 +116,9 @@ async def get_market_overview():
 def _detect_market(ticker: str) -> str:
     """Detect market from ticker"""
     ticker_lower = ticker.lower()
-    if ticker_lower.startswith(("sh", "sz")):
+    if ticker_lower.startswith(("sh", "sz", "bj")):
         return "CN"
-    elif ticker_lower.startswith("hk"):
+    elif ticker_lower.startswith("hk") or ticker_lower.endswith(".hk") or (ticker_lower.isdigit() and len(ticker_lower) in (4, 5)):
         return "HK"
     elif ticker_lower.isdigit():
         return "CN"

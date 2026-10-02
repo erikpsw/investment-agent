@@ -95,6 +95,38 @@ class WatchlistService:
         include_history: bool,
         quotes_only: bool = False,
     ) -> List[Dict[str, Any]]:
+        if not include_history:
+            items: List[Dict[str, Any]] = []
+
+            def collect(nodes: List[Dict[str, Any]]) -> None:
+                for node in nodes:
+                    items.extend(node.get("items", []))
+                    collect(node.get("children", []))
+
+            collect(groups)
+            enriched_items = self.research_service.enrich_quotes(items) if items else []
+            research_by_key = {
+                (str(item.get("market") or "").upper(), str(item.get("ticker") or "").casefold()): item.get("research")
+                for item in enriched_items
+            }
+
+            def attach(nodes: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+                return [
+                    {
+                        **node,
+                        "items": [
+                            {
+                                **item,
+                                "research": research_by_key.get((str(item.get("market") or "").upper(), str(item.get("ticker") or "").casefold())),
+                            }
+                            for item in node.get("items", [])
+                        ],
+                        "children": attach(node.get("children", [])),
+                    }
+                    for node in nodes
+                ]
+
+            return attach(groups)
         enriched: List[Dict[str, Any]] = []
         for group in groups:
             items = (self.research_service.enrich_quotes(group.get("items", [])) if quotes_only else self.research_service.enrich(group.get("items", []), include_history=include_history)) if group.get("items") else []
@@ -320,6 +352,8 @@ class WatchlistService:
         include_history: bool = False,
         include_research: bool = True,
         quotes_only: bool = False,
+        include_quotes: bool = True,
+
     ) -> Dict[str, Any]:
         document = self.store.load(user_id)
         groups = self._normalize_groups(document.groups)
@@ -328,10 +362,11 @@ class WatchlistService:
             if not selected:
                 raise WatchlistGroupNotFound(group_id)
             groups = selected
+        tree = self._tree(groups)
         return {
             "updated_at": document.updated_at,
             "storage": document.storage,
-            "groups": self._enrich_groups(self._tree(groups), include_history, quotes_only) if include_research else self._tree(groups),
+            "groups": self._enrich_groups(self._tree(groups), include_history, quotes_only) if include_research and include_quotes else self._tree(groups),
         }
 
     def get_item_research(self, user_id: str, group_id: str, ticker: str) -> Dict[str, Any]:
@@ -339,7 +374,24 @@ class WatchlistService:
         item = next((entry for entry in group["items"] if str(entry["ticker"]).casefold() == ticker.casefold()), None)
         if item is None:
             raise WatchlistItemNotFound(ticker)
-        return self.research_service.snapshot(item["ticker"], item["name"], item["market"])
+        return self.research_service.snapshot(item["ticker"], item["name"], item["market"], include_history=True, read_cache=False)
+
+    def get_research(self, user_id: str, tickers: List[str]) -> Dict[str, Any]:
+        """Return full research only for securities in the caller's watchlist."""
+        wanted = {str(ticker).casefold() for ticker in tickers if str(ticker).strip()}
+        if not wanted:
+            return {"items": []}
+        items: List[Dict[str, Any]] = []
+        seen: set[tuple[str, str]] = set()
+        for group in self._normalize_groups(self.store.load(user_id).groups):
+            for item in group.get("items", []):
+                ticker = str(item.get("ticker") or "")
+                key = (str(item.get("market") or "").upper(), ticker.casefold())
+                if ticker.casefold() in wanted and key not in seen:
+                    seen.add(key)
+                    items.append(item)
+        return {"items": self.research_service.enrich(items, include_history=True)}
+
 
     def save_watchlists(
         self,

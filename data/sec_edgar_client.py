@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Sequence, Union
 from datetime import datetime
 from bs4 import BeautifulSoup
-from sec_edgar_downloader import Downloader
+from .runtime_paths import cache_directory
 
 
 class SECEdgarClient:
@@ -23,7 +23,7 @@ class SECEdgarClient:
     }
     
     def __init__(self, cache_dir: str = None):
-        self.cache_dir = Path(cache_dir or "cache/sec_filings")
+        self.cache_dir = Path(cache_dir) if cache_dir else cache_directory("sec_filings") if os.getenv("VERCEL") else Path("cache/sec_filings")
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         
         # SEC EDGAR API 需要 User-Agent
@@ -227,6 +227,7 @@ class SECEdgarClient:
         download_dir.mkdir(parents=True, exist_ok=True)
         
         try:
+            from sec_edgar_downloader import Downloader
             dl = Downloader(self.company_name, self.email, str(download_dir))
             dl.get(filing_type, ticker, limit=limit)
             

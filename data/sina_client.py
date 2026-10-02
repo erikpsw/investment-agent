@@ -81,8 +81,8 @@ class SinaClient:
                 "ticker": ticker,
                 "name": parts[1],  # 中文名
                 "name_en": parts[0],  # 英文名
-                "prev_close": self._safe_float(parts[2]),
-                "open": self._safe_float(parts[3]),
+                "prev_close": self._safe_float(parts[3]),
+                "open": self._safe_float(parts[2]),
                 "high": self._safe_float(parts[4]),
                 "low": self._safe_float(parts[5]),
                 "price": self._safe_float(parts[6]),
@@ -93,6 +93,9 @@ class SinaClient:
                 "amount": self._safe_float(parts[11]),
                 "volume": self._safe_float(parts[12]),
                 "pe_ratio": self._safe_float(parts[13]),
+                "source": "Sina",
+                "pe_source": "Sina",
+                "pe_basis": "供应商口径",
                 "timestamp": datetime.now().isoformat(),
             }
         except Exception as e:
@@ -101,7 +104,7 @@ class SinaClient:
     def _parse_us_quote(self, ticker: str, text: str) -> Dict[str, Any]:
         """解析美股行情数据
         
-        格式: var hq_str_gb_xxxx="名称,现价,涨幅%,时间,涨跌,今开,最高,最低,52周最高,52周最低,成交量,成交额,市值,市盈率,每股收益,..."
+        格式: var hq_str_gb_xxxx="名称,现价,涨幅%,时间,涨跌,今开,最高,最低,52周最高,52周最低,成交量,平均成交量,市值,每股收益,市盈率,..."
         """
         try:
             if '=""' in text or "FAILED" in text or not text.strip():
@@ -113,7 +116,7 @@ class SinaClient:
                 return {"ticker": ticker, "error": "解析失败", "timestamp": datetime.now().isoformat()}
             
             parts = text[start:end].split(",")
-            if len(parts) < 12:
+            if len(parts) < 15:
                 return {"ticker": ticker, "error": "数据不完整", "timestamp": datetime.now().isoformat()}
             
             return {
@@ -128,10 +131,14 @@ class SinaClient:
                 "high_52week": self._safe_float(parts[8]),
                 "low_52week": self._safe_float(parts[9]),
                 "volume": self._safe_float(parts[10]),
-                "amount": self._safe_float(parts[11]),
+                "average_volume": self._safe_float(parts[11]),
+                "amount": None,
                 "market_cap": self._safe_float(parts[12]),
-                "pe_ratio": self._safe_float(parts[13]),
-                "eps": self._safe_float(parts[14]),
+                "pe_ratio": self._safe_float(parts[14]),
+                "eps": self._safe_float(parts[13]),
+                "source": "Sina",
+                "pe_source": "Sina",
+                "pe_basis": "供应商口径",
                 "prev_close": self._safe_float(parts[26]) if len(parts) > 26 else None,
                 "timestamp": datetime.now().isoformat(),
             }

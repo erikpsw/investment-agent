@@ -1,6 +1,8 @@
 """
 Financial Data API Routes
 """
+import asyncio
+
 from typing import Any, Dict, List, Optional
 from fastapi import APIRouter, HTTPException, Query
 import akshare as ak
@@ -75,30 +77,44 @@ def _get_metric(metrics: Dict[str, Any], *keys: str) -> Optional[float]:
     return None
 
 
+def _ratio_metric(metrics: Dict[str, Any], standard_key: str, *percent_keys: str) -> Optional[float]:
+    """Yahoo ratios are fractions; Chinese percentage indicators are percentage points."""
+    if metrics.get(standard_key) is not None:
+        value = _get_metric(metrics, standard_key)
+        return value / 100 if value is not None and "%" in str(metrics[standard_key]) else value
+    value = _get_metric(metrics, *percent_keys)
+    return value / 100 if value is not None else None
+
+
 @router.get("/financials/{ticker}", response_model=FinancialMetrics)
 async def get_financials(ticker: str):
     """Get key financial metrics for a stock"""
     try:
-        metrics = fetcher.get_key_metrics(ticker)
+        metrics = await asyncio.to_thread(fetcher.get_key_metrics, ticker)
         
         if "error" in metrics:
             raise HTTPException(status_code=404, detail=metrics["error"])
         
-        pe_ratio = _get_metric(metrics, "pe_ratio", "市盈率", "市盈率(动态)", "市盈率TTM")
-        quote = fetcher.get_quote(ticker)
-        if pe_ratio is None and quote.get("pe_ratio"):
+        metric_pe = _get_metric(metrics, "pe_ratio", "市盈率TTM", "市盈率(TTM)")
+        pe_ratio = metric_pe
+        quote = await asyncio.to_thread(fetcher.get_quote, ticker) if pe_ratio is None or not metrics.get("name") else {}
+        if pe_ratio is None and metrics.get("pe_basis") != "TTM" and quote.get("pe_ratio") is not None:
             pe_ratio = quote.get("pe_ratio")
         
         return FinancialMetrics(
             ticker=ticker,
             name=metrics.get("name") or quote.get("name"),
             pe_ratio=pe_ratio,
+            eps=metrics.get("eps") if metrics.get("eps") is not None else quote.get("eps"),
+            source=metrics.get("source") or quote.get("source"),
+            pe_source=(metrics.get("pe_source") or "AKShare") if metric_pe is not None or metrics.get("pe_basis") == "TTM" else quote.get("pe_source"),
+            pe_basis=(metrics.get("pe_basis") or "TTM") if metric_pe is not None or metrics.get("pe_basis") == "TTM" else quote.get("pe_basis"),
             pb_ratio=_get_metric(metrics, "pb_ratio", "市净率"),
-            roe=_get_metric(metrics, "roe", "净资产收益率", "加权净资产收益率", "摊薄净资产收益率"),
-            roa=_get_metric(metrics, "roa", "总资产收益率", "总资产报酬率"),
-            gross_margin=_get_metric(metrics, "gross_margin", "毛利率", "销售毛利率"),
-            profit_margin=_get_metric(metrics, "profit_margin", "净利率", "销售净利率"),
-            debt_ratio=_get_metric(metrics, "debt_ratio", "资产负债率"),
+            roe=_ratio_metric(metrics, "roe", "净资产收益率", "加权净资产收益率", "摊薄净资产收益率"),
+            roa=_ratio_metric(metrics, "roa", "总资产收益率", "总资产报酬率"),
+            gross_margin=_ratio_metric(metrics, "gross_margin", "毛利率", "销售毛利率"),
+            profit_margin=_ratio_metric(metrics, "profit_margin", "净利率", "销售净利率"),
+            debt_ratio=_ratio_metric(metrics, "debt_ratio", "资产负债率"),
             current_ratio=_get_metric(metrics, "current_ratio", "流动比率"),
         )
     except HTTPException:

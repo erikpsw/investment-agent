@@ -12,10 +12,7 @@ import {
   isPdfUrl,
   safeReportUrl,
 } from "../src/lib/financial-reports";
-import {
-  profileInitials,
-  toPublicUserProfile,
-} from "../src/lib/user-profile";
+import { profileInitials, toPublicUserProfile } from "../src/lib/user-profile";
 
 test("MCP connector configuration exposes the production OAuth client", () => {
   assert.equal(MCP_SERVER_URL, "https://www.erikai.top/mcp");
@@ -50,7 +47,7 @@ test("public profile strips claims and creates a fallback initial", () => {
       name: "Erik Pan",
       email: "e@example.com",
       picture: "https://img.example.com/x",
-    }
+    },
   );
   assert.equal(profileInitials({ name: "Erik Pan" }), "E");
 });
@@ -58,12 +55,12 @@ test("public profile strips claims and creates a fallback initial", () => {
 test("invalid profile picture values are omitted", () => {
   assert.deepEqual(
     toPublicUserProfile({ email: " e@example.com ", picture: "not-a-url" }),
-    { email: "e@example.com" }
+    { email: "e@example.com" },
   );
   assert.equal(profileInitials({ email: "e@example.com" }), "E");
 });
 
-test("financials page delegates A-share reports to a PDF-capable list", async () => {
+test("financials page delegates reports to a multi-market PDF-capable list", async () => {
   const page = await readFile(
     new URL("../src/app/financials/page.tsx", import.meta.url),
     "utf8",
@@ -78,19 +75,19 @@ test("financials page delegates A-share reports to a PDF-capable list", async ()
   );
 
   assert.match(page, /<FinancialReportList ticker=\{selectedTicker\}/);
-  assert.match(list, /useDisclosure/);
-  assert.match(list, /isAStockTicker/);
+  assert.match(list, /getSecurityReports/);
+  assert.match(list, /securityMarket/);
   assert.match(viewer, /<iframe/);
   assert.match(viewer, /新窗口打开/);
 });
 
-test("security research details supports four trend windows and structured metrics", async () => {
+test("security research details supports five trend windows and structured metrics", async () => {
   const details = await readFile(
     new URL("../src/components/security-research-details.tsx", import.meta.url),
     "utf8",
   );
 
-  assert.match(details, /\[5, 20, 60, 250\]/);
+  assert.match(details, /\[5, 10, 20, 60, 250\]/);
   assert.match(details, /research\.returns/);
   assert.match(details, /research\.moving_averages/);
   assert.match(details, /research\.technical/);
@@ -99,7 +96,7 @@ test("security research details supports four trend windows and structured metri
   assert.match(details, /break-words[^\"]*\[overflow-wrap:anywhere\]/);
 });
 
-test("watchlist research opens from the right-side action instead of a dedicated row", async () => {
+test("watchlist research uses a page-level right-side drawer", async () => {
   const portfolio = await readFile(
     new URL("../src/app/portfolio/page.tsx", import.meta.url),
     "utf8",
@@ -112,9 +109,9 @@ test("watchlist research opens from the right-side action instead of a dedicated
   assert.match(portfolio, /<TableRow[^>]*data-testid="portfolio-research-row"/);
   assert.match(portfolio, /colSpan=\{10\}/);
   assert.match(portfolio, /table-fixed/);
-  assert.match(watchlist, /function ResearchButton/);
-  assert.match(watchlist, /<SheetContent side="right"/);
-  assert.match(watchlist, /走势与数据/);
+  assert.match(watchlist, /activeItem/);
+  assert.match(watchlist, /SheetContent/);
+  assert.match(watchlist, /onClick=\{\(\) => setActiveItem\(item\)\}/);
   assert.doesNotMatch(watchlist, /watchlist-research-row/);
 });
 
@@ -127,5 +124,92 @@ test("watchlist API client uses authenticated cloud endpoints", async () => {
   assert.match(api, /async getWatchlists\(/);
   assert.match(api, /async saveWatchlists\(/);
   assert.match(api, /"\/api\/watchlists"/);
-  assert.match(api, /authenticated[^\n]*true|\}, true\)/);
+  assert.match(api, /getPortfolioAccessToken/);
+  assert.match(api, /async prefetchWatchlistResearch\(/);
+  assert.match(api, /"\/api\/watchlists\/research"/);
+});
+
+test("watchlist loads research on demand and keeps cached details", async () => {
+  const page = await readFile(
+    new URL("../src/app/watchlist/page.tsx", import.meta.url),
+    "utf8",
+  );
+  const watchlist = await readFile(
+    new URL("../src/components/watchlist-group-card.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.doesNotMatch(page, /prefetchWatchlistResearch/);
+  assert.match(page, /researchByTicker/);
+  assert.match(watchlist, /activeResearch/);
+  assert.match(watchlist, /数据正在准备/);
+});
+
+test("watchlist avoids bulk research and renders market roots as a tree", async () => {
+  const page = await readFile(
+    new URL("../src/app/watchlist/page.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(page, /quoteLoading/);
+  assert.match(page, /getWatchlists\(undefined, false, false\)/);
+  assert.match(page, /getWatchlists\(selectedId, false, true\)/);
+  assert.match(page, /marketTree/);
+  assert.match(page, /A股/);
+  assert.match(page, /港股/);
+  assert.match(page, /美股/);
+  assert.match(page, /role="tree"/);
+  assert.match(page, /role="treeitem"/);
+  assert.doesNotMatch(
+    page,
+    /prefetchWatchlistResearch\(\[\.\.\.new Set\(items\.map/,
+  );
+});
+
+test("watchlist table exposes return and activity metrics while keeping one stable detail drawer", async () => {
+  const watchlist = await readFile(
+    new URL("../src/components/watchlist-group-card.tsx", import.meta.url),
+    "utf8",
+  );
+
+  for (const label of ["5日", "10日", "20日", "60日", "换手", "量比"]) {
+    assert.ok(watchlist.includes(`>${label}</TableHead>`) || watchlist.includes(`sortHeader("${label}"`));
+  }
+  assert.match(watchlist, /activeItem/);
+  assert.match(watchlist, /open=\{Boolean\(activeItem\)\}/);
+});
+
+test("sector view shows short and medium return windows", async () => {
+  const sectors = await readFile(
+    new URL("../src/app/sectors/page.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(sectors, /change_5d/);
+  assert.match(sectors, /change_10d/);
+  assert.match(sectors, /change_20d/);
+  assert.match(sectors, /change_60d/);
+});
+
+test("watchlist restores a user-scoped tree snapshot before revalidating the server", async () => {
+  const page = await readFile(
+    new URL("../src/app/watchlist/page.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(page, /WATCHLIST_TREE_CACHE_TTL_MS/);
+  assert.match(page, /watchlist:tree:/);
+  assert.match(page, /readTreeCache\(user\.sub\)/);
+  assert.match(page, /writeTreeCache\(user\.sub, nextGroups\)/);
+  assert.match(page, /localStorage\.removeItem/);
+});
+
+test("settings links resolve to a real account settings page", async () => {
+  const settings = await readFile(
+    new URL("../src/app/settings/page.tsx", import.meta.url),
+    "utf8",
+  );
+
+  assert.match(settings, /账户设置/);
+  assert.match(settings, /行情缓存/);
 });

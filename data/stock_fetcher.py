@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor
 from typing import Any, Optional, List, Dict
 from datetime import datetime
 import pandas as pd
@@ -166,7 +167,7 @@ class StockFetcher:
                 return self.ashare.get_realtime_quote(ticker_lower)
             except Exception:
                 return self.tencent.get_quote(ticker_lower)
-        elif ticker_lower.startswith("hk") or ticker.endswith(".HK"):
+        elif self._is_hk_stock(ticker):
             # 港股: 优先使用新浪 API
             hk_code = ticker_lower.replace(".hk", "")
             if not hk_code.startswith("hk"):
@@ -209,6 +210,31 @@ class StockFetcher:
             # 备用 yfinance
             return self.yfinance.get_quote(ticker.upper())
 
+    def get_quotes(self, items: List[Dict[str, Any]]) -> Dict[str, Dict[str, Any]]:
+        """Fetch a watchlist's quotes efficiently, using Sina's A-share batch API."""
+        results: Dict[str, Dict[str, Any]] = {}
+        cn_items = [item for item in items if str(item.get("market") or "").upper() == "CN"]
+        if cn_items:
+            try:
+                quotes = self.ashare.get_realtime_quotes([
+                    str(item.get("ticker") or "") for item in cn_items
+                ])
+                for item, quote in zip(cn_items, quotes):
+                    results[str(item.get("ticker") or "")] = quote
+            except Exception:
+                # Keep the rest of the batch useful even when one provider is down.
+                pass
+
+        remaining = [item for item in items if str(item.get("ticker") or "") not in results]
+        if remaining:
+            def load(item: Dict[str, Any]) -> tuple[str, Dict[str, Any]]:
+                ticker = str(item.get("ticker") or "")
+                return ticker, self.get_quote(ticker)
+
+            with ThreadPoolExecutor(max_workers=min(6, len(remaining))) as executor:
+                results.update(executor.map(load, remaining))
+        return results
+
     def get_history(
         self,
         ticker: str,
@@ -223,9 +249,44 @@ class StockFetcher:
         - 美股: Tencent > Sina > AKShare > YFinance
         """
         # 映射 period 到数据条数
-        period_map = {"1y": 250, "6mo": 125, "3mo": 65, "1mo": 22, "5d": 5, "1d": 1}
+        period_map = {"2y": 500, "5y": 1260, "10y": 2520, "max": 20000, "1y": 250, "6mo": 125, "3mo": 65, "1mo": 22, "5d": 5, "1d": 1}
         limit = period_map.get(period, 250)
         
+        # Long ranges need providers that are not capped at a few hundred bars.
+        if period in {"5y", "10y", "max"}:
+            if self._is_china_stock(ticker):
+                code = ticker.lower().removeprefix("sh").removeprefix("sz").removeprefix("bj")
+                exchange = "SS" if ticker.lower().startswith("sh") or code.startswith(("5", "6", "9")) else "BJ" if ticker.lower().startswith("bj") else "SZ"
+                yf_ticker = f"{code}.{exchange}"
+            elif self._is_hk_stock(ticker):
+                code = ticker.lower().replace("hk", "").replace(".hk", "").lstrip("0").zfill(4)
+                yf_ticker = f"{code}.HK"
+            else:
+                yf_ticker = ticker.upper()
+            try:
+                df = self.yfinance.get_history(yf_ticker, period, interval)
+                if df is not None and not df.empty:
+                    return self._standardize_columns(df)
+            except Exception as exc:
+                print(f"[StockFetcher] Long history provider failed: {exc}")
+            # Explicit dates prevent AKShare silently falling back to one year.
+            from datetime import datetime, timedelta
+            end = datetime.now()
+            start = "19900101" if period == "max" else (end - timedelta(days={"2y": 731, "5y": 1827, "10y": 3653}[period])).strftime("%Y%m%d")
+            if self._is_hk_stock(ticker):
+                return self._standardize_columns(self.akshare.get_hk_history(ticker, start_date=start, end_date=end.strftime("%Y%m%d")))
+            if not self._is_china_stock(ticker):
+                return self._standardize_columns(self.akshare.get_us_history(ticker, start_date=start, end_date=end.strftime("%Y%m%d")))
+            import akshare as ak
+            if code.startswith(("5", "15", "16", "18")):
+                df = ak.fund_etf_hist_em(symbol=code, start_date=start, end_date=end.strftime("%Y%m%d"), adjust="qfq")
+            else:
+                df = ak.stock_zh_a_hist(symbol=code, start_date=start, end_date=end.strftime("%Y%m%d"), adjust="qfq")
+            if df is not None and not df.empty:
+                df = df.rename(columns={"日期": "Date", "开盘": "Open", "收盘": "Close", "最高": "High", "最低": "Low", "成交量": "Volume"})
+                df.index = pd.to_datetime(df.pop("Date"))
+            return df
+
         if self._is_china_stock(ticker):
             ticker_lower = ticker.lower()
             if not ticker_lower.startswith(("sh", "sz")):
@@ -387,10 +448,10 @@ class StockFetcher:
         ticker_lower = ticker.lower()
         return (
             ticker_lower.startswith(("sh", "sz")) or
-            ticker_lower.isdigit()
+            (ticker_lower.isdigit() and len(ticker_lower) == 6)
         )
 
     def _is_hk_stock(self, ticker: str) -> bool:
         """判断是否为港股"""
         ticker_lower = ticker.lower()
-        return ticker_lower.startswith("hk") or ticker.endswith(".HK")
+        return ticker_lower.startswith("hk") or ticker_lower.endswith(".hk") or (ticker_lower.isdigit() and len(ticker_lower) in (4, 5))

@@ -15,6 +15,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
 import { useDebounce } from "@/hooks/use-debounce";
+import { securityMarket } from "@/lib/financial-reports";
 import { api, type CreatedPersonalAccessToken, type PersonalAccessToken, type PortfolioAnalysisItem, type PortfolioAnalysisResult, type PortfolioPosition, type SearchResult } from "@/lib/api";
 
 function formatNumber(value?: number | null, digits = 2) {
@@ -29,10 +30,7 @@ function formatPct(value?: number | null) {
 }
 
 function marketFor(ticker: string) {
-  const value = ticker.trim().toLowerCase();
-  if (value.startsWith("hk") || value.endsWith(".hk") || (/^\d{5}$/.test(value) && value.startsWith("0"))) return "HK";
-  if (value.startsWith("sh") || value.startsWith("sz") || /^\d{6}$/.test(value)) return "CN";
-  return "US";
+  return securityMarket(ticker);
 }
 
 function currencyForMarket(market?: string) {
@@ -271,14 +269,15 @@ function MobilePositionCard({
           <Metric label="盈亏比例" value={formatPct(position.pnl_percent)} className={pnlClass(position.pnl_percent)} />
         </div>}
 
-        {!isCash && <SecurityResearchDetails research={position.research} />}
+        {!isCash && position.ticker && <Link href={`/stock/${encodeURIComponent(position.ticker)}`} className="flex min-h-11 items-center justify-center rounded-md border text-sm font-medium">查看走势、财报与新闻</Link>}
+        {!isCash && position.research && <SecurityResearchDetails research={position.research} ticker={position.ticker} />}
 
         <Input
           value={position.notes || ""}
           onChange={(event) => onUpdate(index, { notes: event.target.value })}
           placeholder="策略/原因"
         />
-        <Button variant="outline" className="w-full" onClick={() => onRemove(index)}>
+        <Button variant="outline" className="min-h-11 w-full" onClick={() => onRemove(index)}>
           <Trash2 className="mr-2 h-4 w-4" />删除持仓
         </Button>
       </CardContent>
@@ -361,6 +360,10 @@ export default function PortfolioPage() {
   const [positions, setPositions] = useState<PortfolioPosition[]>([]);
   const [analysis, setAnalysis] = useState<PortfolioAnalysisResult | null>(null);
   const [busy, setBusy] = useState(false);
+  const [loadingPositions, setLoadingPositions] = useState(true);
+  const [loadError, setLoadError] = useState("");
+  const [loadMs, setLoadMs] = useState<number | null>(null);
+  const [dirty, setDirty] = useState(false);
   const [message, setMessage] = useState("");
   const [personalTokens, setPersonalTokens] = useState<PersonalAccessToken[]>([]);
   const [newTokenName, setNewTokenName] = useState("Codex MCP");
@@ -382,8 +385,19 @@ export default function PortfolioPage() {
   ] : [], [analysis]);
 
   const loadPositions = useCallback(async () => {
-    const response = await api.getPortfolioPositions(true);
-    setPositions(response.result.positions.length ? response.result.positions : [emptyPosition()]);
+    setLoadingPositions(true);
+    setLoadError("");
+    const started = performance.now();
+    try {
+      const response = await api.getPortfolioPositions(false, false);
+      setPositions(response.result.positions);
+      setDirty(false);
+      setLoadMs(performance.now() - started);
+    } catch (error) {
+      setLoadError(error instanceof Error ? error.message : "加载投资组合失败");
+    } finally {
+      setLoadingPositions(false);
+    }
   }, []);
 
   const loadPersonalTokens = useCallback(async () => {
@@ -393,12 +407,13 @@ export default function PortfolioPage() {
 
   useEffect(() => {
     if (authLoading || !user) return;
-    void Promise.all([loadPositions(), loadPersonalTokens()]).catch((error) =>
-      setMessage(error instanceof Error ? error.message : "加载投资组合失败")
-    );
+    void loadPositions();
+    void loadPersonalTokens().catch(() => setMessage("MCP 接入设置暂时无法加载，可在设置页重试。"));
   }, [authLoading, loadPersonalTokens, loadPositions, user]);
 
   const updatePosition = (index: number, patch: Partial<PortfolioPosition>) => {
+    setDirty(true);
+    setAnalysis(null);
     setPositions((current) => current.map((item, itemIndex) => {
       if (itemIndex !== index) return item;
       const next = { ...item, ...patch };
@@ -448,6 +463,8 @@ export default function PortfolioPage() {
     const response = await api.savePortfolioPositions(clean);
     const savedPositions = response.result.positions.length ? response.result.positions : [emptyPosition()];
     setPositions(savedPositions);
+    setDirty(false);
+    setAnalysis(null);
     return savedPositions;
   };
 
@@ -461,8 +478,6 @@ export default function PortfolioPage() {
     setBusy(true);
     try {
       await savePositionsOnly();
-      await refreshPortfolioAnalysis();
-      await loadPositions();
       setMessage("持仓已保存，估值已更新");
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "保存失败");
@@ -518,18 +533,18 @@ export default function PortfolioPage() {
   return (
     <div className="flex min-h-screen flex-col">
       <Header />
-      <main className="flex-1 space-y-6 p-6">
+      <main className="min-w-0 flex-1 space-y-4 p-3 sm:space-y-6 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold tracking-tight">投资组合</h1>
             <p className="text-muted-foreground">维护自选/持仓，结合新闻、价格和技术面生成仓位管理建议。</p>
           </div>
-          <div className="flex gap-2">
-            <Button variant="outline" onClick={() => setPositions((current) => [...current, emptyPosition()])} disabled={busy}>
+          <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap [&>button]:min-h-11">
+            <Button variant="outline" onClick={() => { setPositions((current) => [...current, emptyPosition()]); setDirty(true); setAnalysis(null); }} disabled={busy || loadingPositions || !!loadError}>
               <Plus className="mr-2 h-4 w-4" /> 添加
             </Button>
             <DropdownMenu>
-              <DropdownMenuTrigger className="inline-flex h-9 items-center justify-center rounded-md border px-3 text-sm font-medium hover:bg-muted">
+              <DropdownMenuTrigger disabled={busy || loadingPositions || !!loadError} className="inline-flex min-h-11 items-center justify-center rounded-md border px-3 text-sm font-medium hover:bg-muted">
                 <Plus className="mr-2 h-4 w-4" />现金
               </DropdownMenuTrigger>
               <DropdownMenuContent>
@@ -537,23 +552,28 @@ export default function PortfolioPage() {
                   <DropdownMenuItem
                     key={option.currency}
                     disabled={busy || cashCurrenciesInUse.has(option.currency)}
-                    onClick={() => setPositions((current) => [...current, cashPosition(option.currency)])}
+                    onClick={() => { setPositions((current) => [...current, cashPosition(option.currency)]); setDirty(true); setAnalysis(null); }}
                   >
                     {option.name}{cashCurrenciesInUse.has(option.currency) ? "（已添加）" : ""}
                   </DropdownMenuItem>
                 ))}
               </DropdownMenuContent>
             </DropdownMenu>
-            <Button variant="outline" onClick={save} disabled={busy}>
+            <Button variant="outline" onClick={save} disabled={busy || loadingPositions || !!loadError || !dirty}>
               {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />} 保存
             </Button>
-            <Button onClick={analyze} disabled={busy}>
+            <Button onClick={analyze} disabled={busy || loadingPositions || !!loadError || !positions.some(item => item.ticker.trim())}>
               {busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />} 分析组合
             </Button>
           </div>
         </div>
 
         {message && <div className="rounded-lg border px-4 py-3 text-sm">{message}</div>}
+        <div role="status" className="flex flex-wrap items-center justify-between gap-2 text-sm text-muted-foreground">
+          <span>{loadingPositions ? "正在加载持仓估值…" : loadError ? "持仓加载失败" : dirty ? "有未保存的修改 · 估值将在保存后更新" : loadMs !== null ? `估值已更新 · ${(loadMs / 1000).toFixed(2)} 秒` : ""}</span>
+          <Button className="min-h-11" variant="outline" onClick={() => { setAnalysis(null); void loadPositions(); }} disabled={busy || loadingPositions || dirty}><RefreshCw className="mr-2 h-4 w-4" />刷新估值</Button>
+        </div>
+        {loadError && <div role="alert" className="rounded-lg border p-3 text-sm">{loadError}，请点击刷新估值重试。</div>}
 
         <Card className="overflow-visible">
           <CardHeader>
@@ -561,6 +581,8 @@ export default function PortfolioPage() {
             <CardDescription>输入名称或代码后选择候选项，系统会自动填入代码和名称；再填写数量与买入均价。</CardDescription>
           </CardHeader>
           <CardContent className="overflow-visible">
+            <fieldset disabled={busy || loadingPositions || !!loadError} className="min-w-0">
+            {!loadingPositions && !loadError && positions.length === 0 && <p className="py-6 text-center text-sm text-muted-foreground">暂无持仓，点击添加股票或现金开始记录。</p>}
             <div className="space-y-4 md:hidden">
               {positions.map((position, index) => (
                 <MobilePositionCard
@@ -568,7 +590,7 @@ export default function PortfolioPage() {
                   position={position}
                   index={index}
                   onUpdate={updatePosition}
-                  onRemove={(itemIndex) => setPositions((current) => current.filter((_, currentIndex) => currentIndex !== itemIndex))}
+                  onRemove={(itemIndex) => { setPositions((current) => current.filter((_, currentIndex) => currentIndex !== itemIndex)); setDirty(true); setAnalysis(null); }}
                 />
               ))}
             </div>
@@ -603,6 +625,7 @@ export default function PortfolioPage() {
                         onInput={(value) => { const market = marketFor(value); updatePosition(index, { ticker: value, market, currency: currencyForMarket(market) }); }}
                         onSelect={(result) => updatePosition(index, { ticker: result.code, name: result.name, market: result.market, currency: currencyForMarket(result.market) })}
                       />}
+                      {!cash && position.ticker && <Link href={`/stock/${encodeURIComponent(position.ticker)}`} className="mt-1 flex min-h-11 items-center text-sm text-primary hover:underline">走势 / 财报 / 新闻</Link>}
                     </TableCell>
                     <TableCell>{cash ? position.currency : <Input value={position.name || ""} onChange={(event) => updatePosition(index, { name: event.target.value })} placeholder="自动填入，可修改" />}</TableCell>
                     <TableCell><Input type="number" value={position.quantity} onChange={(event) => updatePosition(index, { quantity: Number(event.target.value) })} /></TableCell>
@@ -613,7 +636,7 @@ export default function PortfolioPage() {
                     <TableCell className={`tabular-nums ${pnlClass(position.pnl_percent)}`}>{cash ? "--" : formatPct(position.pnl_percent)}</TableCell>
                     <TableCell><Input value={position.notes || ""} onChange={(event) => updatePosition(index, { notes: event.target.value })} placeholder="策略/原因" /></TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="icon" onClick={() => setPositions((current) => current.filter((_, itemIndex) => itemIndex !== index))}>
+                      <Button variant="ghost" size="icon" aria-label={`删除 ${position.ticker || "空持仓"}`} onClick={() => { setPositions((current) => current.filter((_, itemIndex) => itemIndex !== index)); setDirty(true); setAnalysis(null); }}>
                         <Trash2 className="h-4 w-4" />
                       </Button>
                     </TableCell>
@@ -633,6 +656,7 @@ export default function PortfolioPage() {
               </TableBody>
               </Table>
             </div>
+            </fieldset>
           </CardContent>
         </Card>
 

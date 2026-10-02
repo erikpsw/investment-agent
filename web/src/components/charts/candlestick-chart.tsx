@@ -21,14 +21,14 @@ interface CandlestickChartProps {
   ticker: string;
   period?: string;
   interval?: string;
-  height?: number;
+  height?: number | string;
 }
 
 export function CandlestickChart({
   ticker,
-  period = "1mo",
+  period = "1y",
   interval = "1d",
-  height = 400,
+  height = "clamp(200px, 32dvh, 300px)",
 }: CandlestickChartProps) {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
@@ -37,7 +37,10 @@ export function CandlestickChart({
   const ma5SeriesRef = useRef<ISeriesApi<"Line"> | null>(null);
   const ma20SeriesRef = useRef<ISeriesApi<"Line"> | null>(null);
 
-  const { data, isLoading, error } = useHistory(ticker, { period, interval });
+  // Fetch preceding bars so MA20 is available at the visible range's start.
+  const fetchPeriod = ({ "5d": "3mo", "1mo": "3mo", "3mo": "6mo", "6mo": "1y", "1y": "2y", "5y": "10y", "10y": "max" } as Record<string, string>)[period] || period;
+  const { data, isLoading, error } = useHistory(ticker, { period: fetchPeriod, interval });
+  const visibleCount = ({ "5d": 5, "1mo": 22, "3mo": 65, "6mo": 125, "1y": 250, "5y": 1260, "10y": 2520 } as Record<string, number>)[period];
 
   const [containerReady, setContainerReady] = useState(false);
 
@@ -71,7 +74,7 @@ export function CandlestickChart({
 
     const chart = createChart(container, {
       width: containerWidth,
-      height,
+      height: container.clientHeight,
       layout: {
         background: { type: ColorType.Solid, color: "transparent" },
         textColor: "#9ca3af",
@@ -137,14 +140,15 @@ export function CandlestickChart({
 
     const handleResize = () => {
       if (chartContainerRef.current) {
-        chart.applyOptions({ width: chartContainerRef.current.clientWidth });
+        chart.applyOptions({ width: chartContainerRef.current.clientWidth, height: chartContainerRef.current.clientHeight });
       }
     };
 
-    window.addEventListener("resize", handleResize);
+    const resizeObserver = new ResizeObserver(handleResize);
+    resizeObserver.observe(container);
 
     return () => {
-      window.removeEventListener("resize", handleResize);
+      resizeObserver.disconnect();
       chart.remove();
     };
   }, [height, containerReady]);
@@ -192,12 +196,22 @@ export function CandlestickChart({
     ma5SeriesRef.current?.setData(ma5Data);
     ma20SeriesRef.current?.setData(ma20Data);
 
-    chartRef.current?.timeScale().fitContent();
-  }, [data]);
+    let start = Math.max(0, data.bars.length - (visibleCount || data.bars.length));
+    const years = ({ "1y": 1, "5y": 5, "10y": 10 } as Record<string, number>)[period];
+    if (years && data.bars.length) {
+      const cutoff = new Date(data.bars[data.bars.length - 1].time);
+      cutoff.setUTCFullYear(cutoff.getUTCFullYear() - years);
+      const date = cutoff.toISOString().slice(0, 10);
+      const index = data.bars.findIndex(bar => bar.time >= date);
+      start = Math.max(0, index);
+    }
+    if (data.bars.length > 1) chartRef.current?.timeScale().setVisibleLogicalRange({ from: start, to: data.bars.length - 1 });
+    else if (data.bars.length === 1) chartRef.current?.timeScale().fitContent();
+  }, [data, visibleCount, containerReady, period]);
 
   return (
-    <div className="space-y-2">
-      <div className="relative" style={{ height }}>
+    <div className="min-w-0 space-y-2">
+      <div className="relative" data-testid="candlestick-plot" style={{ height }}>
         <div ref={chartContainerRef} className="w-full h-full" />
         {isLoading && (
           <div className="absolute inset-0 flex items-center justify-center bg-background/80">
@@ -222,7 +236,10 @@ export function CandlestickChart({
           </div>
         )}
       </div>
-      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+      <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+        <button type="button" className="min-h-11 rounded border px-3" onClick={() => chartRef.current?.timeScale().fitContent()}>查看全部已加载数据</button>
+        <span>拖动查看 · 滚轮或双指缩放 · MA20 按日线计算</span>
+        {data?.bars.length ? <span>已加载数据范围：{data.bars[0].time} 至 {data.bars[data.bars.length - 1].time}（{data.bars.length} 个交易日）</span> : null}
         <div className="flex items-center gap-1">
           <div className="w-3 h-0.5 bg-amber-500" />
           <span>MA5</span>

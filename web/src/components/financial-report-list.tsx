@@ -7,9 +7,10 @@ import { PdfViewerDialog } from "@/components/pdf-viewer-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useDisclosure } from "@/hooks/use-market";
+import { useQuery } from "@tanstack/react-query";
+import { api } from "@/lib/api";
 import type { DisclosureItem } from "@/lib/api";
-import { isAStockTicker, isPdfUrl, safeReportUrl } from "@/lib/financial-reports";
+import { securityMarket, isPdfUrl, safeReportUrl } from "@/lib/financial-reports";
 
 type ReportCategory = "annual" | "interim" | "quarterly" | "all";
 
@@ -20,11 +21,11 @@ const CATEGORIES: Array<{ value: ReportCategory; label: string }> = [
   { value: "all", label: "全部" },
 ];
 
-export function FinancialReportList({ ticker }: { ticker: string }) {
+export function FinancialReportList({ ticker, market }: { ticker: string; market?: string }) {
   const [category, setCategory] = useState<ReportCategory>("annual");
   const [selection, setSelection] = useState<{ key: string; report: DisclosureItem } | null>(null);
-  const supported = isAStockTicker(ticker);
-  const disclosure = useDisclosure(ticker, category, supported);
+  const resolvedMarket = securityMarket(ticker, market);
+  const disclosure = useQuery({ queryKey: ["security-reports", ticker, resolvedMarket, category], queryFn: async () => { const started = performance.now(); const result = await api.getSecurityReports(ticker, resolvedMarket, category); return { ...result, elapsedMs: performance.now() - started }; }, staleTime: 300000, refetchInterval: 300000, retry: false });
   const selectionKey = `${ticker}:${category}`;
   const selectedReport = selection?.key === selectionKey ? selection.report : null;
 
@@ -39,15 +40,15 @@ export function FinancialReportList({ ticker }: { ticker: string }) {
         <CardHeader className="gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <CardTitle className="flex items-center gap-2"><FileText className="h-5 w-5" />财报原文</CardTitle>
-            <CardDescription>来自巨潮资讯的 A 股财报，支持站内 PDF 预览和原文打开。</CardDescription>
+            <CardDescription>{resolvedMarket === "CN" ? "巨潮资讯" : resolvedMarket === "HK" ? "披露易" : "SEC EDGAR"} · 财报原文与披露日期，支持 PDF 预览或打开原文。</CardDescription>
           </div>
-          {supported && (
-            <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2">
               {CATEGORIES.map((item) => (
                 <Button
                   key={item.value}
                   type="button"
                   size="sm"
+                  className="min-h-11"
                   variant={category === item.value ? "default" : "outline"}
                   onClick={() => setCategory(item.value)}
                 >
@@ -55,14 +56,10 @@ export function FinancialReportList({ ticker }: { ticker: string }) {
                 </Button>
               ))}
             </div>
-          )}
         </CardHeader>
         <CardContent>
-          {!supported ? (
-            <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
-              财报 PDF 首版仅支持 A 股。当前股票仍可查看上方财务指标。
-            </div>
-          ) : disclosure.isLoading ? (
+          {disclosure.data && <p className="mb-3 text-xs text-muted-foreground">本次加载 {(disclosure.data.elapsedMs / 1000).toFixed(2)} 秒</p>}
+          {disclosure.isLoading ? (
             <div className="flex items-center justify-center gap-2 py-10 text-sm text-muted-foreground">
               <Loader2 className="h-4 w-4 animate-spin" />正在获取财报列表...
             </div>

@@ -69,6 +69,10 @@ class WatchlistsRequest(BaseModel):
     groups: List[WatchlistGroupRequest] = Field(default_factory=list, max_length=100)
 
 
+class WatchlistResearchRequest(BaseModel):
+    tickers: List[str] = Field(min_length=1, max_length=500)
+
+
 class WatchlistBatchOperation(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -114,6 +118,8 @@ async def get_watchlists(
     include_history: bool = Query(default=False),
     include_research: bool = Query(default=True),
     quotes_only: bool = Query(default=False),
+    include_quotes: bool = Query(default=True),
+
     current_user: AuthenticatedUser = Depends(get_watchlist_reader),
 ):
     result = await _run_watchlist_call(
@@ -123,6 +129,8 @@ async def get_watchlists(
         include_history,
         include_research,
         quotes_only,
+        include_quotes,
+
     )
     return {"status": "ok", "result": result}
 
@@ -138,6 +146,20 @@ async def get_watchlist_item_research(
         current_user.sub,
         group_id,
         ticker,
+    )
+    return {"status": "ok", "result": result}
+
+
+@router.post("/watchlists/research")
+async def prefetch_watchlist_research(
+    request: WatchlistResearchRequest,
+    current_user: AuthenticatedUser = Depends(get_watchlist_reader),
+):
+    result = await _run_watchlist_call(
+        get_watchlist_service().get_research,
+        current_user.sub,
+        request.tickers,
+
     )
     return {"status": "ok", "result": result}
 

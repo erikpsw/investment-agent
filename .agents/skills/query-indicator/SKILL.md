@@ -8,7 +8,7 @@ metadata:
     skillKey: query-indicator
     author: Huatai Securities
     requires:
-      bins: ["python3"]
+      bins: ["python"]
 ---
 
 # 金融指标与行情综合检索 Skill
@@ -72,7 +72,7 @@ metadata:
 **参数**：
 - `query`：用户问题，保留原始表述（必填）
 
-**执行**：`python3 query_indicator.py queryIndicator --query <query>`
+**执行**：`python query_indicator.py queryIndicator --query <query>`
 
 **注意事项**：
 - **不要拆分多次调用**："南京中达昨天和前天的最高价"、"领益智造、国轩高科当日收益情况" → 单次传入完整问句，切勿过度拆分问题

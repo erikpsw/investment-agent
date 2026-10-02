@@ -18,6 +18,10 @@ class StockQuote(BaseModel):
     change: Optional[float] = None
     change_percent: Optional[float] = None
     pe_ratio: Optional[float] = None
+    eps: Optional[float] = None
+    source: Optional[str] = None
+    pe_source: Optional[str] = None
+    pe_basis: Optional[str] = None
     market_cap: Optional[float] = None
     timestamp: Optional[str] = None
     market: Optional[str] = None
@@ -73,6 +77,10 @@ class FinancialMetrics(BaseModel):
     ticker: str
     name: Optional[str] = None
     pe_ratio: Optional[float] = None
+    eps: Optional[float] = None
+    source: Optional[str] = None
+    pe_source: Optional[str] = None
+    pe_basis: Optional[str] = None
     pb_ratio: Optional[float] = None
     roe: Optional[float] = None
     roa: Optional[float] = None

@@ -7,7 +7,9 @@ export class AuthenticationRequiredError extends Error {
   }
 }
 
-export async function getPortfolioAccessToken(): Promise<string> {
+let pendingAccessToken: Promise<string> | null = null;
+
+async function requestPortfolioAccessToken(): Promise<string> {
   try {
     const token = await getAccessToken();
     if (!token) throw new AuthenticationRequiredError();
@@ -16,4 +18,11 @@ export async function getPortfolioAccessToken(): Promise<string> {
     if (error instanceof AuthenticationRequiredError) throw error;
     throw new AuthenticationRequiredError();
   }
+}
+
+export function getPortfolioAccessToken(): Promise<string> {
+  if (!pendingAccessToken) {
+    pendingAccessToken = requestPortfolioAccessToken().finally(() => { pendingAccessToken = null; });
+  }
+  return pendingAccessToken;
 }

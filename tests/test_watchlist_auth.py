@@ -15,8 +15,9 @@ class FakeWatchlistService:
     def __init__(self) -> None:
         self.calls = []
 
-    def get_watchlists(self, user_id, group_id=None, include_history=False, include_research=True, quotes_only=False):
-        self.calls.append(("get", user_id, group_id, include_history, include_research, quotes_only))
+    def get_watchlists(self, user_id, group_id=None, include_history=False, include_research=True, quotes_only=False, include_quotes=True):
+        self.calls.append(("get", user_id, group_id, include_history, include_research, quotes_only, include_quotes))
+
         return {"groups": [], "storage": "fake"}
 
     def save_watchlists(self, user_id, groups):
@@ -38,6 +39,11 @@ class FakeWatchlistService:
     def get_item_research(self, user_id, group_id, ticker):
         self.calls.append(("research", user_id, group_id, ticker))
         return {"quote": {"price": 100}}
+
+    def get_research(self, user_id, tickers):
+        self.calls.append(("research", user_id, tickers))
+        return {"items": []}
+
 
 
 def make_app(service: FakeWatchlistService, user: AuthenticatedUser | None) -> FastAPI:
@@ -62,11 +68,11 @@ def test_get_forwards_authenticated_subject_filter_and_history() -> None:
     user = AuthenticatedUser(sub="auth0|alice")
     with patch.object(watchlists, "get_watchlist_service", return_value=service):
         response = TestClient(make_app(service, user)).get(
-            "/api/watchlists?group_id=core&include_history=true"
+            "/api/watchlists?group_id=core&include_history=true&include_quotes=false"
         )
 
     assert response.status_code == 200
-    assert service.calls == [("get", "auth0|alice", "core", True, True, False)]
+    assert service.calls == [("get", "auth0|alice", "core", True, True, False, False)]
 
 
 def test_lightweight_request_disables_research_enrichment() -> None:
@@ -76,7 +82,7 @@ def test_lightweight_request_disables_research_enrichment() -> None:
             "/api/watchlists?include_research=false"
         )
     assert response.status_code == 200
-    assert service.calls == [("get", "auth0|alice", None, False, False, False)]
+    assert service.calls == [("get", "auth0|alice", None, False, False, False, True)]
 
 
 def test_item_research_only_reads_selected_instrument() -> None:
@@ -87,6 +93,7 @@ def test_item_research_only_reads_selected_instrument() -> None:
         )
     assert response.status_code == 200
     assert service.calls == [("research", "auth0|alice", "core", "AAPL")]
+
 
 
 def test_put_uses_subject_and_rejects_client_user_id() -> None:
@@ -136,7 +143,8 @@ def test_read_only_pat_cannot_write() -> None:
 
 def test_unknown_group_returns_not_found() -> None:
     service = FakeWatchlistService()
-    service.get_watchlists = lambda user_id, group_id=None, include_history=False, include_research=True, quotes_only=False: (_ for _ in ()).throw(
+    service.get_watchlists = lambda user_id, group_id=None, include_history=False, include_research=True, quotes_only=False, include_quotes=True: (_ for _ in ()).throw(
+
         WatchlistGroupNotFound(group_id)
     )
     with patch.object(watchlists, "get_watchlist_service", return_value=service):
@@ -150,7 +158,8 @@ def test_unknown_group_returns_not_found() -> None:
 
 def test_storage_failure_returns_service_unavailable() -> None:
     service = FakeWatchlistService()
-    service.get_watchlists = lambda user_id, group_id=None, include_history=False, include_research=True, quotes_only=False: (_ for _ in ()).throw(
+    service.get_watchlists = lambda user_id, group_id=None, include_history=False, include_research=True, quotes_only=False, include_quotes=True: (_ for _ in ()).throw(
+
         WatchlistStorageError("secret storage detail")
     )
     with patch.object(watchlists, "get_watchlist_service", return_value=service):
@@ -192,3 +201,15 @@ def test_batch_forwards_all_operations_in_one_authenticated_call() -> None:
 
     assert response.status_code == 200
     assert service.calls == [("batch", "auth0|alice", operations)]
+
+
+def test_research_prefetch_is_authenticated_and_scoped_to_the_user() -> None:
+    service = FakeWatchlistService()
+    user = AuthenticatedUser(sub="auth0|alice")
+    with patch.object(watchlists, "get_watchlist_service", return_value=service):
+        response = TestClient(make_app(service, user)).post(
+            "/api/watchlists/research", json={"tickers": ["AAPL", "MSFT"]}
+        )
+
+    assert response.status_code == 200
+    assert service.calls == [("research", "auth0|alice", ["AAPL", "MSFT"])]

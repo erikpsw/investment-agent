@@ -1,7 +1,7 @@
 "use client";
 
 import { useUser } from "@auth0/nextjs-auth0";
-import { useState } from "react";
+import { useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -44,31 +44,48 @@ const navigation = [
   { name: "财报数据", href: "/financials", icon: FileText },
 ];
 
-export function Sidebar() {
+const SIDEBAR_KEY = "sidebar-collapsed";
+const SIDEBAR_EVENT = "sidebar-preference-change";
+let fallbackCollapsed = false;
+
+function subscribeSidebar(listener: () => void) {
+  window.addEventListener("storage", listener);
+  window.addEventListener(SIDEBAR_EVENT, listener);
+  return () => {
+    window.removeEventListener("storage", listener);
+    window.removeEventListener(SIDEBAR_EVENT, listener);
+  };
+}
+
+function readCollapsed() {
+  try { return localStorage.getItem(SIDEBAR_KEY) === "true"; }
+  catch { return fallbackCollapsed; }
+}
+
+export function Sidebar({ collapsible = true }: { collapsible?: boolean }) {
   const pathname = usePathname();
   const { user, isLoading: authLoading } = useUser();
-  const [collapsed, setCollapsed] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return localStorage.getItem("sidebar-collapsed") === "true";
-  });
+  const preference = useSyncExternalStore(subscribeSidebar, readCollapsed, () => false);
+  const collapsed = collapsible && preference;
 
   const toggleCollapse = () => {
     const newState = !collapsed;
-    setCollapsed(newState);
-    localStorage.setItem("sidebar-collapsed", String(newState));
+    fallbackCollapsed = newState;
+    try { localStorage.setItem(SIDEBAR_KEY, String(newState)); } catch { /* Keep the current session usable if storage is blocked. */ }
+    window.dispatchEvent(new Event(SIDEBAR_EVENT));
   };
 
   return (
     <TooltipProvider delay={0}>
-      <div className={cn("flex h-full flex-col border-r bg-background transition-all duration-300", collapsed ? "w-16" : "w-64")}>
-        <div className="flex h-14 items-center justify-between border-b px-3">
-          <Link href="/" className={cn("flex items-center gap-2 overflow-hidden font-semibold", collapsed && "justify-center")}>
+      <div data-testid="sidebar" data-collapsed={collapsed} className={cn("flex h-full flex-col border-r bg-background transition-all duration-300", collapsed ? "w-16" : "w-64")}>
+        <div className={cn("flex h-14 items-center border-b px-2", collapsed ? "justify-center" : "justify-between gap-2")}>
+          {!collapsed && <Link href="/" className="flex min-w-0 items-center gap-2 overflow-hidden font-semibold">
             <TrendingUp className="h-6 w-6 shrink-0 text-primary" />
             {!collapsed && <span className="truncate text-lg">Investment Agent</span>}
-          </Link>
-          <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0" onClick={toggleCollapse}>
+          </Link>}
+          {collapsible && <Button variant="ghost" size="icon" aria-label={collapsed ? "展开侧边栏" : "收起侧边栏"} aria-expanded={!collapsed} className="h-11 w-11 shrink-0" onClick={toggleCollapse}>
             {collapsed ? <PanelLeft className="h-4 w-4" /> : <PanelLeftClose className="h-4 w-4" />}
-          </Button>
+          </Button>}
         </div>
 
         <ScrollArea className="flex-1 px-2 py-4">
@@ -80,6 +97,7 @@ export function Sidebar() {
                 <Link
                   key={item.name}
                   href={item.href}
+                  aria-label={item.name}
                   className={cn(
                     "flex items-center rounded-md px-3 py-2 text-sm font-medium transition-colors",
                     "hover:bg-accent hover:text-accent-foreground",
@@ -128,7 +146,7 @@ export function Sidebar() {
               <Tooltip>
                 <TooltipTrigger
                   render={
-                    <Link href="/settings" className="flex items-center justify-center rounded-md p-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground">
+                    <Link href="/settings" aria-label="设置" className="flex items-center justify-center rounded-md p-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground">
                       <Settings className="h-4 w-4" />
                     </Link>
                   }
@@ -140,6 +158,7 @@ export function Sidebar() {
                   render={
                     <Link
                       href={user ? "/auth/logout" : "/auth/login"}
+                      aria-label={user ? "退出登录" : "登录"}
                       prefetch={false}
                       className="flex items-center justify-center rounded-md p-2 text-sm font-medium transition-colors hover:bg-accent hover:text-accent-foreground"
                     >

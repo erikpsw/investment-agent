@@ -15,7 +15,8 @@ class FakePortfolioService:
     def __init__(self) -> None:
         self.calls: list[tuple[str, str]] = []
 
-    def get_positions(self, user_id: str, include_history: bool = False):
+    def get_positions(self, user_id: str, include_history: bool = False, include_research: bool = True):
+        self.include_research = include_research
         self.calls.append(("get", user_id, include_history))
         return {"positions": [], "storage": "fake"}
 
@@ -45,6 +46,26 @@ def make_app(service: FakePortfolioService, authenticated: bool) -> FastAPI:
 
 
 class PortfolioAuthTests(unittest.TestCase):
+    def test_fast_load_explicitly_skips_research(self) -> None:
+        service = FakePortfolioService()
+        with patch.object(portfolio, "get_portfolio_service", return_value=service):
+            response = TestClient(make_app(service, authenticated=True)).get(
+                "/api/portfolio/positions?include_history=false&include_research=false"
+            )
+        self.assertEqual(response.status_code, 200)
+        self.assertFalse(service.include_research)
+
+    def test_token_routes_are_registered_on_production_app(self) -> None:
+        # Other tests replace heavy picker modules globally; verify the actual
+        # application in a clean interpreter, including its auth guard.
+        import subprocess
+        import sys
+        result = subprocess.run([sys.executable, "-c",
+            "from investment.api.main import app; from fastapi.testclient import TestClient; "
+            "assert TestClient(app).get('/api/portfolio/tokens').status_code == 401"],
+            capture_output=True, text=True, timeout=60)
+        self.assertEqual(result.returncode, 0, result.stderr)
+
     def test_missing_bearer_token_is_rejected(self) -> None:
         service = FakePortfolioService()
         with patch.object(portfolio, "get_portfolio_service", return_value=service):
@@ -151,7 +172,7 @@ class PortfolioAuthTests(unittest.TestCase):
 
     def test_cloud_storage_failure_returns_service_unavailable(self) -> None:
         service = FakePortfolioService()
-        service.get_positions = lambda user_id, include_history=False: (_ for _ in ()).throw(
+        service.get_positions = lambda user_id, include_history=False, include_research=True: (_ for _ in ()).throw(
             PortfolioStorageError("secret internal storage error")
         )
         with patch.object(portfolio, "get_portfolio_service", return_value=service):

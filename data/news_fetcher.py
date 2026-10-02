@@ -10,6 +10,7 @@ import threading
 
 _cache = TTLCache(maxsize=100, ttl=300)
 _cache_lock = threading.Lock()
+_stock_news_locks = [threading.Lock() for _ in range(32)]
 
 
 @dataclass
@@ -92,9 +93,76 @@ def _fetch_hk_stock_news(ticker: str, stock_name: str) -> List[dict]:
 
 
 def _fetch_us_stock_news(ticker: str, stock_name: str) -> List[dict]:
-    """美股新闻 - 用公司名或 ticker 作为关键词搜索"""
-    keyword = stock_name or ticker.replace(".", "")
+    """Prefer ticker-specific company news; validate entity matches before fallback."""
+    import yfinance as yf
+    items = []
+    try:
+        for row in yf.Ticker(ticker.upper()).get_news(count=30):
+            content = row.get("content") or row
+            canonical = content.get("canonicalUrl") or content.get("clickThroughUrl") or {}
+            provider = content.get("provider") or {}
+            published = content.get("pubDate") or content.get("displayTime")
+            items.append({
+                "title": content.get("title", ""),
+                "link": canonical.get("url", "") if isinstance(canonical, dict) else str(canonical),
+                "source": provider.get("displayName", "Yahoo Finance") if isinstance(provider, dict) else str(provider),
+                "published": published,
+                "published_date": published,
+                "summary": content.get("summary") or content.get("description"),
+                "thumbnail": None,
+            })
+    except Exception as exc:
+        print(f"[News] US company feed unavailable: {type(exc).__name__}")
+    relevant = _relevant_stock_news(items, ticker, stock_name, "US")
+    if relevant:
+        return relevant
+    aliases = _company_aliases(ticker, stock_name, "US")
+    keyword = aliases[-1] if aliases else ticker
     return _fetch_keyword_news(keyword)
+
+
+def _company_aliases(ticker: str, stock_name: str, market: str) -> List[str]:
+    """Company-specific aliases only; never generic industry or corporate words."""
+    name = (stock_name or "").strip()
+    aliases = [name] if name else []
+    short = re.sub(r"(?i)\b(incorporated|corporation|holdings?|limited|inc|corp|ltd|plc|co)\b[.,]?", "", name)
+    short = re.sub(r"(?:股份有限公司|股份公司|有限公司|控股有限公司|集团有限公司|控股|集团)$", "", short.strip())
+    short = re.sub(r"(?i)[-－](?:SW|W|S|B|H|U)$", "", short).strip(" .,，")
+    if len(short) >= 2:
+        aliases.append(short)
+    code = re.sub(r"^(sh|sz|bj|hk)", "", ticker, flags=re.I).replace(".HK", "")
+    if market != "US" and code:
+        aliases.append(code)
+    return list(dict.fromkeys(alias for alias in aliases if alias))
+
+
+def _relevant_stock_news(items: List[dict], ticker: str, stock_name: str, market: str) -> List[dict]:
+    aliases = _company_aliases(ticker, stock_name, market)
+    result, seen = [], set()
+    for item in items:
+        title = str(item.get("title") or "")
+        text = title + " " + str(item.get("summary") or "")
+        match = None
+        for alias in aliases:
+            # Latin aliases need boundaries: CAT must not match 'category'.
+            pattern = re.escape(alias)
+            if re.fullmatch(r"[\w .,&'-]+", alias, flags=re.ASCII):
+                pattern = r"(?<![A-Za-z0-9])" + pattern + r"(?![A-Za-z0-9])"
+            if re.search(pattern, text, re.I):
+                match = alias
+                break
+        if not match and market == "US":
+            # Short ambiguous symbols need an explicit exchange/ticker marker.
+            symbol = re.escape(ticker.upper())
+            pattern = (r"(?i)(?:NASDAQ|NYSE|AMEX|ticker)\s*[:：]\s*" + symbol + r"(?![A-Za-z0-9])|\$" + symbol + r"(?![A-Za-z0-9])")
+            if re.search(pattern, text) or (len(ticker) >= 4 and re.search(r"(?<![A-Za-z0-9])" + symbol + r"(?![A-Za-z0-9])", text)):
+                match = ticker.upper()
+        key = str(item.get("link") or title).strip()
+        if match and title and key and key not in seen:
+            seen.add(key)
+            result.append({**item, "matched_entity": match})
+    result.sort(key=lambda item: str(item.get("published_date") or item.get("published") or ""), reverse=True)
+    return result
 
 
 def get_stock_news(
@@ -103,26 +171,37 @@ def get_stock_news(
     market: str = "CN",
     limit: int = 10
 ) -> List[dict]:
-    cache_key = f"stock_news:{market}:{ticker}"
-    with _cache_lock:
-        if cache_key in _cache:
-            return _cache[cache_key][:limit]
+    market = market.upper()
+    if not stock_name.strip():
+        try:
+            from .stock_search import resolve_stock
+            identity = resolve_stock(ticker)
+            stock_name = str((identity or {}).get("name") or "")
+        except Exception:
+            # Preserve ticker-based matching when company lookup is unavailable.
+            stock_name = ""
+    cache_key = f"stock_news:v2:{market}:{ticker}:{stock_name.strip()}"
+    with _stock_news_locks[hash(cache_key) % len(_stock_news_locks)]:
+        with _cache_lock:
+            if cache_key in _cache:
+                return _cache[cache_key][:limit]
     
-    code = re.sub(r"[a-zA-Z.]", "", ticker)
+        code = re.sub(r"[a-zA-Z.]", "", ticker)
     
-    if market == "CN" and code:
-        result = _fetch_cn_stock_news(code)
-    elif market == "HK":
-        result = _fetch_hk_stock_news(ticker, stock_name)
-    elif market == "US":
-        result = _fetch_us_stock_news(ticker, stock_name)
-    else:
-        result = []
+        if market == "CN" and code:
+            result = _fetch_cn_stock_news(code)
+        elif market == "HK":
+            result = _fetch_hk_stock_news(ticker, stock_name)
+        elif market == "US":
+            result = _fetch_us_stock_news(ticker, stock_name)
+        else:
+            result = []
     
-    with _cache_lock:
-        _cache[cache_key] = result
+        result = _relevant_stock_news(result, ticker, stock_name, market)
+        with _cache_lock:
+            _cache[cache_key] = result
     
-    return result[:limit]
+        return result[:limit]
 
 
 def get_market_news(market: str = "CN", topic: str = "BUSINESS", limit: int = 20) -> List[dict]:
