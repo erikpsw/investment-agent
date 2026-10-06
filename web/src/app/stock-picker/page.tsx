@@ -240,6 +240,7 @@ export default function StockPickerPage() {
           </div>
         )}
         {data?.snapshot_only && <p className="rounded-lg border px-4 py-3 text-sm text-amber-700">当前使用保存的市场快照，请核对数据时间；不代表实时价格。</p>}
+        {!!data?.history_budget_exceeded_count && <p className="rounded-lg border px-4 py-3 text-sm text-amber-700">本轮 {data.history_budget_exceeded_count} 只达到历史计算时间上限，评分保留缺失因子，未填充趋势或保护价。可刷新重试。</p>}
         {!!data?.market_sources?.length && <div className="rounded-lg border p-3 text-xs text-muted-foreground">{data.market_sources.map(source => <p key={source.market}>{source.market} · {formatTime(source.generated_at)} · {source.source}</p>)}</div>}
 
         <Card>

@@ -283,6 +283,7 @@ async def formula_ranking(
                     "scope": "美股官方上市普通股及股票ADR目录；缺失行情不参与筛选；条件匹配后取成交额前120只补算历史并评分，非全目录最终评分排名；不含OTC",
                     "fallback": False, "cached": True, "snapshot_only": True,
                     "history_enriched_count": sum(all(row.get(f"change_{n}d") is not None for n in (5, 20, 60)) for row in ranked),
+                    "history_budget_exceeded_count": sum(row.get("history_budget_exceeded", False) for row in ranked),
                 }}
             return {"status": "ok", "result": {"market": region, "mode": mode, "formula": describe(mode), "formula_version": VERSION, "items": ranked[:limit], "total": len(ranked), "candidate_count": len(rows), "scanned_count": len(scan["rows"]), "generated_at": scan.get("generated_at"), "source": scan.get("source") or f"{region}候选快照", "scope": "港股成交活跃候选池" if region == "HK" else "美股成交活跃候选池；非全部上市股票", "fallback": False, "cached": scan.get("cached", scan.get("stale", False)), "snapshot_only": scan.get("stale", False), "instrument_filter": scan.get("instrument_filter"), "history_enriched_count": sum(row.get("change_5d") is not None and row.get("change_20d") is not None and row.get("change_60d") is not None for row in ranked)}}
         except Exception as exc:

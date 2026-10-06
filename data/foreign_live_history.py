@@ -1,6 +1,7 @@
 """Attach live momentum provenance without changing the frozen historical adapter."""
 import copy
 import time
+from concurrent.futures import ThreadPoolExecutor, wait
 from investment.data import foreign_formula as base
 
 
@@ -29,17 +30,25 @@ def _provenance(row):
             "bar_count":61,"window_start":window[0]["date"],"window_end":window[-1]["date"]}
 
 
-def enrich_foreign_history(rows, *, as_of=None, limit=120):
+def enrich_foreign_history(rows, *, as_of=None, limit=120, history_timeout=45):
     if rows and all(row.get('market') == 'US' and 'quote_as_of' in row for row in rows):
         selected = sorted(rows, key=lambda row: base.number(row.get('amount')) or 0, reverse=True)[:limit]
-        groups = {}
-        for row in selected:
-            stamp = row.get('quote_as_of') or as_of
-            cutoff = base.completed_date(stamp, 'US')
-            groups.setdefault(cutoff, {'as_of': stamp, 'rows': []})['rows'].append(row)
+        def enrich_one(row):
+            result = base.enrich_foreign_history([row], as_of=row.get('quote_as_of') or as_of, limit=1)
+            return result[0]
+        executor = ThreadPoolExecutor(max_workers=8)
+        futures = {row['ticker']: executor.submit(enrich_one, row) for row in selected}
+        completed, pending = wait(futures.values(), timeout=history_timeout)
+        executor.shutdown(wait=False, cancel_futures=True)
         enriched = []
-        for group in groups.values():
-            enriched.extend(base.enrich_foreign_history(group['rows'], as_of=group['as_of'], limit=len(group['rows'])))
+        for row in selected:
+            future = futures[row['ticker']]
+            if future in completed and future.exception() is None:
+                enriched.append(future.result())
+            else:
+                clean = {key:value for key,value in row.items() if key not in ('change_5d','change_20d','change_60d','risk_bars','history_as_of','trend_history')}
+                enriched.append({**clean, 'history_budget_exceeded': future in pending,
+                                 'history_error': '本轮历史计算达到45秒上限，未补填趋势或保护价' if future in pending else '历史数据暂不可用，未补填趋势或保护价'})
         clocks = {row['ticker']: row.get('quote_as_of') for row in selected}
         enriched = [{**row, 'quote_as_of': clocks[row['ticker']]} for row in enriched]
     else:

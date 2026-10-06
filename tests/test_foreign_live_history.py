@@ -77,3 +77,24 @@ def test_us_history_uses_each_original_quote_clock_and_preserves_it():
         output=enrich_foreign_history(rows,as_of='2026-10-06T00:00:00Z',limit=120)
     assert set(calls)=={row['quote_as_of'] for row in rows}
     assert {row['ticker']:row['quote_as_of'] for row in output}=={row['ticker']:row['quote_as_of'] for row in rows}
+
+
+def test_us_slow_history_returns_completed_rows_with_explicit_missing_factors():
+    import threading
+    release=threading.Event()
+    rows=[{'ticker':ticker,'market':'US','amount':10,'quote_as_of':'2026-10-05T16:00:00-04:00'} for ticker in ('FAST','SLOW')]
+    def enrich(values,**kwargs):
+        row=values[0]
+        if row['ticker']=='SLOW': release.wait(2)
+        return [{**row,'change_5d':2,'change_20d':3,'change_60d':4}]
+    started=time.monotonic()
+    try:
+        with patch.object(base,'enrich_foreign_history',side_effect=enrich):
+            output=enrich_foreign_history(rows,history_timeout=.05)
+        assert time.monotonic()-started < .4
+        by_ticker={row['ticker']:row for row in output}
+        assert by_ticker['FAST']['change_20d']==3
+        assert by_ticker['SLOW']['history_budget_exceeded'] is True
+        assert 'change_20d' not in by_ticker['SLOW'] and 'risk_bars' not in by_ticker['SLOW']
+    finally:
+        release.set()

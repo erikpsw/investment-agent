@@ -341,6 +341,7 @@ export interface FormulaRankingResult {
   universe_count?: number;
   quote_coverage_count?: number;
   quote_missing_count?: number;
+  history_budget_exceeded_count?: number;
   filtered_count?: number;
   scoring_limit?: number;
   filters?: USUniverseFilters;
