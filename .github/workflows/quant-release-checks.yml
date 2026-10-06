@@ -11,6 +11,14 @@ permissions:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      # UI tests intercept account/API requests; these are inert test settings.
+      AUTH0_DOMAIN: quant-ci.invalid
+      AUTH0_CLIENT_ID: quant-ci-client
+      AUTH0_CLIENT_SECRET: quant-ci-client-secret
+      AUTH0_SECRET: '0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
+      APP_BASE_URL: http://localhost:3000
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -36,7 +44,7 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Verify detail scoring, protection and recovery
         working-directory: web
-        run: npx playwright test tests/e2e/score-arithmetic.spec.ts tests/e2e/stock-formula-score.spec.ts --workers=2
+        run: npx playwright test tests/e2e/score-arithmetic.spec.ts tests/e2e/stock-formula-score.spec.ts --workers=2 --max-failures=3
       - name: Build production frontend
         working-directory: web
         run: npm run build
