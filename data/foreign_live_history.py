@@ -30,7 +30,20 @@ def _provenance(row):
 
 
 def enrich_foreign_history(rows, *, as_of=None, limit=120):
-    enriched = base.enrich_foreign_history(rows, as_of=as_of, limit=limit)
+    if rows and all(row.get('market') == 'US' and 'quote_as_of' in row for row in rows):
+        selected = sorted(rows, key=lambda row: base.number(row.get('amount')) or 0, reverse=True)[:limit]
+        groups = {}
+        for row in selected:
+            stamp = row.get('quote_as_of') or as_of
+            cutoff = base.completed_date(stamp, 'US')
+            groups.setdefault(cutoff, {'as_of': stamp, 'rows': []})['rows'].append(row)
+        enriched = []
+        for group in groups.values():
+            enriched.extend(base.enrich_foreign_history(group['rows'], as_of=group['as_of'], limit=len(group['rows'])))
+        clocks = {row['ticker']: row.get('quote_as_of') for row in selected}
+        enriched = [{**row, 'quote_as_of': clocks[row['ticker']]} for row in enriched]
+    else:
+        enriched = base.enrich_foreign_history(rows, as_of=as_of, limit=limit)
     output=[]
     for original in enriched:
         row={key:value for key,value in original.items() if key != "trend_history"}

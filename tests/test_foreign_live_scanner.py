@@ -12,9 +12,9 @@ def snapshot(stamp='2026-10-02T19:38:14.892Z'):
 
 
 def test_primary_preserved(monkeypatch):
-    payload={'market':'US','rows':[]}
+    payload={'market':'HK','rows':[]}
     monkeypatch.setattr(live.base,'scan_foreign_market',lambda market:payload)
-    assert live.scan_foreign_market('US') is payload
+    assert live.scan_foreign_market('HK') is payload
 
 
 def test_saved_hk_preserves_generation_date_but_does_not_invent_quote_dates(tmp_path):
@@ -52,17 +52,23 @@ def test_unknown_native_quote_time_stays_unknown_after_history_enrichment(monkey
     assert api.enrich_screen_history(rows,'HK','2026-10-02T19:38:14.892Z')[0]['quote_as_of'] is None
 
 
-def test_live_us_uses_provider_epoch_instead_of_retrieval_date(monkeypatch):
-    stamp=datetime(2026,10,2,20,tzinfo=timezone.utc).timestamp()
-    monkeypatch.setattr(live.base,'scan_foreign_market',lambda market:{'rows':[{'ticker':'AAPL','quote_time':stamp}],
-                        'generated_at':'2026-10-05T00:00:00Z'})
-    assert live.scan_foreign_market('US')['rows'][0]['quote_as_of']=='2026-10-02T20:00:00+00:00'
+def test_us_uses_validated_full_snapshot_and_never_active_100(monkeypatch):
+    from investment.data import us_universe
+    payload={'market':'US','universe_count':5000,'rows':[]}
+    monkeypatch.setattr(us_universe,'read_us_snapshot',lambda:payload)
+    monkeypatch.setattr(live.base,'scan_foreign_market',lambda market:pytest.fail('不能再读取活跃100只'))
+    assert live.scan_foreign_market('US') is payload
 
 
-@pytest.mark.parametrize('stamp',[None,True,float('nan'),-1,4102444800])
-def test_invalid_or_future_us_quote_clock_remains_unknown(monkeypatch,stamp):
-    monkeypatch.setattr(live.base,'scan_foreign_market',lambda market:{'rows':[{'ticker':'AAPL','quote_time':stamp}]})
-    assert live.scan_foreign_market('US')['rows'][0]['quote_as_of'] is None
+@pytest.mark.parametrize('stamp',[None,True,-1,'2100-01-01T00:00:00Z','2026-10-05'])
+def test_invalid_or_future_us_quote_clock_rejects_full_snapshot(tmp_path,stamp):
+    from investment.data import us_universe
+    now=datetime.now(timezone.utc).isoformat()
+    identity={'ticker':'AAPL','exchange':'NASDAQ','instrument_type':'stock'}
+    payload={'version':'us-universe-v1','market':'US','generated_at':now,'directory_generated_at':now,
+             'directory':[identity], 'rows':[{**identity,'market':'US','currency':'USD','price':10,'quote_as_of':stamp}]}
+    path=tmp_path/'us.json';path.write_text(json.dumps(payload),encoding='utf-8')
+    with pytest.raises(ValueError): us_universe.read_us_snapshot(path)
 
 
 def test_live_hk_without_provider_clock_is_unverified(monkeypatch):

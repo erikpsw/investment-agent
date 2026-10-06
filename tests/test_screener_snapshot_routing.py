@@ -5,7 +5,7 @@ from investment.data import cn_live_scanner as cn, foreign_live_scanner as forei
 def unavailable(*args):raise RuntimeError('provider offline')
 
 
-@pytest.mark.parametrize('market',['HK','US'])
+@pytest.mark.parametrize('market',['HK'])
 def test_provider_outage_uses_durable_snapshot_before_packaged_hk(monkeypatch,market):
     snapshot={'rows':[{'ticker':'test','price':10}],'cached':True,'generated_at':'original'}
     monkeypatch.setattr(foreign.base,'scan_foreign_market',unavailable)
@@ -30,6 +30,7 @@ def test_live_sina_is_remembered_without_changing_original_dates(monkeypatch):
 
 
 def test_us_missing_durable_cache_preserves_provider_failure(monkeypatch):
-    monkeypatch.setattr(foreign.base,'scan_foreign_market',unavailable)
-    monkeypatch.setattr(foreign,'restore_snapshot',lambda market:None)
+    from investment.data import us_universe
+    monkeypatch.setattr(us_universe,'read_us_snapshot',unavailable)
+    monkeypatch.setattr(foreign.base,'scan_foreign_market',lambda _:pytest.fail('不能降级到活跃候选'))
     with pytest.raises(RuntimeError,match='provider offline'):foreign.scan_foreign_market('US')

@@ -150,8 +150,13 @@ def execute(plan: ScreenPlan, limit: int, market: str = "CN") -> dict:
     # All filters are AND. A snapshot rejection cannot be rescued by history,
     # so it is safe to skip its network work. Never push snapshot trend values.
     candidates = [row for row in snapshot_rows if all(match(row, condition) for condition in snapshot_conditions)]
+    snapshot_matched_count = len(candidates)
+    history_deferred_count = 0
+    if market == "US":
+        candidates = sorted(candidates, key=lambda row: (-(row.get("amount") or 0), row["ticker"]))[:120]
+        history_deferred_count = snapshot_matched_count - len(candidates)
     history_requested = len(candidates)
-    history_prefiltered = len(snapshot_rows) - history_requested
+    history_prefiltered = len(snapshot_rows) - snapshot_matched_count
     enriched = enrich_screen_history(candidates, market, scan.get("generated_at")) if candidates else []
     coverage = {}
     for field in dict.fromkeys(condition.field for condition in plan.filters):
@@ -167,9 +172,14 @@ def execute(plan: ScreenPlan, limit: int, market: str = "CN") -> dict:
         item["match_reasons"] = [f"{LABELS[c.field].replace('（元）', f'（{currency}）')} {row[c.field]:g} {symbols[c.op]} {c.value:g}" for c in plan.filters]
         ranked.append(item)
     ranked.sort(key=lambda item: item["formula_score"], reverse=True)
-    scope = {"CN":"沪深主板非ST股票快照", "HK":"港股成交活跃股票候选快照，非全部上市股票", "US":"美股成交活跃股票候选快照，非全部上市股票"}[market]
+    scope = {"CN":"沪深主板非ST股票快照", "HK":"港股成交活跃股票候选快照，非全部上市股票", "US":"美股官方上市普通股及股票ADR目录行情快照；不含OTC；缺失行情未参与筛选"}[market]
     history_count = sum(all(metric_available(row.get(field)) for field in HISTORY_FIELDS) for row in enriched)
-    return {"market": market, "currency": currency, "plan": plan.model_dump(), "items": ranked[:limit], "matched_count": len(ranked), "scanned_count": len(snapshot_rows), "filter_coverage": coverage, "history_requested_count": history_requested, "history_prefiltered_count": history_prefiltered, "history_enriched_count": history_count, "history_failed_count": history_requested - history_count, "risk_plan_available_count": sum(item["risk_plan"]["status"] == "ok" for item in ranked), "generated_at": scan.get("generated_at"), "source": scan.get("source") or scope, "cached": scan.get("cached", False), "scope": scope+"；缺失筛选指标的股票不入选；金额阈值使用本币，不作汇率换算", "ranking_note": f"快照条件覆盖整个候选池；历史条件覆盖通过快照条件的候选。先按全部非历史条件排除 {history_prefiltered} 只，剩余 {history_requested} 只全部补齐日K；历史涨幅仅使用校验日K，全部匹配候选按共享公式排序，最后截取展示条数；补齐失败保留缺失，评分不代表收益概率"}
+    note = f"快照条件覆盖整个候选池；历史条件覆盖通过快照条件的候选。先按全部非历史条件排除 {history_prefiltered} 只，剩余 {history_requested} 只全部补齐日K；历史涨幅仅使用校验日K，全部匹配候选按共享公式排序，最后截取展示条数；补齐失败保留缺失，评分不代表收益概率"
+    if market == "US" and history_deferred_count:
+        note = f"快照条件扫描 {len(snapshot_rows)} 只有效行情，匹配 {snapshot_matched_count} 只；按成交额取前120只，本轮 {history_requested} 只补算历史与评分，另外 {history_deferred_count} 只未进行历史匹配或评分。全部条件匹配数仅统计本轮评分候选，不是全目录最终排名；缺失历史因子不补分。"
+    elif market == "US":
+        note += "；美股本轮历史评分上限120只"
+    return {"market": market, "currency": currency, "plan": plan.model_dump(), "items": ranked[:limit], "matched_count": len(ranked), "scanned_count": len(snapshot_rows), "filter_coverage": coverage, "history_requested_count": history_requested, "history_prefiltered_count": history_prefiltered, "history_enriched_count": history_count, "history_failed_count": history_requested - history_count, "risk_plan_available_count": sum(item["risk_plan"]["status"] == "ok" for item in ranked), "generated_at": scan.get("generated_at"), "source": scan.get("source") or scope, "cached": scan.get("cached", False), "scope": scope+"；缺失筛选指标的股票不入选；金额阈值使用本币，不作汇率换算", "ranking_note": note, "universe_count": scan.get("universe_count"), "quote_missing_count": scan.get("quote_missing_count"), "snapshot_matched_count": snapshot_matched_count, "history_deferred_count": history_deferred_count}
 
 @router.post("/ai-screener")
 async def screen(request: ScreenRequest):

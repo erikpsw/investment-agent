@@ -6,12 +6,13 @@ import { Calculator, Loader2, RefreshCw, Target } from "lucide-react";
 import { AIStockScreener } from "@/components/ai-stock-screener";
 import { FormulaBacktestPanel } from "@/components/formula-backtest-panel";
 import { FormulaRiskPlan } from "@/components/formula-risk-plan";
+import { USUniverseFilterPanel } from "@/components/us-universe-filters";
 import { Header } from "@/components/header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { api, type FormulaRankingItem, type FormulaRankingResult } from "@/lib/api";
+import { api, type FormulaRankingItem, type FormulaRankingResult, type USUniverseFilters } from "@/lib/api";
 import { validScoreItem } from "@/lib/formula-score-validation";
 import { cn } from "@/lib/utils";
 
@@ -94,6 +95,7 @@ export default function StockPickerPage() {
   const [sortKey, setSortKey] = useState<SortKey>("formula_score");
   const [data, setData] = useState<FormulaRankingResult | null>(null);
   const [loading, setLoading] = useState(true);
+  const [usFilters, setUSFilters] = useState<USUniverseFilters>({ min_market_cap: 1e9, min_price: 5, min_amount: 1e6 });
 
   const [message, setMessage] = useState("");
 
@@ -104,7 +106,7 @@ export default function StockPickerPage() {
     setData(null);
     setMessage("");
     try {
-      const response = await api.getFormulaRanking(market, 20, mode);
+      const response = await api.getFormulaRanking(market, 20, mode, market === "US" || market === "all" ? usFilters : undefined);
       if (id !== requestId.current) return;
       if (!response.result || !Array.isArray(response.result.items) || !response.result.items.every(validScoreItem)) {
         throw new Error("公式排名数据异常，请重试");
@@ -123,7 +125,7 @@ export default function StockPickerPage() {
   useEffect(() => {
     void load();
     return () => { requestId.current++; };
-  }, [market, mode]);
+  }, [market, mode, usFilters]);
 
   const topItems = useMemo(
     () =>
@@ -202,11 +204,12 @@ export default function StockPickerPage() {
         </div>
 
         {message && <div className="rounded-lg border px-4 py-3 text-sm">{message}</div>}
+        {market === "US" && <USUniverseFilterPanel onApply={setUSFilters} loading={loading} data={data} filters={usFilters} />}
 
         <div className="grid gap-4 md:grid-cols-4">
           <Card>
             <CardHeader>
-              <CardDescription>本轮扫描</CardDescription>
+              <CardDescription>{market === "US" ? "本轮行情扫描" : "本轮扫描"}</CardDescription>
               <CardTitle className="text-2xl">{data?.scanned_count ?? data?.total ?? "--"}</CardTitle>
             </CardHeader>
           </Card>
@@ -263,6 +266,9 @@ export default function StockPickerPage() {
                   <TableHead className="w-14">排名</TableHead>
                   <TableHead>股票</TableHead>
                   <TableHead>主题</TableHead>
+                  <TableHead>股价</TableHead>
+                  <TableHead>总市值</TableHead>
+                  <TableHead>成交额</TableHead>
                   <TableHead>公式分</TableHead>
                   <TableHead>建议</TableHead>
                   <TableHead>5日</TableHead>
@@ -278,7 +284,7 @@ export default function StockPickerPage() {
               <TableBody>
                 {loading && !topItems.length ? (
                   <TableRow>
-                    <TableCell colSpan={13} className="h-24 text-center text-muted-foreground">
+                    <TableCell colSpan={16} className="h-24 text-center text-muted-foreground">
                       <Loader2 className="mx-auto mb-2 h-5 w-5 animate-spin" />
                       正在计算排名
                     </TableCell>
@@ -299,6 +305,9 @@ export default function StockPickerPage() {
                       <TableCell>
                         <div className="max-w-32 truncate">{item.theme || "--"}</div>
                       </TableCell>
+                      <TableCell>{number(item.price)} {item.market === "US" ? "美元" : item.market === "HK" ? "港元" : "元"}</TableCell>
+                      <TableCell>{item.market_cap == null ? "--" : `${(item.market_cap / 1e8).toFixed(2)} 亿${item.market === "US" ? "美元" : item.market === "HK" ? "港元" : "元"}`}</TableCell>
+                      <TableCell>{item.amount == null ? "--" : `${(item.amount / 1e6).toFixed(2)} 百万${item.market === "US" ? "美元" : item.market === "HK" ? "港元" : "元"}`}</TableCell>
                       <TableCell>
                         <span className={cn("text-lg font-semibold tabular-nums", scoreTone(item.formula_score))}>
                           {item.formula_score.toFixed(1)}
@@ -330,7 +339,7 @@ export default function StockPickerPage() {
                   ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={13} className="h-24 text-center text-muted-foreground">
+                    <TableCell colSpan={16} className="h-24 text-center text-muted-foreground">
                       暂无可排名标的
                     </TableCell>
                   </TableRow>

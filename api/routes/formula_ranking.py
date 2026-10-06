@@ -17,6 +17,7 @@ from investment.data.stock_picker import CANDIDATE_POOL, PROJECT_ROOT
 from investment.data.formula_scoring import FormulaMode, VERSION, score_item, number as _num, describe
 from investment.data.foreign_live_scanner import scan_foreign_market
 from investment.data.foreign_live_history import enrich_foreign_history
+from investment.data.us_universe import USFilters, filter_rows
 from investment.data.formula_instruments import classify_instrument
 from investment.data.detail_valuation import detail_valuation
 from investment.api.report_bundle import read_research_bytes, bundle_folder
@@ -232,9 +233,20 @@ async def formula_ranking(
     market: str = Query("CN", description="Market filter: CN, US, HK, all"),
     limit: int = Query(30, ge=1, le=100),
     mode: FormulaMode = Query("balanced", description="Risk mode"),
+    min_market_cap: float | None = 1_000_000_000,
+    max_market_cap: float | None = None,
+    min_price: float | None = 5,
+    max_price: float | None = None,
+    min_amount: float | None = 1_000_000,
+    exchange: str | None = None,
 ):
+    try:
+        us_filters = USFilters(min_market_cap=min_market_cap, max_market_cap=max_market_cap,
+                               min_price=min_price, max_price=max_price, min_amount=min_amount, exchange=exchange)
+    except ValueError as exc:
+        raise HTTPException(422, "美股筛选条件无效：数值必须非负且最低值不大于最高值，交易所须在支持列表中") from exc
     if market.upper() == "ALL":
-        responses = await asyncio.gather(*(formula_ranking(region, 100, mode) for region in ("CN", "HK", "US")))
+        responses = await asyncio.gather(*(formula_ranking(region, 100, mode, **us_filters.model_dump()) for region in ("CN", "HK", "US")))
         results = [response["result"] for response in responses]
         items = sorted([item for result in results for item in result["items"]], key=lambda item: (-item["formula_score"], item["ticker"]))
         return {"status": "ok", "result": {
@@ -247,17 +259,35 @@ async def formula_ranking(
             "snapshot_only": any(result.get("snapshot_only", False) for result in results),
             "market_sources": [{"market": result["market"], "generated_at": result.get("generated_at"), "source": result["source"], "cached": result.get("cached", False), "snapshot_only": result.get("snapshot_only", False)} for result in results],
             "source": "A股、港股、美股各自候选池合并",
-            "scope": "各市场前100候选合并，数据日期分别显示；非全球全市场排名",
+            "scope": "各市场评分候选合并；美股从完整目录筛选后取成交额前120只评分；非全球全市场最终排名",
             "fallback": any(result.get("fallback", False) for result in results),
         }}
     if market.upper() in ("HK", "US"):
         try:
             region = market.upper()
             scan = await asyncio.to_thread(scan_foreign_market, region)
-            rows = await asyncio.to_thread(enrich_foreign_history, scan["rows"], as_of=scan.get("generated_at"), limit=120)
+            matching = filter_rows(scan["rows"], us_filters) if region == "US" else scan["rows"]
+            rows = await asyncio.to_thread(enrich_foreign_history, matching, as_of=scan.get("generated_at"), limit=120)
             ranked = sorted([_rank_live_item(row, mode) for row in rows], key=lambda row: (-row["formula_score"], row["ticker"]))
+            if region == "US":
+                return {"status": "ok", "result": {
+                    "market": region, "mode": mode, "formula": describe(mode), "formula_version": VERSION,
+                    "items": ranked[:limit], "total": len(ranked), "candidate_count": len(rows),
+                    "scanned_count": scan.get("quote_coverage_count", len(scan["rows"])),
+                    "universe_count": scan.get("universe_count", len(scan["rows"])),
+                    "quote_coverage_count": scan.get("quote_coverage_count", len(scan["rows"])),
+                    "quote_missing_count": scan.get("quote_missing_count", 0),
+                    "filtered_count": len(matching), "scoring_limit": 120,
+                    "filters": us_filters.model_dump(), "directory_stats": scan.get("directory_stats"),
+                    "generated_at": scan.get("generated_at"), "source": scan.get("source"),
+                    "scope": "美股官方上市普通股及股票ADR目录；缺失行情不参与筛选；条件匹配后取成交额前120只补算历史并评分，非全目录最终评分排名；不含OTC",
+                    "fallback": False, "cached": True, "snapshot_only": True,
+                    "history_enriched_count": sum(all(row.get(f"change_{n}d") is not None for n in (5, 20, 60)) for row in ranked),
+                }}
             return {"status": "ok", "result": {"market": region, "mode": mode, "formula": describe(mode), "formula_version": VERSION, "items": ranked[:limit], "total": len(ranked), "candidate_count": len(rows), "scanned_count": len(scan["rows"]), "generated_at": scan.get("generated_at"), "source": scan.get("source") or f"{region}候选快照", "scope": "港股成交活跃候选池" if region == "HK" else "美股成交活跃候选池；非全部上市股票", "fallback": False, "cached": scan.get("cached", scan.get("stale", False)), "snapshot_only": scan.get("stale", False), "instrument_filter": scan.get("instrument_filter"), "history_enriched_count": sum(row.get("change_5d") is not None and row.get("change_20d") is not None and row.get("change_60d") is not None for row in ranked)}}
-        except Exception:
+        except Exception as exc:
+            if market.upper() == "US":
+                raise HTTPException(503, "完整美股行情快照暂不可用或已超过七日有效期，请稍后重试；不会降级为98只活跃候选") from exc
             pass
     if market.upper() == "CN":
         try:

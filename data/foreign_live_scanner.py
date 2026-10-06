@@ -1,4 +1,4 @@
-"""Bounded saved HK fallback; preserves snapshot age and unknown quote dates."""
+"""Validated full US universe and saved HK fallback; preserve original dates."""
 import json
 import math
 import re
@@ -61,6 +61,9 @@ def validate_foreign_snapshot(market, payload, *, now=None):
 
 
 def scan_foreign_market(market):
+    if market == 'US':
+        from investment.data.us_universe import read_us_snapshot
+        return read_us_snapshot()
     try:
         snapshot = base.scan_foreign_market(market)
         rows = []

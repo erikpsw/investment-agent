@@ -291,6 +291,7 @@ export interface FormulaRankingItem {
   pe_ratio?: number | null;
   pb_ratio?: number | null;
   market_cap?: number | null;
+  amount?: number | null;
   action?: string;
   reasons?: string[];
   risks?: string[];
@@ -320,6 +321,15 @@ export interface FormulaRankingItem {
   };
 }
 
+export interface USUniverseFilters {
+  min_market_cap?: number;
+  max_market_cap?: number;
+  min_price?: number;
+  max_price?: number;
+  min_amount?: number;
+  exchange?: string;
+}
+
 export interface FormulaRankingResult {
   generated_at?: string | null;
   market: string;
@@ -328,6 +338,12 @@ export interface FormulaRankingResult {
   items: FormulaRankingItem[];
   total: number;
   scanned_count?: number;
+  universe_count?: number;
+  quote_coverage_count?: number;
+  quote_missing_count?: number;
+  filtered_count?: number;
+  scoring_limit?: number;
+  filters?: USUniverseFilters;
   history_enriched_count?: number;
   cached?: boolean;
   fallback?: boolean;
@@ -1003,12 +1019,16 @@ class ApiClient {
     market: "CN" | "US" | "HK" | "all" = "CN",
     limit = 30,
     mode: "balanced" | "conservative" | "aggressive" = "balanced",
+    filters?: USUniverseFilters,
   ): Promise<{ status: string; result: FormulaRankingResult }> {
     const params = new URLSearchParams({
       market,
       limit: limit.toString(),
       mode,
     });
+    for (const [key, value] of Object.entries(filters || {})) {
+      if (value !== undefined && value !== "") params.set(key, String(value));
+    }
     return this.fetch<{ status: string; result: FormulaRankingResult }>(
       `/api/formula-ranking?${params}`,
     );

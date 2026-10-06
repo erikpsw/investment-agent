@@ -8,6 +8,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: market-snapshot-main
+  cancel-in-progress: false
+
 jobs:
   update:
     runs-on: ubuntu-latest
@@ -27,4 +31,5 @@ jobs:
           git add -A storage/market data/stock_lists/ETF.json
           git diff --cached --quiet && exit 0
           git commit -m "chore: update market snapshots"
+          git pull --rebase origin main
           git push origin main

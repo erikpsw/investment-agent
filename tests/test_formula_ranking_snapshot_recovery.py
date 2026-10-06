@@ -6,7 +6,7 @@ from investment.data import hot_stocks
 from investment.data import cn_live_scanner as cn
 
 
-@pytest.mark.parametrize('market', ['HK', 'US'])
+@pytest.mark.parametrize('market', ['HK'])
 def test_ranking_recovers_durable_candidates_after_provider_failure(monkeypatch, tmp_path, market):
     assert api.scan_foreign_market is live.scan_foreign_market
     def unavailable(*args, **kwargs):
