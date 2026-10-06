@@ -79,6 +79,8 @@ app.include_router(portfolio.router, prefix="/api", tags=["portfolio"])
 app.include_router(tokens.router, prefix="/api", tags=["tokens"])
 app.include_router(watchlists.router, prefix="/api", tags=["watchlists"])
 app.include_router(formula_ranking.router, prefix="/api", tags=["formula-ranking"])
+from investment.api.routes import ai_screener
+app.include_router(ai_screener.router, prefix="/api", tags=["ai-screener"])
 
 
 @app.get("/")

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "files": {
+    "research/risk-budget-summary-20261004.json": {
+      "path": "blobs/e7bf301a7e7d3c315b3130b1d078a55a67d2f95cf878b656c39f4d95d6a328d3.json",
+      "sha256": "e7bf301a7e7d3c315b3130b1d078a55a67d2f95cf878b656c39f4d95d6a328d3",
+      "size": 33777
+    },
+    "research/risk-budget-summary-seal-20261004.json": {
+      "path": "blobs/5af27806a69ab93db170bac5aa929c413522320839be568ae1923f2f242e6c81.json",
+      "sha256": "5af27806a69ab93db170bac5aa929c413522320839be568ae1923f2f242e6c81",
+      "size": 1046
+    }
+  },
+  "policy": "Audited budget summaries and seal; no raw histories, user state or full training trials"
+}

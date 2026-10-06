@@ -1,0 +1,10 @@
+{
+  "schema": "reviewed-hk-summary-seal-v1",
+  "summary_sha256": "db1cabd3d1dca5e76955a2bfdf78f0165040eb9c859ae7a0ef54d4e08cf27c3c",
+  "source_audit_sha256": "7cc0f1107b7dd29e1186380eabdf38ad7b29bb8e93c1d816b04a8b4220f716c4",
+  "report_sha256s": {
+    "balanced": "8f72d27636fe8c1f99ac63b38d06fc36842f31c944984fc45ed6622208c8850f",
+    "conservative": "270d598dbdb9a3ef7b5b7c45543b961c948748bdde2162d71d02084522b4aa66",
+    "aggressive": "3c09bcf8593a583e1983861d70535d5982126b9accc06c4063d807d7c35cc8de"
+  }
+}

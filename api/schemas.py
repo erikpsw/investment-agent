@@ -82,6 +82,7 @@ class FinancialMetrics(BaseModel):
     pe_source: Optional[str] = None
     pe_basis: Optional[str] = None
     pb_ratio: Optional[float] = None
+    pb_source: Optional[str] = None
     roe: Optional[float] = None
     roa: Optional[float] = None
     gross_margin: Optional[float] = None

@@ -1,0 +1,155 @@
+{
+  "status": "ok",
+  "result": {
+    "status": "ok",
+    "mode": "balanced",
+    "formula": "5日动量20% + 20日趋势25% + 60日趋势15% + 今日动量10% + 量比10% + 换手率8% + 估值5% + 市值质量7% - 追高与异常估值惩罚；缺失因子贡献为0，不重分配权重",
+    "item": {
+      "name": "苹果",
+      "price": 333.69,
+      "pe_ratio": 38.31114,
+      "pb_ratio": 45.338314,
+      "market_cap": 4869931924533,
+      "turnover_rate": null,
+      "volume_ratio": null,
+      "ticker": "AAPL",
+      "market": "US",
+      "today_change_percent": 1.02,
+      "source": "Sina",
+      "quote_as_of": null,
+      "instrument_type": "stock",
+      "classification_source": "https://www.nasdaqtrader.com/dynamic/SymDir/nasdaqlisted.txt",
+      "classification_as_of": "2026-10-02",
+      "change_5d": -2.16,
+      "change_20d": 1.67,
+      "change_60d": 5.62,
+      "history_as_of": "2026-10-02",
+      "trend_history": {
+        "version": "foreign-trend-window-v1",
+        "status": "reported",
+        "source": "Yahoo",
+        "price_basis": "adjusted",
+        "bar_count": 61,
+        "window_start": "2026-07-09",
+        "window_end": "2026-10-02"
+      },
+      "risk_plan": {
+        "status": "ok",
+        "history_timing_status": "unverified",
+        "history_lag_calendar_days": null,
+        "quote_as_of": null,
+        "currency": "USD",
+        "side": "long",
+        "reference_price": 333.69,
+        "history_as_of": "2026-10-02",
+        "atr14": 6.502855573381696,
+        "support20": 309.8999938964844,
+        "resistance20": 345.3399963378906,
+        "stop_loss": 320.6842888532366,
+        "take_profit_1": 353.1985667201451,
+        "take_profit_2": 366.20427786690857,
+        "risk_reward_1": 1.5,
+        "risk_reward_2": 2.5,
+        "stop_distance_percent": 3.897542973047864,
+        "position_cap_percent": 20,
+        "risk_budget_percent": 1,
+        "atr_multiple": 2,
+        "resistance_before_target": true,
+        "trailing_distance": 13.005711146763392,
+        "basis": [
+          "ATR14为最近14日真实波幅的简单平均",
+          "止损结合ATR距离与20日支撑下方0.25ATR缓冲",
+          "第一/第二目标按参数R与参数R+1计算，需同时观察历史阻力",
+          "仓位上限=min(模式上限,组合风险预算/止损距离)，金额需使用同一币种"
+        ],
+        "limitations": [
+          "以当前参考价构建情景，不是成交价或个人持仓成本",
+          "默认保护参数尚未通过跨市场稳健性验证，回测候选参数不自动应用于此参考",
+          "跳空、停牌或流动性不足可能使实际损失超过止损预算",
+          "移动止损参考应随新的高点更新，不能降低已有保护价"
+        ]
+      },
+      "market_cap_currency": "USD",
+      "theme": "大盘",
+      "formula_version": "formula-v2",
+      "formula_score": 48.4,
+      "recommendation": "低分候选",
+      "original_score": null,
+      "components": {
+        "5日动量": 48.048,
+        "20日趋势": 56.68,
+        "60日趋势": 68.1825,
+        "今日动量": 72.09,
+        "量比": 0,
+        "换手率": 0,
+        "估值": 62.6169,
+        "市值质量": 58,
+        "风险惩罚": 0
+      },
+      "contributions": {
+        "5日动量": 9.6096,
+        "20日趋势": 14.17,
+        "60日趋势": 10.2274,
+        "今日动量": 7.209,
+        "量比": 0,
+        "换手率": 0,
+        "估值": 3.1308,
+        "市值质量": 4.06
+      },
+      "weights": {
+        "5日动量": 0.2,
+        "20日趋势": 0.25,
+        "60日趋势": 0.15,
+        "今日动量": 0.1,
+        "量比": 0.1,
+        "换手率": 0.08,
+        "估值": 0.05,
+        "市值质量": 0.07
+      },
+      "data_coverage": 0.82,
+      "missing_fields": [
+        "volume_ratio",
+        "turnover_rate"
+      ],
+      "reasons": [
+        "20日趋势贡献 14.2 分",
+        "60日趋势贡献 10.2 分",
+        "5日动量贡献 9.6 分"
+      ],
+      "risks": [
+        "部分指标缺失，分数不可与完整数据等同解释"
+      ],
+      "action": "结合公告、财务和板块强度进一步确认",
+      "history_price_metadata": {
+        "version": "history-price-metadata-v1",
+        "trend": {
+          "source": "Yahoo",
+          "price_basis": "adjusted",
+          "status": "reported"
+        },
+        "protection": {
+          "source": "Yahoo",
+          "price_basis": "latest_raw_close_reference",
+          "bar_count": 21,
+          "status": "reported"
+        },
+        "scope": "Reported basis only; recent 21-bar protection metadata does not verify the full momentum window or corporate actions"
+      }
+    },
+    "valuation": {
+      "pe_ratio": 38.31114,
+      "pb_ratio": 45.338314,
+      "eps": 8.71,
+      "pe_basis": "TTM",
+      "pe_source": "Yahoo Finance",
+      "pb_source": "Yahoo Finance"
+    },
+    "financials_status": "available",
+    "source": "Sina",
+    "quote_as_of": null,
+    "quote_time_status": "unverified_timezone",
+    "provider_timestamp_raw": "2026-10-03 09:30:15",
+    "fetched_at": "2026-10-04T22:48:55.236962+00:00",
+    "scope": "单只股票共享公式评估；缺失因子不补分，不表示全市场排名"
+  }
+}

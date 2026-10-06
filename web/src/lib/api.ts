@@ -108,6 +108,7 @@ export interface FinancialMetrics {
   pe_source?: string | null;
   pe_basis?: string | null;
   pb_ratio: number | null;
+  pb_source?: string | null;
   roe: number | null;
   roa: number | null;
   gross_margin: number | null;
@@ -294,6 +295,29 @@ export interface FormulaRankingItem {
   reasons?: string[];
   risks?: string[];
   components?: Record<string, number>;
+  contributions?: Record<string, number>;
+  weights?: Record<string, number>;
+  data_coverage?: number;
+  missing_fields?: string[];
+  formula_version?: string;
+  history_as_of?: string | null;
+  history_price_metadata?: {
+    version: string;
+    trend: { source: string | null; price_basis: string | null; status: string };
+    protection: { source: string | null; price_basis: string | null; status: string; bar_count: number };
+    scope?: string;
+  };
+  risk_plan?: {
+    history_as_of?: string;
+    quote_as_of?: string;
+    history_timing_status?: string;
+    history_lag_calendar_days?: number | null;
+    status: string; reason?: string; currency?: string; reference_price?: number;
+    stop_loss?: number; take_profit_1?: number; take_profit_2?: number; atr14?: number;
+    stop_distance_percent?: number; position_cap_percent?: number; risk_budget_percent?: number;
+    support20?: number; resistance20?: number; resistance_before_target?: boolean;
+    trailing_distance?: number; basis?: string[]; limitations?: string[];
+  };
 }
 
 export interface FormulaRankingResult {
@@ -309,6 +333,11 @@ export interface FormulaRankingResult {
   fallback?: boolean;
   fallback_reason?: string | null;
   source: string;
+  scope?: string;
+  candidate_count?: number;
+  formula_version?: string;
+  snapshot_only?: boolean;
+  market_sources?: Array<{ market: string; generated_at?: string | null; source: string }>;
 }
 
 export interface PortfolioPosition {

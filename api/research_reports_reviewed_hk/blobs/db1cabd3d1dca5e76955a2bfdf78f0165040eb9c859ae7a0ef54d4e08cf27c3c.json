@@ -1,0 +1,305 @@
+{
+  "schema": "reviewed-hk-paired-summary-v1",
+  "modes": {
+    "balanced": {
+      "status": "research_only",
+      "applied": false,
+      "market": "HK",
+      "formula_mode": "balanced",
+      "source_scoring_input_fingerprint": "6cf50044f4a01c79c3121d1976efc1e631f016b76eb9662291ba58867ebab349",
+      "report_sha256": "8f72d27636fe8c1f99ac63b38d06fc36842f31c944984fc45ed6622208c8850f",
+      "universe_count": 18,
+      "issuers": [
+        {
+          "ticker": "hk00001",
+          "name": "长和",
+          "train_counts": [
+            216,
+            240,
+            240,
+            240
+          ],
+          "test_counts": [
+            80,
+            80,
+            80,
+            80
+          ]
+        },
+        {
+          "ticker": "hk00388",
+          "name": "港交所",
+          "train_counts": [
+            215,
+            240,
+            240,
+            240
+          ],
+          "test_counts": [
+            80,
+            80,
+            80,
+            80
+          ]
+        }
+      ],
+      "fold_count": 4,
+      "train_days": 240,
+      "test_days": 80,
+      "pb_available": false,
+      "grid_pairs_per_fold": 96,
+      "initial_capital_hkd": 100000,
+      "minimum_fee_hkd": 20,
+      "entry_lot_size": null,
+      "control": {
+        "metrics": {
+          "net_return": 0.0255664816880381,
+          "max_drawdown": 0.050688884154352465,
+          "days": 320,
+          "average_exposure": 0.16880542582810126
+        },
+        "cost_stress": [
+          {
+            "one_way_cost": 0.003,
+            "net_return": 0.013538184787587504,
+            "max_drawdown": 0.053795047845350163,
+            "days": 320,
+            "average_exposure": 0.16435429699138712
+          },
+          {
+            "one_way_cost": 0.005,
+            "net_return": -0.00631055466236663,
+            "max_drawdown": 0.06502297945001856,
+            "days": 320,
+            "average_exposure": 0.157466690735437
+          }
+        ]
+      },
+      "reviewed": {
+        "metrics": {
+          "net_return": 0.010995452061927535,
+          "max_drawdown": 0.046714537681477264,
+          "days": 320,
+          "average_exposure": 0.21041964229254378
+        },
+        "cost_stress": [
+          {
+            "one_way_cost": 0.003,
+            "net_return": -0.004699265988513335,
+            "max_drawdown": 0.05519643146155506,
+            "days": 320,
+            "average_exposure": 0.20322256686477663
+          },
+          {
+            "one_way_cost": 0.005,
+            "net_return": -0.026585811258852954,
+            "max_drawdown": 0.0700829519238041,
+            "days": 320,
+            "average_exposure": 0.19369465733675692
+          }
+        ]
+      },
+      "net_return_difference": -0.014571029626110565
+    },
+    "conservative": {
+      "status": "research_only",
+      "applied": false,
+      "market": "HK",
+      "formula_mode": "conservative",
+      "source_scoring_input_fingerprint": "07a6902d520ecd77e3ce3e9f6323b7049f53d161f40b619e63a40b223705c2c9",
+      "report_sha256": "270d598dbdb9a3ef7b5b7c45543b961c948748bdde2162d71d02084522b4aa66",
+      "universe_count": 18,
+      "issuers": [
+        {
+          "ticker": "hk00001",
+          "name": "长和",
+          "train_counts": [
+            216,
+            240,
+            240,
+            240
+          ],
+          "test_counts": [
+            80,
+            80,
+            80,
+            80
+          ]
+        },
+        {
+          "ticker": "hk00388",
+          "name": "港交所",
+          "train_counts": [
+            215,
+            240,
+            240,
+            240
+          ],
+          "test_counts": [
+            80,
+            80,
+            80,
+            80
+          ]
+        }
+      ],
+      "fold_count": 4,
+      "train_days": 240,
+      "test_days": 80,
+      "pb_available": false,
+      "grid_pairs_per_fold": 80,
+      "initial_capital_hkd": 100000,
+      "minimum_fee_hkd": 20,
+      "entry_lot_size": null,
+      "control": {
+        "metrics": {
+          "net_return": -0.005461439527947642,
+          "max_drawdown": 0.029606817720896128,
+          "days": 320,
+          "average_exposure": 0.08273053371329575
+        },
+        "cost_stress": [
+          {
+            "one_way_cost": 0.003,
+            "net_return": -0.0065494176185530995,
+            "max_drawdown": 0.03045650208477413,
+            "days": 320,
+            "average_exposure": 0.08212887911852548
+          },
+          {
+            "one_way_cost": 0.005,
+            "net_return": -0.011826694203041277,
+            "max_drawdown": 0.03389671407109929,
+            "days": 320,
+            "average_exposure": 0.07950312952054986
+          }
+        ]
+      },
+      "reviewed": {
+        "metrics": {
+          "net_return": -0.014926104605728074,
+          "max_drawdown": 0.031103702492511265,
+          "days": 320,
+          "average_exposure": 0.08833616099841177
+        },
+        "cost_stress": [
+          {
+            "one_way_cost": 0.003,
+            "net_return": -0.017332219999799503,
+            "max_drawdown": 0.03324489758168625,
+            "days": 320,
+            "average_exposure": 0.08742397454833147
+          },
+          {
+            "one_way_cost": 0.005,
+            "net_return": -0.024407660671623033,
+            "max_drawdown": 0.039058567614776774,
+            "days": 320,
+            "average_exposure": 0.08381797065791029
+          }
+        ]
+      },
+      "net_return_difference": -0.009464665077780432
+    },
+    "aggressive": {
+      "status": "research_only",
+      "applied": false,
+      "market": "HK",
+      "formula_mode": "aggressive",
+      "source_scoring_input_fingerprint": "6242e5f1a58255d1d571288112767e6785bf3562a0959ea2f7b250f7a62aabed",
+      "report_sha256": "3c09bcf8593a583e1983861d70535d5982126b9accc06c4063d807d7c35cc8de",
+      "universe_count": 18,
+      "issuers": [
+        {
+          "ticker": "hk00001",
+          "name": "长和",
+          "train_counts": [
+            216,
+            240,
+            240,
+            240
+          ],
+          "test_counts": [
+            80,
+            80,
+            80,
+            80
+          ]
+        },
+        {
+          "ticker": "hk00388",
+          "name": "港交所",
+          "train_counts": [
+            215,
+            240,
+            240,
+            240
+          ],
+          "test_counts": [
+            80,
+            80,
+            80,
+            80
+          ]
+        }
+      ],
+      "fold_count": 4,
+      "train_days": 240,
+      "test_days": 80,
+      "pb_available": false,
+      "grid_pairs_per_fold": 96,
+      "initial_capital_hkd": 100000,
+      "minimum_fee_hkd": 20,
+      "entry_lot_size": null,
+      "control": {
+        "metrics": {
+          "net_return": 0.007954437536906056,
+          "max_drawdown": 0.05311027128213919,
+          "days": 320,
+          "average_exposure": 0.1739303169204048
+        },
+        "cost_stress": [
+          {
+            "one_way_cost": 0.003,
+            "net_return": -0.003949216875785311,
+            "max_drawdown": 0.05669455963168435,
+            "days": 320,
+            "average_exposure": 0.16884688536943246
+          },
+          {
+            "one_way_cost": 0.005,
+            "net_return": -0.02319212212838373,
+            "max_drawdown": 0.06354625458103724,
+            "days": 320,
+            "average_exposure": 0.161382539390145
+          }
+        ]
+      },
+      "reviewed": {
+        "metrics": {
+          "net_return": -0.0007376665027051255,
+          "max_drawdown": 0.0488731761127873,
+          "days": 320,
+          "average_exposure": 0.2092226121226315
+        },
+        "cost_stress": [
+          {
+            "one_way_cost": 0.003,
+            "net_return": -0.014548759499700248,
+            "max_drawdown": 0.0589738176454595,
+            "days": 320,
+            "average_exposure": 0.20211504513479406
+          },
+          {
+            "one_way_cost": 0.005,
+            "net_return": -0.034600281788239706,
+            "max_drawdown": 0.07349207557743143,
+            "days": 320,
+            "average_exposure": 0.19247659832870523
+          }
+        ]
+      },
+      "net_return_difference": -0.008692104039611181
+    }
+  }
+}

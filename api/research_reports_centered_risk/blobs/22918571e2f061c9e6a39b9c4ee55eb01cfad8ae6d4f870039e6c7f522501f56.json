@@ -1,0 +1,16 @@
+{
+  "schema": "centered-risk-summary-seal-v1",
+  "summary_sha256": "acc4ecc6a9d50f453c77c5dd9b28bc360103b53b787f5b6832d69c2de0cd73f3",
+  "audit_sha256": "6f767cf547fe62790644f120e2061d1da67c16d73dcf22505f1d048eb5ee39ad",
+  "report_sha256s": {
+    "CN:balanced": "b4a833d979557a5982c00079e907693357a3cf485f9eca39cf6bbe28354142a5",
+    "CN:conservative": "7c32a66d6679bcb1a89db5a21229927eb5debaed4436ef9b73e700333a51985e",
+    "CN:aggressive": "0a15479c9a367f97b4358c6375995102036e2195f094076c835b98b6b92ac021",
+    "HK:balanced": "b8d7eb2580ecf293339276a6bdf80675b11d665b12d12995758534fcd28222e3",
+    "HK:conservative": "37b25b0ca23238beec4b4a2198afa0e8ad92ef0bed4ad3bb91a75452ca292890",
+    "HK:aggressive": "bc99ecf1e9409232a60141dac47a20a84de4708074b9d9c32c91ab2cf2bf4740",
+    "US:balanced": "72a7f2cc3e4b4628f4ce8491da82a1f82927184808442feaded43e6cf0a7de78",
+    "US:conservative": "aff7a7bc950699342b850af2c365fb3b7adb9547182403e21d54695fcad2a450",
+    "US:aggressive": "06fa5fc0d40477b26995e33696d518dbec3e05466b6be1b916b379695915cbf1"
+  }
+}

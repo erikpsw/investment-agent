@@ -40,7 +40,7 @@ const navigation = [
   { name: "实时盯盘", href: "/watchlist/monitor", icon: Activity },
   { name: "投资组合", href: "/portfolio", icon: BriefcaseBusiness },
   { name: "板块分析", href: "/sectors", icon: Layers3 },
-  { name: "公式选股", href: "/stock-picker", icon: Target },
+  { name: "AI 条件选股", href: "/stock-picker", icon: Target },
   { name: "财报数据", href: "/financials", icon: FileText },
 ];
 

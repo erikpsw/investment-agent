@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "files": {
+    "research/hk-reviewed-paired-summary-20261004.json": {
+      "path": "blobs/db1cabd3d1dca5e76955a2bfdf78f0165040eb9c859ae7a0ef54d4e08cf27c3c.json",
+      "sha256": "db1cabd3d1dca5e76955a2bfdf78f0165040eb9c859ae7a0ef54d4e08cf27c3c",
+      "size": 8233
+    },
+    "research/hk-reviewed-paired-summary-seal-20261004.json": {
+      "path": "blobs/02db52ac6484a11316ae803477fbd0328348c393b6b3231a58689c6ffdd2827b.json",
+      "sha256": "02db52ac6484a11316ae803477fbd0328348c393b6b3231a58689c6ffdd2827b",
+      "size": 510
+    }
+  },
+  "policy": "Reproduced paired HK summary and seal only; no raw histories, filings, user state or full trial reports"
+}

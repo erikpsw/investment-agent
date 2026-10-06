@@ -1,0 +1,156 @@
+{
+  "status": "ok",
+  "result": {
+    "status": "ok",
+    "mode": "balanced",
+    "formula": "5日动量20% + 20日趋势25% + 60日趋势15% + 今日动量10% + 量比10% + 换手率8% + 估值5% + 市值质量7% - 追高与异常估值惩罚；缺失因子贡献为0，不重分配权重",
+    "item": {
+      "name": "腾讯控股",
+      "price": 421.2,
+      "pe_ratio": 14.143721,
+      "pb_ratio": 2.8519375,
+      "market_cap": null,
+      "turnover_rate": null,
+      "volume_ratio": null,
+      "ticker": "hk00700",
+      "market": "HK",
+      "today_change_percent": -2.274,
+      "source": "Sina",
+      "quote_as_of": "2026-10-02T16:08:10+08:00",
+      "instrument_type": "stock",
+      "classification_source": "本地HKEX证券目录",
+      "classification_as_of": null,
+      "change_5d": -3.92,
+      "change_20d": -2.73,
+      "change_60d": -10.31,
+      "history_as_of": "2026-10-02",
+      "trend_history": {
+        "version": "foreign-trend-window-v1",
+        "status": "reported",
+        "source": "Tencent",
+        "price_basis": "qfq",
+        "bar_count": 61,
+        "window_start": "2026-07-09",
+        "window_end": "2026-10-02"
+      },
+      "risk_plan": {
+        "status": "ok",
+        "history_timing_status": "ok",
+        "history_lag_calendar_days": 0,
+        "quote_as_of": "2026-10-02T16:08:10+08:00",
+        "currency": "HKD",
+        "side": "long",
+        "reference_price": 421.2,
+        "history_as_of": "2026-10-02",
+        "atr14": 12.357142857142845,
+        "support20": 419,
+        "resistance20": 463.4,
+        "stop_loss": 396.4857142857143,
+        "take_profit_1": 458.2714285714285,
+        "take_profit_2": 482.98571428571415,
+        "risk_reward_1": 1.5,
+        "risk_reward_2": 2.5,
+        "stop_distance_percent": 5.867589200922523,
+        "position_cap_percent": 17.042774566474023,
+        "risk_budget_percent": 1,
+        "atr_multiple": 2,
+        "resistance_before_target": false,
+        "trailing_distance": 24.71428571428569,
+        "basis": [
+          "ATR14为最近14日真实波幅的简单平均",
+          "止损结合ATR距离与20日支撑下方0.25ATR缓冲",
+          "第一/第二目标按参数R与参数R+1计算，需同时观察历史阻力",
+          "仓位上限=min(模式上限,组合风险预算/止损距离)，金额需使用同一币种"
+        ],
+        "limitations": [
+          "以当前参考价构建情景，不是成交价或个人持仓成本",
+          "默认保护参数尚未通过跨市场稳健性验证，回测候选参数不自动应用于此参考",
+          "跳空、停牌或流动性不足可能使实际损失超过止损预算",
+          "移动止损参考应随新的高点更新，不能降低已有保护价"
+        ]
+      },
+      "market_cap_currency": "HKD",
+      "theme": "未知市值",
+      "formula_version": "formula-v2",
+      "formula_score": 32.6,
+      "recommendation": "低分候选",
+      "original_score": null,
+      "components": {
+        "5日动量": 39.24,
+        "20日趋势": 45.632,
+        "60日趋势": 32.1125,
+        "今日动量": 43.8013,
+        "量比": 0,
+        "换手率": 0,
+        "估值": 83.8908,
+        "市值质量": 0,
+        "风险惩罚": 0
+      },
+      "contributions": {
+        "5日动量": 7.848,
+        "20日趋势": 11.408,
+        "60日趋势": 4.8169,
+        "今日动量": 4.3801,
+        "量比": 0,
+        "换手率": 0,
+        "估值": 4.1945,
+        "市值质量": 0
+      },
+      "weights": {
+        "5日动量": 0.2,
+        "20日趋势": 0.25,
+        "60日趋势": 0.15,
+        "今日动量": 0.1,
+        "量比": 0.1,
+        "换手率": 0.08,
+        "估值": 0.05,
+        "市值质量": 0.07
+      },
+      "data_coverage": 0.75,
+      "missing_fields": [
+        "volume_ratio",
+        "turnover_rate",
+        "market_cap"
+      ],
+      "reasons": [
+        "20日趋势贡献 11.4 分",
+        "5日动量贡献 7.8 分",
+        "60日趋势贡献 4.8 分"
+      ],
+      "risks": [
+        "部分指标缺失，分数不可与完整数据等同解释"
+      ],
+      "action": "结合公告、财务和板块强度进一步确认",
+      "history_price_metadata": {
+        "version": "history-price-metadata-v1",
+        "trend": {
+          "source": "Tencent",
+          "price_basis": "qfq",
+          "status": "reported"
+        },
+        "protection": {
+          "source": "Tencent",
+          "price_basis": "qfq",
+          "bar_count": 21,
+          "status": "reported"
+        },
+        "scope": "Reported basis only; recent 21-bar protection metadata does not verify the full momentum window or corporate actions"
+      }
+    },
+    "valuation": {
+      "pe_ratio": 14.143721,
+      "pb_ratio": 2.8519375,
+      "eps": 29.78,
+      "pe_basis": "TTM",
+      "pe_source": "Yahoo Finance",
+      "pb_source": "Yahoo Finance"
+    },
+    "financials_status": "available",
+    "source": "Sina",
+    "quote_as_of": "2026-10-02T16:08:10+08:00",
+    "quote_time_status": "provider",
+    "provider_timestamp_raw": null,
+    "fetched_at": "2026-10-04T22:48:44.127714+00:00",
+    "scope": "单只股票共享公式评估；缺失因子不补分，不表示全市场排名"
+  }
+}

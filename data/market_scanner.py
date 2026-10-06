@@ -3,9 +3,11 @@ from __future__ import annotations
 
 import json
 import math
+import re
 import time
+from uuid import uuid4
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from threading import Lock
 from typing import Any
@@ -24,8 +26,9 @@ CACHE_SECONDS = 600
 
 _cache_lock = Lock()
 _cache: dict[str, Any] = {"expires_at": 0.0, "rows": [], "generated_at": None}
-_history_cache: dict[str, tuple[float, dict[str, float | None]]] = {}
-SNAPSHOT_PATH = Path(__file__).resolve().parent.parent / "storage" / "market" / "latest.json"
+_history_cache: dict[tuple[str, str], tuple[float, dict[str, Any]]] = {}
+ROOT = Path(__file__).resolve().parent.parent
+SNAPSHOT_PATH = ROOT / "storage" / "market" / "latest.json"
 
 
 def scan_cn_market() -> dict[str, Any]:
@@ -91,11 +94,11 @@ def _read_snapshot() -> dict[str, Any] | None:
     }
 
 
-def enrich_stock_history(rows: list[dict[str, Any]], limit: int = 120) -> list[dict[str, Any]]:
+def enrich_stock_history(rows: list[dict[str, Any]], limit: int = 120, as_of: str | None = None) -> list[dict[str, Any]]:
     selected = sorted(rows, key=_snapshot_priority, reverse=True)[:limit]
-    by_ticker = {str(row["ticker"]): dict(row) for row in selected}
+    by_ticker = {str(row["ticker"]): {**row, "quote_as_of": as_of} for row in selected}
     with ThreadPoolExecutor(max_workers=10) as executor:
-        futures = {executor.submit(_stock_returns, ticker): ticker for ticker in by_ticker}
+        futures = {executor.submit(_stock_returns, ticker, as_of): ticker for ticker in by_ticker}
         for future in as_completed(futures):
             ticker = futures[future]
             try:
@@ -135,15 +138,39 @@ def _fetch_page(page: int) -> dict[str, Any]:
     raise RuntimeError(f"行情第 {page} 页获取失败: {last_error}")
 
 
-def _stock_returns(ticker: str) -> dict[str, float | None]:
+def _stock_returns(ticker: str, as_of: str | None = None) -> dict[str, Any]:
+    if not re.fullmatch(r"(?:sh|sz)\d{6}", ticker):
+        raise ValueError("Invalid A-share history ticker")
+    shanghai = timezone(timedelta(hours=8))
+    end = datetime.fromisoformat(as_of.replace("Z", "+00:00")) if as_of else datetime.now(shanghai)
+    if end.tzinfo is None:
+        end = end.replace(tzinfo=shanghai)
+    end = end.astimezone(shanghai)
+    # A date-only argument means the completed date. Intraday snapshots cannot
+    # use that day's as-yet-unknown closing K-line.
+    if (not as_of or len(as_of) > 10) and end.hour < 15:
+        end -= timedelta(days=1)
+    cache_key = (ticker, end.strftime("%Y%m%d"))
     now = time.time()
-    cached = _history_cache.get(ticker)
+    cached = _history_cache.get(cache_key)
     if cached and now < cached[0]:
         return dict(cached[1])
+    from investment.data.foreign_formula import _validated_bars
+    cache_path = ROOT / "storage/stock_picker/runtime-history" / f"{ticker}-{cache_key[1]}.json"
+    try:
+        saved = json.loads(cache_path.read_text(encoding="utf-8"))
+        if saved.get("schema") == 1 and saved.get("ticker") == ticker and saved.get("cutoff") == cache_key[1]:
+            cached_bars = _validated_bars(saved["bars"], end.date().isoformat())
+            if cached_bars and len(cached_bars) == len(saved["bars"]):
+                result = _history_features(cached_bars, saved["source"], saved["basis"])
+                result["history_downloaded_at"] = saved["downloaded_at"]
+                _history_cache[cache_key] = (now + CACHE_SECONDS, result)
+                return dict(result)
+    except (OSError, ValueError, KeyError, RuntimeError, TypeError):
+        pass
 
     code = ticker[2:]
     secid = f"{'1' if ticker.startswith('sh') else '0'}.{code}"
-    end = datetime.now()
     begin = end - timedelta(days=150)
     params = {
         "secid": secid,
@@ -172,17 +199,59 @@ def _stock_returns(ticker: str) -> dict[str, float | None]:
         except Exception as exc:
             last_error = exc
             time.sleep(0.2 * (attempt + 1))
-    if not data.get("klines"):
+    history_bars = []
+    source, basis = "Eastmoney", "qfq"
+    try:
+        if data.get("code") and str(data["code"]) != code:
+            raise RuntimeError("历史证券代码不匹配")
+        candles = [str(item).split(",") for item in data.get("klines") or []]
+        if any(len(candle) < 5 for candle in candles):
+            raise RuntimeError("历史OHLC行不完整")
+        history_bars = _validated_bars([{"date": candle[0], "open": _number(candle[1]), "close": _number(candle[2]), "high": _number(candle[3]), "low": _number(candle[4])} for candle in candles], end.date().isoformat())
+    except (ValueError, RuntimeError, TypeError):
+        history_bars = []
+    if not history_bars:
+        response = requests.get("https://web.ifzq.gtimg.cn/appstock/app/fqkline/get", params={"param": f"{ticker},day,,{end.date().isoformat()},120,qfq"}, timeout=8)
+        response.raise_for_status()
+        payload = response.json().get("data", {}).get(ticker, {})
+        adjusted = payload.get("qfqday")
+        raw = adjusted or payload.get("day") or []
+        if any(len(row) < 5 for row in raw):
+            raise RuntimeError("历史OHLC行不完整")
+        history_bars = _validated_bars([{"date": row[0], "open": _number(row[1]), "close": _number(row[2]), "high": _number(row[3]), "low": _number(row[4])} for row in raw], end.date().isoformat())
+        source, basis = "Tencent", "qfq" if adjusted else "raw"
+    if not history_bars:
         raise RuntimeError(f"{ticker} 历史行情获取失败: {last_error}")
-    closes = [_number(str(item).split(",")[2]) for item in data.get("klines") or []]
-    valid = [value for value in closes if value is not None and value > 0]
-    result = {
+    result = _history_features(history_bars, source, basis)
+    result["history_downloaded_at"] = datetime.now(timezone.utc).isoformat()
+    temporary = cache_path.with_name(cache_path.name + f".{uuid4().hex}.tmp")
+    try:
+        cache_path.parent.mkdir(parents=True, exist_ok=True)
+        temporary.write_text(json.dumps({"schema": 1, "ticker": ticker, "cutoff": cache_key[1], "downloaded_at": result["history_downloaded_at"], "source": source, "basis": basis, "bars": history_bars}, ensure_ascii=False), encoding="utf-8")
+        temporary.replace(cache_path)
+    except OSError:
+        # Read-only serverless filesystems still use the validated memory cache.
+        pass
+    finally:
+        try:
+            temporary.unlink(missing_ok=True)
+        except OSError:
+            pass
+    _history_cache[cache_key] = (now + CACHE_SECONDS, result)
+    return result
+
+
+def _history_features(history_bars: list[dict], source: str, basis: str) -> dict:
+    valid = [row["close"] for row in history_bars]
+    return {
         "change_5d": _period_return(valid, 5),
         "change_20d": _period_return(valid, 20),
         "change_60d": _period_return(valid, 60),
+        "history_as_of": history_bars[-1]["date"],
+        "history_source": source,
+        "history_price_basis": basis,
+        "risk_bars": history_bars[-21:],
     }
-    _history_cache[ticker] = (now + CACHE_SECONDS, result)
-    return result
 
 
 def _period_return(closes: list[float], days: int) -> float | None:

@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "files": {
+    "research/centered-risk-summary-20261004.json": {
+      "path": "blobs/acc4ecc6a9d50f453c77c5dd9b28bc360103b53b787f5b6832d69c2de0cd73f3.json",
+      "sha256": "acc4ecc6a9d50f453c77c5dd9b28bc360103b53b787f5b6832d69c2de0cd73f3",
+      "size": 18751
+    },
+    "research/centered-risk-summary-seal-20261004.json": {
+      "path": "blobs/22918571e2f061c9e6a39b9c4ee55eb01cfad8ae6d4f870039e6c7f522501f56.json",
+      "sha256": "22918571e2f061c9e6a39b9c4ee55eb01cfad8ae6d4f870039e6c7f522501f56",
+      "size": 1048
+    }
+  },
+  "policy": "Audited grid summaries and seal only; no raw histories, user state or full training trials"
+}

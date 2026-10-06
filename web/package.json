@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run test:score-release && next build",
+    "test:score-release": "node ../scripts/verify_release_source.mjs && tsx --test tests/formula-score-validation.test.ts tests/risk-plan-validation.test.ts tests/risk-scenario.test.ts",
     "start": "next start",
     "lint": "eslint",
     "test:mcp": "tsx --test --test-force-exit tests/mcp-route.test.ts",

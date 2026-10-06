@@ -5,6 +5,10 @@ from datetime import datetime
 from tenacity import retry, stop_after_attempt, wait_fixed, retry_if_exception_type
 from cachetools import TTLCache
 import threading
+import re
+import math
+from numbers import Real
+from investment.data.quote_timing import epoch_quote_time_fields
 
 
 class RateLimitError(Exception):
@@ -25,6 +29,41 @@ class YFinanceClient:
     - 内存缓存：行情数据缓存 60 秒，历史数据缓存 5 分钟
     - 错误缓存：失败的请求缓存 2 分钟避免重复
     """
+
+    @staticmethod
+    def _provider_ticker(ticker: str) -> str:
+        symbol = ticker.strip().upper()
+        # A/B share-class separators differ from Yahoo's exchange suffixes.
+        return symbol.replace(".", "-") if re.fullmatch(r"[A-Z][A-Z0-9]*\.[AB]", symbol) else symbol
+
+    def _berkshire_pb(self, info):
+        """Use aggregate common equity; Yahoo's B-share bookValue can be A-share based."""
+        cap = info.get("marketCap")
+        if info.get("currency") != "USD" or info.get("financialCurrency") != "USD" or isinstance(cap, bool) or not isinstance(cap, (int, float)) or not math.isfinite(cap) or cap <= 0:
+            return None, None
+        stock = yf.Ticker("BRK-B")
+        candidates = []
+        for field in ("quarterly_balance_sheet", "balance_sheet"):
+            try:
+                frame = getattr(stock, field)
+                if "Common Stock Equity" not in frame.index:
+                    continue
+                for column in frame.columns:
+                    day = pd.Timestamp(column).date()
+                    age = (datetime.now().date() - day).days
+                    if not 0 <= age <= 400:
+                        continue
+                    equity = frame.at["Common Stock Equity", column]
+                    candidates.append((day, equity))
+            except Exception:
+                continue
+        if candidates:
+            day, equity = max(candidates, key=lambda candidate: candidate[0])
+            if not isinstance(equity, bool) and isinstance(equity, Real) and math.isfinite(equity) and equity > 0:
+                ratio = cap / float(equity)
+                if math.isfinite(ratio):
+                    return ratio, f"Yahoo Finance（总市值/普通股权益；报表{day.isoformat()}）"
+        return None, None
     
     def __init__(self):
         self._quote_cache: TTLCache = TTLCache(maxsize=100, ttl=60)
@@ -50,8 +89,11 @@ class YFinanceClient:
     def _fetch_info(self, ticker: str) -> Dict[str, Any]:
         """获取股票信息，带重试逻辑"""
         try:
-            stock = yf.Ticker(ticker)
+            symbol = self._provider_ticker(ticker)
+            stock = yf.Ticker(symbol)
             info = stock.info
+            if info and info.get("symbol") and str(info["symbol"]).upper() != symbol:
+                raise ValueError("Yahoo response symbol does not match requested security")
             if not info or info.get("trailingPegRatio") is None and info.get("currentPrice") is None:
                 if "Too Many Requests" in str(info) or not info:
                     raise RateLimitError(f"Rate limited for {ticker}")
@@ -81,11 +123,13 @@ class YFinanceClient:
         
         try:
             info = self._fetch_info(ticker)
+            price = info.get("currentPrice") or info.get("regularMarketPrice")
+            quote_time = epoch_quote_time_fields(info.get("regularMarketTime") if info.get("regularMarketPrice") is not None and price == info.get("regularMarketPrice") else None)
             
             result = {
                 "ticker": ticker,
                 "name": info.get("shortName", info.get("longName", ticker)),
-                "price": info.get("currentPrice") or info.get("regularMarketPrice"),
+                "price": price,
                 "change": info.get("regularMarketChange"),
                 "change_percent": info.get("regularMarketChangePercent"),
                 "volume": info.get("regularMarketVolume"),
@@ -98,7 +142,7 @@ class YFinanceClient:
                 "dividend_yield": info.get("dividendYield"),
                 "52_week_high": info.get("fiftyTwoWeekHigh"),
                 "52_week_low": info.get("fiftyTwoWeekLow"),
-                "timestamp": datetime.now().isoformat(),
+                **quote_time,
                 "market": "US",
             }
             
@@ -145,7 +189,7 @@ class YFinanceClient:
             return pd.DataFrame()
         
         try:
-            stock = yf.Ticker(ticker)
+            stock = yf.Ticker(self._provider_ticker(ticker))
             df = stock.history(period=period, interval=interval)
             
             if df.empty:
@@ -166,7 +210,7 @@ class YFinanceClient:
             return {}
         
         try:
-            stock = yf.Ticker(ticker)
+            stock = yf.Ticker(self._provider_ticker(ticker))
             return {
                 "income_statement": stock.financials,
                 "balance_sheet": stock.balance_sheet,
@@ -183,12 +227,16 @@ class YFinanceClient:
         """获取关键财务指标（使用缓存的 info）"""
         try:
             info = self._fetch_info(ticker)
+            pb_ratio, pb_source = info.get("priceToBook"), "Yahoo Finance"
+            if self._provider_ticker(ticker) == "BRK-B":
+                pb_ratio, pb_source = self._berkshire_pb(info)
             
             return {
                 "ticker": ticker,
                 "name": info.get("shortName") or info.get("longName"),
                 "pe_ratio": info.get("trailingPE"),
-                "pb_ratio": info.get("priceToBook"),
+                "pb_ratio": pb_ratio,
+                "pb_source": pb_source,
                 "eps": info.get("trailingEps"),
                 "source": "Yahoo Finance",
                 "pe_source": "Yahoo Finance",
@@ -216,7 +264,7 @@ class YFinanceClient:
 
     def get_earnings(self, ticker: str) -> Dict[str, pd.DataFrame]:
         """获取收益数据"""
-        stock = yf.Ticker(ticker)
+        stock = yf.Ticker(self._provider_ticker(ticker))
         return {
             "earnings": stock.earnings,
             "quarterly_earnings": stock.quarterly_earnings,

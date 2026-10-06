@@ -1,0 +1,142 @@
+{
+  "schema": "us-cover-research-summary-v1",
+  "status": "research_only",
+  "market": "US",
+  "applied": false,
+  "historical_mapping_complete": false,
+  "requested_count": 60,
+  "available_count": 56,
+  "download_failure_count": 3,
+  "excluded_fund_count": 1,
+  "supplemented_tickers": [
+    "BG",
+    "CARR",
+    "IOSP",
+    "MNRO"
+  ],
+  "train_days": 240,
+  "test_days": 80,
+  "fold_count": 5,
+  "test_start": "2024-12-09",
+  "test_end": "2026-07-16",
+  "one_way_cost": 0.0015,
+  "execution": {
+    "market": "US",
+    "initial_capital": 10000,
+    "minimum_fee": 1,
+    "entry_lot_size": 1
+  },
+  "coverage": {
+    "denominator": 1120,
+    "market_cap": {
+      "before": 572,
+      "after": 633
+    },
+    "pe_ratio": {
+      "before": 521,
+      "after": 521
+    },
+    "pb_ratio": {
+      "before": 446,
+      "after": 446
+    }
+  },
+  "modes": [
+    {
+      "mode": "balanced",
+      "report_sha256": "9412942c46badb247119e999607074b53d77a601c6982d402c709e85f8e76d0d",
+      "before": {
+        "net_return": -0.06334449100873096,
+        "max_drawdown": 0.06710264394496823,
+        "average_exposure": 0.15791673215852065,
+        "days": 400
+      },
+      "after": {
+        "net_return": -0.004004296088440551,
+        "max_drawdown": 0.048435233828742374,
+        "average_exposure": 0.16110841549074134,
+        "days": 400
+      },
+      "cost_stress": [
+        {
+          "net_return": -0.02418350916449674,
+          "max_drawdown": 0.056772905847446986,
+          "average_exposure": 0.15469151439848003,
+          "days": 400,
+          "one_way_cost": 0.003
+        },
+        {
+          "net_return": -0.04458039057599539,
+          "max_drawdown": 0.06648159411424126,
+          "average_exposure": 0.14917717640858227,
+          "days": 400,
+          "one_way_cost": 0.005
+        }
+      ]
+    },
+    {
+      "mode": "conservative",
+      "report_sha256": "ef21ea5cde05702bcf2f53a4c7619fceadf885eda5dea77422ec6d8b9362f95e",
+      "before": {
+        "net_return": -0.01469483660558668,
+        "max_drawdown": 0.033469087907982975,
+        "average_exposure": 0.049799498236443314,
+        "days": 400
+      },
+      "after": {
+        "net_return": -0.018035988614815035,
+        "max_drawdown": 0.033469087907982975,
+        "average_exposure": 0.049977445594090286,
+        "days": 400
+      },
+      "cost_stress": [
+        {
+          "net_return": -0.027656357025429457,
+          "max_drawdown": 0.03792918106931065,
+          "average_exposure": 0.04925023474874965,
+          "days": 400,
+          "one_way_cost": 0.003
+        },
+        {
+          "net_return": -0.043385308653085874,
+          "max_drawdown": 0.045270997654652145,
+          "average_exposure": 0.046701743128414984,
+          "days": 400,
+          "one_way_cost": 0.005
+        }
+      ]
+    },
+    {
+      "mode": "aggressive",
+      "report_sha256": "0ac9d99f9b55b8aa7ba1371961066d8f3210d2cc5a81752c3a540b77a61588be",
+      "before": {
+        "net_return": -0.008270851990088923,
+        "max_drawdown": 0.04723619072652807,
+        "average_exposure": 0.16226169083891978,
+        "days": 400
+      },
+      "after": {
+        "net_return": -0.019398251920682008,
+        "max_drawdown": 0.06510366151558422,
+        "average_exposure": 0.15353999234683424,
+        "days": 400
+      },
+      "cost_stress": [
+        {
+          "net_return": -0.038805964361876444,
+          "max_drawdown": 0.0688272381199917,
+          "average_exposure": 0.14927679596837662,
+          "days": 400,
+          "one_way_cost": 0.003
+        },
+        {
+          "net_return": -0.06105590396286742,
+          "max_drawdown": 0.07392848611813196,
+          "average_exposure": 0.14215338931330998,
+          "days": 400,
+          "one_way_cost": 0.005
+        }
+      ]
+    }
+  ]
+}

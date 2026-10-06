@@ -4,10 +4,27 @@ from typing import Any, Dict, Optional, List
 from datetime import datetime
 from functools import lru_cache
 import threading
+import re
+from investment.data.quote_timing import unavailable_quote_time_fields
 
 
 class AKShareClient:
     """A股/港股/美股数据客户端，基于 AKShare"""
+
+    @staticmethod
+    def _hk_symbol(value):
+        value = str(value).strip().upper()
+        if value.startswith("HK"):
+            value = value[2:]
+        elif value.endswith(".HK"):
+            value = value[:-3]
+        return value.zfill(5) if re.fullmatch(r"[0-9]{1,5}", value) and int(value) > 0 else None
+
+    @staticmethod
+    def _us_symbol(value):
+        value = str(value).strip().upper()
+        value = re.sub(r"^(105|106|107)\.", "", value)
+        return value if re.fullmatch(r"[A-Z][A-Z0-9]*(?:[.-][A-Z0-9]+)*", value) else None
     
     def __init__(self):
         self._hk_cache: Optional[pd.DataFrame] = None
@@ -44,15 +61,18 @@ class AKShareClient:
         Args:
             ticker: 港股代码，如 hk00700 或 00700
         """
-        code = ticker.lower().replace("hk", "").replace(".hk", "").lstrip("0") or "0"
+        code = self._hk_symbol(ticker)
+        if code is None:
+            return {"ticker": ticker, "error": "无效港股代码"}
         
         try:
             df = self.get_hk_spot()
             if "error" in df.columns:
                 return {"ticker": ticker, "error": df["error"].iloc[0]}
             
-            # 尝试匹配代码
-            mask = df["代码"].astype(str).str.contains(code, regex=False)
+            mask = df["代码"].map(self._hk_symbol).eq(code)
+            if mask.sum() > 1:
+                return {"ticker": ticker, "error": "证券代码匹配不唯一"}
             if mask.any():
                 row = df[mask].iloc[0]
                 return {
@@ -69,7 +89,7 @@ class AKShareClient:
                     "amount": self._safe_float(row.get("成交额")),
                     "pe_ratio": self._safe_float(row.get("市盈率-动态")),
                     "market_cap": self._safe_float(row.get("总市值")),
-                    "timestamp": datetime.now().isoformat(),
+                    **unavailable_quote_time_fields(),
                 }
             
             return {"ticker": ticker, "error": "股票未找到", "timestamp": datetime.now().isoformat()}
@@ -97,21 +117,19 @@ class AKShareClient:
         Args:
             ticker: 美股代码，如 AAPL、MSFT
         """
-        code = ticker.upper()
+        code = self._us_symbol(ticker)
+        if code is None:
+            return {"ticker": ticker, "error": "无效美股代码"}
         
         try:
             df = self.get_us_spot()
             if "error" in df.columns:
                 return {"ticker": ticker, "error": df["error"].iloc[0]}
             
-            # 尝试匹配代码 (美股代码可能带后缀如 .O 或 .N)
-            mask = df["代码"].astype(str).str.upper().str.startswith(code)
-            if not mask.any():
-                # 尝试精确匹配
-                mask = df["代码"].astype(str).str.upper() == code
-            if not mask.any():
-                # 尝试包含匹配
-                mask = df["代码"].astype(str).str.upper().str.contains(f"^{code}\\.", regex=True)
+            symbols = df["代码"].map(self._us_symbol)
+            mask = symbols.eq(code)
+            if mask.sum() > 1:
+                return {"ticker": ticker, "error": "证券代码匹配不唯一"}
             
             if mask.any():
                 row = df[mask].iloc[0]
@@ -121,15 +139,15 @@ class AKShareClient:
                     "price": self._safe_float(row.get("最新价")),
                     "change": self._safe_float(row.get("涨跌额")),
                     "change_percent": self._safe_float(row.get("涨跌幅")),
-                    "prev_close": self._safe_float(row.get("昨收")),
-                    "open": self._safe_float(row.get("今开")),
-                    "high": self._safe_float(row.get("最高")),
-                    "low": self._safe_float(row.get("最低")),
+                    "prev_close": self._safe_float(row.get("昨收价")),
+                    "open": self._safe_float(row.get("开盘价")),
+                    "high": self._safe_float(row.get("最高价")),
+                    "low": self._safe_float(row.get("最低价")),
                     "volume": self._safe_float(row.get("成交量")),
                     "amount": self._safe_float(row.get("成交额")),
                     "pe_ratio": self._safe_float(row.get("市盈率")),
                     "market_cap": self._safe_float(row.get("总市值")),
-                    "timestamp": datetime.now().isoformat(),
+                    **unavailable_quote_time_fields(),
                 }
             
             return {"ticker": ticker, "error": "股票未找到", "timestamp": datetime.now().isoformat()}
@@ -178,7 +196,9 @@ class AKShareClient:
             
             results = []
             for _, row in df[mask].head(limit).iterrows():
-                code = str(row.get("代码", "")).split(".")[0]  # Remove .O, .N suffix
+                code = self._us_symbol(row.get("代码", ""))
+                if code is None:
+                    continue
                 results.append({
                     "code": code.upper(),
                     "name": row.get("名称", ""),
@@ -425,11 +445,12 @@ class AKShareClient:
         Returns:
             DataFrame with date, open, close, high, low, volume, etc.
         """
-        code = ticker.upper()
-        
-        # AKShare 美股代码格式: 105.AAPL (纳斯达克) 或 106.XXX (纽交所)
-        # 需要先确定交易所前缀
-        exchange_prefixes = ["105.", "106."]  # 纳斯达克, 纽交所
+        raw_code = str(ticker).strip().upper()
+        code = self._us_symbol(raw_code)
+        if code is None:
+            return pd.DataFrame()
+        # An explicitly supplied provider identity must never switch exchanges.
+        provider_codes = [raw_code] if re.match(r"^(105|106|107)\.", raw_code) else [f"{prefix}.{code}" for prefix in (105, 106, 107)]
         
         if start_date is None:
             from datetime import timedelta
@@ -438,9 +459,8 @@ class AKShareClient:
             start_date = start.strftime("%Y%m%d")
             end_date = end.strftime("%Y%m%d")
         
-        for prefix in exchange_prefixes:
+        for full_code in provider_codes:
             try:
-                full_code = f"{prefix}{code}"
                 df = ak.stock_us_hist(
                     symbol=full_code,
                     period=period,
@@ -450,6 +470,7 @@ class AKShareClient:
                 )
                 
                 if not df.empty:
+                    df = df.copy()
                     # 标准化列名
                     df.rename(columns={
                         "日期": "date",
@@ -463,6 +484,7 @@ class AKShareClient:
                     
                     df["date"] = pd.to_datetime(df["date"])
                     df.set_index("date", inplace=True)
+                    df.attrs.update(source="AKShare", provider_ticker=full_code, adjust=adjust)
                     
                     return df
                     

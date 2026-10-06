@@ -1,0 +1,76 @@
+{
+  "version": 1,
+  "files": {
+    "joint-research-audit-mode-aggressive.json": {
+      "path": "blobs/a5ae424229a0477f10e1afc46163fc3a9b041d8f5af554770033d42b433dfd3a.json",
+      "sha256": "a5ae424229a0477f10e1afc46163fc3a9b041d8f5af554770033d42b433dfd3a",
+      "size": 8135
+    },
+    "joint-research-audit-mode-conservative.json": {
+      "path": "blobs/a49e09c6181728b826ac21e41e8eb465b1ba2ee9b9ee6e2b4f484b9765d52f38.json",
+      "sha256": "a49e09c6181728b826ac21e41e8eb465b1ba2ee9b9ee6e2b4f484b9765d52f38",
+      "size": 7875
+    },
+    "research/cn-reference-joint-aggressive.json": {
+      "path": "blobs/912f33f7a1e7cb5708cc144503ea0a47f884d386b615bee072cbe3266463e4a1.json",
+      "sha256": "912f33f7a1e7cb5708cc144503ea0a47f884d386b615bee072cbe3266463e4a1",
+      "size": 1015864
+    },
+    "research/cn-reference-joint-conservative.json": {
+      "path": "blobs/9a142626d70090fc55ce84b6e9ed8d13814250c81169af4f1ebb09eb09910e2b.json",
+      "sha256": "9a142626d70090fc55ce84b6e9ed8d13814250c81169af4f1ebb09eb09910e2b",
+      "size": 937332
+    },
+    "research/cn-reference-mode-aggressive.json": {
+      "path": "blobs/d1819b73b3cab7b1ff2ee9716622fe0a813079623431571a4b64cfec05407619.json",
+      "sha256": "d1819b73b3cab7b1ff2ee9716622fe0a813079623431571a4b64cfec05407619",
+      "size": 1649159
+    },
+    "research/cn-reference-mode-conservative.json": {
+      "path": "blobs/97ed1753d5eb19195bc04628acc5324e13b883f6fd962cd473edb3f0afeb1809.json",
+      "sha256": "97ed1753d5eb19195bc04628acc5324e13b883f6fd962cd473edb3f0afeb1809",
+      "size": 1637651
+    },
+    "research/hk-joint-aggressive.json": {
+      "path": "blobs/0ec1b13bbc54e9b113d454cf9464a3b0159b708e2a2e34d40eb0781b82ec4f86.json",
+      "sha256": "0ec1b13bbc54e9b113d454cf9464a3b0159b708e2a2e34d40eb0781b82ec4f86",
+      "size": 494474
+    },
+    "research/hk-joint-conservative.json": {
+      "path": "blobs/0c5825861b798de6dd07495575d7feff2ae0539fe6a0b0dce9ccd6f91628c23c.json",
+      "sha256": "0c5825861b798de6dd07495575d7feff2ae0539fe6a0b0dce9ccd6f91628c23c",
+      "size": 410472
+    },
+    "research/hk-mode-aggressive.json": {
+      "path": "blobs/3e9f910ad66744c02ca7148d413a89c61c5900ab8da928ad9cfd66605f81d885.json",
+      "sha256": "3e9f910ad66744c02ca7148d413a89c61c5900ab8da928ad9cfd66605f81d885",
+      "size": 915829
+    },
+    "research/hk-mode-conservative.json": {
+      "path": "blobs/97583c7922b2ba7fdf6194af196d9dd59b488b010390fb293d420a91c805d943.json",
+      "sha256": "97583c7922b2ba7fdf6194af196d9dd59b488b010390fb293d420a91c805d943",
+      "size": 840547
+    },
+    "research/us-joint-aggressive.json": {
+      "path": "blobs/dd9b1813267971ce21b7a362aff586d7867ddcf9b0507d999a1e85a6cb734efd.json",
+      "sha256": "dd9b1813267971ce21b7a362aff586d7867ddcf9b0507d999a1e85a6cb734efd",
+      "size": 733326
+    },
+    "research/us-joint-conservative.json": {
+      "path": "blobs/752c0796d4f4f2db071e1b1ab140c1148e9434b0a72cccdde921b607a6615414.json",
+      "sha256": "752c0796d4f4f2db071e1b1ab140c1148e9434b0a72cccdde921b607a6615414",
+      "size": 675910
+    },
+    "research/us-mode-aggressive.json": {
+      "path": "blobs/98255653b741bcf9ad55092b118c9be5233482016221cc88fd0dc5afab60835f.json",
+      "sha256": "98255653b741bcf9ad55092b118c9be5233482016221cc88fd0dc5afab60835f",
+      "size": 1197211
+    },
+    "research/us-mode-conservative.json": {
+      "path": "blobs/b57b3cc4b9e0013190c0801e72eda54118c1986204bbb058bb785a60e8d67be4.json",
+      "sha256": "b57b3cc4b9e0013190c0801e72eda54118c1986204bbb058bb785a60e8d67be4",
+      "size": 1187377
+    }
+  },
+  "policy": "Six audited joint modes, source reports and two mode audits only; no raw histories, financial ledgers or user state"
+}

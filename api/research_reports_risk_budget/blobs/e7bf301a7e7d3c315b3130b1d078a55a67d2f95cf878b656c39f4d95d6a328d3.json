@@ -1,0 +1,1028 @@
+{
+  "schema": "risk-budget-summary-v1",
+  "experiments": {
+    "CN:balanced": {
+      "status": "research_only",
+      "applied": false,
+      "market": "CN",
+      "formula_mode": "balanced",
+      "source_scoring_input_fingerprint": "80e279a27b5cc84a74cf526e8ba97cf34610e801b20526cc120eff4c808bb31d",
+      "report_sha256": "69715e5dbeab6987126a6c726e1ff1588e6abd3aaf3399f5cbab9c2f5c93e5e9",
+      "centered_report_sha256": "b4a833d979557a5982c00079e907693357a3cf485f9eca39cf6bbe28354142a5",
+      "optimization_method": "centered-then-budget-v1",
+      "universe_count": 56,
+      "fold_count": 7,
+      "train_days": 240,
+      "test_days": 80,
+      "fundamental_mode": "cn-reference",
+      "default_risk_budget_percent": 1,
+      "risk_budget_grid": [
+        1,
+        0.5,
+        1.5
+      ],
+      "folds": [
+        {
+          "train_start": "2023-04-06",
+          "train_end": "2024-04-01",
+          "test_start": "2024-04-02",
+          "test_end": "2024-07-30",
+          "risk_budget_percent": 0.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2023-08-03",
+          "train_end": "2024-07-30",
+          "test_start": "2024-07-31",
+          "test_end": "2024-11-28",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2023-12-01",
+          "train_end": "2024-11-28",
+          "test_start": "2024-11-29",
+          "test_end": "2025-03-31",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2024-04-02",
+          "train_end": "2025-03-31",
+          "test_start": "2025-04-01",
+          "test_end": "2025-07-28",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2024-07-31",
+          "train_end": "2025-07-28",
+          "test_start": "2025-07-29",
+          "test_end": "2025-11-25",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2024-11-29",
+          "train_end": "2025-11-25",
+          "test_start": "2025-11-26",
+          "test_end": "2026-03-27",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2025-04-01",
+          "train_end": "2026-03-27",
+          "test_start": "2026-03-30",
+          "test_end": "2026-07-24",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        }
+      ],
+      "control": {
+        "metrics": {
+          "net_return": 0.015458195688084375,
+          "max_drawdown": 0.1025896548270464,
+          "days": 560,
+          "average_exposure": 0.10276425615650198
+        },
+        "cost_stress": [
+          {
+            "one_way_cost": 0.003,
+            "net_return": -0.021154561486105172,
+            "max_drawdown": 0.11199751169702321,
+            "days": 560,
+            "average_exposure": 0.10023122064900962
+          },
+          {
+            "one_way_cost": 0.005,
+            "net_return": -0.05988801000997557,
+            "max_drawdown": 0.1236776527734248,
+            "days": 560,
+            "average_exposure": 0.09666249849394754
+          }
+        ]
+      },
+      "budget_tuned": {
+        "metrics": {
+          "net_return": 0.01831031071983613,
+          "max_drawdown": 0.13288567220739955,
+          "days": 560,
+          "average_exposure": 0.12200141789426355
+        },
+        "cost_stress": [
+          {
+            "one_way_cost": 0.003,
+            "net_return": -0.01824486567851691,
+            "max_drawdown": 0.14762834486246623,
+            "days": 560,
+            "average_exposure": 0.12049837689052081
+          },
+          {
+            "one_way_cost": 0.005,
+            "net_return": -0.07364445479954596,
+            "max_drawdown": 0.16448180759473052,
+            "days": 560,
+            "average_exposure": 0.11838382986611497
+          }
+        ]
+      }
+    },
+    "CN:conservative": {
+      "status": "research_only",
+      "applied": false,
+      "market": "CN",
+      "formula_mode": "conservative",
+      "source_scoring_input_fingerprint": "4ed171a9a72e0c3e3e8799f68a98b554d182b3527345d73044f3f6ed1861135d",
+      "report_sha256": "fe34f6055d162f943a84c51fbee889059d946e5e5690a9e931cfc39f22add6e6",
+      "centered_report_sha256": "7c32a66d6679bcb1a89db5a21229927eb5debaed4436ef9b73e700333a51985e",
+      "optimization_method": "centered-then-budget-v1",
+      "universe_count": 56,
+      "fold_count": 7,
+      "train_days": 240,
+      "test_days": 80,
+      "fundamental_mode": "cn-reference",
+      "default_risk_budget_percent": 0.5,
+      "risk_budget_grid": [
+        0.5,
+        0.25,
+        1
+      ],
+      "folds": [
+        {
+          "train_start": "2023-04-06",
+          "train_end": "2024-04-01",
+          "test_start": "2024-04-02",
+          "test_end": "2024-07-30",
+          "risk_budget_percent": 1,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2023-08-03",
+          "train_end": "2024-07-30",
+          "test_start": "2024-07-31",
+          "test_end": "2024-11-28",
+          "risk_budget_percent": 1,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2023-12-01",
+          "train_end": "2024-11-28",
+          "test_start": "2024-11-29",
+          "test_end": "2025-03-31",
+          "risk_budget_percent": 1,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2024-04-02",
+          "train_end": "2025-03-31",
+          "test_start": "2025-04-01",
+          "test_end": "2025-07-28",
+          "risk_budget_percent": 1,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2024-07-31",
+          "train_end": "2025-07-28",
+          "test_start": "2025-07-29",
+          "test_end": "2025-11-25",
+          "risk_budget_percent": 1,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2024-11-29",
+          "train_end": "2025-11-25",
+          "test_start": "2025-11-26",
+          "test_end": "2026-03-27",
+          "risk_budget_percent": 1,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2025-04-01",
+          "train_end": "2026-03-27",
+          "test_start": "2026-03-30",
+          "test_end": "2026-07-24",
+          "risk_budget_percent": 1,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        }
+      ],
+      "control": {
+        "metrics": {
+          "net_return": -0.008221288136237903,
+          "max_drawdown": 0.03778903688463253,
+          "days": 560,
+          "average_exposure": 0.047245328361065195
+        },
+        "cost_stress": [
+          {
+            "one_way_cost": 0.003,
+            "net_return": -0.019216313215064007,
+            "max_drawdown": 0.04421913151399004,
+            "days": 560,
+            "average_exposure": 0.045975566100588144
+          },
+          {
+            "one_way_cost": 0.005,
+            "net_return": -0.03545730015511239,
+            "max_drawdown": 0.05507373669432425,
+            "days": 560,
+            "average_exposure": 0.0441854711556681
+          }
+        ]
+      },
+      "budget_tuned": {
+        "metrics": {
+          "net_return": -0.014071027687762916,
+          "max_drawdown": 0.06098151342078473,
+          "days": 560,
+          "average_exposure": 0.07525149736356519
+        },
+        "cost_stress": [
+          {
+            "one_way_cost": 0.003,
+            "net_return": -0.03546897787275283,
+            "max_drawdown": 0.07088049727297108,
+            "days": 560,
+            "average_exposure": 0.07498045589677148
+          },
+          {
+            "one_way_cost": 0.005,
+            "net_return": -0.05794590917778264,
+            "max_drawdown": 0.08246290475459661,
+            "days": 560,
+            "average_exposure": 0.07343131968077536
+          }
+        ]
+      }
+    },
+    "CN:aggressive": {
+      "status": "research_only",
+      "applied": false,
+      "market": "CN",
+      "formula_mode": "aggressive",
+      "source_scoring_input_fingerprint": "89b1e6513e4ea18a41aac3caa74d168d0b8d10b4da4e02e8246bfbadde9b8bf7",
+      "report_sha256": "523548368147c704ffccf86a8acfdefbe18ed2ea1b8dd4415926e53dade1d180",
+      "centered_report_sha256": "0a15479c9a367f97b4358c6375995102036e2195f094076c835b98b6b92ac021",
+      "optimization_method": "centered-then-budget-v1",
+      "universe_count": 56,
+      "fold_count": 7,
+      "train_days": 240,
+      "test_days": 80,
+      "fundamental_mode": "cn-reference",
+      "default_risk_budget_percent": 1,
+      "risk_budget_grid": [
+        1,
+        0.5,
+        1.5
+      ],
+      "folds": [
+        {
+          "train_start": "2023-04-06",
+          "train_end": "2024-04-01",
+          "test_start": "2024-04-02",
+          "test_end": "2024-07-30",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2023-08-03",
+          "train_end": "2024-07-30",
+          "test_start": "2024-07-31",
+          "test_end": "2024-11-28",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2023-12-01",
+          "train_end": "2024-11-28",
+          "test_start": "2024-11-29",
+          "test_end": "2025-03-31",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2024-04-02",
+          "train_end": "2025-03-31",
+          "test_start": "2025-04-01",
+          "test_end": "2025-07-28",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2024-07-31",
+          "train_end": "2025-07-28",
+          "test_start": "2025-07-29",
+          "test_end": "2025-11-25",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2024-11-29",
+          "train_end": "2025-11-25",
+          "test_start": "2025-11-26",
+          "test_end": "2026-03-27",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2025-04-01",
+          "train_end": "2026-03-27",
+          "test_start": "2026-03-30",
+          "test_end": "2026-07-24",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        }
+      ],
+      "control": {
+        "metrics": {
+          "net_return": 0.04108917521264521,
+          "max_drawdown": 0.08360322433966327,
+          "days": 560,
+          "average_exposure": 0.10069612583561041
+        },
+        "cost_stress": [
+          {
+            "one_way_cost": 0.003,
+            "net_return": 0.002751066075900699,
+            "max_drawdown": 0.09166756152362499,
+            "days": 560,
+            "average_exposure": 0.09832515357195314
+          },
+          {
+            "one_way_cost": 0.005,
+            "net_return": -0.03508652422370795,
+            "max_drawdown": 0.09864870769652245,
+            "days": 560,
+            "average_exposure": 0.09452392356200352
+          }
+        ]
+      },
+      "budget_tuned": {
+        "metrics": {
+          "net_return": 0.046212731683819896,
+          "max_drawdown": 0.10714915182427287,
+          "days": 560,
+          "average_exposure": 0.13252552259954542
+        },
+        "cost_stress": [
+          {
+            "one_way_cost": 0.003,
+            "net_return": 0.010521469101200553,
+            "max_drawdown": 0.11710004483029579,
+            "days": 560,
+            "average_exposure": 0.13018059696499865
+          },
+          {
+            "one_way_cost": 0.005,
+            "net_return": -0.048124469876659304,
+            "max_drawdown": 0.13123288731143368,
+            "days": 560,
+            "average_exposure": 0.12767793867657903
+          }
+        ]
+      }
+    },
+    "HK:balanced": {
+      "status": "research_only",
+      "applied": false,
+      "market": "HK",
+      "formula_mode": "balanced",
+      "source_scoring_input_fingerprint": "6cf50044f4a01c79c3121d1976efc1e631f016b76eb9662291ba58867ebab349",
+      "report_sha256": "c945050ba611de8a4b4f86c23beb164dabc381bc37482abb8330bd014d5cde13",
+      "centered_report_sha256": "b8d7eb2580ecf293339276a6bdf80675b11d665b12d12995758534fcd28222e3",
+      "optimization_method": "centered-then-budget-v1",
+      "universe_count": 18,
+      "fold_count": 4,
+      "train_days": 240,
+      "test_days": 80,
+      "fundamental_mode": "price",
+      "default_risk_budget_percent": 1,
+      "risk_budget_grid": [
+        1,
+        0.5,
+        1.5
+      ],
+      "folds": [
+        {
+          "train_start": "2024-05-28",
+          "train_end": "2025-05-21",
+          "test_start": "2025-05-22",
+          "test_end": "2025-09-11",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2024-09-23",
+          "train_end": "2025-09-11",
+          "test_start": "2025-09-12",
+          "test_end": "2026-01-09",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2025-01-20",
+          "train_end": "2026-01-09",
+          "test_start": "2026-01-12",
+          "test_end": "2026-05-12",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2025-05-22",
+          "train_end": "2026-05-12",
+          "test_start": "2026-05-13",
+          "test_end": "2026-09-04",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        }
+      ],
+      "control": {
+        "metrics": {
+          "net_return": 0.0255664816880381,
+          "max_drawdown": 0.050688884154352465,
+          "days": 320,
+          "average_exposure": 0.16880542582810126
+        },
+        "cost_stress": [
+          {
+            "one_way_cost": 0.003,
+            "net_return": 0.013538184787587504,
+            "max_drawdown": 0.053795047845350163,
+            "days": 320,
+            "average_exposure": 0.16435429699138712
+          },
+          {
+            "one_way_cost": 0.005,
+            "net_return": -0.00631055466236663,
+            "max_drawdown": 0.06502297945001856,
+            "days": 320,
+            "average_exposure": 0.157466690735437
+          }
+        ]
+      },
+      "budget_tuned": {
+        "metrics": {
+          "net_return": 0.04661017144726709,
+          "max_drawdown": 0.06573096439347803,
+          "days": 320,
+          "average_exposure": 0.23046317200908842
+        },
+        "cost_stress": [
+          {
+            "one_way_cost": 0.003,
+            "net_return": 0.02455031103160077,
+            "max_drawdown": 0.07308537931957049,
+            "days": 320,
+            "average_exposure": 0.22710761873801036
+          },
+          {
+            "one_way_cost": 0.005,
+            "net_return": -0.004943232868834024,
+            "max_drawdown": 0.0908548030555808,
+            "days": 320,
+            "average_exposure": 0.2222356262974861
+          }
+        ]
+      }
+    },
+    "HK:conservative": {
+      "status": "research_only",
+      "applied": false,
+      "market": "HK",
+      "formula_mode": "conservative",
+      "source_scoring_input_fingerprint": "07a6902d520ecd77e3ce3e9f6323b7049f53d161f40b619e63a40b223705c2c9",
+      "report_sha256": "139f08623ed72236ed4a13882f190f8517b89400e73db5176924141949dd4fee",
+      "centered_report_sha256": "37b25b0ca23238beec4b4a2198afa0e8ad92ef0bed4ad3bb91a75452ca292890",
+      "optimization_method": "centered-then-budget-v1",
+      "universe_count": 18,
+      "fold_count": 4,
+      "train_days": 240,
+      "test_days": 80,
+      "fundamental_mode": "price",
+      "default_risk_budget_percent": 0.5,
+      "risk_budget_grid": [
+        0.5,
+        0.25,
+        1
+      ],
+      "folds": [
+        {
+          "train_start": "2024-05-28",
+          "train_end": "2025-05-21",
+          "test_start": "2025-05-22",
+          "test_end": "2025-09-11",
+          "risk_budget_percent": 0.5,
+          "budget_selection_status": "retained_default_due_to_inactive_candidates"
+        },
+        {
+          "train_start": "2024-09-23",
+          "train_end": "2025-09-11",
+          "test_start": "2025-09-12",
+          "test_end": "2026-01-09",
+          "risk_budget_percent": 0.5,
+          "budget_selection_status": "retained_default_due_to_inactive_candidates"
+        },
+        {
+          "train_start": "2025-01-20",
+          "train_end": "2026-01-09",
+          "test_start": "2026-01-12",
+          "test_end": "2026-05-12",
+          "risk_budget_percent": 0.5,
+          "budget_selection_status": "retained_default_due_to_inactive_candidates"
+        },
+        {
+          "train_start": "2025-05-22",
+          "train_end": "2026-05-12",
+          "test_start": "2026-05-13",
+          "test_end": "2026-09-04",
+          "risk_budget_percent": 0.5,
+          "budget_selection_status": "retained_default_due_to_inactive_candidates"
+        }
+      ],
+      "control": {
+        "metrics": {
+          "net_return": 0.0,
+          "max_drawdown": 0.0,
+          "days": 320,
+          "average_exposure": 0.0
+        },
+        "cost_stress": [
+          {
+            "one_way_cost": 0.003,
+            "net_return": 0.0,
+            "max_drawdown": 0.0,
+            "days": 320,
+            "average_exposure": 0.0
+          },
+          {
+            "one_way_cost": 0.005,
+            "net_return": 0.0,
+            "max_drawdown": 0.0,
+            "days": 320,
+            "average_exposure": 0.0
+          }
+        ]
+      },
+      "budget_tuned": {
+        "metrics": {
+          "net_return": 0.0,
+          "max_drawdown": 0.0,
+          "days": 320,
+          "average_exposure": 0.0
+        },
+        "cost_stress": [
+          {
+            "one_way_cost": 0.003,
+            "net_return": 0.0,
+            "max_drawdown": 0.0,
+            "days": 320,
+            "average_exposure": 0.0
+          },
+          {
+            "one_way_cost": 0.005,
+            "net_return": 0.0,
+            "max_drawdown": 0.0,
+            "days": 320,
+            "average_exposure": 0.0
+          }
+        ]
+      }
+    },
+    "HK:aggressive": {
+      "status": "research_only",
+      "applied": false,
+      "market": "HK",
+      "formula_mode": "aggressive",
+      "source_scoring_input_fingerprint": "6242e5f1a58255d1d571288112767e6785bf3562a0959ea2f7b250f7a62aabed",
+      "report_sha256": "f014178e711a23b5c26f3d5b5832d6531ec64e49fa96fa7994fd3317fb30a177",
+      "centered_report_sha256": "bc99ecf1e9409232a60141dac47a20a84de4708074b9d9c32c91ab2cf2bf4740",
+      "optimization_method": "centered-then-budget-v1",
+      "universe_count": 18,
+      "fold_count": 4,
+      "train_days": 240,
+      "test_days": 80,
+      "fundamental_mode": "price",
+      "default_risk_budget_percent": 1,
+      "risk_budget_grid": [
+        1,
+        0.5,
+        1.5
+      ],
+      "folds": [
+        {
+          "train_start": "2024-05-28",
+          "train_end": "2025-05-21",
+          "test_start": "2025-05-22",
+          "test_end": "2025-09-11",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2024-09-23",
+          "train_end": "2025-09-11",
+          "test_start": "2025-09-12",
+          "test_end": "2026-01-09",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2025-01-20",
+          "train_end": "2026-01-09",
+          "test_start": "2026-01-12",
+          "test_end": "2026-05-12",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2025-05-22",
+          "train_end": "2026-05-12",
+          "test_start": "2026-05-13",
+          "test_end": "2026-09-04",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        }
+      ],
+      "control": {
+        "metrics": {
+          "net_return": 0.007954437536906056,
+          "max_drawdown": 0.05311027128213919,
+          "days": 320,
+          "average_exposure": 0.1739303169204048
+        },
+        "cost_stress": [
+          {
+            "one_way_cost": 0.003,
+            "net_return": -0.003949216875785311,
+            "max_drawdown": 0.05669455963168435,
+            "days": 320,
+            "average_exposure": 0.16884688536943246
+          },
+          {
+            "one_way_cost": 0.005,
+            "net_return": -0.02319212212838373,
+            "max_drawdown": 0.06354625458103724,
+            "days": 320,
+            "average_exposure": 0.161382539390145
+          }
+        ]
+      },
+      "budget_tuned": {
+        "metrics": {
+          "net_return": 0.023816510730719775,
+          "max_drawdown": 0.06978151152039103,
+          "days": 320,
+          "average_exposure": 0.23371870667677483
+        },
+        "cost_stress": [
+          {
+            "one_way_cost": 0.003,
+            "net_return": 0.0021920916062001528,
+            "max_drawdown": 0.07678563354431589,
+            "days": 320,
+            "average_exposure": 0.23057570119270826
+          },
+          {
+            "one_way_cost": 0.005,
+            "net_return": -0.026717353079858897,
+            "max_drawdown": 0.08853008356133973,
+            "days": 320,
+            "average_exposure": 0.2260656902681142
+          }
+        ]
+      }
+    },
+    "US:balanced": {
+      "status": "research_only",
+      "applied": false,
+      "market": "US",
+      "formula_mode": "balanced",
+      "source_scoring_input_fingerprint": "d07c2bd48ae3ccb6c91d302d69031778baeacacc5ed67020554dca22ea50f594",
+      "report_sha256": "a5a5f607cbb3777868f6f219f3d9067257e1eb4fb8f87d81cb2b47a6ea356729",
+      "centered_report_sha256": "72a7f2cc3e4b4628f4ce8491da82a1f82927184808442feaded43e6cf0a7de78",
+      "optimization_method": "centered-then-budget-v1",
+      "universe_count": 57,
+      "fold_count": 5,
+      "train_days": 240,
+      "test_days": 80,
+      "fundamental_mode": "sec-pit",
+      "default_risk_budget_percent": 1,
+      "risk_budget_grid": [
+        1,
+        0.5,
+        1.5
+      ],
+      "folds": [
+        {
+          "train_start": "2023-12-26",
+          "train_end": "2024-12-06",
+          "test_start": "2024-12-09",
+          "test_end": "2025-04-04",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2024-04-22",
+          "train_end": "2025-04-04",
+          "test_start": "2025-04-07",
+          "test_end": "2025-07-31",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2024-08-15",
+          "train_end": "2025-07-31",
+          "test_start": "2025-08-01",
+          "test_end": "2025-11-21",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2024-12-09",
+          "train_end": "2025-11-21",
+          "test_start": "2025-11-24",
+          "test_end": "2026-03-20",
+          "risk_budget_percent": 1,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2025-04-07",
+          "train_end": "2026-03-20",
+          "test_start": "2026-03-23",
+          "test_end": "2026-07-16",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        }
+      ],
+      "control": {
+        "metrics": {
+          "net_return": -0.0088085223551434,
+          "max_drawdown": 0.05253189309471851,
+          "days": 400,
+          "average_exposure": 0.1536117901931718
+        },
+        "cost_stress": [
+          {
+            "one_way_cost": 0.003,
+            "net_return": -0.03288469611129008,
+            "max_drawdown": 0.06323380594423378,
+            "days": 400,
+            "average_exposure": 0.14867298573355467
+          },
+          {
+            "one_way_cost": 0.005,
+            "net_return": -0.059713327861984467,
+            "max_drawdown": 0.08215652877335344,
+            "days": 400,
+            "average_exposure": 0.14033035929253915
+          }
+        ]
+      },
+      "budget_tuned": {
+        "metrics": {
+          "net_return": -0.00946457948969781,
+          "max_drawdown": 0.06829049697535217,
+          "days": 400,
+          "average_exposure": 0.18945528063308473
+        },
+        "cost_stress": [
+          {
+            "one_way_cost": 0.003,
+            "net_return": -0.037416151416842625,
+            "max_drawdown": 0.08750732759464819,
+            "days": 400,
+            "average_exposure": 0.18738556572728304
+          },
+          {
+            "one_way_cost": 0.005,
+            "net_return": -0.07540583126967082,
+            "max_drawdown": 0.11359409941820608,
+            "days": 400,
+            "average_exposure": 0.1829422108899362
+          }
+        ]
+      }
+    },
+    "US:conservative": {
+      "status": "research_only",
+      "applied": false,
+      "market": "US",
+      "formula_mode": "conservative",
+      "source_scoring_input_fingerprint": "855e0cf1e4b306bdc1f9e8302279faa193fc441f80c4078683dd40a217b06b63",
+      "report_sha256": "ddbbf8cab6746838e933fb170b338b0399313361247a1c420c7d209b4750f3bf",
+      "centered_report_sha256": "aff7a7bc950699342b850af2c365fb3b7adb9547182403e21d54695fcad2a450",
+      "optimization_method": "centered-then-budget-v1",
+      "universe_count": 57,
+      "fold_count": 5,
+      "train_days": 240,
+      "test_days": 80,
+      "fundamental_mode": "sec-pit",
+      "default_risk_budget_percent": 0.5,
+      "risk_budget_grid": [
+        0.5,
+        0.25,
+        1
+      ],
+      "folds": [
+        {
+          "train_start": "2023-12-26",
+          "train_end": "2024-12-06",
+          "test_start": "2024-12-09",
+          "test_end": "2025-04-04",
+          "risk_budget_percent": 1,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2024-04-22",
+          "train_end": "2025-04-04",
+          "test_start": "2025-04-07",
+          "test_end": "2025-07-31",
+          "risk_budget_percent": 1,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2024-08-15",
+          "train_end": "2025-07-31",
+          "test_start": "2025-08-01",
+          "test_end": "2025-11-21",
+          "risk_budget_percent": 1,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2024-12-09",
+          "train_end": "2025-11-21",
+          "test_start": "2025-11-24",
+          "test_end": "2026-03-20",
+          "risk_budget_percent": 0.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2025-04-07",
+          "train_end": "2026-03-20",
+          "test_start": "2026-03-23",
+          "test_end": "2026-07-16",
+          "risk_budget_percent": 0.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        }
+      ],
+      "control": {
+        "metrics": {
+          "net_return": -0.0042989724228987836,
+          "max_drawdown": 0.037107299530557025,
+          "days": 400,
+          "average_exposure": 0.07958425238826987
+        },
+        "cost_stress": [
+          {
+            "one_way_cost": 0.003,
+            "net_return": -0.016845972179081903,
+            "max_drawdown": 0.040760203344881396,
+            "days": 400,
+            "average_exposure": 0.07804561189187446
+          },
+          {
+            "one_way_cost": 0.005,
+            "net_return": -0.030927292043684718,
+            "max_drawdown": 0.045989820085206023,
+            "days": 400,
+            "average_exposure": 0.07374154565342173
+          }
+        ]
+      },
+      "budget_tuned": {
+        "metrics": {
+          "net_return": -0.006176143662672717,
+          "max_drawdown": 0.045801230235260726,
+          "days": 400,
+          "average_exposure": 0.08942936982943023
+        },
+        "cost_stress": [
+          {
+            "one_way_cost": 0.003,
+            "net_return": -0.021433497980252514,
+            "max_drawdown": 0.05395766477223862,
+            "days": 400,
+            "average_exposure": 0.08854250185169338
+          },
+          {
+            "one_way_cost": 0.005,
+            "net_return": -0.040354122385977464,
+            "max_drawdown": 0.06336142007340162,
+            "days": 400,
+            "average_exposure": 0.08766239424968043
+          }
+        ]
+      }
+    },
+    "US:aggressive": {
+      "status": "research_only",
+      "applied": false,
+      "market": "US",
+      "formula_mode": "aggressive",
+      "source_scoring_input_fingerprint": "c85fa421700508e9185c907253aa843976ec5f95759ab1ef12787da8d4000a5f",
+      "report_sha256": "2a77d40edaac27a96e0097bf4845152f7a7a89aba04e90cd00b1dcd027162b33",
+      "centered_report_sha256": "06fa5fc0d40477b26995e33696d518dbec3e05466b6be1b916b379695915cbf1",
+      "optimization_method": "centered-then-budget-v1",
+      "universe_count": 57,
+      "fold_count": 5,
+      "train_days": 240,
+      "test_days": 80,
+      "fundamental_mode": "sec-pit",
+      "default_risk_budget_percent": 1,
+      "risk_budget_grid": [
+        1,
+        0.5,
+        1.5
+      ],
+      "folds": [
+        {
+          "train_start": "2023-12-26",
+          "train_end": "2024-12-06",
+          "test_start": "2024-12-09",
+          "test_end": "2025-04-04",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2024-04-22",
+          "train_end": "2025-04-04",
+          "test_start": "2025-04-07",
+          "test_end": "2025-07-31",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2024-08-15",
+          "train_end": "2025-07-31",
+          "test_start": "2025-08-01",
+          "test_end": "2025-11-21",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2024-12-09",
+          "train_end": "2025-11-21",
+          "test_start": "2025-11-24",
+          "test_end": "2026-03-20",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        },
+        {
+          "train_start": "2025-04-07",
+          "train_end": "2026-03-20",
+          "test_start": "2026-03-23",
+          "test_end": "2026-07-16",
+          "risk_budget_percent": 1.5,
+          "budget_selection_status": "selected_from_complete_budget_candidates"
+        }
+      ],
+      "control": {
+        "metrics": {
+          "net_return": -0.01609695805744693,
+          "max_drawdown": 0.0486721453966269,
+          "days": 400,
+          "average_exposure": 0.14728647157010583
+        },
+        "cost_stress": [
+          {
+            "one_way_cost": 0.003,
+            "net_return": -0.03771583900563369,
+            "max_drawdown": 0.05328653911645287,
+            "days": 400,
+            "average_exposure": 0.1426546964368047
+          },
+          {
+            "one_way_cost": 0.005,
+            "net_return": -0.06266300553776771,
+            "max_drawdown": 0.06266300553776771,
+            "days": 400,
+            "average_exposure": 0.13537650223541528
+          }
+        ]
+      },
+      "budget_tuned": {
+        "metrics": {
+          "net_return": -0.004522100122332562,
+          "max_drawdown": 0.060103347938654905,
+          "days": 400,
+          "average_exposure": 0.18780604495598846
+        },
+        "cost_stress": [
+          {
+            "one_way_cost": 0.003,
+            "net_return": -0.03409601888011515,
+            "max_drawdown": 0.0673017995124493,
+            "days": 400,
+            "average_exposure": 0.18650985838209014
+          },
+          {
+            "one_way_cost": 0.005,
+            "net_return": -0.07164751634277244,
+            "max_drawdown": 0.07572911293679774,
+            "days": 400,
+            "average_exposure": 0.1833695418275698
+          }
+        ]
+      }
+    }
+  }
+}

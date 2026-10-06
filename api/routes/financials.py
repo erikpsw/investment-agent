@@ -10,6 +10,7 @@ import re
 
 from investment.data import StockFetcher
 from investment.api.schemas import FinancialMetrics
+from investment.data.formula_scoring import number as _finite_number
 
 router = APIRouter()
 fetcher = StockFetcher()
@@ -54,10 +55,14 @@ def _get_metric(metrics: Dict[str, Any], *keys: str) -> Optional[float]:
         if key in metrics and metrics[key] is not None:
             val = metrics[key]
             if isinstance(val, (int, float)):
-                return float(val)
+                result = _finite_number(val)
+                if result is not None:
+                    return result
             if isinstance(val, str):
                 try:
-                    return float(val.replace("%", "").replace(",", ""))
+                    result = _finite_number(val.replace("%", "").replace(",", ""))
+                    if result is not None:
+                        return result
                 except ValueError:
                     continue
         
@@ -67,10 +72,14 @@ def _get_metric(metrics: Dict[str, Any], *keys: str) -> Optional[float]:
             if key_with_suffix in metrics and metrics[key_with_suffix] is not None:
                 val = metrics[key_with_suffix]
                 if isinstance(val, (int, float)):
-                    return float(val)
+                    result = _finite_number(val)
+                    if result is not None:
+                        return result
                 if isinstance(val, str):
                     try:
-                        return float(val.replace("%", "").replace(",", ""))
+                        result = _finite_number(val.replace("%", "").replace(",", ""))
+                        if result is not None:
+                            return result
                     except ValueError:
                         continue
     
@@ -98,18 +107,20 @@ async def get_financials(ticker: str):
         metric_pe = _get_metric(metrics, "pe_ratio", "市盈率TTM", "市盈率(TTM)")
         pe_ratio = metric_pe
         quote = await asyncio.to_thread(fetcher.get_quote, ticker) if pe_ratio is None or not metrics.get("name") else {}
-        if pe_ratio is None and metrics.get("pe_basis") != "TTM" and quote.get("pe_ratio") is not None:
-            pe_ratio = quote.get("pe_ratio")
+        if pe_ratio is None and metrics.get("pe_basis") != "TTM" and _finite_number(quote.get("pe_ratio")) is not None:
+            pe_ratio = _finite_number(quote.get("pe_ratio"))
         
+        pb_ratio = _get_metric(metrics, "pb_ratio", "市净率")
         return FinancialMetrics(
             ticker=ticker,
             name=metrics.get("name") or quote.get("name"),
             pe_ratio=pe_ratio,
-            eps=metrics.get("eps") if metrics.get("eps") is not None else quote.get("eps"),
+            eps=_finite_number(metrics.get("eps")) if _finite_number(metrics.get("eps")) is not None else _finite_number(quote.get("eps")),
             source=metrics.get("source") or quote.get("source"),
             pe_source=(metrics.get("pe_source") or "AKShare") if metric_pe is not None or metrics.get("pe_basis") == "TTM" else quote.get("pe_source"),
             pe_basis=(metrics.get("pe_basis") or "TTM") if metric_pe is not None or metrics.get("pe_basis") == "TTM" else quote.get("pe_basis"),
-            pb_ratio=_get_metric(metrics, "pb_ratio", "市净率"),
+            pb_ratio=pb_ratio,
+            pb_source=(metrics.get("pb_source") or metrics.get("source") or "AKShare") if pb_ratio is not None else None,
             roe=_ratio_metric(metrics, "roe", "净资产收益率", "加权净资产收益率", "摊薄净资产收益率"),
             roa=_ratio_metric(metrics, "roa", "总资产收益率", "总资产报酬率"),
             gross_margin=_ratio_metric(metrics, "gross_margin", "毛利率", "销售毛利率"),

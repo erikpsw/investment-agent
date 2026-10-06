@@ -1,14 +1,18 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { Calculator, Loader2, RefreshCw, Target } from "lucide-react";
+import { AIStockScreener } from "@/components/ai-stock-screener";
+import { FormulaBacktestPanel } from "@/components/formula-backtest-panel";
+import { FormulaRiskPlan } from "@/components/formula-risk-plan";
 import { Header } from "@/components/header";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { api, type FormulaRankingItem, type FormulaRankingResult } from "@/lib/api";
+import { validScoreItem } from "@/lib/formula-score-validation";
 import { cn } from "@/lib/utils";
 
 type Market = "CN" | "US" | "HK" | "all";
@@ -90,50 +94,35 @@ export default function StockPickerPage() {
   const [sortKey, setSortKey] = useState<SortKey>("formula_score");
   const [data, setData] = useState<FormulaRankingResult | null>(null);
   const [loading, setLoading] = useState(true);
-  const [historyLoading, setHistoryLoading] = useState(false);
+
   const [message, setMessage] = useState("");
 
+  const requestId = useRef(0);
   const load = async () => {
+    const id = ++requestId.current;
     setLoading(true);
+    setData(null);
+    setMessage("");
     try {
       const response = await api.getFormulaRanking(market, 20, mode);
+      if (id !== requestId.current) return;
+      if (!response.result || !Array.isArray(response.result.items) || !response.result.items.every(validScoreItem)) {
+        throw new Error("公式排名数据异常，请重试");
+      }
       setData(response.result);
       setMessage("");
-      if (market === "CN" && !response.result.fallback && response.result.items.length) {
-        setHistoryLoading(true);
-        try {
-          const historyResponse = await api.getFormulaRankingHistory(
-            response.result.items.map((item) => item.ticker),
-            mode
-          );
-          setData((current) =>
-            current
-              ? (() => {
-                  const enrichedTickers = new Set(historyResponse.result.items.map((item) => item.ticker));
-                  return {
-                    ...current,
-                    items: [
-                      ...historyResponse.result.items,
-                      ...current.items.filter((item) => !enrichedTickers.has(item.ticker)),
-                    ],
-                    history_enriched_count: historyResponse.result.history_enriched_count,
-                  };
-                })()
-              : current
-          );
-        } finally {
-          setHistoryLoading(false);
-        }
-      }
+
     } catch (error) {
+      if (id !== requestId.current) return;
       setMessage(error instanceof Error ? error.message : "加载公式排名失败");
     } finally {
-      setLoading(false);
+      if (id === requestId.current) setLoading(false);
     }
   };
 
   useEffect(() => {
     void load();
+    return () => { requestId.current++; };
   }, [market, mode]);
 
   const topItems = useMemo(
@@ -154,9 +143,9 @@ export default function StockPickerPage() {
       <main className="flex flex-1 flex-col gap-6 p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">公式选股排名</h1>
+            <h1 className="text-3xl font-bold tracking-tight">公式与 AI 选股</h1>
             <p className="text-muted-foreground">
-              扫描沪深 A 股可交易股票，用实时行情、趋势、量价、估值和市值因子进行排序。
+              用行情、趋势、量价和估值因子初筛，查看每项贡献与历史验证。
             </p>
           </div>
           <Button variant="outline" onClick={load} disabled={loading}>
@@ -165,12 +154,10 @@ export default function StockPickerPage() {
           </Button>
         </div>
 
-        {historyLoading && (
-          <div className="rounded-lg border px-4 py-3 text-sm text-muted-foreground">
-            <Loader2 className="mr-2 inline h-4 w-4 animate-spin" />
-            初筛已完成，正在补算前 20 名的 5日、20日和60日走势并重新排序。
-          </div>
-        )}
+        <AIStockScreener />
+        <FormulaBacktestPanel market={market} rankingMode={mode} />
+
+
 
         <div className="flex flex-wrap gap-3">
           <div className="flex rounded-md border p-1">
@@ -195,7 +182,7 @@ export default function StockPickerPage() {
                 variant={sortKey === item.value ? "secondary" : "ghost"}
                 onClick={() => setSortKey(item.value)}
               >
-                {item.label}排序
+                {item.label}（本页）
               </Button>
             ))}
           </div>
@@ -249,6 +236,8 @@ export default function StockPickerPage() {
             {data.fallback_reason ? ` 原因：${data.fallback_reason}` : ""}
           </div>
         )}
+        {data?.snapshot_only && <p className="rounded-lg border px-4 py-3 text-sm text-amber-700">当前使用保存的市场快照，请核对数据时间；不代表实时价格。</p>}
+        {!!data?.market_sources?.length && <div className="rounded-lg border p-3 text-xs text-muted-foreground">{data.market_sources.map(source => <p key={source.market}>{source.market} · {formatTime(source.generated_at)} · {source.source}</p>)}</div>}
 
         <Card>
           <CardHeader>
@@ -256,13 +245,14 @@ export default function StockPickerPage() {
               <Calculator />公式口径
             </CardTitle>
             <CardDescription>{data?.formula || "正在加载公式口径"}</CardDescription>
+            {data?.scope && <p className="text-xs text-muted-foreground">{data.scope} · 候选 {data.candidate_count ?? data.total} 只 · {data.formula_version}</p>}
           </CardHeader>
         </Card>
 
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Target />推荐排名
+              <Target />公式候选排名
             </CardTitle>
             <CardDescription>点击股票名称进入个股行情、K 线和财务数据。</CardDescription>
           </CardHeader>
@@ -298,10 +288,13 @@ export default function StockPickerPage() {
                     <TableRow key={`${item.market}-${item.ticker}`}>
                       <TableCell className="font-medium tabular-nums">{index + 1}</TableCell>
                       <TableCell>
-                        <Link href={`/stock/${item.ticker}`} className="font-medium hover:underline">
+                        <Link href={`/stock/${encodeURIComponent(item.ticker)}?mode=${mode}`} className="font-medium hover:underline">
                           {item.name || item.ticker}
                         </Link>
                         <div className="text-xs text-muted-foreground">{item.ticker}</div>
+                        {item.data_coverage != null && <div className="mt-1 text-xs text-muted-foreground">因子完整度 {(item.data_coverage * 100).toFixed(0)}%</div>}
+                        {item.history_as_of && <div className="text-xs text-muted-foreground">日K截至 {item.history_as_of}</div>}
+                        {!!item.contributions && <details className="mt-2 text-xs"><summary className="cursor-pointer text-primary">评分依据</summary><div className="mt-1 space-y-1">{Object.entries(item.contributions).map(([name, contribution]) => <p key={name}>{name}：{contribution.toFixed(1)}分 · 权重 {((item.weights?.[name] || 0) * 100).toFixed(0)}%</p>)}<p>风险扣分：{item.components?.["风险惩罚"] ?? 0}</p>{!!item.missing_fields?.length && <p>缺失 {item.missing_fields.length} 项指标，未补默认分。</p>}</div></details>}
                       </TableCell>
                       <TableCell>
                         <div className="max-w-32 truncate">{item.theme || "--"}</div>
@@ -331,6 +324,7 @@ export default function StockPickerPage() {
                       </TableCell>
                       <TableCell className="max-w-64">
                         <div className="line-clamp-2 text-sm text-muted-foreground">{topRisk(item)}</div>
+                        <FormulaRiskPlan key={`${item.ticker}-${item.risk_plan?.currency}`} plan={item.risk_plan} market={item.market || market} historyMetadata={item.history_price_metadata} />
                       </TableCell>
                     </TableRow>
                   ))

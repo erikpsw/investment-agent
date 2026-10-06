@@ -1,0 +1,149 @@
+{
+  "status": "ok",
+  "result": {
+    "status": "ok",
+    "mode": "balanced",
+    "formula": "5日动量20% + 20日趋势25% + 60日趋势15% + 今日动量10% + 量比10% + 换手率8% + 估值5% + 市值质量7% - 追高与异常估值惩罚；缺失因子贡献为0，不重分配权重",
+    "item": {
+      "name": "贵州茅台",
+      "price": 1258.62,
+      "pe_ratio": 19.11,
+      "pb_ratio": null,
+      "market_cap": 1573378000000,
+      "turnover_rate": 0.31,
+      "volume_ratio": null,
+      "ticker": "sh600519",
+      "market": "CN",
+      "today_change_percent": 1.864711309668331,
+      "source": "Tencent",
+      "quote_as_of": "2026-09-30T16:14:58+08:00",
+      "instrument_type": "stock",
+      "classification_source": "本地SSE证券目录",
+      "classification_as_of": null,
+      "change_5d": 0.38,
+      "change_20d": -3.15,
+      "change_60d": 5.87,
+      "history_as_of": "2026-09-30",
+      "history_source": "Eastmoney",
+      "history_price_basis": "qfq",
+      "history_downloaded_at": "2026-10-04T22:48:25.715934+00:00",
+      "risk_plan": {
+        "status": "ok",
+        "history_timing_status": "ok",
+        "history_lag_calendar_days": 0,
+        "quote_as_of": "2026-09-30T16:14:58+08:00",
+        "currency": "CNY",
+        "side": "long",
+        "reference_price": 1258.62,
+        "history_as_of": "2026-09-30",
+        "atr14": 17.558571428571472,
+        "support20": 1228.1,
+        "resistance20": 1338.86,
+        "stop_loss": 1223.502857142857,
+        "take_profit_1": 1311.2957142857142,
+        "take_profit_2": 1346.412857142857,
+        "risk_reward_1": 1.5,
+        "risk_reward_2": 2.5,
+        "stop_distance_percent": 2.790130687351455,
+        "position_cap_percent": 20,
+        "risk_budget_percent": 1,
+        "atr_multiple": 2,
+        "resistance_before_target": false,
+        "trailing_distance": 35.117142857142944,
+        "basis": [
+          "ATR14为最近14日真实波幅的简单平均",
+          "止损结合ATR距离与20日支撑下方0.25ATR缓冲",
+          "第一/第二目标按参数R与参数R+1计算，需同时观察历史阻力",
+          "仓位上限=min(模式上限,组合风险预算/止损距离)，金额需使用同一币种"
+        ],
+        "limitations": [
+          "以当前参考价构建情景，不是成交价或个人持仓成本",
+          "默认保护参数尚未通过跨市场稳健性验证，回测候选参数不自动应用于此参考",
+          "跳空、停牌或流动性不足可能使实际损失超过止损预算",
+          "移动止损参考应随新的高点更新，不能降低已有保护价"
+        ]
+      },
+      "market_cap_currency": "CNY",
+      "theme": "大盘",
+      "formula_version": "formula-v2",
+      "formula_score": 52.1,
+      "recommendation": "仅跟踪",
+      "original_score": null,
+      "components": {
+        "5日动量": 66.336,
+        "20日趋势": 44.96,
+        "60日趋势": 69.2138,
+        "今日动量": 75.8912,
+        "量比": 0,
+        "换手率": 34.3,
+        "估值": 56.9101,
+        "市值质量": 58,
+        "风险惩罚": 0
+      },
+      "contributions": {
+        "5日动量": 13.2672,
+        "20日趋势": 11.24,
+        "60日趋势": 10.3821,
+        "今日动量": 7.5891,
+        "量比": 0,
+        "换手率": 2.744,
+        "估值": 2.8455,
+        "市值质量": 4.06
+      },
+      "weights": {
+        "5日动量": 0.2,
+        "20日趋势": 0.25,
+        "60日趋势": 0.15,
+        "今日动量": 0.1,
+        "量比": 0.1,
+        "换手率": 0.08,
+        "估值": 0.05,
+        "市值质量": 0.07
+      },
+      "data_coverage": 0.8825,
+      "missing_fields": [
+        "volume_ratio",
+        "pb_ratio"
+      ],
+      "reasons": [
+        "5日动量贡献 13.3 分",
+        "20日趋势贡献 11.2 分",
+        "60日趋势贡献 10.4 分"
+      ],
+      "risks": [
+        "部分指标缺失，分数不可与完整数据等同解释"
+      ],
+      "action": "结合公告、财务和板块强度进一步确认",
+      "history_price_metadata": {
+        "version": "history-price-metadata-v1",
+        "trend": {
+          "source": "Eastmoney",
+          "price_basis": "qfq",
+          "status": "reported"
+        },
+        "protection": {
+          "source": "Eastmoney",
+          "price_basis": "qfq",
+          "bar_count": 21,
+          "status": "reported"
+        },
+        "scope": "Reported basis only; recent 21-bar protection metadata does not verify the full momentum window or corporate actions"
+      }
+    },
+    "valuation": {
+      "pe_ratio": 19.11,
+      "pb_ratio": null,
+      "eps": 35.57,
+      "pe_basis": "TTM",
+      "pe_source": "Tencent",
+      "pb_source": null
+    },
+    "financials_status": "available",
+    "source": "Tencent",
+    "quote_as_of": "2026-09-30T16:14:58+08:00",
+    "quote_time_status": "provider",
+    "provider_timestamp_raw": null,
+    "fetched_at": "2026-10-04T22:48:24.764550+00:00",
+    "scope": "单只股票共享公式评估；缺失因子不补分，不表示全市场排名"
+  }
+}

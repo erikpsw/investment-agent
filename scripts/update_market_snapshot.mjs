@@ -1,4 +1,5 @@
 import dns from "node:dns";
+import { yahooRows, eastmoneyHkRows } from "./foreign-market-rows.mjs";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -198,14 +199,10 @@ async function fetchHotHk() {
   const response = await fetchJson("https://72.push2.eastmoney.com/api/qt/clist/get", {
     pn: "1", pz: "100", po: "1", np: "1", fltt: "2", fid: "f6",
     fs: "m:128 t:3,m:128 t:4,m:128 t:1,m:128 t:2",
-    fields: "f2,f3,f6,f8,f10,f12,f14",
+    fields: "f2,f3,f6,f8,f9,f10,f12,f14,f20,f21,f23",
   }, 3);
   const entries = Object.values(response.data.diff || {});
-  return entries.filter((row) => /^\d{1,5}$/.test(String(row.f12 || "")) && row.f2 > 0 && row.f6 > 0).map((row) => ({
-    ticker: `hk${String(row.f12).padStart(5, "0")}`, name: String(row.f14 || row.f12), market: "HK",
-    price: number(row.f2), amount: number(row.f6), today_change_percent: number(row.f3),
-    turnover_rate: number(row.f8), volume_ratio: number(row.f10),
-  }));
+  return eastmoneyHkRows(entries);
 }
 
 async function fetchHotUs() {
@@ -214,13 +211,7 @@ async function fetchHotUs() {
   const response = await fetch(url, { headers: { "User-Agent": "Mozilla/5.0" }, signal: AbortSignal.timeout(15000) });
   if (!response.ok) throw new Error(`Yahoo US HTTP ${response.status}`);
   const quotes = (await response.json()).finance?.result?.[0]?.quotes || [];
-  return quotes.filter((row) => /^[A-Z][A-Z0-9.-]{0,14}$/.test(String(row.symbol || "")) && row.regularMarketPrice > 0 && row.regularMarketVolume > 0).map((row) => ({
-    ticker: row.symbol, name: row.longName || row.shortName || row.symbol, market: "US",
-    price: row.regularMarketPrice, amount: row.regularMarketPrice * row.regularMarketVolume,
-    today_change_percent: number(row.regularMarketChangePercent),
-    turnover_rate: null,
-    volume_ratio: row.averageDailyVolume3Month ? row.regularMarketVolume / row.averageDailyVolume3Month : null,
-  }));
+  return yahooRows(quotes, "US");
 }
 
 async function updateHotSnapshot(market, path, fetcher) {
@@ -261,7 +252,10 @@ async function fetchOrKeepExisting(label, fetcher, path, minimumRows) {
   }
 }
 
-if (process.argv.includes("--etf-only")) {
+if (process.argv.includes("--foreign-only")) {
+  await mkdir(outputDir, { recursive: true });
+  await Promise.all([updateHotSnapshot("HK", hkSnapshotPath, fetchHotHk), updateHotSnapshot("US", usSnapshotPath, fetchHotUs)]);
+} else if (process.argv.includes("--etf-only")) {
   const etfPayload = await fetchOrKeepExisting("ETF", fetchEtfs, etfCatalogPath, 500);
   await mkdir(dirname(etfCatalogPath), { recursive: true });
   await writeFile(etfCatalogPath, JSON.stringify(etfPayload));

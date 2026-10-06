@@ -1,0 +1,5 @@
+# Preserve bytes used by frozen research source fingerprints and sealed bundles.
+data/*.py -text
+api/research_reports*/** -text
+api/market_snapshots/** -text
+storage/market/instrument-catalog.json -text

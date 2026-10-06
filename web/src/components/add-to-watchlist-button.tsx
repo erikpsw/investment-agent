@@ -7,7 +7,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Star } from "lucide-react";
 import { api, type WatchlistGroup } from "@/lib/api";
 import { securityMarket } from "@/lib/financial-reports";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 function flattenGroups(groups: WatchlistGroup[], path = ""): Array<{ group: WatchlistGroup; label: string }> {
@@ -34,7 +34,7 @@ export function AddToWatchlistButton({ ticker, name = "", market, compact = fals
   const exists = selected?.items.some(item => item.ticker.toUpperCase() === ticker.toUpperCase() && item.market === resolvedMarket);
   const buttonClass = compact ? "min-h-11 min-w-11" : "min-h-11 w-full";
 
-  if (!user && !isLoading) return <Button variant="outline" className={buttonClass} aria-label="登录后添加到自选" render={<Link href={`/auth/login?returnTo=${encodeURIComponent(`/stock/${ticker}`)}`} prefetch={false} />}>{compact ? <Star className="h-4 w-4" /> : "登录后添加到自选"}</Button>;
+  if (!user && !isLoading) return <Link href={`/auth/login?returnTo=${encodeURIComponent(`/stock/${ticker}`)}`} prefetch={false} className={buttonVariants({ variant: "outline", className: buttonClass })} aria-label="登录后添加到自选">{compact ? <Star className="h-4 w-4" /> : "登录后添加到自选"}</Link>;
 
   const add = async () => {
     if (!selected || exists || saving) return;

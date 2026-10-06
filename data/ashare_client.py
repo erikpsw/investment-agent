@@ -8,6 +8,7 @@ import requests
 import datetime
 import pandas as pd
 from typing import Any, Optional, Dict, List
+from investment.data.quote_timing import quote_time_fields
 
 
 class AshareQuoteClient:
@@ -277,7 +278,7 @@ class AshareQuoteClient:
             "ask1_price": float(parts[21]) if parts[21] else None,
             "date": parts[30],
             "time": parts[31],
-            "timestamp": datetime.datetime.now().isoformat(),
+            **quote_time_fields(f"{parts[30]} {parts[31]}", "CN"),
         }
     
     def _get_realtime_tx(self, code: str) -> Dict[str, Any]:
@@ -318,7 +319,7 @@ class AshareQuoteClient:
                             "pe_source": "Tencent",
                             "pe_basis": "TTM",
                             "market_cap": float(parts[45]) * 1e8 if parts[45] else None,
-                            "timestamp": datetime.datetime.now().isoformat(),
+                            **quote_time_fields(parts[30], "CN"),
                         }
         
         raise ValueError(f"Failed to parse data for {code}")
@@ -357,7 +358,7 @@ class AshareQuoteClient:
                 "low": float(parts[5]) if parts[5] else None,
                 "volume": float(parts[8]) if parts[8] else None,
                 "amount": float(parts[9]) if parts[9] else None,
-                "timestamp": datetime.datetime.now().isoformat(),
+                **quote_time_fields(f"{parts[30]} {parts[31]}", "CN"),
             })
         
         return results

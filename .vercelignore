@@ -7,7 +7,10 @@
 .env.*
 !.env.example
 
-storage
+storage/*
+!storage/market
+storage/market/*
+!storage/market/instrument-catalog.json
 cache
 **/__pycache__
 **/*.py[cod]
@@ -19,7 +22,13 @@ web/coverage
 web/.env
 web/.env.*
 web/tsconfig.tsbuildinfo
-web/tests
+web/tests/*
+!web/tests/formula-score-validation.test.ts
+!web/tests/risk-plan-validation.test.ts
+!web/tests/risk-scenario.test.ts
+!web/tests/fixtures
+!web/tests/fixtures/formula-score
+!web/tests/fixtures/formula-score/*.json
 
 tests
 docs

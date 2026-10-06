@@ -1,0 +1,16 @@
+{
+  "schema": "risk-budget-summary-seal-v1",
+  "summary_sha256": "e7bf301a7e7d3c315b3130b1d078a55a67d2f95cf878b656c39f4d95d6a328d3",
+  "audit_sha256": "90ccd201c0792e10b1860d5d0a18aff3ddffa8a0aab65bbff00e4d7af47dc139",
+  "report_sha256s": {
+    "CN:balanced": "69715e5dbeab6987126a6c726e1ff1588e6abd3aaf3399f5cbab9c2f5c93e5e9",
+    "CN:conservative": "fe34f6055d162f943a84c51fbee889059d946e5e5690a9e931cfc39f22add6e6",
+    "CN:aggressive": "523548368147c704ffccf86a8acfdefbe18ed2ea1b8dd4415926e53dade1d180",
+    "HK:balanced": "c945050ba611de8a4b4f86c23beb164dabc381bc37482abb8330bd014d5cde13",
+    "HK:conservative": "139f08623ed72236ed4a13882f190f8517b89400e73db5176924141949dd4fee",
+    "HK:aggressive": "f014178e711a23b5c26f3d5b5832d6531ec64e49fa96fa7994fd3317fb30a177",
+    "US:balanced": "a5a5f607cbb3777868f6f219f3d9067257e1eb4fb8f87d81cb2b47a6ea356729",
+    "US:conservative": "ddbbf8cab6746838e933fb170b338b0399313361247a1c420c7d209b4750f3bf",
+    "US:aggressive": "2a77d40edaac27a96e0097bf4845152f7a7a89aba04e90cd00b1dcd027162b33"
+  }
+}

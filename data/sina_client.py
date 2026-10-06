@@ -5,6 +5,7 @@ import requests
 import pandas as pd
 from typing import Any, Optional, Dict, List
 from datetime import datetime
+from investment.data.quote_timing import quote_time_fields, unavailable_quote_time_fields
 
 
 class SinaClient:
@@ -96,7 +97,7 @@ class SinaClient:
                 "source": "Sina",
                 "pe_source": "Sina",
                 "pe_basis": "供应商口径",
-                "timestamp": datetime.now().isoformat(),
+                **quote_time_fields(f"{parts[17]} {parts[18]}" if len(parts) > 18 else None, "HK"),
             }
         except Exception as e:
             return {"ticker": ticker, "error": f"解析异常: {e}", "timestamp": datetime.now().isoformat()}
@@ -140,7 +141,7 @@ class SinaClient:
                 "pe_source": "Sina",
                 "pe_basis": "供应商口径",
                 "prev_close": self._safe_float(parts[26]) if len(parts) > 26 else None,
-                "timestamp": datetime.now().isoformat(),
+                **unavailable_quote_time_fields(parts[3], "unverified_timezone"),
             }
         except Exception as e:
             return {"ticker": ticker, "error": f"解析异常: {e}", "timestamp": datetime.now().isoformat()}

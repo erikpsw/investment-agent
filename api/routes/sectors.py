@@ -5,7 +5,8 @@ import asyncio
 
 from fastapi import APIRouter, HTTPException, Query
 
-from investment.api.routes.formula_ranking import FORMULA_DESCRIPTION, FormulaMode, _rank_live_item
+from investment.api.routes.formula_ranking import FormulaMode, _rank_live_item
+from investment.data.formula_scoring import describe, VERSION
 from investment.data.market_scanner import enrich_stock_history
 from investment.data.sector_scanner import scan_sectors, sector_constituents, sector_history
 
@@ -48,7 +49,7 @@ async def get_sector_constituents(
 ):
     try:
         result = await asyncio.to_thread(sector_constituents, code, limit)
-        enriched = await asyncio.to_thread(enrich_stock_history, result["items"], limit)
+        enriched = await asyncio.to_thread(enrich_stock_history, result["items"], limit, as_of=result.get("generated_at"))
         ranked = [_rank_live_item(item, mode) for item in enriched]
         ranked.sort(key=lambda item: item["formula_score"], reverse=True)
     except Exception as exc:
@@ -59,7 +60,8 @@ async def get_sector_constituents(
         "result": {
             **result,
             "mode": mode,
-            "formula": FORMULA_DESCRIPTION,
+            "formula": describe(mode),
+            "formula_version": VERSION,
             "items": ranked,
             "history_enriched_count": sum(
                 1

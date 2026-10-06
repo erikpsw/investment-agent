@@ -5,8 +5,11 @@ import { use } from "react";
 import { ArrowLeft, RefreshCw, Share2, Bot } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { StockFormulaScore } from "@/components/stock-formula-score";
 import { SecurityFundamentals } from "@/components/security-fundamentals";
 import { AddToWatchlistButton } from "@/components/add-to-watchlist-button";
+import { detailValuation } from "@/lib/detail-valuation";
 import { yahooQuoteUrl } from "@/lib/financial-reports";
 import { Header } from "@/components/header";
 import { StockSearch } from "@/components/stock-search";
@@ -22,10 +25,19 @@ import { cn, formatNumber, formatPercent, formatLargeNumber } from "@/lib/utils"
 
 interface PageProps {
   params: Promise<{ ticker: string }>;
+  searchParams: Promise<{ mode?: string | string[] }>;
 }
 
-export default function StockDetailPage({ params }: PageProps) {
+export default function StockDetailPage({ params, searchParams }: PageProps) {
   const { ticker } = use(params);
+  const requestedMode = use(searchParams).mode;
+  const formulaMode = requestedMode === "conservative" || requestedMode === "aggressive" ? requestedMode : "balanced";
+  const router = useRouter();
+  const changeFormulaMode = (mode: "balanced" | "conservative" | "aggressive") => {
+    const url = new URL(window.location.href);
+    url.searchParams.set("mode", mode);
+    router.replace(`${url.pathname}${url.search}${url.hash}`, { scroll: false });
+  };
   const decodedTicker = decodeURIComponent(ticker);
   const [searchOpen, setSearchOpen] = useState(false);
   const [period, setPeriod] = useState("1y");
@@ -47,14 +59,14 @@ export default function StockDetailPage({ params }: PageProps) {
     try {
       await Promise.all([
         refetch({ throwOnError: true }),
-        ...["history", "financials", "financial-history", "security-news", "security-reports"].map(key => queryClient.invalidateQueries({ queryKey: [key, decodedTicker] })),
+        ...["formula-score", "history", "financials", "financial-history", "security-news", "security-reports"].map(key => queryClient.invalidateQueries({ queryKey: [key, decodedTicker] })),
       ]);
       setMessage("已完成数据刷新，暂缺数据会在对应区域显示。");
     } catch { setMessage("行情刷新失败，请重试。"); }
     finally { setRefreshing(false); }
   };
 
-  const valuation = financials && (financials.pe_ratio != null || financials.pe_basis === "TTM") ? financials : quote;
+  const valuation = detailValuation(quote, financials);
   const isPositive = (quote?.change_percent ?? 0) > 0;
   const isNegative = (quote?.change_percent ?? 0) < 0;
   const trendColor = isPositive
@@ -112,6 +124,7 @@ export default function StockDetailPage({ params }: PageProps) {
         </div>
         {message && <p role="status" className="rounded-md border p-3 text-sm">{message}</p>}
 
+        <StockFormulaScore key={`formula:${decodedTicker}:${formulaMode}`} ticker={decodedTicker} mode={formulaMode} onModeChange={changeFormulaMode} />
         <div className="grid min-w-0 gap-4 lg:grid-cols-3 sm:gap-6">
           <div className="min-w-0 lg:col-span-2 space-y-4 sm:space-y-6">
             <Card>
@@ -232,8 +245,8 @@ export default function StockDetailPage({ params }: PageProps) {
                   <div className="space-y-3">
                     <MetricRow label={`市盈率 (PE${valuation?.pe_basis ? ` · ${valuation.pe_basis}` : ""})`} value={valuation?.pe_ratio} />
                     <MetricRow label="每股收益 (EPS)" value={valuation?.eps} />
-                    <p className="text-xs text-muted-foreground">估值来源：{valuation?.pe_source || "未提供"} · 行情来源：{quote?.source || "未提供"}</p>
-                    <MetricRow label="市净率 (PB)" value={financials?.pb_ratio} />
+                    <p className="text-xs text-muted-foreground">估值来源：{valuation?.pe_source || "未提供"} · PB来源：{valuation.pb_source || "未提供"} · 行情来源：{quote?.source || "未提供"}</p>
+                    <MetricRow label="市净率 (PB)" value={valuation.pb_ratio} />
                     <MetricRow label="净资产收益率 (ROE)" value={financials?.roe} percent />
                     <MetricRow label="毛利率" value={financials?.gross_margin} percent />
                     <MetricRow label="净利率" value={financials?.profit_margin} percent />

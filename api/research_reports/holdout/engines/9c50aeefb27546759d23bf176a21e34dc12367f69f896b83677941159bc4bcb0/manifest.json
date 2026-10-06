@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "seal": "9c50aeefb27546759d23bf176a21e34dc12367f69f896b83677941159bc4bcb0",
+  "runtime": {
+    "python": "3.10.5 (tags/v3.10.5:f377153, Jun  6 2022, 16:14:13) [MSC v.1929 64 bit (AMD64)]",
+    "implementation": "CPython",
+    "tzdata": "2024.2"
+  },
+  "source_files": {
+    "data/formula_backtest.py": "58650273fc88dc2e180ce0937b3ed298457f369dee77af9c64364b3887ad6144",
+    "data/formula_execution.py": "525b2b33de33bf3447ac7ff0fbf2411f8f993eadd79629eb25fab761d09bdef6",
+    "data/formula_fundamentals.py": "e118d7e0ead7af4adbe86b5f6f3970fe55886321aef7f58f88874902a9fa1a75",
+    "data/formula_provenance.py": "f93b08f4faf1e94f3d7e9631ad7f53058838eb66b7b250539d71ffb57ba00fb9",
+    "data/formula_risk.py": "bd29130755509f09f3cb05cf99f88b73d37cdc18b0e0ac180ca87ac94557fa49",
+    "data/formula_scoring.py": "f73574ffa727494351a3320b69c81dcbf442790d9721b18f3cc5d2a0a36944e1",
+    "scripts/backtest_formula.py": "f23f0e61037870baf5676534ddc8af27fa8f63d83f7cd50847262ceb76d01eac",
+    "data/formula_holdout.py": "e6688bcc11154f70e3258643fe5d4ba6f07bbf0d2fdf2352abcfead7c2e7a19a"
+  },
+  "bootstrap_hash": "3247837ba27d13e3080518b2c7555cba296c4886fa22accc0e29d35a58f0962a"
+}

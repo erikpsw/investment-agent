@@ -1,24 +1,230 @@
 """Formula-based stock ranking for the Vercel lite deployment."""
 from __future__ import annotations
 
+import asyncio
 import json
+import hashlib
+import re
 from pathlib import Path
-from typing import Any, Literal
+from datetime import datetime
+from typing import Any
 
-from fastapi import APIRouter, Query
+from fastapi import APIRouter, HTTPException, Query
 
-from investment.data.market_scanner import enrich_stock_history, scan_cn_market
+from investment.data.market_scanner import enrich_stock_history
+from investment.data.cn_live_scanner import scan_cn_market
 from investment.data.stock_picker import CANDIDATE_POOL, PROJECT_ROOT
+from investment.data.formula_scoring import FormulaMode, VERSION, score_item, number as _num, describe
+from investment.data.foreign_live_scanner import scan_foreign_market
+from investment.data.foreign_live_history import enrich_foreign_history
+from investment.data.formula_instruments import classify_instrument
+from investment.data.detail_valuation import detail_valuation
+from investment.api.report_bundle import read_research_bytes, bundle_folder
+from investment.api.history_price_metadata import history_price_metadata
 
 
 router = APIRouter()
 
-FormulaMode = Literal["balanced", "conservative", "aggressive"]
 
-FORMULA_DESCRIPTION = (
-    "全市场初筛后补算日K：5日动量20% + 20日趋势25% + 60日趋势15% + 今日动量10% "
-    "+ 量比10% + 换手率8% + 估值5% + 市值质量7% - 追高与异常估值惩罚"
-)
+@router.get("/formula-ranking/us-cover-research")
+async def us_cover_research():
+    from investment.api.us_cover_summary import read_summary
+    try:
+        return {"status": "ok", "result": await asyncio.to_thread(read_summary, PROJECT_ROOT)}
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        raise HTTPException(503, "美股补充研究暂不可用") from exc
+
+
+@router.get("/formula-ranking/risk-budget-backtest")
+async def risk_budget_backtest(market: str = Query("CN", pattern="^(CN|HK|US)$"), mode: FormulaMode = "balanced",
+                               source_fingerprint: str = Query(..., pattern="^[a-f0-9]{64}$")):
+    from investment.api.risk_budget_reports import read_summary
+    try:
+        result = await asyncio.to_thread(read_summary, PROJECT_ROOT, market, mode, source_fingerprint)
+        return {"status": "ok", "result": result}
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        raise HTTPException(503, "风险预算实验暂不可用") from exc
+
+
+@router.get("/formula-ranking/centered-risk-backtest")
+async def centered_risk_backtest(market: str = Query("CN", pattern="^(CN|HK|US)$"), mode: FormulaMode = "balanced",
+                                source_fingerprint: str = Query(..., pattern="^[a-f0-9]{64}$")):
+    from investment.api.centered_risk_reports import read_summary
+    try:
+        result = await asyncio.to_thread(read_summary, PROJECT_ROOT, market, mode, source_fingerprint)
+        return {"status": "ok", "result": result}
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        raise HTTPException(503, "扩展风控网格实验暂不可用") from exc
+
+
+@router.get("/formula-ranking/reviewed-hk-backtest")
+async def reviewed_hk_backtest(market: str = Query("HK", pattern="^HK$"), mode: FormulaMode = "balanced",
+                               source_fingerprint: str = Query(..., pattern="^[a-f0-9]{64}$")):
+    from investment.api.reviewed_hk_reports import read_summary
+    try:
+        result = await asyncio.to_thread(read_summary, PROJECT_ROOT, mode, source_fingerprint)
+        return {"status": "ok", "result": result}
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        raise HTTPException(503, "港股财务因子对照暂不可用") from exc
+
+FORMULA_DESCRIPTION = describe()
+
+
+def _detail_identity(ticker: str) -> tuple[str, str]:
+    ticker = ticker.strip()
+    if re.fullmatch(r"(?i)(sh|sz|bj)\d{6}", ticker):
+        return ticker.lower(), "CN"
+    if re.fullmatch(r"\d{6}", ticker):
+        prefix = "sh" if ticker.startswith("6") else "bj" if ticker.startswith(("4", "8", "9")) else "sz"
+        return prefix + ticker, "CN"
+    if re.fullmatch(r"(?i)(hk\d{4,5}|\d{4,5}(\.hk)?)", ticker):
+        code = ticker.lower().removeprefix("hk").removesuffix(".hk")
+        return "hk" + code.zfill(5), "HK"
+    if re.fullmatch(r"[A-Za-z][A-Za-z0-9.-]{0,14}", ticker):
+        return ticker.upper(), "US"
+    raise HTTPException(422, "请输入可识别的A股、港股或美股证券代码")
+
+
+def _detail_quote(ticker: str) -> dict:
+    from investment.api.routes.quotes import fetcher
+    return fetcher.get_quote(ticker)
+
+
+async def _detail_financials(ticker: str) -> dict:
+    from investment.api.routes.financials import get_financials
+    return (await get_financials(ticker)).model_dump()
+
+
+@router.get("/formula-ranking/stock/{ticker}")
+async def formula_stock_score(ticker: str, mode: FormulaMode = Query("balanced")):
+    canonical, market = _detail_identity(ticker)
+    classification = classify_instrument({"ticker": canonical, "market": market})
+    if classification["instrument_type"] != "stock" or (market == "HK" and canonical[2:].startswith("8")):
+        return {"status": "ok", "result": {"status": "not_supported", "message": "此证券不是已核验的普通股票，暂不提供股票公式评分", "classification": classification}}
+    try:
+        quote = await asyncio.wait_for(asyncio.to_thread(_detail_quote, canonical), timeout=20)
+    except Exception as exc:
+        raise HTTPException(503, "量化评分行情暂不可用，请稍后重试") from exc
+    if not isinstance(quote, dict) or _num(quote.get("price")) is None or _num(quote["price"]) <= 0 or quote.get("error"):
+        raise HTTPException(503, "缺少有效价格，暂不能计算量化评分")
+    if quote.get("ticker") and _detail_identity(str(quote["ticker"])) != (canonical, market):
+        raise HTTPException(503, "行情证券代码不匹配，暂不能计算量化评分")
+    classification = classify_instrument({**quote, "ticker": canonical, "market": market})
+    if classification["instrument_type"] != "stock":
+        return {"status": "ok", "result": {"status": "not_supported", "message": "行情证券类型不适用普通股票评分", "classification": classification}}
+    raw_stamp = quote.get("timestamp")
+    stamp = None
+    if isinstance(raw_stamp, str) and quote.get("timestamp_status") not in {"unverified_timezone", "unavailable"}:
+        try:
+            parsed = datetime.fromisoformat(raw_stamp.replace("Z", "+00:00"))
+            if parsed.tzinfo is not None:
+                stamp = raw_stamp
+        except ValueError:
+            pass
+    row = {key: quote.get(key) for key in ("name", "price", "pe_ratio", "pb_ratio", "market_cap", "turnover_rate", "volume_ratio")}
+    row.update({"ticker": canonical, "market": market, "today_change_percent": quote.get("change_percent"), "source": quote.get("source"), "quote_as_of": stamp, **classification})
+    enrich = enrich_stock_history if market == "CN" else enrich_foreign_history
+    async def history():
+        try:
+            enriched = await asyncio.wait_for(asyncio.to_thread(enrich, [row], limit=1, as_of=row["quote_as_of"]), timeout=20)
+            return enriched[0]
+        except Exception:
+            return {**row, "history_error": "历史日K暂不可用，趋势与保护价保持缺失"}
+    async def financial_data():
+        try:
+            result = await asyncio.wait_for(_detail_financials(canonical), timeout=8)
+            if not isinstance(result, dict) or result.get("error"):
+                return None
+            if result.get("ticker") and _detail_identity(str(result["ticker"])) != (canonical, market):
+                return None
+            return result
+        except Exception:
+            return None
+    row, financials = await asyncio.gather(history(), financial_data())
+    valuation = detail_valuation(quote, financials)
+    row.update({key: valuation[key] for key in ("pe_ratio", "pb_ratio")})
+    return {"status": "ok", "result": {"status": "ok", "mode": mode, "formula": describe(mode), "item": _rank_live_item(row, mode), "valuation": valuation, "financials_status": "available" if financials is not None else "unavailable", "source": quote.get("source"), "quote_as_of": stamp, "quote_time_status": quote.get("timestamp_status"), "provider_timestamp_raw": quote.get("provider_timestamp_raw"), "fetched_at": quote.get("fetched_at"), "scope": "单只股票共享公式评估；缺失因子不补分，不表示全市场排名"}}
+
+
+@router.get("/formula-ranking/backtest")
+async def formula_backtest_report(market: str = Query("CN", pattern="^(CN|HK|US)$"), universe: str = Query("snapshot", pattern="^(snapshot|catalog)$"), fundamentals: str = Query("price", pattern="^(price|sec-pit|cn-reference)$"), history_source: str = Query("default", pattern="^(default|baostock|yahoo-hk)$"), volume_reference: bool = Query(False), tune_volume_weight: bool = Query(False), execution_scenario: bool = Query(False), lot_reference: bool = Query(False), mode: FormulaMode = "balanced"):
+    if lot_reference is True and (market != "HK" or execution_scenario is not True):
+        raise HTTPException(422, "公告每手参考仅支持港股资金成交情景")
+    if tune_volume_weight is True and volume_reference is not True:
+        raise HTTPException(422, "量能权重调优需要同时开启完成日量能研究")
+    filename = "formula-backtest.json" if market == "CN" else f"formula-backtest-{market.lower()}.json"
+    if universe == "catalog":
+        filename = filename.replace(".json", "-catalog.json")
+    if history_source == "baostock":
+        if market != "CN":
+            raise HTTPException(422, "BaoStock历史行情验证当前仅支持A股")
+        filename = filename.replace(".json", "-baostock.json")
+    if history_source == "yahoo-hk":
+        if market != "HK":
+            raise HTTPException(422, "Yahoo港股配对归档当前仅支持港股")
+        filename = filename.replace(".json", "-yahoo-hk.json")
+    if fundamentals == "sec-pit":
+        if market != "US":
+            raise HTTPException(422, "SEC披露日期估值验证当前仅支持美股")
+        filename = filename.replace(".json", "-pit.json")
+    if fundamentals == "cn-reference":
+        if market != "CN" or history_source != "baostock":
+            raise HTTPException(422, "历史接口参考指标仅支持A股BaoStock归档")
+        filename = filename.replace(".json", "-reference.json")
+    if volume_reference is True:
+        filename = filename.replace(".json", "-volume.json")
+    if tune_volume_weight is True:
+        filename = filename.replace(".json", "-tuned.json")
+    if execution_scenario is True:
+        filename = filename.replace(".json", "-execution.json")
+    if lot_reference is True:
+        filename = filename.replace(".json", "-lot-reference.json")
+    if mode != "balanced":
+        filename = filename.replace(".json", f"-mode-{mode}.json")
+    try:
+        content = await asyncio.to_thread(read_research_bytes, PROJECT_ROOT, filename)
+        if content is None:
+            return {"status": "ok", "result": {"status": "not_run", "applied": False, "message": "尚未归档该组合的资金成交情景报告" if execution_scenario is True else "尚未归档该组合的量能权重调优报告" if tune_volume_weight is True else "尚未运行共享公式滚动验证"}}
+        result = json.loads(content)
+        if result.get("formula_mode", "balanced") != mode:
+            raise ValueError("Archived report mode mismatch")
+        return {"status": "ok", "result": result}
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        raise HTTPException(503, "公式回测报告暂不可用") from exc
+
+
+@router.get("/formula-ranking/joint-backtest")
+async def formula_joint_backtest(market: str = Query("CN", pattern="^(CN|HK|US)$"), mode: FormulaMode = "balanced", source_fingerprint: str = Query(..., pattern="^[a-f0-9]{64}$")):
+    prefix = {"CN": "cn-reference", "HK": "hk", "US": "us"}[market]
+    filename = f"{prefix}-joint-{mode}.json"
+    unavailable = {"status": "ok", "result": {"status": "not_run", "applied": False, "message": "当前样本、模式与因子组合尚未归档联合调优实验"}}
+    try:
+        def read_verified():
+            report_bytes = read_research_bytes(PROJECT_ROOT, f"research/{filename}")
+            if report_bytes is None:
+                return None
+            report = json.loads(report_bytes)
+            source_bytes = read_research_bytes(PROJECT_ROOT, f"research/{prefix}-mode-{mode}.json")
+            baseline = json.loads(source_bytes)
+            if (report["market"] != market or report["formula_mode"] != mode or report["optimization_method"] != "joint-protected-grid-v1" or report["applied"] is not False
+                    or hashlib.sha256(source_bytes).hexdigest() != report["source_report_sha256"]
+                    or report["source_scoring_input_fingerprint"] != baseline["scoring_input_fingerprint"]
+                    or report["data_fingerprint"] != baseline["data_fingerprint"]
+                    or report["sequential_comparison"]["out_of_sample"] != baseline["out_of_sample"]["risk_tuned"]
+                    or report["sequential_comparison"]["cost_stress"] != baseline["cost_stress"]):
+                raise ValueError("Joint comparison identity mismatch")
+            audit_name = "joint-research-audit.json" if mode == "balanced" else f"joint-research-audit-mode-{mode}.json"
+            audit = json.loads(read_research_bytes(PROJECT_ROOT, audit_name))
+            records = [row for row in audit["experiments"] if row["report"].split("/")[-1] == filename]
+            if len(records) != 1 or records[0]["sha256"] != hashlib.sha256(report_bytes).hexdigest():
+                raise ValueError("Joint report audit mismatch")
+            return report
+        result = await asyncio.to_thread(read_verified)
+        if result is None or result["source_scoring_input_fingerprint"] != source_fingerprint:
+            return unavailable
+        return {"status": "ok", "result": result}
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        raise HTTPException(503, "联合调优报告或对照来源核验失败") from exc
 
 
 @router.get("/formula-ranking")
@@ -27,11 +233,37 @@ async def formula_ranking(
     limit: int = Query(30, ge=1, le=100),
     mode: FormulaMode = Query("balanced", description="Risk mode"),
 ):
+    if market.upper() == "ALL":
+        responses = await asyncio.gather(*(formula_ranking(region, 100, mode) for region in ("CN", "HK", "US")))
+        results = [response["result"] for response in responses]
+        items = sorted([item for result in results for item in result["items"]], key=lambda item: (-item["formula_score"], item["ticker"]))
+        return {"status": "ok", "result": {
+            "market": "all", "mode": mode, "formula": describe(mode), "formula_version": VERSION,
+            "items": items[:limit], "total": len(items), "generated_at": None,
+            "scanned_count": sum(result.get("scanned_count", 0) for result in results),
+            "candidate_count": sum(result.get("candidate_count", 0) for result in results),
+            "history_enriched_count": sum(result.get("history_enriched_count", 0) for result in results),
+            "cached": any(result.get("cached", False) for result in results),
+            "snapshot_only": any(result.get("snapshot_only", False) for result in results),
+            "market_sources": [{"market": result["market"], "generated_at": result.get("generated_at"), "source": result["source"], "cached": result.get("cached", False), "snapshot_only": result.get("snapshot_only", False)} for result in results],
+            "source": "A股、港股、美股各自候选池合并",
+            "scope": "各市场前100候选合并，数据日期分别显示；非全球全市场排名",
+            "fallback": any(result.get("fallback", False) for result in results),
+        }}
+    if market.upper() in ("HK", "US"):
+        try:
+            region = market.upper()
+            scan = await asyncio.to_thread(scan_foreign_market, region)
+            rows = await asyncio.to_thread(enrich_foreign_history, scan["rows"], as_of=scan.get("generated_at"), limit=120)
+            ranked = sorted([_rank_live_item(row, mode) for row in rows], key=lambda row: (-row["formula_score"], row["ticker"]))
+            return {"status": "ok", "result": {"market": region, "mode": mode, "formula": describe(mode), "formula_version": VERSION, "items": ranked[:limit], "total": len(ranked), "candidate_count": len(rows), "scanned_count": len(scan["rows"]), "generated_at": scan.get("generated_at"), "source": scan.get("source") or f"{region}候选快照", "scope": "港股成交活跃候选池" if region == "HK" else "美股成交活跃候选池；非全部上市股票", "fallback": False, "cached": scan.get("cached", scan.get("stale", False)), "snapshot_only": scan.get("stale", False), "instrument_filter": scan.get("instrument_filter"), "history_enriched_count": sum(row.get("change_5d") is not None and row.get("change_20d") is not None and row.get("change_60d") is not None for row in ranked)}}
+        except Exception:
+            pass
     if market.upper() == "CN":
         try:
-            scan = scan_cn_market()
-            enrichment_limit = min(max(limit * 3, 60), 120)
-            enriched_rows = enrich_stock_history(scan["rows"], limit=enrichment_limit)
+            scan = await asyncio.to_thread(scan_cn_market)
+            enrichment_limit = 120
+            enriched_rows = await asyncio.to_thread(enrich_stock_history, scan["rows"], limit=enrichment_limit, as_of=scan.get("generated_at"))
             ranked = [_rank_live_item(item, mode) for item in enriched_rows]
             ranked.sort(key=lambda item: item["formula_score"], reverse=True)
             history_enriched_count = sum(
@@ -48,12 +280,16 @@ async def formula_ranking(
                     "generated_at": scan["generated_at"],
                     "market": "CN",
                     "mode": mode,
-                    "formula": FORMULA_DESCRIPTION,
+                    "formula": describe(mode),
+                    "formula_version": VERSION,
                     "items": ranked[:limit],
                     "total": len(ranked),
+                    "candidate_count": len(enriched_rows),
+                    "scope": "沪深主板非ST股票；先按快照初筛120只候选，再补算历史并评分，非全池最终排名",
                     "scanned_count": len(scan["rows"]),
                     "history_enriched_count": history_enriched_count,
                     "cached": scan["cached"],
+                    "snapshot_only": scan.get("stale", False),
                     "fallback": False,
                     "source": scan.get("source") or "沪深 A 股全市场快照",
                 },
@@ -73,13 +309,16 @@ async def formula_ranking(
             "generated_at": latest.get("generated_at") if isinstance(latest, dict) else None,
             "market": market,
             "mode": mode,
-            "formula": FORMULA_DESCRIPTION,
+            "formula": describe(mode),
+            "formula_version": VERSION,
             "items": ranked[:limit],
             "total": len(ranked),
             "scanned_count": len(rows),
             "cached": True,
             "fallback": True,
-            "fallback_reason": fallback_error,
+            "fallback_reason": fallback_error or "该市场暂无实时全池公式扫描，展示历史候选",
+            "scope": "历史候选缓存，不代表实时市场排名",
+            "candidate_count": len(rows),
             "source": "历史候选缓存 + 固定公式排序（全市场行情不可用时降级）",
         },
     }
@@ -91,10 +330,10 @@ async def formula_ranking_history(
     mode: FormulaMode = Query("balanced"),
 ):
     wanted = [item.strip() for item in tickers.split(",") if item.strip()][:30]
-    scan = scan_cn_market()
+    scan = await asyncio.to_thread(scan_cn_market)
     wanted_set = set(wanted)
     selected = [item for item in scan["rows"] if item.get("ticker") in wanted_set]
-    enriched_rows = enrich_stock_history(selected, limit=len(selected))
+    enriched_rows = await asyncio.to_thread(enrich_stock_history, selected, limit=len(selected), as_of=scan.get("generated_at"))
     enriched = [
         item
         for item in enriched_rows
@@ -113,117 +352,7 @@ async def formula_ranking_history(
 
 
 def _rank_live_item(item: dict[str, Any], mode: FormulaMode) -> dict[str, Any]:
-    change_today = _num(item.get("today_change_percent"))
-    change_5d = _num(item.get("change_5d"))
-    change_20d = _num(item.get("change_20d"))
-    change_60d = _num(item.get("change_60d"))
-    volume_ratio = _num(item.get("volume_ratio"))
-    turnover = _num(item.get("turnover_rate"))
-    pe_ratio = _num(item.get("pe_ratio"))
-    pb_ratio = _num(item.get("pb_ratio"))
-    market_cap = _num(item.get("market_cap"))
-
-    components = {
-        "5日动量": _range_score(change_5d, [(-12, 15), (-3, 42), (2, 78), (8, 92), (18, 48)]),
-        "20日趋势": _range_score(change_20d, [(-20, 18), (0, 50), (8, 82), (25, 92), (45, 50)]),
-        "60日趋势": _range_score(change_60d, [(-20, 20), (0, 45), (8, 78), (30, 92), (60, 58)]),
-        "今日动量": _range_score(change_today, [(-10, 10), (-2, 45), (1, 72), (5, 90), (9.5, 58)]),
-        "量比": _range_score(volume_ratio, [(0, 30), (0.8, 58), (1.2, 80), (2.5, 92), (5, 62)]),
-        "换手率": _range_score(turnover, [(0, 25), (1, 55), (3, 82), (8, 92), (18, 55)]),
-        "估值": _valuation_score(pe_ratio, pb_ratio),
-        "市值质量": _market_cap_score(market_cap),
-    }
-    penalty = 0.0
-    if change_today is not None and change_today >= 9.5:
-        penalty += 12
-    if pe_ratio is not None and (pe_ratio < 0 or pe_ratio > 180):
-        penalty += 8
-    if mode == "conservative":
-        penalty *= 1.25
-        components["市值质量"] = min(100, components["市值质量"] + 8)
-    elif mode == "aggressive":
-        penalty *= 0.75
-        components["量比"] = min(100, components["量比"] + 5)
-        components["换手率"] = min(100, components["换手率"] + 5)
-
-    weighted = (
-        components["5日动量"] * 0.20
-        + components["20日趋势"] * 0.25
-        + components["60日趋势"] * 0.15
-        + components["今日动量"] * 0.10
-        + components["量比"] * 0.10
-        + components["换手率"] * 0.08
-        + components["估值"] * 0.05
-        + components["市值质量"] * 0.07
-        - penalty
-    )
-    score = round(max(0, min(weighted, 100)), 1)
-    return {
-        **item,
-        "theme": _market_cap_label(market_cap),
-        "formula_score": score,
-        "recommendation": _recommendation(score, penalty),
-        "original_score": None,
-        "components": {**{key: round(value, 1) for key, value in components.items()}, "风险惩罚": round(penalty, 1)},
-        "risks": _live_risks(item),
-        "action": "结合公告、财务和板块强度进一步确认",
-    }
-
-
-def _range_score(value: float | None, points: list[tuple[float, float]]) -> float:
-    if value is None:
-        return 40
-    if value <= points[0][0]:
-        return points[0][1]
-    for (left_x, left_y), (right_x, right_y) in zip(points, points[1:]):
-        if value <= right_x:
-            ratio = (value - left_x) / (right_x - left_x)
-            return left_y + (right_y - left_y) * ratio
-    return points[-1][1]
-
-
-def _valuation_score(pe_ratio: float | None, pb_ratio: float | None) -> float:
-    pe_score = 35 if pe_ratio is None or pe_ratio <= 0 else max(20, min(92, 100 - abs(pe_ratio - 28) * 1.4))
-    pb_score = 40 if pb_ratio is None or pb_ratio <= 0 else max(20, min(90, 95 - abs(pb_ratio - 3) * 8))
-    return pe_score * 0.65 + pb_score * 0.35
-
-
-def _market_cap_score(value: float | None) -> float:
-    if value is None or value <= 0:
-        return 35
-    cap_billion = value / 1_000_000_000
-    if 5 <= cap_billion <= 80:
-        return 88
-    if 80 < cap_billion <= 300:
-        return 78
-    if 300 < cap_billion <= 1000:
-        return 68
-    if cap_billion > 1000:
-        return 58
-    return 52
-
-
-def _market_cap_label(value: float | None) -> str:
-    if value is None:
-        return "未知市值"
-    cap_billion = value / 1_000_000_000
-    if cap_billion < 80:
-        return "小盘成长"
-    if cap_billion < 300:
-        return "中盘"
-    return "大盘"
-
-
-def _live_risks(item: dict[str, Any]) -> list[str]:
-    risks: list[str] = []
-    if (_num(item.get("today_change_percent")) or 0) >= 9.5:
-        risks.append("当日接近涨停，注意追高风险")
-    if (_num(item.get("turnover_rate")) or 0) >= 15:
-        risks.append("换手率偏高，短线波动可能放大")
-    pe = _num(item.get("pe_ratio"))
-    if pe is not None and (pe < 0 or pe > 100):
-        risks.append("盈利或估值指标偏激进")
-    return risks or ["公式仅做量化初筛，需结合公告和基本面确认"]
+    return {**score_item(item, mode), "history_price_metadata": history_price_metadata(item)}
 
 
 def _latest_result() -> dict[str, Any]:
@@ -273,186 +402,37 @@ def _collect_items(latest: dict[str, Any], market: str) -> list[dict[str, Any]]:
 
 
 def _rank_item(item: dict[str, Any], mode: FormulaMode) -> dict[str, Any]:
-    original = _num(item.get("score"))
-    change_20d = _num(item.get("change_20d"))
-    change_5d = _num(item.get("change_5d"))
-    distance_high = _num(item.get("distance_to_high_20d"))
-    distance_ma20 = _num(item.get("distance_to_ma20"))
-    volatility = _num(item.get("volatility_20d"))
-    today_change = _num(item.get("today_change_percent"))
-
-    components = {
-        "原始评分": _original_component(original, item),
-        "20日趋势": _trend_component(change_20d),
-        "5日动量": _recent_component(change_5d),
-        "回撤位置": _pullback_component(distance_high),
-        "均线位置": _ma_component(distance_ma20),
-        "波动率": _volatility_component(volatility),
-        "标的属性": _profile_adjustment(item),
-        "风险惩罚": _risk_penalty(item, today_change, mode),
-    }
-
-    weighted = (
-        components["原始评分"] * 0.35
-        + components["20日趋势"] * 0.20
-        + components["5日动量"] * 0.15
-        + components["回撤位置"] * 0.15
-        + components["均线位置"] * 0.10
-        + components["波动率"] * 0.05
-        + components["标的属性"]
-        - components["风险惩罚"]
-    )
-    formula_score = round(max(0, min(weighted, 100)), 1)
-    recommendation = _recommendation(formula_score, components["风险惩罚"])
-
-    return {
-        "ticker": item.get("ticker"),
-        "name": item.get("name"),
-        "market": item.get("market"),
-        "theme": item.get("theme"),
-        "profile": item.get("profile"),
-        "formula_score": formula_score,
-        "recommendation": recommendation,
-        "original_score": original,
-        "price": item.get("price"),
-        "change_5d": change_5d,
-        "change_20d": change_20d,
-        "distance_to_high_20d": distance_high,
-        "distance_to_ma20": distance_ma20,
-        "volatility_20d": volatility,
-        "today_change_percent": today_change,
-        "action": item.get("action"),
-        "reasons": item.get("reasons") if isinstance(item.get("reasons"), list) else [],
-        "risks": item.get("risks") if isinstance(item.get("risks"), list) else [],
-        "components": {key: round(value, 1) for key, value in components.items()},
-    }
+    return score_item(item, mode)
 
 
-def _num(value: Any) -> float | None:
-    if isinstance(value, (int, float)):
-        return float(value)
+@router.get("/formula-ranking/holdout")
+async def formula_holdout_report(market: str = Query("CN", pattern="^(CN|HK|US)$")):
+    from investment.data.formula_holdout import digest,verify_engine
+    from investment.data.frozen_formula_engine import verify_archive
+    folder=Path(PROJECT_ROOT)/"storage"/"stock_picker"/"holdout"
     try:
-        return float(str(value))
-    except Exception:
-        return None
-
-
-def _original_component(value: float | None, item: dict[str, Any]) -> float:
-    if value is not None:
-        return max(0, min(value, 100))
-    return {
-        "emerging": 58,
-        "core": 54,
-        "mega": 44,
-        "defensive": 42,
-    }.get(str(item.get("profile") or ""), 50)
-
-
-def _trend_component(value: float | None) -> float:
-    if value is None:
-        return 50
-    if 3 <= value <= 18:
-        return 88
-    if 0 <= value < 3:
-        return 68
-    if 18 < value <= 28:
-        return 62
-    if value > 28:
-        return 35
-    if -8 <= value < 0:
-        return 45
-    return 25
-
-
-def _recent_component(value: float | None) -> float:
-    if value is None:
-        return 50
-    if -2 <= value <= 8:
-        return 85
-    if 8 < value <= 12:
-        return 62
-    if value > 12:
-        return 30
-    if -8 <= value < -2:
-        return 55
-    return 28
-
-
-def _pullback_component(value: float | None) -> float:
-    if value is None:
-        return 50
-    if -12 <= value <= -3:
-        return 90
-    if -3 < value <= 0:
-        return 62
-    if -20 <= value < -12:
-        return 65
-    if value < -20:
-        return 35
-    return 45
-
-
-def _ma_component(value: float | None) -> float:
-    if value is None:
-        return 50
-    if -3 <= value <= 6:
-        return 86
-    if 6 < value <= 12:
-        return 60
-    if value > 12:
-        return 35
-    if -10 <= value < -3:
-        return 55
-    return 30
-
-
-def _volatility_component(value: float | None) -> float:
-    if value is None:
-        return 50
-    if value <= 3:
-        return 88
-    if value <= 5:
-        return 72
-    if value <= 8:
-        return 45
-    return 25
-
-
-def _profile_adjustment(item: dict[str, Any]) -> float:
-    return {
-        "emerging": 4,
-        "core": 2,
-        "mega": -6,
-        "defensive": -4,
-    }.get(str(item.get("profile") or ""), 0)
-
-
-def _risk_penalty(item: dict[str, Any], today_change: float | None, mode: FormulaMode) -> float:
-    text = " ".join(
-        [
-            str(item.get("action") or ""),
-            " ".join(str(value) for value in item.get("risks", []) if value),
-        ]
-    )
-    penalty = 0.0
-    if "回避" in text:
-        penalty += 18
-    if any(word in text for word in ("追高", "短线涨幅", "高点")):
-        penalty += 10
-    if today_change is not None and today_change >= 7:
-        penalty += 8
-    if mode == "conservative":
-        penalty *= 1.25
-    elif mode == "aggressive":
-        penalty *= 0.75
-    return penalty
-
-
-def _recommendation(score: float, risk_penalty: float) -> str:
-    if score >= 78 and risk_penalty <= 15:
-        return "优先关注"
-    if score >= 65:
-        return "观察等买点"
-    if score >= 50:
-        return "仅跟踪"
-    return "暂不推荐"
+        raw=await asyncio.to_thread(read_research_bytes,PROJECT_ROOT,f"holdout/protocol-{market.lower()}.json")
+        if raw is None:
+            return {"status":"ok","result":{"status":"not_run","applied":False,"message":"尚未冻结该市场的后续验证协议"}}
+        protocol=json.loads(raw)
+        if protocol["market"]!=market or digest({k:v for k,v in protocol.items() if k!="seal"})!=protocol["seal"]:
+            raise ValueError("Protocol seal mismatch")
+        if (folder/"engines"/protocol["seal"]).exists():
+            await asyncio.to_thread(verify_archive,protocol,folder/"engines")
+            engine_storage="archived"
+        elif (bundle_folder(PROJECT_ROOT)/"holdout/engines"/protocol["seal"]).exists():
+            await asyncio.to_thread(verify_archive,protocol,bundle_folder(PROJECT_ROOT)/"holdout/engines")
+            engine_storage="archived"
+        else:
+            await asyncio.to_thread(verify_engine,protocol)
+            engine_storage="live_hash_only"
+        result={**protocol,"status":"awaiting_evaluation","engine_storage":engine_storage,"requested_count":len(protocol["requested_universe"]),"training_available_count":len(protocol["training_available_universe"])}
+        evaluation=folder/f"evaluation-{market.lower()}.json"
+        if evaluation.exists():
+            data=json.loads(await asyncio.to_thread(evaluation.read_text,encoding="utf-8"))
+            if data.get("protocol_seal")!=protocol["seal"]:raise ValueError("Evaluation protocol mismatch")
+            result.update(data)
+        result["applied"]=False
+        return {"status":"ok","result":result}
+    except (OSError,ValueError,KeyError,TypeError) as exc:
+        raise HTTPException(503,"冻结协议或评估报告校验失败，请重新核验实验；不会展示未匹配的收益。") from exc
