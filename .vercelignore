@@ -30,6 +30,6 @@ web/tests/*
 !web/tests/fixtures/formula-score
 !web/tests/fixtures/formula-score/*.json
 
-tests
+/tests
 docs
 supabase
