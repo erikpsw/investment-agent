@@ -27,10 +27,10 @@ export default function DashboardPage() {
       <Header onSearchClick={() => setSearchOpen(true)} />
       <StockSearch open={searchOpen} onOpenChange={setSearchOpen} />
 
-      <main className="flex-1 space-y-6 p-6">
+      <main className="flex-1 space-y-6 p-4 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">投资仪表盘</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">投资仪表盘</h1>
             <p className="text-muted-foreground">动态追踪 A 股、港股和美股的市场热点</p>
           </div>
           <Button onClick={() => setSearchOpen(true)}><Search className="mr-2 h-4 w-4" />搜索股票或 ETF</Button>

@@ -54,9 +54,9 @@ export default function SearchPage() {
       <Header onSearchClick={() => setSearchOpen(true)} />
       <StockSearch open={searchOpen} onOpenChange={setSearchOpen} />
 
-      <div className="flex-1 p-6 space-y-6">
+      <div className="flex-1 space-y-6 p-4 sm:p-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">行情搜索</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">行情搜索</h1>
           <p className="text-muted-foreground">
             搜索 A股、港股、美股，支持名称、代码、拼音
           </p>

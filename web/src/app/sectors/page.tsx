@@ -225,10 +225,10 @@ export default function SectorsPage() {
   return (
     <>
       <Header />
-      <main className="flex flex-1 flex-col gap-6 p-6">
+      <main className="flex flex-1 flex-col gap-6 p-4 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">板块分析</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">板块分析</h1>
             <p className="text-muted-foreground">
               完整沪深板块强弱、市场广度、领涨股票与历史走势。
             </p>

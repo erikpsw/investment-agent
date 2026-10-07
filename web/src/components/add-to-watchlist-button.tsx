@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import { useUser } from "@auth0/nextjs-auth0";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -9,6 +9,7 @@ import { api, type WatchlistGroup } from "@/lib/api";
 import { securityMarket } from "@/lib/financial-reports";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 function flattenGroups(groups: WatchlistGroup[], path = ""): Array<{ group: WatchlistGroup; label: string }> {
   return groups.flatMap(group => {
@@ -26,7 +27,6 @@ export function AddToWatchlistButton({ ticker, name = "", market, compact = fals
   const [groupId, setGroupId] = useState("");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const selectId = useId();
   const resolvedMarket = securityMarket(ticker, market);
   const groups = useQuery({ queryKey: ["watchlist-groups", user?.sub], queryFn: () => api.getWatchlists(undefined, false, false), enabled: open && !!user, staleTime: 30000, retry: false });
   const choices = flattenGroups(groups.data?.result.groups || []);
@@ -55,7 +55,7 @@ export function AddToWatchlistButton({ ticker, name = "", market, compact = fals
     <Dialog open={open} onOpenChange={next => { if (!saving) setOpen(next); }}>
       <DialogContent>
         <DialogHeader><DialogTitle>添加到自选</DialogTitle><DialogDescription>{name || ticker} · {ticker}，请选择保存分组。</DialogDescription></DialogHeader>
-        {groups.isLoading ? <p role="status">正在加载分组…</p> : groups.isError ? <div role="alert">分组加载失败。<Button variant="outline" onClick={() => groups.refetch()}>重试</Button></div> : choices.length === 0 ? <p>暂无分组，<Link className="underline" href="/watchlist">前往自选股创建分组</Link>。</p> : <label htmlFor={selectId} className="space-y-2 text-sm"><span className="block">自选分组</span><select id={selectId} value={groupId} disabled={saving} onChange={event => { setGroupId(event.target.value); setError(""); }} className="min-h-11 w-full rounded-md border bg-background px-3"><option value="">请选择分组</option>{choices.map(({group, label}) => <option key={group.id} value={group.id}>{label}</option>)}</select></label>}
+        {groups.isLoading ? <p role="status">正在加载分组…</p> : groups.isError ? <div role="alert">分组加载失败。<Button variant="outline" onClick={() => groups.refetch()}>重试</Button></div> : choices.length === 0 ? <p>暂无分组，<Link className="underline" href="/watchlist">前往自选股创建分组</Link>。</p> : <div className="space-y-2 text-sm"><span className="block">自选分组</span><Select value={groupId || null} onValueChange={value => { setGroupId(value as string); setError(""); }} disabled={saving} items={Object.fromEntries(choices.map(({ group, label }) => [group.id, label]))}><SelectTrigger aria-label="自选分组" className="min-h-11 w-full"><SelectValue placeholder="请选择分组" /></SelectTrigger><SelectContent>{choices.map(({ group, label }) => <SelectItem key={group.id} value={group.id}>{label}</SelectItem>)}</SelectContent></Select></div>}
         {exists && <p role="status">该股票已在此分组中，请选择其他分组。</p>}
         {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
         <div className="flex justify-end gap-2"><Button variant="outline" className="min-h-11" disabled={saving} onClick={() => setOpen(false)}>取消</Button><Button className="min-h-11" disabled={!selected || exists || saving || groups.isError} onClick={() => void add()}>{saving ? "正在添加…" : "确认添加"}</Button></div>

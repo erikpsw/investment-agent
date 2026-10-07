@@ -147,3 +147,18 @@
     overflow: visible !important;
   }
 }
+
+/*
+ * 移动端输入控件字号不得小于 16px。
+ * iOS Safari 在聚焦字号 < 16px 的 input/select/textarea/combobox 时会强制放大页面，
+ * 这是「手机端一输入就自动放大」的根因。此处不放在 @layer 中，
+ * 以便优先于 Tailwind 的 text-sm 等工具类生效。
+ */
+@media (max-width: 767px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+  select,
+  textarea,
+  [role="combobox"] {
+    font-size: 16px;
+  }
+}

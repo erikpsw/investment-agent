@@ -1,4 +1,5 @@
 import { test, expect } from "@playwright/test";
+import { chooseSelect, MARKET_OPTION_LABELS } from "./select-support";
 
 for (const [ticker, market] of [["sh600519", "CN"], ["hk00700", "HK"], ["AAPL", "US"]]) {
   for (const mode of ["conservative", "aggressive"]) {
@@ -19,7 +20,7 @@ for (const [ticker, market] of [["sh600519", "CN"], ["hk00700", "HK"], ["AAPL", 
         return r.fulfill({ json: { result: { status: "not_run", applied: false }, bars: [], data: [], news: [], documents: [], filings: [] } });
       });
       await page.goto("/stock-picker");
-      await page.getByLabel("条件选股市场").selectOption(market);
+      await chooseSelect(page, "条件选股市场", MARKET_OPTION_LABELS[market as keyof typeof MARKET_OPTION_LABELS]);
       await page.getByRole("button", { name: mode === "conservative" ? "低估值大盘" : "放量温和上涨", exact: true }).click();
       const link = page.getByRole("link", { name: new RegExp(`AI模式候选.*${ticker}`) });
       await expect(link).toHaveAttribute("href", `/stock/${ticker}?mode=${mode}`);

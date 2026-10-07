@@ -149,6 +149,7 @@ test("stock valuation uses TTM financials instead of mislabelled quote EPS and e
   const row = page.getByText("市盈率 (PE · TTM)").locator("..");
   await expect(row).toContainText("92.61");
   await expect(page.getByText("每股收益 (EPS)").locator("..")).toContainText("3.12");
-  await expect(page.getByText("估值来源：Yahoo Finance · 行情来源：Sina", { exact: true })).toBeVisible();
+  // Additional valuation provenance (such as PB) may appear between these sources.
+  await expect(page.getByText(/估值来源：Yahoo Finance.*行情来源：Sina/)).toBeVisible();
   await expect(page.getByRole("link", { name: "Yahoo Finance ↗", exact: true })).toHaveAttribute("href", "https://finance.yahoo.com/quote/VICR/");
 });

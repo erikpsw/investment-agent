@@ -1,4 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
+import { chooseSelect } from "./select-support";
 
 async function setup(page: Page, failAdds = 0, failGroups = 0, signedIn = true) {
   const calls = { quote: 0, history: 0, news: 0, reports: 0, added: [] as Array<{ url: string; body: unknown }> };
@@ -31,10 +32,10 @@ test("add action selects nested group, blocks duplicate, and saves with visible 
   await page.getByRole("button", { name: "添加到自选", exact: true }).click();
   const dialog = page.getByRole("dialog");
   await expect(dialog.getByRole("button", { name: "确认添加" })).toBeDisabled();
-  await dialog.getByLabel("自选分组").selectOption("existing");
+  await chooseSelect(page, "自选分组", "已有分组", dialog);
   await expect(dialog).toContainText("该股票已在此分组中");
   await expect(dialog.getByRole("button", { name: "确认添加" })).toBeDisabled();
-  await dialog.getByLabel("自选分组").selectOption("semis");
+  await chooseSelect(page, "自选分组", "科技 / 半导体", dialog);
   await dialog.getByRole("button", { name: "确认添加" }).click();
   await expect(dialog).not.toBeVisible();
   await expect(page.getByRole("status").filter({ hasText: "已添加 Kulicke" })).toContainText("半导体");
@@ -47,7 +48,7 @@ test("failed group load and failed add are retryable", async ({ page }) => {
   const dialog = page.getByRole("dialog");
   await expect(dialog).toContainText("分组加载失败");
   await dialog.getByRole("button", { name: "重试" }).click();
-  await dialog.getByLabel("自选分组").selectOption("semis");
+  await chooseSelect(page, "自选分组", "科技 / 半导体", dialog);
   await dialog.getByRole("button", { name: "确认添加" }).click();
   await expect(dialog.getByRole("alert")).toContainText("添加暂时失败");
   await dialog.getByRole("button", { name: "确认添加" }).click();
@@ -107,7 +108,7 @@ for (const security of [{ ticker: "sh600519", market: "CN" }, { ticker: "hk00700
     await page.goto(`/stock/${security.ticker}`);
     await page.getByRole("button", { name: "添加到自选", exact: true }).click();
     const dialog = page.getByRole("dialog");
-    await dialog.getByLabel("自选分组").selectOption("semis");
+    await chooseSelect(page, "自选分组", "科技 / 半导体", dialog);
     await dialog.getByRole("button", { name: "确认添加" }).click();
     await expect(dialog).not.toBeVisible();
     expect(calls.added[0].body).toMatchObject(security);

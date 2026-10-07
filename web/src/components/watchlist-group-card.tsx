@@ -11,6 +11,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Sheet,
   SheetContent,
   SheetHeader,
@@ -59,6 +66,7 @@ function PercentValue({ value }: { value?: number | null }) {
   );
 }
 type WatchlistSortKey = "ticker" | "market" | "price" | "volume" | "day" | "5d" | "10d" | "20d" | "60d";
+const ROOT_GROUP_VALUE = "__root__";
 
 function researchKey(item: Pick<WatchlistItem, "market" | "ticker">) {
   return `${item.market.toUpperCase()}:${item.ticker.toUpperCase()}`;
@@ -247,30 +255,41 @@ export function WatchlistGroupCard({
             <Trash2 />
           </Button>
         </div>
-        <label className="flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
           移动到
-          <select
-            aria-label="移动分组"
-            className="h-9 min-w-0 flex-1 rounded-md border bg-background px-2 text-foreground"
-            value={group.parent_id || ""}
-            onChange={(event) =>
+          <Select
+            value={group.parent_id || ROOT_GROUP_VALUE}
+            onValueChange={(value) =>
               void call(() =>
                 api.updateWatchlistGroup(group.id, {
-                  parent_id: event.target.value || null,
+                  parent_id: value === ROOT_GROUP_VALUE ? null : (value as string),
                 }),
               )
             }
+            items={{
+              [ROOT_GROUP_VALUE]: "根分组",
+              ...Object.fromEntries(
+                groups
+                  .filter((candidate) => candidate.id !== group.id)
+                  .map((candidate) => [candidate.id, candidate.name]),
+              ),
+            }}
           >
-            <option value="">根分组</option>
-            {groups
-              .filter((candidate) => candidate.id !== group.id)
-              .map((candidate) => (
-                <option key={candidate.id} value={candidate.id}>
-                  {candidate.name}
-                </option>
-              ))}
-          </select>
-        </label>
+            <SelectTrigger aria-label="移动分组" className="h-9 min-w-0 flex-1">
+              <SelectValue placeholder="根分组" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ROOT_GROUP_VALUE}>根分组</SelectItem>
+              {groups
+                .filter((candidate) => candidate.id !== group.id)
+                .map((candidate) => (
+                  <SelectItem key={candidate.id} value={candidate.id}>
+                    {candidate.name}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+        </div>
         <SearchToAdd
           onSelect={(result) =>
             void call(() =>
@@ -290,9 +309,29 @@ export function WatchlistGroupCard({
         {actionError && <p role="alert" className="mb-3 text-sm text-destructive">{actionError}</p>}
         <div className="mb-3 flex gap-2">
           <Input aria-label="搜索本组股票" placeholder="搜索本组股票" value={stockQuery} onChange={event => setStockQuery(event.target.value)} className="h-11 min-w-0 flex-1 text-base" />
-          <select aria-label="股票排序" className="h-11 max-w-32 rounded-md border bg-background px-2 text-sm" value={`${sort.key}:${sort.descending ? "desc" : "asc"}`} onChange={event => { const [key, direction] = event.target.value.split(":"); setSort({ key: key as WatchlistSortKey, descending: direction === "desc" }); }}>
-            <option value="ticker:asc">代码顺序</option><option value="day:desc">涨幅优先</option><option value="day:asc">跌幅优先</option><option value="price:desc">价格优先</option>
-          </select>
+          <Select
+            value={`${sort.key}:${sort.descending ? "desc" : "asc"}`}
+            onValueChange={(value) => {
+              const [key, direction] = (value as string).split(":");
+              setSort({ key: key as WatchlistSortKey, descending: direction === "desc" });
+            }}
+            items={{
+              "ticker:asc": "代码顺序",
+              "day:desc": "涨幅优先",
+              "day:asc": "跌幅优先",
+              "price:desc": "价格优先",
+            }}
+          >
+            <SelectTrigger aria-label="股票排序" className="h-11 w-32 shrink-0">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ticker:asc">代码顺序</SelectItem>
+              <SelectItem value="day:desc">涨幅优先</SelectItem>
+              <SelectItem value="day:asc">跌幅优先</SelectItem>
+              <SelectItem value="price:desc">价格优先</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
         {group.items.length === 0 ? (
           <div className="rounded-md border border-dashed p-6 text-center text-sm text-muted-foreground">

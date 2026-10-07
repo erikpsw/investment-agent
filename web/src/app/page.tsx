@@ -228,7 +228,7 @@ export default function HomePage() {
               {t("把纷繁的信息，转化为更清晰的投资视角。")}
             </p>
             <div className={styles.actions}>
-              <Link href="/stock" prefetch={false} className={styles.primary}>
+              <Link href="/dashboard" prefetch={false} className={styles.primary}>
                 {t("开始投资研究")} <ArrowUpRight size={19} />
               </Link>
               <a href="#capabilities" className={styles.secondary}>

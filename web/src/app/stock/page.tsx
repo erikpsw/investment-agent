@@ -47,10 +47,10 @@ export default function StockListPage() {
       <Header onSearchClick={() => setSearchOpen(true)} />
       <StockSearch open={searchOpen} onOpenChange={setSearchOpen} />
 
-      <div className="flex-1 p-6 space-y-6">
-        <div className="flex items-center justify-between">
+      <div className="flex-1 p-4 space-y-6 sm:p-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">
               <LineChart className="h-8 w-8" />
               个股分析
             </h1>

@@ -12,8 +12,10 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { api, type FormulaRankingItem, type FormulaRankingResult, type USUniverseFilters } from "@/lib/api";
 import { validScoreItem } from "@/lib/formula-score-validation";
+import { useMediaQuery } from "@/hooks/use-media-query";
 import { cn } from "@/lib/utils";
 
 type Market = "CN" | "US" | "HK" | "all";
@@ -138,14 +140,15 @@ export default function StockPickerPage() {
     () => topItems.filter((item) => item.recommendation.includes("优先")).length,
     [topItems]
   );
+  const isDesktop = useMediaQuery("(min-width: 1024px)", true);
 
   return (
     <>
       <Header />
-      <main className="flex flex-1 flex-col gap-6 p-6">
+      <main className="flex flex-1 flex-col gap-6 p-4 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">公式与 AI 选股</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">公式与 AI 选股</h1>
             <p className="text-muted-foreground">
               用行情、趋势、量价和估值因子初筛，查看每项贡献与历史验证。
             </p>
@@ -162,45 +165,39 @@ export default function StockPickerPage() {
 
 
         <div className="flex flex-wrap gap-3">
-          <div className="flex rounded-md border p-1">
+          <ToggleGroup
+            value={[market]}
+            onValueChange={(values) => { const next = values.at(-1); if (next) setMarket(next as Market); }}
+            variant="outline"
+            size="sm"
+            className="flex-wrap rounded-md border p-1"
+          >
             {markets.map((item) => (
-              <Button
-                key={item.value}
-                type="button"
-                size="sm"
-                variant={market === item.value ? "secondary" : "ghost"}
-                onClick={() => setMarket(item.value)}
-              >
-                {item.label}
-              </Button>
+              <ToggleGroupItem key={item.value} value={item.value}>{item.label}</ToggleGroupItem>
             ))}
-          </div>
-          <div className="flex flex-wrap rounded-md border p-1">
+          </ToggleGroup>
+          <ToggleGroup
+            value={[sortKey]}
+            onValueChange={(values) => { const next = values.at(-1); if (next) setSortKey(next as SortKey); }}
+            variant="outline"
+            size="sm"
+            className="flex-wrap rounded-md border p-1"
+          >
             {sorts.map((item) => (
-              <Button
-                key={item.value}
-                type="button"
-                size="sm"
-                variant={sortKey === item.value ? "secondary" : "ghost"}
-                onClick={() => setSortKey(item.value)}
-              >
-                {item.label}（本页）
-              </Button>
+              <ToggleGroupItem key={item.value} value={item.value}>{item.label}（本页）</ToggleGroupItem>
             ))}
-          </div>
-          <div className="flex rounded-md border p-1">
+          </ToggleGroup>
+          <ToggleGroup
+            value={[mode]}
+            onValueChange={(values) => { const next = values.at(-1); if (next) setMode(next as Mode); }}
+            variant="outline"
+            size="sm"
+            className="flex-wrap rounded-md border p-1"
+          >
             {modes.map((item) => (
-              <Button
-                key={item.value}
-                type="button"
-                size="sm"
-                variant={mode === item.value ? "secondary" : "ghost"}
-                onClick={() => setMode(item.value)}
-              >
-                {item.label}
-              </Button>
+              <ToggleGroupItem key={item.value} value={item.value}>{item.label}</ToggleGroupItem>
             ))}
-          </div>
+          </ToggleGroup>
         </div>
 
         {message && <div className="rounded-lg border px-4 py-3 text-sm">{message}</div>}
@@ -260,7 +257,9 @@ export default function StockPickerPage() {
             </CardTitle>
             <CardDescription>点击股票名称进入个股行情、K 线和财务数据。</CardDescription>
           </CardHeader>
-          <CardContent className="overflow-x-auto">
+          <CardContent>
+            {isDesktop ? (
+            <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -347,9 +346,171 @@ export default function StockPickerPage() {
                 )}
               </TableBody>
             </Table>
+            </div>
+            ) : (
+            <div className="space-y-3" data-testid="mobile-formula-ranking">
+              {loading && !topItems.length ? (
+                <p className="py-10 text-center text-sm text-muted-foreground">
+                  <Loader2 className="mx-auto mb-2 h-5 w-5 animate-spin" />
+                  正在计算排名
+                </p>
+              ) : topItems.length ? (
+                topItems.map((item, index) => (
+                  <RankingCard
+                    key={`${item.market}-${item.ticker}`}
+                    item={item}
+                    index={index}
+                    mode={mode}
+                    market={market}
+                  />
+                ))
+              ) : (
+                <p className="py-10 text-center text-sm text-muted-foreground">暂无可排名标的</p>
+              )}
+            </div>
+            )}
           </CardContent>
         </Card>
       </main>
     </>
+  );
+}
+
+/** 手机端（< lg）的排名卡片：把 16 列表格拆成一张可读的卡片。 */
+function RankingCard({
+  item,
+  index,
+  mode,
+  market,
+}: {
+  item: FormulaRankingItem;
+  index: number;
+  mode: Mode;
+  market: Market;
+}) {
+  const currencyLabel =
+    item.market === "US" ? "美元" : item.market === "HK" ? "港元" : "元";
+  const changes: Array<{ label: string; value?: number | null }> = [
+    { label: "5日", value: item.change_5d },
+    { label: "20日", value: item.change_20d },
+    { label: "60日", value: item.change_60d },
+    { label: "今日", value: item.today_change_percent },
+  ];
+
+  return (
+    <article className="space-y-3 rounded-lg border p-4">
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-0">
+          <div className="flex items-center gap-2">
+            <span className="shrink-0 text-xs font-medium tabular-nums text-muted-foreground">
+              #{index + 1}
+            </span>
+            <Link
+              href={`/stock/${encodeURIComponent(item.ticker)}?mode=${mode}`}
+              className="truncate font-semibold hover:underline"
+            >
+              {item.name || item.ticker}
+            </Link>
+          </div>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {item.ticker}
+            {item.theme ? ` · ${item.theme}` : ""}
+          </p>
+          {item.data_coverage != null && (
+            <p className="text-xs text-muted-foreground">
+              因子完整度 {(item.data_coverage * 100).toFixed(0)}%
+            </p>
+          )}
+          {item.history_as_of && (
+            <p className="text-xs text-muted-foreground">
+              日K截至 {item.history_as_of}
+            </p>
+          )}
+        </div>
+        <div className="shrink-0 text-right">
+          <div
+            className={cn(
+              "text-2xl font-semibold tabular-nums",
+              scoreTone(item.formula_score),
+            )}
+          >
+            {item.formula_score.toFixed(1)}
+          </div>
+          <div className="text-xs text-muted-foreground">公式分</div>
+          {item.original_score != null && (
+            <div className="text-xs text-muted-foreground">
+              原始 {item.original_score.toFixed(0)}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
+        <Badge variant={recommendationVariant(item.recommendation)}>
+          {item.recommendation}
+        </Badge>
+        <span className="text-sm tabular-nums">
+          {number(item.price)} {currencyLabel}
+        </span>
+        <span className="text-xs text-muted-foreground">
+          市值{" "}
+          {item.market_cap == null
+            ? "--"
+            : `${(item.market_cap / 1e8).toFixed(2)} 亿${currencyLabel}`}
+        </span>
+        <span className="text-xs text-muted-foreground">
+          成交额{" "}
+          {item.amount == null
+            ? "--"
+            : `${(item.amount / 1e6).toFixed(2)} 百万${currencyLabel}`}
+        </span>
+      </div>
+
+      <dl className="grid grid-cols-4 gap-2 text-center">
+        {changes.map((change) => (
+          <div key={change.label} className="rounded-md bg-muted/40 px-1 py-1.5">
+            <dt className="text-[11px] text-muted-foreground">{change.label}</dt>
+            <dd className="text-sm">
+              <PercentValue value={change.value} />
+            </dd>
+          </div>
+        ))}
+      </dl>
+
+      <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+        <span>量比 {number(item.volume_ratio)}</span>
+        <span>换手 {percent(item.turnover_rate)}</span>
+        <span>PE {number(item.pe_ratio, 1)}</span>
+        <span>PB {number(item.pb_ratio, 1)}</span>
+      </div>
+
+      {!!item.contributions && (
+        <details className="text-xs">
+          <summary className="cursor-pointer text-primary">评分依据</summary>
+          <div className="mt-1 space-y-1">
+            {Object.entries(item.contributions).map(([name, contribution]) => (
+              <p key={name}>
+                {name}：{contribution.toFixed(1)}分 · 权重{" "}
+                {((item.weights?.[name] || 0) * 100).toFixed(0)}%
+              </p>
+            ))}
+            <p>风险扣分：{item.components?.["风险惩罚"] ?? 0}</p>
+            {!!item.missing_fields?.length && (
+              <p>缺失 {item.missing_fields.length} 项指标，未补默认分。</p>
+            )}
+          </div>
+        </details>
+      )}
+
+      <div className="rounded-md border bg-muted/20 p-3">
+        <p className="text-xs text-muted-foreground">{topRisk(item)}</p>
+        <FormulaRiskPlan
+          key={`${item.ticker}-${item.risk_plan?.currency}`}
+          plan={item.risk_plan}
+          market={item.market || market}
+          historyMetadata={item.history_price_metadata}
+        />
+      </div>
+    </article>
   );
 }

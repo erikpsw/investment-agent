@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { chooseSelect } from './select-support';
 
 test('US filters use USD units, apply on the backend and reveal full coverage', async ({ page }) => {
   let requested: URL | undefined;
@@ -22,7 +23,7 @@ test('US filters use USD units, apply on the backend and reveal full coverage', 
   await page.getByLabel('最低市值（亿美元）').fill('50');
   await page.getByLabel('最低股价（美元）').fill('10');
   await page.getByLabel('最低成交额（百万美元）').fill('20');
-  await page.getByLabel('上市交易所').selectOption('NYSE');
+  await chooseSelect(page, '上市交易所', 'NYSE');
   await page.getByRole('button', { name: '应用筛选', exact: true }).click();
   await expect.poll(() => requested?.searchParams.get('min_market_cap')).toBe('5000000000');
   expect(requested?.searchParams.get('min_amount')).toBe('20000000');

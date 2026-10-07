@@ -55,9 +55,9 @@ export default function FinancialsPage() {
       <Header onSearchClick={() => setSearchOpen(true)} />
       <StockSearch open={searchOpen} onOpenChange={setSearchOpen} />
 
-      <div className="flex-1 p-6 space-y-6">
+      <div className="flex-1 space-y-6 p-4 sm:p-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-2">
+          <h1 className="text-2xl sm:text-3xl font-bold tracking-tight flex items-center gap-2">
             <FileText className="h-8 w-8" />
             财报数据
           </h1>

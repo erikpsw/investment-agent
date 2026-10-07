@@ -6,6 +6,7 @@ import { Sparkles, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { SelectField } from "@/components/select-field";
 import { AddToWatchlistButton } from "@/components/add-to-watchlist-button";
 import { FormulaRiskPlan } from "@/components/formula-risk-plan";
 import type { FormulaRankingItem } from "@/lib/api";
@@ -136,7 +137,17 @@ export function AIStockScreener() {
     <CardHeader><CardTitle className="flex items-center gap-2"><Sparkles className="h-5 w-5" />一句话选股</CardTitle><CardDescription>AI 识别条件，行情数据验证。支持A股、港股、美股；金额使用所选市场本币，不作汇率换算。策略模板无需 AI 服务即可使用。</CardDescription></CardHeader>
     <CardContent className="space-y-4">
       <form className="space-y-3" onSubmit={event => { event.preventDefault(); void run(); }}>
-        <label className="flex items-center gap-2 text-sm">条件选股市场<select aria-label="条件选股市场" value={market} disabled={busy} onChange={event => {setMarket(event.target.value as "CN" | "HK" | "US");setResult(null);setMessage("");}} className="rounded-md border bg-background px-3 py-2"><option value="CN">A股 · CNY</option><option value="HK">港股 · HKD</option><option value="US">美股 · USD</option></select></label>
+        <SelectField
+          label="条件选股市场"
+          value={market}
+          disabled={busy}
+          onValueChange={(value) => { setMarket(value as "CN" | "HK" | "US"); setResult(null); setMessage(""); }}
+          options={[
+            { value: "CN", label: "A股 · CNY" },
+            { value: "HK", label: "港股 · HKD" },
+            { value: "US", label: "美股 · USD" },
+          ]}
+        />
         <label htmlFor="screen-intent" className="text-sm font-medium">你想找什么样的股票？</label>
         <Textarea id="screen-intent" maxLength={600} rows={3} value={query} disabled={busy} onChange={event => setQuery(event.target.value)} placeholder="例如：找市盈率0到20倍、市值超过100亿元的A股" />
         <div className="flex flex-wrap items-center gap-2"><Button type="submit" disabled={busy || query.trim().length < 2}>{busy ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Sparkles className="mr-2 h-4 w-4" />}{busy ? "正在识别条件并筛选…" : "AI 筛选"}</Button>{busy && <Button type="button" variant="outline" onClick={stopWaiting}>停止等待</Button>}{presets.map(preset => <Button key={preset.id} type="button" variant="outline" disabled={busy} onClick={() => void run(preset)}>{preset.label}</Button>)}</div>

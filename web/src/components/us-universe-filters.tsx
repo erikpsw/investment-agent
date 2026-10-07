@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { FormulaRankingResult, USUniverseFilters } from "@/lib/api";
 
 const defaults = { minCap: "10", maxCap: "", minPrice: "5", maxPrice: "", minAmount: "1", exchange: "" };
@@ -12,6 +13,16 @@ const fields = [
   ["minPrice", "最低股价（美元）"], ["maxPrice", "最高股价（美元）"],
   ["minAmount", "最低成交额（百万美元）"],
 ] as const;
+const exchangeOptions = [
+  { value: "", label: "全部交易所" },
+  { value: "NASDAQ", label: "NASDAQ" },
+  { value: "NYSE", label: "NYSE" },
+  { value: "AMEX", label: "NYSE American" },
+  { value: "NYSE_ARCA", label: "NYSE Arca" },
+  { value: "CBOE", label: "Cboe" },
+  { value: "IEX", label: "IEX" },
+] as const;
+const exchanges = Object.fromEntries(exchangeOptions.map(option => [option.value, option.label]));
 
 export function USUniverseFilterPanel({ onApply, loading, data, filters }: {
   onApply: (filters: USUniverseFilters) => void; loading: boolean; data: FormulaRankingResult | null; filters: USUniverseFilters;
@@ -51,12 +62,14 @@ export function USUniverseFilterPanel({ onApply, loading, data, filters }: {
             <Input id={`us-${key}`} type="number" min="0" step="any" value={draft[key]} placeholder="不限"
               onChange={event => setDraft({ ...draft, [key]: event.target.value })} />
           </label>)}
-          <label htmlFor="us-exchange" className="space-y-1 text-sm"><span>上市交易所</span>
-            <select id="us-exchange" value={draft.exchange} onChange={event => setDraft({ ...draft, exchange: event.target.value })} className="h-9 w-full rounded-md border bg-background px-3">
-              <option value="">全部交易所</option><option value="NASDAQ">NASDAQ</option><option value="NYSE">NYSE</option><option value="AMEX">NYSE American</option>
-              <option value="NYSE_ARCA">NYSE Arca</option><option value="CBOE">Cboe</option><option value="IEX">IEX</option>
-            </select>
-          </label>
+          <div className="space-y-1 text-sm"><span>上市交易所</span>
+            <Select value={draft.exchange || null} onValueChange={value => setDraft({ ...draft, exchange: (value as string) || "" })} items={exchanges}>
+              <SelectTrigger aria-label="上市交易所" className="h-9 w-full"><SelectValue placeholder="全部交易所" /></SelectTrigger>
+              <SelectContent>
+                {exchangeOptions.map(option => <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
         <div className="flex flex-wrap gap-2">

@@ -1,6 +1,7 @@
 import { readFileSync } from "node:fs";
 import { resolve } from "node:path";
 import { test, expect } from "@playwright/test";
+import { chooseSelect, MARKET_OPTION_LABELS } from "./select-support";
 
 for (const ticker of ["sh600519", "hk00700", "AAPL"]) {
   test(`${ticker} formula ranking rejects inconsistent factor arithmetic and refresh restores it`, async ({ page }) => {
@@ -64,7 +65,7 @@ for (const ticker of ["sh600519", "hk00700", "AAPL"]) {
     });
     await page.route("**/api/ai-screener/jobs/*", route => route.fulfill({ json: { job: completed() } }));
     await page.goto("/stock-picker");
-    await page.getByLabel("条件选股市场").selectOption(source.market);
+    await chooseSelect(page, "条件选股市场", MARKET_OPTION_LABELS[source.market as keyof typeof MARKET_OPTION_LABELS]);
     await page.getByLabel("你想找什么样的股票？").fill("PE小于20");
     await page.getByRole("button", { name: "AI 筛选", exact: true }).click();
     await expect(page.getByText("筛选候选数据异常，请刷新查询原任务", { exact: true })).toBeVisible();

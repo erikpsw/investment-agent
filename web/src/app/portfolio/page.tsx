@@ -536,7 +536,7 @@ export default function PortfolioPage() {
       <main className="min-w-0 flex-1 space-y-4 p-3 sm:space-y-6 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">投资组合</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">投资组合</h1>
             <p className="text-muted-foreground">维护自选/持仓，结合新闻、价格和技术面生成仓位管理建议。</p>
           </div>
           <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap [&>button]:min-h-11">
