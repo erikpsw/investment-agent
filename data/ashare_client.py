@@ -9,6 +9,7 @@ import datetime
 import pandas as pd
 from typing import Any, Optional, Dict, List
 from investment.data.quote_timing import quote_time_fields
+from investment.data.cn_quote_factors import tencent_cn_factors
 
 
 class AshareQuoteClient:
@@ -318,6 +319,7 @@ class AshareQuoteClient:
                             "source": "Tencent",
                             "pe_source": "Tencent",
                             "pe_basis": "TTM",
+                            **tencent_cn_factors(parts),
                             "market_cap": float(parts[45]) * 1e8 if parts[45] else None,
                             **quote_time_fields(parts[30], "CN"),
                         }

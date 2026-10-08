@@ -1,7 +1,7 @@
 """Explainable long-only price scenarios, never executable orders or guarantees."""
 from __future__ import annotations
 import math
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from zoneinfo import ZoneInfo
 from investment.data.formula_scoring import number
 
@@ -35,6 +35,18 @@ def history_timing(item: dict, history_date: str | None) -> dict:
     gap = (quote_day - day).days
     if gap < 0:
         return {"status": "future_history", "reason": "日K晚于报价日期，不能用于该报价的趋势或保护价", "history_lag_calendar_days": gap}
+    # SSE/SZSE 2026 exchange closures; civil-service makeup weekends remain
+    # closed. Unknown years/markets retain the conservative calendar-day guard.
+    # https://www.sse.com.cn/disclosure/dealinstruc/closed/c/c_20251222_10802510.shtml
+    if str(item.get("market") or "CN").upper() == "CN" and day.year == quote_day.year == 2026:
+        closures = [("01-01", "01-03"), ("02-15", "02-23"), ("04-04", "04-06"),
+                    ("05-01", "05-05"), ("06-19", "06-21"), ("09-25", "09-27"), ("10-01", "10-07")]
+        lag = sum(candidate.weekday() < 5 and not any(start <= candidate.strftime("%m-%d") <= end for start, end in closures)
+                  for candidate in (day + timedelta(days=i) for i in range(1, gap + 1)))
+        timing = {"history_lag_calendar_days": gap, "history_lag_trading_days": lag, "history_calendar": "SSE-SZSE-2026"}
+        if lag > 5:
+            return {"status": "stale_history", "reason": "日K落后报价超过5个交易日，暂停趋势与保护价参考", **timing}
+        return {"status": "ok", **timing}
     if gap > 7:
         return {"status": "stale_history", "reason": "日K落后报价超过7个自然日，暂停趋势与保护价参考（含长假情况）", "history_lag_calendar_days": gap}
     return {"status": "ok", "history_lag_calendar_days": gap}
@@ -95,4 +107,4 @@ def risk_plan(item: dict, bars: list[dict], mode: str = "balanced", *, parameter
     cap = min(parameters["position_cap_percent"], parameters["risk_budget_percent"] / distance_percent * 100)
     if not all(math.isfinite(value) for value in (atr,stop,risk,target1,target2,distance_percent,cap)) or not stop < reference < target1 < target2:
         return {"status": "insufficient_data", "reason": "价格计算超出可验证数值精度，无法建立有序保护价"}
-    return {"status": "ok", "history_timing_status": timing["status"], "history_lag_calendar_days": timing.get("history_lag_calendar_days"), "quote_as_of": item.get("quote_as_of"), "currency": currency, "side": "long", "reference_price": reference, "history_as_of": latest[-1].get("date"), "atr14": atr, "support20": support, "resistance20": resistance, "stop_loss": stop, "take_profit_1": target1, "take_profit_2": target2, "risk_reward_1": parameters["target_r"], "risk_reward_2": parameters["target_r"] + 1, "stop_distance_percent": distance_percent, "position_cap_percent": cap, "risk_budget_percent": parameters["risk_budget_percent"], "atr_multiple": parameters["atr_multiple"], "resistance_before_target": reference < resistance < target1, "trailing_distance": parameters["atr_multiple"] * atr, "basis": ["ATR14为最近14日真实波幅的简单平均", "止损结合ATR距离与20日支撑下方0.25ATR缓冲", "第一/第二目标按参数R与参数R+1计算，需同时观察历史阻力", "仓位上限=min(模式上限,组合风险预算/止损距离)，金额需使用同一币种"], "limitations": ["以当前参考价构建情景，不是成交价或个人持仓成本", "默认保护参数尚未通过跨市场稳健性验证，回测候选参数不自动应用于此参考", "跳空、停牌或流动性不足可能使实际损失超过止损预算", "移动止损参考应随新的高点更新，不能降低已有保护价"]}
+    return {"status": "ok", "history_timing_status": timing["status"], "history_lag_calendar_days": timing.get("history_lag_calendar_days"), "history_lag_trading_days": timing.get("history_lag_trading_days"), "history_calendar": timing.get("history_calendar"), "quote_as_of": item.get("quote_as_of"), "currency": currency, "side": "long", "reference_price": reference, "history_as_of": latest[-1].get("date"), "atr14": atr, "support20": support, "resistance20": resistance, "stop_loss": stop, "take_profit_1": target1, "take_profit_2": target2, "risk_reward_1": parameters["target_r"], "risk_reward_2": parameters["target_r"] + 1, "stop_distance_percent": distance_percent, "position_cap_percent": cap, "risk_budget_percent": parameters["risk_budget_percent"], "atr_multiple": parameters["atr_multiple"], "resistance_before_target": reference < resistance < target1, "trailing_distance": parameters["atr_multiple"] * atr, "basis": ["ATR14为最近14日真实波幅的简单平均", "止损结合ATR距离与20日支撑下方0.25ATR缓冲", "第一/第二目标按参数R与参数R+1计算，需同时观察历史阻力", "仓位上限=min(模式上限,组合风险预算/止损距离)，金额需使用同一币种"], "limitations": ["以当前参考价构建情景，不是成交价或个人持仓成本", "默认保护参数尚未通过跨市场稳健性验证，回测候选参数不自动应用于此参考", "跳空、停牌或流动性不足可能使实际损失超过止损预算", "移动止损参考应随新的高点更新，不能降低已有保护价"]}

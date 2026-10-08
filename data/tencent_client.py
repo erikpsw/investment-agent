@@ -3,6 +3,7 @@ import pandas as pd
 from typing import Any, Optional, Dict, List
 from datetime import datetime
 from investment.data.quote_timing import quote_time_fields
+from investment.data.cn_quote_factors import tencent_cn_factors
 
 
 class TencentClient:
@@ -115,6 +116,7 @@ class TencentClient:
                             "source": "Tencent",
                             "pe_source": "Tencent",
                             "pe_basis": "TTM",
+                            **tencent_cn_factors(parts),
                             "amplitude": self._safe_float(parts[43]),
                             "market_cap": self._safe_float(parts[45]) * 1e8 if self._safe_float(parts[45]) is not None else None,
                             **quote_time_fields(parts[30], "CN"),
