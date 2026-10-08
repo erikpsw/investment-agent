@@ -55,6 +55,18 @@ def normalize(raw):
     return result
 
 
+def quote_is_current(stamp, now):
+    """Use the shared exchange calendar without renewing the provider clock."""
+    from investment.data.formula_risk import history_timing
+    if stamp.tzinfo is None or stamp > now + timedelta(minutes=1):
+        return False
+    timing = history_timing({'market': 'CN', 'quote_as_of': now.isoformat()},
+                            stamp.astimezone(timezone(timedelta(hours=8))).date().isoformat())
+    if 'history_lag_trading_days' in timing:
+        return timing['status'] == 'ok'
+    return now - stamp <= timedelta(days=7)
+
+
 def quote_times(text, rows, *, now=None):
     now = now or datetime.now(timezone.utc)
     expected = {row['ticker']: row['price'] for row in rows}
@@ -72,16 +84,23 @@ def quote_times(text, rows, *, now=None):
             continue
         if not re.fullmatch(r'\d{4}-\d{2}-\d{2}', fields[30]) or not re.fullmatch(r'\d{2}:\d{2}:\d{2}', fields[31]):
             continue
-        if stamp > now + timedelta(minutes=1) or now - stamp > timedelta(days=7):
+        if not quote_is_current(stamp, now):
             continue
         result[ticker] = stamp.isoformat()
     return result
 
 
 def _get(url, params=None):
-    response = requests.get(url, params=params, headers=HEADERS, timeout=8)
-    response.raise_for_status()
-    return response
+    for attempt in range(3):
+        try:
+            response = requests.get(url, params=params, headers=HEADERS, timeout=8)
+            response.raise_for_status()
+            return response
+        except requests.RequestException as exc:
+            status = getattr(exc.response, 'status_code', None)
+            if attempt == 2 or (status is not None and status < 500 and status not in (408, 429)):
+                raise
+            time.sleep(0.5 * 2 ** attempt)
 
 
 def scan_sina_market():
@@ -122,7 +141,7 @@ def scan_sina_market():
         raise RuntimeError('具有原始日期且价格一致的全市场行情不完整')
     snapshot = {'rows': dated, 'generated_at': max(row['quote_as_of'] for row in dated),
         'retrieved_at': datetime.now(timezone.utc).isoformat(), 'cached': False,
-        'source': '新浪财经沪深主板非ST全市场；报价日期来自原始行情，非抓取时间；仅保留价格一致且七日内的报价',
+        'source': '新浪财经沪深主板非ST全市场；报价日期来自原始行情，非抓取时间；仅保留价格一致且有效期内的报价（已配置日历按5个交易日，其他年份按7个自然日）',
         'provider_count': count, 'quote_verified_count': len(dated)}
     with _lock:
         _cache = (time.monotonic() + 600, snapshot)
@@ -182,10 +201,10 @@ def validate_saved_snapshot(payload, *, now=None):
         if not isinstance(stamp, str):
             raise ValueError('保存的全市场行情缺少原始报价时间')
         parsed = datetime.fromisoformat(stamp)
-        if parsed.tzinfo is None or parsed.isoformat() != stamp or parsed > now + timedelta(minutes=1) or now-parsed > timedelta(days=7):
+        if parsed.isoformat() != stamp or not quote_is_current(parsed, now):
             raise ValueError('保存的全市场行情原始报价过期或无效')
         timestamps.append(stamp)
     if payload.get('generated_at') != max(timestamps):
         raise ValueError('保存的全市场行情时间与原始报价不一致')
-    return {**payload, 'cached': True,
-            'source': '新浪财经保存的沪深主板非ST全市场快照；非实时；保留原始报价日期，七日过期'}
+    return {**payload, 'cached': True, 'stale': True,
+            'source': '新浪财经保存的沪深主板非ST全市场快照；非实时；保留原始报价日期（已配置日历按5个交易日，其他年份按7个自然日过期）'}

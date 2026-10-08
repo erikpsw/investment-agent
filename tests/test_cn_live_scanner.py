@@ -72,8 +72,57 @@ def test_native_saved_snapshot_expires_without_relabeling(tmp_path):
     result=live.read_saved_snapshot(path,now=datetime(2026,10,5,tzinfo=timezone.utc))
     assert result['generated_at']==payload['generated_at'] and result['cached']
     assert result['rows']==payload['rows']
-    with pytest.raises(ValueError):live.read_saved_snapshot(path,now=datetime(2026,10,8,tzinfo=timezone.utc))
+    reopened = live.read_saved_snapshot(path,now=datetime(2026,10,8,tzinfo=timezone.utc))
+    assert reopened['rows'] == payload['rows']
+    assert reopened['generated_at'] == payload['generated_at']
+    assert reopened['stale'] is True
+    with pytest.raises(ValueError):live.read_saved_snapshot(path,now=datetime(2026,10,16,tzinfo=timezone.utc))
+
+
+def test_native_quote_survives_holiday_but_keeps_age_guards():
+    rows = [live.normalize(row())]
+    now = datetime(2026,10,8,tzinfo=timezone.utc)
+    assert live.quote_times(quote(), rows, now=now) == {'sh600519':'2026-09-30T15:00:00+08:00'}
+    assert live.quote_times(quote(date='2026-09-21'), rows, now=now) == {}
+    assert live.quote_times(quote(date='2026-10-09'), rows, now=now) == {}
+    assert live.quote_times(quote(date='2027-09-30'), rows, now=datetime(2027,10,8,tzinfo=timezone.utc)) == {}
 
 
 def test_missing_saved_snapshot_cannot_fabricate_success(tmp_path):
     with pytest.raises(OSError):live.read_saved_snapshot(tmp_path/'absent.json')
+
+
+def test_transient_network_failure_retries_without_waiting_in_test(monkeypatch):
+    calls = []
+    response = type('Response', (), {'raise_for_status': lambda self: None})()
+    def get(*args, **kwargs):
+        calls.append(kwargs)
+        if len(calls) < 3:
+            raise live.requests.Timeout('temporary outage')
+        return response
+    monkeypatch.setattr(live.requests, 'get', get)
+    monkeypatch.setattr(live.time, 'sleep', lambda _: None)
+    assert live._get('https://example.invalid') is response
+    assert len(calls) == 3
+
+
+def test_network_retries_are_bounded_and_client_errors_not_retried(monkeypatch):
+    calls = []
+    monkeypatch.setattr(live.time, 'sleep', lambda _: None)
+    def get(*args, **kwargs):
+        calls.append(1)
+        raise live.requests.Timeout('offline')
+    monkeypatch.setattr(live.requests, 'get', get)
+    with pytest.raises(live.requests.Timeout):
+        live._get('https://example.invalid')
+    assert len(calls) == 3
+    calls.clear()
+    response = live.requests.Response()
+    response.status_code = 403
+    def forbidden(*args, **kwargs):
+        calls.append(1)
+        raise live.requests.HTTPError(response=response)
+    monkeypatch.setattr(live.requests, 'get', forbidden)
+    with pytest.raises(live.requests.HTTPError):
+        live._get('https://example.invalid')
+    assert len(calls) == 1

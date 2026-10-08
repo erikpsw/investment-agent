@@ -1,6 +1,6 @@
 import dns from "node:dns";
 import { yahooRows, eastmoneyHkRows } from "./foreign-market-rows.mjs";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { appendFile, mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -241,11 +241,19 @@ async function fetchOrKeepExisting(label, fetcher, path, minimumRows) {
   try {
     const rows = await fetcher();
     if (rows.length < minimumRows) throw new Error(`${label} snapshot incomplete: ${rows.length}`);
-    return { generated_at: new Date().toISOString(), rows };
+    const payload = { generated_at: new Date().toISOString(), rows };
+    if (process.env.GITHUB_STEP_SUMMARY) {
+      await appendFile(process.env.GITHUB_STEP_SUMMARY, `${label}: fetched ${rows.length} rows at ${payload.generated_at}\n`);
+    }
+    return payload;
   } catch (error) {
     const existing = await readExisting(path, minimumRows);
     if (existing) {
       console.warn(`${label} fetch failed; keeping existing snapshot from ${existing.generated_at}. Reason: ${error?.message || error}`);
+      console.warn(`::warning::${label} was NOT refreshed; retained snapshot ${existing.generated_at}`);
+      if (process.env.GITHUB_STEP_SUMMARY) {
+        await appendFile(process.env.GITHUB_STEP_SUMMARY, `${label}: **NOT refreshed**, retained ${existing.generated_at}; provider fetch failed\n`);
+      }
       return existing;
     }
     throw error;
