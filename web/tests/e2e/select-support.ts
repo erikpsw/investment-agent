@@ -19,6 +19,9 @@ export async function chooseSelect(
   scope?: Scope,
 ) {
   const trigger = (scope ?? page).getByRole("combobox", { name, exact: true });
+  if (name === "条件选股市场" && !(await trigger.isVisible())) {
+    await page.getByRole("main").getByText("AI 条件选股", { exact: true }).click();
+  }
   await expect(trigger).toBeVisible();
   await trigger.click();
   await page.getByRole("option", { name: optionLabel, exact: true }).click();

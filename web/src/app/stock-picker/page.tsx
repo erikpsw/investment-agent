@@ -118,6 +118,11 @@ export default function StockPickerPage() {
   const busy = useRef(false);
   const [message, setMessage] = useState("");
 
+  useEffect(() => {
+    // A submitted job should recover visibly after a reload.
+    try { if (sessionStorage.getItem("ai-screen-active-job")) setAIOpen(true); } catch { /* storage may be disabled */ }
+  }, []);
+
   const requestId = useRef(0);
   const load = async (automatic = false) => {
     if (automatic && (busy.current || document.hidden)) return;
@@ -408,11 +413,11 @@ export default function StockPickerPage() {
             )}
           </CardContent>
         </Card>
-        <details className="rounded-lg border p-4" onToggle={event => setAIOpen(event.currentTarget.open)}>
+        <details open={aiOpen} className="rounded-lg border p-4" onToggle={event => setAIOpen(event.currentTarget.open)}>
           <summary className="cursor-pointer font-medium">AI 条件选股</summary>
           {aiOpen && <div className="mt-4"><AIStockScreener /></div>}
         </details>
-        <details className="rounded-lg border p-4" onToggle={event => setResearchOpen(event.currentTarget.open)}>
+        <details open={researchOpen} className="rounded-lg border p-4" onToggle={event => setResearchOpen(event.currentTarget.open)}>
           <summary className="cursor-pointer font-medium">研究与验证（回测、冻结参数、资金情景）</summary>
           {researchOpen && <div className="mt-4"><FormulaBacktestPanel market={market} rankingMode={mode} /></div>}
         </details>
