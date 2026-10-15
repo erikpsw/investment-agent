@@ -148,6 +148,53 @@ def scan_sina_market():
     return snapshot
 
 
+def scan_tencent_market(catalog=SNAPSHOT, *, now=None):
+    """Refresh the saved main-board directory from independent native quotes."""
+    from investment.data.tencent_client import TencentClient
+    now = now or datetime.now(timezone.utc)
+    payload = json.loads(catalog.read_text(encoding='utf-8'))
+    codes = sorted({row['ticker'] for row in payload['rows']
+                    if isinstance(row, dict) and isinstance(row.get('ticker'), str)
+                    and re.fullmatch(r'(?:sh(?:600|601|603|605)|sz(?:000|001|002|003))\d{3}', row['ticker'])})
+    if len(codes) < MINIMUM:
+        raise ValueError('腾讯备用目录数量不足')
+    parser = TencentClient()
+    def batch(symbols):
+        response = _get('https://qt.gtimg.cn/q=' + ','.join(symbols))
+        output = []
+        for ticker, content in re.findall(r'v_((?:sh|sz)\d{6})="([^"\r\n]*)";', response.text):
+            if ticker not in symbols:
+                continue
+            quote = parser._parse_quote(ticker, f'v_{ticker}="{content}";')
+            stamp = quote.get('timestamp')
+            try:
+                if not stamp or not quote_is_current(datetime.fromisoformat(stamp), now):
+                    continue
+            except (ValueError, TypeError):
+                continue
+            name = quote.get('name') or ''
+            if not name or 'ST' in name.upper() or '退' in name:
+                continue
+            if any(number(quote.get(key)) is None or number(quote.get(key)) <= 0
+                   for key in ('price', 'amount', 'market_cap')):
+                continue
+            row = {key: number(quote.get(key)) for key in ('price', 'amount', 'market_cap', 'pe_ratio', 'pb_ratio', 'turnover_rate') if number(quote.get(key)) is not None}
+            row.update(ticker=ticker, name=name, market='CN', quote_as_of=stamp,
+                       today_change_percent=number(quote.get('change_percent')))
+            output.append(row)
+        return output
+    with ThreadPoolExecutor(max_workers=4) as executor:
+        rows = [row for group in executor.map(batch, [codes[i:i+100] for i in range(0, len(codes), 100)]) for row in group]
+    if len(rows) < max(MINIMUM, math.ceil(len(codes) * .95)):
+        raise RuntimeError(f'腾讯备用报价覆盖不足：{len(rows)}/{len(codes)}')
+    result = {'rows': rows, 'generated_at': max(row['quote_as_of'] for row in rows),
+              'retrieved_at': now.isoformat(), 'cached': False,
+              'source': '腾讯批量原始报价；基于保存的沪深主板目录，非完整上市目录；保留原始报价时间',
+              'catalog_count': len(codes), 'quote_verified_count': len(rows)}
+    validate_saved_snapshot(result, now=now)
+    return result
+
+
 def scan_cn_market():
     try:
         snapshot = base.scan_cn_market()
@@ -207,4 +254,4 @@ def validate_saved_snapshot(payload, *, now=None):
     if payload.get('generated_at') != max(timestamps):
         raise ValueError('保存的全市场行情时间与原始报价不一致')
     return {**payload, 'cached': True, 'stale': True,
-            'source': '新浪财经保存的沪深主板非ST全市场快照；非实时；保留原始报价日期（已配置日历按5个交易日，其他年份按7个自然日过期）'}
+            'source': str(payload.get('source') or '沪深主板报价') + '；保存快照，非实时；保留原始报价日期（已配置日历按5个交易日，其他年份按7个自然日过期）'}

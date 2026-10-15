@@ -43,3 +43,31 @@ def test_holiday_skips_provider_and_makeup_weekend_is_closed(tmp_path):
     assert not worker.is_session(date(2026,10,10))
     assert not worker.is_session(date(2026,1,1))
     assert worker.is_session(date(2026,10,8))
+
+
+def test_queued_job_after_midnight_accepts_latest_completed_session(tmp_path):
+    data = payload('2026-10-12T15:00:00+08:00')
+    assert worker.refresh(tmp_path/'snapshot.json', fetch=lambda: data,
+                          now=datetime(2026,10,12,17,tzinfo=timezone.utc)) == data
+
+
+def test_transient_failure_with_valid_saved_quotes_is_explicit_degradation(monkeypatch, capsys):
+    monkeypatch.setattr(worker, 'refresh', lambda: (_ for _ in ()).throw(RuntimeError('timeout')))
+    monkeypatch.setattr(worker, 'read_saved_snapshot', lambda: {'generated_at': '2026-10-12T15:00:00+08:00'})
+    assert worker.main() == 0
+    assert '::warning::' in capsys.readouterr().out
+
+
+def test_failure_with_invalid_saved_quotes_remains_failure(monkeypatch):
+    def fail():
+        raise ValueError('expired')
+    monkeypatch.setattr(worker, 'refresh', fail)
+    monkeypatch.setattr(worker, 'read_saved_snapshot', fail)
+    assert worker.main() == 1
+
+
+def test_stale_primary_provider_tries_independent_backup(monkeypatch, tmp_path):
+    monkeypatch.setattr(worker, 'scan_sina_market', lambda: payload('2026-09-30T15:00:00+08:00'))
+    data = payload('2026-10-08T15:00:00+08:00')
+    monkeypatch.setattr(worker, 'scan_tencent_market', lambda: data)
+    assert worker.refresh(tmp_path/'snapshot.json', now=datetime(2026,10,8,8,tzinfo=timezone.utc)) == data

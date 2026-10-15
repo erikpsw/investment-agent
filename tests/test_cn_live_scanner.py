@@ -126,3 +126,20 @@ def test_network_retries_are_bounded_and_client_errors_not_retried(monkeypatch):
     with pytest.raises(live.requests.HTTPError):
         live._get('https://example.invalid')
     assert len(calls) == 1
+
+
+def test_tencent_fallback_uses_new_quotes_not_old_snapshot_values(monkeypatch, tmp_path):
+    import json
+    source = tmp_path/'catalog.json'
+    source.write_text(json.dumps({'rows': [{'ticker': 'sh600519', 'price': 999}]}))
+    fields = [''] * 54
+    for i, value in {1:'示例股份', 3:'10', 30:'20261015150000', 37:'100', 38:'1', 45:'20', 46:'2', 53:'10'}.items():
+        fields[i] = value
+    response = type('Response', (), {'text': 'v_sh600519="' + '~'.join(fields) + '";'})()
+    monkeypatch.setattr(live, '_get', lambda *a, **k: response)
+    monkeypatch.setattr(live, 'MINIMUM', 1)
+    result = live.scan_tencent_market(source, now=datetime(2026,10,15,8,tzinfo=timezone.utc))
+    assert result['rows'][0]['price'] == 10
+    assert result['rows'][0]['market_cap'] == 2e9
+    assert result['rows'][0]['amount'] == 1e6
+    assert result['generated_at'] == '2026-10-15T15:00:00+08:00'

@@ -1018,6 +1018,12 @@ class ApiClient {
     );
   }
 
+  async triggerRankingUpdate(market: "CN" | "US" | "HK" | "all") {
+    return this.fetch<{ status: string; result: { message: string; runs: Array<{ market: string; status: string; url: string }> } }>(
+      `/api/formula-ranking/refresh?market=${encodeURIComponent(market)}`, { method: "POST" }, true,
+    );
+  }
+
   async getFormulaRanking(
     market: "CN" | "US" | "HK" | "all" = "CN",
     limit = 30,

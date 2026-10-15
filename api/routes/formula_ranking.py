@@ -9,7 +9,7 @@ from pathlib import Path
 from datetime import datetime
 from typing import Any
 
-from fastapi import APIRouter, HTTPException, Query
+from fastapi import APIRouter, HTTPException, Query, Depends
 
 from investment.data.market_scanner import enrich_stock_history
 from investment.data.cn_live_scanner import scan_cn_market
@@ -24,7 +24,17 @@ from investment.api.report_bundle import read_research_bytes, bundle_folder
 from investment.api.history_price_metadata import history_price_metadata
 
 
+from investment.api.auth import AuthenticatedUser, get_auth0_user
+from investment.api.action_trigger import trigger_updates
+
 router = APIRouter()
+
+
+@router.post("/formula-ranking/refresh")
+async def refresh_ranking_cache(market: str = Query("US", pattern="^(CN|US|HK|all)$"),
+                                user: AuthenticatedUser = Depends(get_auth0_user)):
+    return await asyncio.to_thread(trigger_updates, market, user)
+
 
 
 @router.get("/formula-ranking/us-cover-research")

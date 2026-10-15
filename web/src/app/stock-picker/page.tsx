@@ -99,6 +99,21 @@ export default function StockPickerPage() {
   const [loading, setLoading] = useState(true);
   const [usFilters, setUSFilters] = useState<USUniverseFilters>({ min_market_cap: 1e9, min_price: 5, min_amount: 1e6 });
 
+  const [researchOpen, setResearchOpen] = useState(false);
+  const [aiOpen, setAIOpen] = useState(false);
+  const [updating, setUpdating] = useState(false);
+  const [updateMessage, setUpdateMessage] = useState("");
+  const [updateRuns, setUpdateRuns] = useState<Array<{ market: string; status: string; url: string }>>([]);
+  const updateCache = async () => {
+    setUpdating(true); setUpdateMessage(""); setUpdateRuns([]);
+    try {
+      const response = await api.triggerRankingUpdate(market);
+      setUpdateMessage(response.result.message); setUpdateRuns(response.result.runs);
+    } catch (error) {
+      setUpdateMessage(error instanceof Error && error.name === "AuthenticationRequiredError"
+        ? "请先登录后更新行情缓存" : error instanceof Error ? error.message : "更新请求失败，请稍后重试");
+    } finally { setUpdating(false); }
+  };
   const [refreshSeconds, setRefreshSeconds] = useState(0);
   const busy = useRef(false);
   const [message, setMessage] = useState("");
@@ -158,9 +173,9 @@ export default function StockPickerPage() {
       <main className="flex flex-1 flex-col gap-6 p-4 sm:p-6">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">公式与 AI 选股</h1>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">选股</h1>
             <p className="text-muted-foreground">
-              用行情、趋势、量价和估值因子初筛，查看每项贡献与历史验证。
+              选择市场和条件，查看股票评分与数据时间。
             </p>
           </div>
           <Button variant="outline" onClick={() => { void load(); }} disabled={loading}>
@@ -169,8 +184,15 @@ export default function StockPickerPage() {
           </Button>
         </div>
 
-        <AIStockScreener />
-        <FormulaBacktestPanel market={market} rankingMode={mode} />
+        <div className="flex flex-wrap items-center gap-3">
+          <Button variant="outline" disabled={updating} onClick={() => { void updateCache(); }}>
+            {updating ? "正在提交…" : "更新行情与评分缓存"}
+          </Button>
+          <span className="text-xs text-muted-foreground">管理员触发后台更新；完成并部署后生效。</span>
+        </div>
+        {updateMessage && <p role="status" className="text-sm">{updateMessage}</p>}
+        {!!updateRuns.length && <div className="flex gap-3 text-sm">{updateRuns.map(run => <a key={run.market} href={run.url} target="_blank" rel="noopener noreferrer" className="underline">{run.market} · {run.status === "running" ? "正在更新" : "已排队"}</a>)}</div>}
+
 
 
 
@@ -386,6 +408,14 @@ export default function StockPickerPage() {
             )}
           </CardContent>
         </Card>
+        <details className="rounded-lg border p-4" onToggle={event => setAIOpen(event.currentTarget.open)}>
+          <summary className="cursor-pointer font-medium">AI 条件选股</summary>
+          {aiOpen && <div className="mt-4"><AIStockScreener /></div>}
+        </details>
+        <details className="rounded-lg border p-4" onToggle={event => setResearchOpen(event.currentTarget.open)}>
+          <summary className="cursor-pointer font-medium">研究与验证（回测、冻结参数、资金情景）</summary>
+          {researchOpen && <div className="mt-4"><FormulaBacktestPanel market={market} rankingMode={mode} /></div>}
+        </details>
       </main>
     </>
   );

@@ -60,3 +60,21 @@ test('automatic refresh repeats requests and can be switched off', async ({ page
   await page.clock.fastForward(120000);
   expect(requests).toBe(stopped);
 });
+
+
+test('research is collapsed until requested and cache update requires login', async ({ page }) => {
+  let researchRequests = 0;
+  await page.route('**/auth/profile', route => route.fulfill({ json: null }));
+  await page.route('**/auth/access-token', route => route.fulfill({ status: 401, json: { error: 'not_authenticated' } }));
+  await page.route('**/api/**', route => {
+    if (route.request().url().includes('backtest')) researchRequests++;
+    return route.fulfill({ json: { result: { status: 'not_run', market: 'CN', mode: 'balanced', items: [], total: 0, applied: false } } });
+  });
+  await page.goto('/stock-picker');
+  await expect(page.getByRole('heading', { name: '选股', exact: true })).toBeVisible();
+  expect(researchRequests).toBe(0);
+  await page.getByRole('button', { name: '更新行情与评分缓存', exact: true }).click();
+  await expect(page.getByText('请先登录后更新行情缓存', { exact: true })).toBeVisible();
+  await page.getByText('研究与验证（回测、冻结参数、资金情景）', { exact: true }).click();
+  await expect.poll(() => researchRequests).toBeGreaterThan(0);
+});
