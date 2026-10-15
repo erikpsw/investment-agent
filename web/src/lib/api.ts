@@ -322,6 +322,7 @@ export interface FormulaRankingItem {
 }
 
 export interface USUniverseFilters {
+  scoring_limit?: number;
   min_market_cap?: number;
   max_market_cap?: number;
   min_price?: number;
@@ -344,6 +345,7 @@ export interface FormulaRankingResult {
   history_budget_exceeded_count?: number;
   filtered_count?: number;
   scoring_limit?: number;
+  history_cache_missing_count?: number;
   filters?: USUniverseFilters;
   history_enriched_count?: number;
   cached?: boolean;

@@ -99,13 +99,17 @@ export default function StockPickerPage() {
   const [loading, setLoading] = useState(true);
   const [usFilters, setUSFilters] = useState<USUniverseFilters>({ min_market_cap: 1e9, min_price: 5, min_amount: 1e6 });
 
+  const [refreshSeconds, setRefreshSeconds] = useState(0);
+  const busy = useRef(false);
   const [message, setMessage] = useState("");
 
   const requestId = useRef(0);
-  const load = async () => {
+  const load = async (automatic = false) => {
+    if (automatic && (busy.current || document.hidden)) return;
+    busy.current = true;
     const id = ++requestId.current;
     setLoading(true);
-    setData(null);
+    if (!automatic) setData(null);
     setMessage("");
     try {
       const response = await api.getFormulaRanking(market, 20, mode, market === "US" || market === "all" ? usFilters : undefined);
@@ -120,7 +124,7 @@ export default function StockPickerPage() {
       if (id !== requestId.current) return;
       setMessage(error instanceof Error ? error.message : "加载公式排名失败");
     } finally {
-      if (id === requestId.current) setLoading(false);
+      if (id === requestId.current) { setLoading(false); busy.current = false; }
     }
   };
 
@@ -128,6 +132,12 @@ export default function StockPickerPage() {
     void load();
     return () => { requestId.current++; };
   }, [market, mode, usFilters]);
+
+  useEffect(() => {
+    if (!refreshSeconds) return;
+    const timer = window.setInterval(() => { void load(true); }, refreshSeconds * 1000);
+    return () => window.clearInterval(timer);
+  }, [refreshSeconds, market, mode, usFilters]);
 
   const topItems = useMemo(
     () =>
@@ -153,7 +163,7 @@ export default function StockPickerPage() {
               用行情、趋势、量价和估值因子初筛，查看每项贡献与历史验证。
             </p>
           </div>
-          <Button variant="outline" onClick={load} disabled={loading}>
+          <Button variant="outline" onClick={() => { void load(); }} disabled={loading}>
             {loading ? <Loader2 data-icon="inline-start" className="animate-spin" /> : <RefreshCw data-icon="inline-start" />}
             刷新
           </Button>
@@ -201,6 +211,11 @@ export default function StockPickerPage() {
         </div>
 
         {message && <div className="rounded-lg border px-4 py-3 text-sm">{message}</div>}
+        <label className="text-sm">自动刷新
+          <select aria-label="自动刷新" className="ml-3 rounded border p-2" value={refreshSeconds} onChange={event => setRefreshSeconds(Number(event.target.value))}>
+            <option value={0}>关闭</option><option value={60}>1分钟</option><option value={300}>5分钟</option>
+          </select>
+        </label>
         {market === "US" && <USUniverseFilterPanel onApply={setUSFilters} loading={loading} data={data} filters={usFilters} />}
 
         <div className="grid gap-4 md:grid-cols-4">

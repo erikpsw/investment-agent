@@ -76,6 +76,8 @@ def test_tencent_us_quote_units_currency_and_identity():
 
 def test_us_route_filters_before_enriching_and_exposes_coverage(monkeypatch):
     import asyncio
+    from investment.data import us_history_cache
+    monkeypatch.setattr(us_history_cache, 'read_cache', lambda: {})
     from investment.api.routes import formula_ranking as route
     row = snapshot()['rows'][0]
     smaller = {**row, 'ticker': 'SMALL', 'market_cap': 1e8}

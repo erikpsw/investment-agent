@@ -15,7 +15,7 @@ concurrency:
 jobs:
   update:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 60
     steps:
       - uses: actions/checkout@v4
         with:
@@ -26,11 +26,20 @@ jobs:
       - run: python -m pip install -r requirements.txt
       - name: Collect every directory and quote page, preserving last good snapshot on failure
         run: python scripts/update_us_universe.py
+      - name: Refresh historical factors in bounded batches
+        id: history
+        timeout-minutes: 30
+        continue-on-error: true
+        run: python scripts/refresh_us_history.py
+      - name: Report incomplete historical refresh
+        if: steps.history.outcome == 'failure'
+        run: echo '::warning::Historical refresh incomplete; retained dated factors, missing coverage remains explicit'
       - name: Commit validated US snapshot
         run: |
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add api/market_snapshots/us-universe.json
+          if [ -f api/market_snapshots/us-history.json ]; then git add api/market_snapshots/us-history.json; fi
           git diff --cached --quiet && exit 0
           git commit -m 'chore: update full US market snapshot'
           git pull --rebase origin main

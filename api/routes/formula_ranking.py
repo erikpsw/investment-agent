@@ -239,14 +239,17 @@ async def formula_ranking(
     max_price: float | None = None,
     min_amount: float | None = 1_000_000,
     exchange: str | None = None,
+    scoring_limit: int = 120,
 ):
     try:
         us_filters = USFilters(min_market_cap=min_market_cap, max_market_cap=max_market_cap,
                                min_price=min_price, max_price=max_price, min_amount=min_amount, exchange=exchange)
     except ValueError as exc:
         raise HTTPException(422, "美股筛选条件无效：数值必须非负且最低值不大于最高值，交易所须在支持列表中") from exc
+    if scoring_limit not in (0, 120, 300, 500):
+        raise HTTPException(422, "评分数量须为120、300、500或0（全部）")
     if market.upper() == "ALL":
-        responses = await asyncio.gather(*(formula_ranking(region, 100, mode, **us_filters.model_dump()) for region in ("CN", "HK", "US")))
+        responses = await asyncio.gather(*(formula_ranking(region, 100, mode, **us_filters.model_dump(), scoring_limit=scoring_limit) for region in ("CN", "HK", "US")))
         results = [response["result"] for response in responses]
         items = sorted([item for result in results for item in result["items"]], key=lambda item: (-item["formula_score"], item["ticker"]))
         return {"status": "ok", "result": {
@@ -259,7 +262,7 @@ async def formula_ranking(
             "snapshot_only": any(result.get("snapshot_only", False) for result in results),
             "market_sources": [{"market": result["market"], "generated_at": result.get("generated_at"), "source": result["source"], "cached": result.get("cached", False), "snapshot_only": result.get("snapshot_only", False)} for result in results],
             "source": "A股、港股、美股各自候选池合并",
-            "scope": "各市场评分候选合并；美股从完整目录筛选后取成交额前120只评分；非全球全市场最终排名",
+            "scope": "各市场评分候选合并；美股从完整目录筛选后按配置数量评分；非全球全市场最终排名",
             "fallback": any(result.get("fallback", False) for result in results),
         }}
     if market.upper() in ("HK", "US"):
@@ -267,7 +270,20 @@ async def formula_ranking(
             region = market.upper()
             scan = await asyncio.to_thread(scan_foreign_market, region)
             matching = filter_rows(scan["rows"], us_filters) if region == "US" else scan["rows"]
-            rows = await asyncio.to_thread(enrich_foreign_history, matching, as_of=scan.get("generated_at"), limit=120)
+            if region == "US" and scoring_limit != 120:
+                from investment.data.us_history_cache import apply_cached_history
+                selected = sorted(matching, key=lambda row: row.get("amount") or 0, reverse=True)
+                rows = apply_cached_history(selected[:scoring_limit] if scoring_limit else selected)
+            elif region == "US":
+                from investment.data.us_history_cache import apply_cached_history
+                selected = sorted(matching, key=lambda row: row.get("amount") or 0, reverse=True)[:120]
+                cached_rows = apply_cached_history(selected)
+                missing = [{k: v for k, v in row.items() if k not in ("history_cache_missing", "history_error")} for row in cached_rows if row.get("history_cache_missing")]
+                enriched = await asyncio.to_thread(enrich_foreign_history, missing, as_of=scan.get("generated_at"), limit=120) if missing else []
+                replacements = {row["ticker"]: row for row in enriched}
+                rows = [replacements.get(row["ticker"], row) for row in cached_rows]
+            else:
+                rows = await asyncio.to_thread(enrich_foreign_history, matching, as_of=scan.get("generated_at"), limit=120)
             ranked = sorted([_rank_live_item(row, mode) for row in rows], key=lambda row: (-row["formula_score"], row["ticker"]))
             if region == "US":
                 return {"status": "ok", "result": {
@@ -277,10 +293,10 @@ async def formula_ranking(
                     "universe_count": scan.get("universe_count", len(scan["rows"])),
                     "quote_coverage_count": scan.get("quote_coverage_count", len(scan["rows"])),
                     "quote_missing_count": scan.get("quote_missing_count", 0),
-                    "filtered_count": len(matching), "scoring_limit": 120,
+                    "filtered_count": len(matching), "scoring_limit": scoring_limit, "history_cache_missing_count": sum(row.get("history_cache_missing", False) for row in rows),
                     "filters": us_filters.model_dump(), "directory_stats": scan.get("directory_stats"),
                     "generated_at": scan.get("generated_at"), "source": scan.get("source"),
-                    "scope": "美股官方上市普通股及股票ADR目录；缺失行情不参与筛选；条件匹配后取成交额前120只补算历史并评分，非全目录最终评分排名；不含OTC",
+                    "scope": "美股官方上市普通股及股票ADR目录；缺失行情不参与筛选；条件匹配后按配置数量评分；大范围评分使用历史缓存，缺失因子不补分；不含OTC",
                     "fallback": False, "cached": True, "snapshot_only": True,
                     "history_enriched_count": sum(all(row.get(f"change_{n}d") is not None for n in (5, 20, 60)) for row in ranked),
                     "history_budget_exceeded_count": sum(row.get("history_budget_exceeded", False) for row in ranked),

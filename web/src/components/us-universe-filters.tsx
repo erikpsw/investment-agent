@@ -34,6 +34,7 @@ export function USUniverseFilterPanel({ onApply, loading, data, filters }: {
     maxPrice: filters.max_price ? String(filters.max_price) : "",
     minAmount: filters.min_amount ? String(filters.min_amount/1e6) : "", exchange: filters.exchange || "",
   }));
+  const [scoringLimit, setScoringLimit] = useState(filters.scoring_limit ?? 120);
   const [error, setError] = useState("");
   function apply() {
     const minCap = Number(draft.minCap), minPrice = Number(draft.minPrice), minAmount = Number(draft.minAmount);
@@ -46,7 +47,7 @@ export function USUniverseFilterPanel({ onApply, loading, data, filters }: {
     if (maxPrice !== undefined && minPrice > maxPrice) { setError("最低股价不能大于最高股价"); return; }
     if (maxCap === 0 || maxPrice === 0) { setError("最高条件须大于零，留空表示不限"); return; }
     setError("");
-    onApply({ min_market_cap: minCap*1e8, max_market_cap: maxCap === undefined ? undefined : maxCap*1e8,
+    onApply({ scoring_limit: scoringLimit, min_market_cap: minCap*1e8, max_market_cap: maxCap === undefined ? undefined : maxCap*1e8,
       min_price: minPrice, max_price: maxPrice, min_amount: minAmount*1e6, exchange: draft.exchange || undefined });
   }
   return <Card>
@@ -71,22 +72,28 @@ export function USUniverseFilterPanel({ onApply, loading, data, filters }: {
             </Select>
           </div>
         </div>
+        <label className="block space-y-1 text-sm">评分数量
+          <select aria-label="评分数量" className="ml-3 rounded border p-2" value={scoringLimit} onChange={event => setScoringLimit(Number(event.target.value))}>
+            <option value={120}>120（在线补算）</option><option value={300}>300（缓存）</option><option value={500}>500（缓存）</option><option value={0}>全部匹配（缓存）</option>
+          </select>
+        </label>
         {error && <p role="alert" className="text-sm text-red-600">{error}</p>}
         <div className="flex flex-wrap gap-2">
           <Button type="submit" disabled={loading}>应用筛选</Button>
           <Button type="button" variant="outline" disabled={loading} onClick={() => {
             setDraft({ minCap: "", maxCap: "", minPrice: "", maxPrice: "", minAmount: "", exchange: "" }); setError("");
-            onApply({ min_market_cap: 0, min_price: 0, min_amount: 0 });
+            onApply({ scoring_limit: scoringLimit, min_market_cap: 0, min_price: 0, min_amount: 0 });
           }}>取消条件</Button>
           <Button type="button" variant="ghost" disabled={loading} onClick={() => {
-            setDraft(defaults); setError(""); onApply({ min_market_cap: 1e9, min_price: 5, min_amount: 1e6 });
+            setDraft(defaults); setScoringLimit(120); setError(""); onApply({ min_market_cap: 1e9, min_price: 5, min_amount: 1e6 });
           }}>恢复默认</Button>
         </div>
       </form>
       {data?.universe_count !== undefined && <div className="grid grid-cols-2 gap-3 rounded-lg bg-muted/40 p-3 text-sm sm:grid-cols-4">
-        {[["目录股票", data.universe_count], ["行情覆盖", data.quote_coverage_count], ["条件匹配", data.filtered_count], ["本轮评分", data.candidate_count]].map(([label, count]) => <div key={String(label)}><p className="text-muted-foreground">{label}</p><p className="text-xl font-semibold tabular-nums">{count ?? "--"}</p></div>)}
+        {[["目录股票", data.universe_count], ["行情覆盖", data.quote_coverage_count], ["条件匹配", data.filtered_count], ["本轮评分", data.candidate_count]].map(([label, count]) => <div key={String(label)}><p className="text-muted-foreground">{label}</p><p className="text-xl font-semibold tabular-nums">{count ?? "--"}{label === "本轮评分" ? ` / ${data.filtered_count ?? "--"}` : ""}</p></div>)}
       </div>}
-      <p className="text-xs text-muted-foreground">{data?.quote_missing_count !== undefined ? `目录中 ${data.quote_missing_count} 只缺少有效行情，未参与筛选。` : ""}按成交额选择匹配结果前 {data?.scoring_limit ?? 120} 只补算历史评分，不是全目录评分排名。行情为定时保存的延迟快照，请核对数据时间。</p>
+      <p className="text-xs text-muted-foreground">{data?.quote_missing_count !== undefined ? `目录中 ${data.quote_missing_count} 只缺少有效行情，未参与筛选。` : ""}{data?.scoring_limit === 0 ? "全部匹配股票参与评分" : `按成交额选择匹配结果前 ${data?.scoring_limit ?? 120} 只评分`}；大范围评分使用历史缓存。行情为定时保存的延迟快照，请核对数据时间。</p>
+      {!!data?.history_cache_missing_count && <p className="text-sm text-amber-700">{data.history_cache_missing_count} 只历史缓存缺失或过期，相关因子与保护价保持缺失。</p>}
       {data?.filtered_count === 0 && <p className="rounded-lg border p-3 text-sm">没有股票符合当前条件。可放宽筛选范围；缺失指标不会视为满足条件。</p>}
     </CardContent>
   </Card>;
