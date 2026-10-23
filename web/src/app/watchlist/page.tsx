@@ -14,6 +14,8 @@ import {
 
 import { Header } from "@/components/header";
 import { WatchlistGroupCard } from "@/components/watchlist-group-card";
+import { SecurityScoreMonitor } from "@/components/security-score-monitor";
+import { securitiesFrom } from "@/lib/score-tracking";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
@@ -311,6 +313,7 @@ export default function WatchlistPage() {
     <div className="flex min-h-screen flex-col">
       <Header />
       <main className="flex-1 p-4 sm:p-6">
+        {user?.sub&&<div className="mb-4"><SecurityScoreMonitor key={user.sub} userSub={user.sub} securities={securitiesFrom(flatten(groups).flatMap(group=>group.items||[]))}/></div>}
         <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">自选股</h1>

@@ -4,6 +4,7 @@ import {
   getPortfolioAccessToken,
 } from "@/lib/auth-token";
 
+import type { SecurityIdentity, ScoreMode, DetectionItem, ScoreHistory, PortfolioRiskOverview, RiskSettings, ProtectionPlan } from "./score-tracking";
 const API_BASE = "";
 
 export interface StockQuote {
@@ -570,6 +571,36 @@ class ApiClient {
     return this.fetch<StockQuote>(`/api/quote/${encodeURIComponent(ticker)}`);
   }
 
+  async detectScores(securities:SecurityIdentity[],mode:ScoreMode,requestId:string,signal?:AbortSignal) {
+    return this.fetch<{status:string;result:{items:DetectionItem[];mode:ScoreMode}}>("/api/watchlists/detection",
+      {method:"POST",body:JSON.stringify({securities,mode,request_id:requestId}),signal},true);
+  }
+  async getScoreHistory(security:SecurityIdentity,days:30|90=30,cursor?:string,signal?:AbortSignal) {
+    const params=new URLSearchParams({trading_days:String(days),limit:"200"});if(cursor) params.set("cursor",cursor);
+    return this.fetch<{status:string;result:ScoreHistory}>(`/api/securities/${security.market}/${encodeURIComponent(security.ticker)}/score-history?${params}`,{signal,cache:"no-store"},true);
+  }
+  async getPortfolioRisk(signal?:AbortSignal) {
+    return this.fetch<{status:string;result:PortfolioRiskOverview}>("/api/portfolio/risk-overview",{signal,cache:"no-store"},true);
+  }
+  async saveRiskSettings(settings:RiskSettings) {
+    return this.fetch("/api/portfolio/risk-settings",{method:"PUT",body:JSON.stringify(settings)},true);
+  }
+  async adoptPosition(security:SecurityIdentity,revision:number,requestId:string) {
+    return this.fetch(`/api/portfolio/positions/${security.market}/${encodeURIComponent(security.ticker)}/tracking`,
+      {method:"POST",body:JSON.stringify({expected_revision:revision,request_id:requestId})},true);
+  }
+  async confirmProtection(security:SecurityIdentity,episode:string,revision:number,plan:ProtectionPlan) {
+    const {snapshot_id,config_fingerprint,quote_as_of,currency,reference_price,stop_loss,take_profit_1,take_profit_2,lot_size}=plan;
+    return this.fetch(`/api/portfolio/positions/${security.market}/${encodeURIComponent(security.ticker)}/protection`,
+      {method:"PUT",body:JSON.stringify({episode_id:episode,expected_revision:revision,
+        plan:{snapshot_id,config_fingerprint,quote_as_of,currency,price_basis:"raw",reference_price,stop_loss,take_profit_1,take_profit_2,lot_size}})},true);
+  }
+  async recordPositionEvent(event:{action:"buy"|"sell"|"set_cash"|"adjust_cash";instrument_id?:string;market?:string;
+    quantity?:number;price?:number;currency?:string;amount?:number;fee?:number;executed_at?:string;score_snapshot_id?:string;
+    request_id:string;expected_revision:number}) {
+    return this.fetch("/api/portfolio/transactions",{method:"POST",body:JSON.stringify(event)},true);
+  }
+
   async getQuoteByName(name: string): Promise<StockQuote> {
     return this.fetch<StockQuote>(
       `/api/quote/by-name/${encodeURIComponent(name)}`,
@@ -765,6 +796,7 @@ class ApiClient {
   ): Promise<{
     status: string;
     result: {
+      revision?: number;
       updated_at?: string | null;
       positions: PortfolioPosition[];
       storage: string;
@@ -773,6 +805,7 @@ class ApiClient {
     return this.fetch<{
       status: string;
       result: {
+        revision?: number;
         updated_at?: string | null;
         positions: PortfolioPosition[];
         storage: string;
@@ -786,9 +819,11 @@ class ApiClient {
 
   async savePortfolioPositions(
     positions: PortfolioPosition[],
+    expectedRevision?: number,
   ): Promise<{
     status: string;
     result: {
+      revision?: number;
       updated_at?: string | null;
       positions: PortfolioPosition[];
       storage: string;
@@ -797,6 +832,7 @@ class ApiClient {
     return this.fetch<{
       status: string;
       result: {
+        revision?: number;
         updated_at?: string | null;
         positions: PortfolioPosition[];
         storage: string;
@@ -805,7 +841,7 @@ class ApiClient {
       "/api/portfolio/positions",
       {
         method: "PUT",
-        body: JSON.stringify({ positions }),
+        body: JSON.stringify({ positions, ...(expectedRevision===undefined?{}:{expected_revision:expectedRevision,request_id:crypto.randomUUID()}) }),
       },
       true,
     );

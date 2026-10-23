@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Loader2, Plus, RefreshCw, Save, Search, Trash2 } from "lucide-react";
 import { Header } from "@/components/header";
 import { McpAccessPanel } from "@/components/mcp-access-panel";
+import { PositionManagementPanel } from "@/components/position-management-panel";
 import { SecurityResearchDetails } from "@/components/security-research-details";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -358,6 +359,7 @@ function PositionAnalysis({ item }: { item: PortfolioAnalysisItem }) {
 export default function PortfolioPage() {
   const { user, isLoading: authLoading } = useUser();
   const [positions, setPositions] = useState<PortfolioPosition[]>([]);
+  const portfolioRevision = useRef(0);
   const [analysis, setAnalysis] = useState<PortfolioAnalysisResult | null>(null);
   const [busy, setBusy] = useState(false);
   const [loadingPositions, setLoadingPositions] = useState(true);
@@ -390,6 +392,7 @@ export default function PortfolioPage() {
     const started = performance.now();
     try {
       const response = await api.getPortfolioPositions(false, false);
+      portfolioRevision.current = response.result.revision ?? 0;
       setPositions(response.result.positions);
       setDirty(false);
       setLoadMs(performance.now() - started);
@@ -460,7 +463,8 @@ export default function PortfolioPage() {
 
   const savePositionsOnly = async () => {
     const clean = positions.filter((item) => item.ticker.trim());
-    const response = await api.savePortfolioPositions(clean);
+    const response = await api.savePortfolioPositions(clean, portfolioRevision.current > 0 ? portfolioRevision.current : undefined);
+    portfolioRevision.current = response.result.revision ?? portfolioRevision.current;
     const savedPositions = response.result.positions.length ? response.result.positions : [emptyPosition()];
     setPositions(savedPositions);
     setDirty(false);
@@ -574,6 +578,7 @@ export default function PortfolioPage() {
           <Button className="min-h-11" variant="outline" onClick={() => { setAnalysis(null); void loadPositions(); }} disabled={busy || loadingPositions || dirty}><RefreshCw className="mr-2 h-4 w-4" />刷新估值</Button>
         </div>
         {loadError && <div role="alert" className="rounded-lg border p-3 text-sm">{loadError}，请点击刷新估值重试。</div>}
+        {user?.sub&&!loadError&&<PositionManagementPanel key={user.sub} userSub={user.sub} positions={positions} disabled={dirty||loadingPositions||busy} onChanged={loadPositions}/>}
 
         <Card className="overflow-visible">
           <CardHeader>

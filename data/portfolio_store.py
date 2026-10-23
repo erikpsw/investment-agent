@@ -14,11 +14,16 @@ class PortfolioStorageError(RuntimeError):
     """Raised when cloud portfolio persistence is unavailable."""
 
 
+class PortfolioRevisionConflict(PortfolioStorageError):
+    """Raised when a legacy write targets revision-managed data."""
+
+
 @dataclass(frozen=True)
 class PortfolioDocument:
     positions: List[Dict[str, Any]]
     updated_at: Optional[str]
     storage: str
+    revision: int = 0
 
 
 class PortfolioStore(Protocol):
@@ -83,6 +88,8 @@ class SupabasePortfolioStore:
             try:
                 return query.execute()
             except Exception as exc:
+                if str(getattr(exc, "code", "")) in ("PT409", "40001"):
+                    raise PortfolioRevisionConflict("Managed portfolio requires current revision") from exc
                 transient = any(marker in str(exc).lower() for marker in ("502", "503", "504", "gateway timeout", "bad gateway"))
                 if not transient or attempt == 2:
                     raise PortfolioStorageError(f"Unable to {operation} portfolio from Supabase") from exc
@@ -92,7 +99,7 @@ class SupabasePortfolioStore:
         owner = _require_user_id(user_id)
         response = self._execute(
             self._client.table(self.TABLE)
-            .select("positions,updated_at")
+            .select("*")
             .eq("user_id", owner)
             .limit(1),
             "load",
@@ -109,6 +116,7 @@ class SupabasePortfolioStore:
             else [],
             updated_at=str(row.get("updated_at")) if row.get("updated_at") else None,
             storage="supabase",
+            revision=int(row.get("revision", 0)),
         )
 
     def save(self, user_id: str, positions: List[Dict[str, Any]]) -> PortfolioDocument:

@@ -168,6 +168,7 @@ class PortfolioService:
         positions = self._normalize_positions(document.positions)
         return {
             "updated_at": document.updated_at,
+            "revision": getattr(document, "revision", 0),
             "positions": self._snapshot_positions(positions, include_history=include_history, include_research=include_research),
             "storage": document.storage,
             "valuation_currency": "CNY",

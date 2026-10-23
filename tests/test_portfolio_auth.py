@@ -125,7 +125,7 @@ class PortfolioAuthTests(unittest.TestCase):
         self.assertEqual(response.status_code, 422)
         self.assertEqual(service.calls, [])
 
-    def test_transaction_uses_existing_authenticated_reader_token(self) -> None:
+    def test_reader_token_cannot_mutate_portfolio(self) -> None:
         service = FakePortfolioService()
         app = make_app(service, authenticated=False)
         app.dependency_overrides[get_current_user] = lambda: AuthenticatedUser(
@@ -146,8 +146,8 @@ class PortfolioAuthTests(unittest.TestCase):
                 },
             )
 
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(service.calls, [("transaction", "auth0|user-123", "buy")])
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(service.calls, [])
 
     def test_transaction_validation_error_is_returned_as_unprocessable(self) -> None:
         service = FakePortfolioService()
