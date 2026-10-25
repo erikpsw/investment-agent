@@ -1,0 +1,2494 @@
+{
+  "version": "cn-weekly-pullback-v1.2",
+  "report_date": "2026-10-25",
+  "kind": "historical_signal_diagnostics",
+  "returns_computed": false,
+  "execution_ready": false,
+  "automation_enabled": false,
+  "stocks": 28,
+  "native_rows": 75853,
+  "factor_records": 655,
+  "universe": [
+    "sh.600000",
+    "sh.600060",
+    "sh.600104",
+    "sh.600188",
+    "sh.600519",
+    "sh.600521",
+    "sh.600546",
+    "sh.600642",
+    "sh.600765",
+    "sh.600803",
+    "sh.600901",
+    "sh.601318",
+    "sh.688981",
+    "sz.000001",
+    "sz.000568",
+    "sz.000807",
+    "sz.000858",
+    "sz.000977",
+    "sz.000999",
+    "sz.002261",
+    "sz.002414",
+    "sz.002465",
+    "sz.002500",
+    "sz.002558",
+    "sz.300059",
+    "sz.300454",
+    "sz.300699",
+    "sz.300750"
+  ],
+  "event_counts": {
+    "pullback": 32,
+    "observe": 4,
+    "confirmed": 1
+  },
+  "events": [
+    {
+      "code": "sz.000977",
+      "date": "2026-05-15",
+      "stage": "pullback",
+      "score": 57.5405,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 23.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 17.2559,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 5.3259,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 6.9587,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 5.0,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [
+        "distribution_risk"
+      ],
+      "preview": {
+        "signal_at": "2026-05-15",
+        "executable_from": "2026-05-18",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 66.15,
+        "native_open": 69.9,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "compatible",
+        "risk_per_share_before_cost": 3.75
+      },
+      "eligible": false
+    },
+    {
+      "code": "sh.600188",
+      "date": "2025-11-14",
+      "stage": "pullback",
+      "score": 64.3166,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 25.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 19.3894,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 8.4,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 6.5272,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 5.0,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [],
+      "preview": {
+        "signal_at": "2025-11-14",
+        "executable_from": "2025-11-17",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 14.58,
+        "native_open": 14.75,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "compatible",
+        "risk_per_share_before_cost": 0.16999999999999993
+      },
+      "eligible": false
+    },
+    {
+      "code": "sh.600546",
+      "date": "2025-08-29",
+      "stage": "pullback",
+      "score": 45.9345,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 16.5,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 18.0323,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 0.6033,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 7.2529,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 3.546,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [
+        "distribution_risk"
+      ],
+      "preview": {
+        "signal_at": "2025-08-29",
+        "executable_from": "2025-09-01",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 9.53,
+        "native_open": 9.89,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "compatible",
+        "risk_per_share_before_cost": 0.3600000000000012
+      },
+      "eligible": false
+    },
+    {
+      "code": "sz.002465",
+      "date": "2025-07-11",
+      "stage": "pullback",
+      "score": 64.4799,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 25.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 18.7052,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 8.4,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 7.3747,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 5.0,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [
+        "distribution_risk"
+      ],
+      "preview": {
+        "signal_at": "2025-07-11",
+        "executable_from": "2025-07-14",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 12.88,
+        "native_open": 12.42,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "blocked_entry_below_stop"
+      },
+      "eligible": false
+    },
+    {
+      "code": "sz.000568",
+      "date": "2025-04-03",
+      "stage": "pullback",
+      "score": 60.9082,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 19.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 20.5045,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 8.4,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 8.0037,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 5.0,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [],
+      "preview": {
+        "signal_at": "2025-04-03",
+        "executable_from": "2025-04-07",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 130.68,
+        "native_open": 127.3,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "blocked_entry_below_stop"
+      },
+      "eligible": false
+    },
+    {
+      "code": "sz.000858",
+      "date": "2025-03-28",
+      "stage": "pullback",
+      "score": 59.4013,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 20.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 20.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 8.4,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 6.0013,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 5.0,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [],
+      "preview": {
+        "signal_at": "2025-03-28",
+        "executable_from": "2025-03-31",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 134.19,
+        "native_open": 133.21,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "blocked_entry_below_stop"
+      },
+      "eligible": false
+    },
+    {
+      "code": "sh.600765",
+      "date": "2024-05-24",
+      "stage": "pullback",
+      "score": 51.6783,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 16.5,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 20.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 2.4,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 7.7783,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 5.0,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [],
+      "preview": {
+        "signal_at": "2024-05-24",
+        "executable_from": "2024-05-27",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 16.77,
+        "native_open": 18.5,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "compatible",
+        "risk_per_share_before_cost": 1.7300000000000004
+      },
+      "eligible": false
+    },
+    {
+      "code": "sz.002558",
+      "date": "2024-04-03",
+      "stage": "pullback",
+      "score": 47.5391,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 10.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 17.7101,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 8.4,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 6.429,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 5.0,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed",
+        "weekly_trend_below_threshold"
+      ],
+      "state_risks": [
+        "distribution_risk"
+      ],
+      "preview": {
+        "signal_at": "2024-04-03",
+        "executable_from": "2024-04-08",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 11.73,
+        "native_open": 11.55,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "blocked_entry_below_stop"
+      },
+      "eligible": false
+    },
+    {
+      "code": "sh.601318",
+      "date": "2023-05-19",
+      "stage": "pullback",
+      "score": 71.3713,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 25.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 20.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 14.0,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 7.3713,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 5.0,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [
+        "distribution_risk"
+      ],
+      "preview": {
+        "signal_at": "2023-05-19",
+        "executable_from": "2023-05-22",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 50.59000000000001,
+        "native_open": 51.0,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "compatible",
+        "risk_per_share_before_cost": 0.4099999999999895
+      },
+      "eligible": false
+    },
+    {
+      "code": "sh.600803",
+      "date": "2023-05-05",
+      "stage": "pullback",
+      "score": 52.7212,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 23.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 15.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 6.0,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 5.9009,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 2.8203,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [
+        "distribution_risk"
+      ],
+      "preview": {
+        "signal_at": "2023-05-05",
+        "executable_from": "2023-05-08",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 19.73,
+        "native_open": 19.64,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "blocked_entry_below_stop"
+      },
+      "eligible": false
+    },
+    {
+      "code": "sz.000807",
+      "date": "2023-02-10",
+      "stage": "pullback",
+      "score": 62.9133,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 21.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 20.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 8.4,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 8.5133,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 5.0,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [],
+      "preview": {
+        "signal_at": "2023-02-10",
+        "executable_from": "2023-02-13",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 12.63,
+        "native_open": 12.8,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "compatible",
+        "risk_per_share_before_cost": 0.16999999999999993
+      },
+      "eligible": false
+    },
+    {
+      "code": "sh.600642",
+      "date": "2022-09-23",
+      "stage": "pullback",
+      "score": 55.3756,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 16.5,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 20.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 8.4,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 8.0744,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 2.4012,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [
+        "distribution_risk"
+      ],
+      "preview": {
+        "signal_at": "2022-09-23",
+        "executable_from": "2022-09-26",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 5.95,
+        "native_open": 6.0,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "compatible",
+        "risk_per_share_before_cost": 0.04999999999999982
+      },
+      "eligible": false
+    },
+    {
+      "code": "sz.300699",
+      "date": "2022-08-26",
+      "stage": "pullback",
+      "score": 52.9705,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 16.5,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 20.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 5.4522,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 6.6204,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 4.3979,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [],
+      "preview": {
+        "signal_at": "2022-08-26",
+        "executable_from": "2022-08-29",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 66.66,
+        "native_open": 70.0,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "compatible",
+        "risk_per_share_before_cost": 3.3400000000000034
+      },
+      "eligible": false
+    },
+    {
+      "code": "sz.000807",
+      "date": "2022-04-01",
+      "stage": "pullback",
+      "score": 49.5322,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 12.5,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 17.1625,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 8.4,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 6.4697,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 5.0,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed",
+        "weekly_trend_below_threshold"
+      ],
+      "state_risks": [],
+      "preview": {
+        "signal_at": "2022-04-01",
+        "executable_from": "2022-04-06",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 13.75,
+        "native_open": 13.25,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "blocked_entry_below_stop"
+      },
+      "eligible": false
+    },
+    {
+      "code": "sh.600521",
+      "date": "2021-12-02",
+      "stage": "observe",
+      "score": 58.7008,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 16.5,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 15.277,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 13.7399,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 8.7835,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 4.4004,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [
+        "distribution_risk"
+      ],
+      "preview": {
+        "signal_at": "2021-12-02",
+        "executable_from": "2021-12-03",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 20.43,
+        "native_open": 21.0,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "compatible",
+        "risk_per_share_before_cost": 0.5700000000000003
+      },
+      "eligible": false
+    },
+    {
+      "code": "sh.600521",
+      "date": "2021-11-26",
+      "stage": "pullback",
+      "score": 56.157,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 16.5,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 17.7838,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 8.4,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 8.6446,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 4.8286,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [
+        "distribution_risk"
+      ],
+      "preview": {
+        "signal_at": "2021-11-26",
+        "executable_from": "2021-11-29",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 20.43,
+        "native_open": 20.55,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "compatible",
+        "risk_per_share_before_cost": 0.120000000000001
+      },
+      "eligible": false
+    },
+    {
+      "code": "sh.600546",
+      "date": "2021-10-08",
+      "stage": "pullback",
+      "score": 56.1165,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 25.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 17.2798,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 2.4,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 6.4367,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 5.0,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [
+        "distribution_risk"
+      ],
+      "preview": {
+        "signal_at": "2021-10-08",
+        "executable_from": "2021-10-11",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 9.15,
+        "native_open": 12.14,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "compatible",
+        "risk_per_share_before_cost": 2.99
+      },
+      "eligible": false
+    },
+    {
+      "code": "sh.600188",
+      "date": "2021-04-23",
+      "stage": "pullback",
+      "score": 65.1028,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 25.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 20.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 8.0,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 7.6962,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 4.4066,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [],
+      "preview": {
+        "signal_at": "2021-04-23",
+        "executable_from": "2021-04-26",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 12.0,
+        "native_open": 13.94,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "compatible",
+        "risk_per_share_before_cost": 1.9399999999999995
+      },
+      "eligible": false
+    },
+    {
+      "code": "sz.300059",
+      "date": "2021-02-19",
+      "stage": "pullback",
+      "score": 56.1735,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 25.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 15.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 2.4,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 8.7735,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 5.0,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [
+        "distribution_risk"
+      ],
+      "preview": {
+        "signal_at": "2021-02-19",
+        "executable_from": "2021-02-22",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 32.6,
+        "native_open": 36.82,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "compatible",
+        "risk_per_share_before_cost": 4.219999999999999
+      },
+      "eligible": false
+    },
+    {
+      "code": "sh.600188",
+      "date": "2020-12-11",
+      "stage": "pullback",
+      "score": 64.9935,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 25.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 16.7625,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 10.0,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 8.231,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 5.0,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [],
+      "preview": {
+        "signal_at": "2020-12-11",
+        "executable_from": "2020-12-14",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 10.85,
+        "native_open": 10.51,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "blocked_entry_below_stop"
+      },
+      "eligible": false
+    },
+    {
+      "code": "sz.000807",
+      "date": "2020-12-11",
+      "stage": "pullback",
+      "score": 56.8521,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 25.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 15.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 4.5026,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 7.3495,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 5.0,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [],
+      "preview": {
+        "signal_at": "2020-12-11",
+        "executable_from": "2020-12-14",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 7.48,
+        "native_open": 7.98,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "compatible",
+        "risk_per_share_before_cost": 0.5
+      },
+      "eligible": false
+    },
+    {
+      "code": "sz.002261",
+      "date": "2020-01-23",
+      "stage": "pullback",
+      "score": 61.1037,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 25.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 15.9597,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 8.0,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 7.144,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 5.0,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [],
+      "preview": {
+        "signal_at": "2020-01-23",
+        "executable_from": "2020-02-03",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 8.24,
+        "native_open": 9.08,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "compatible",
+        "risk_per_share_before_cost": 0.8399999999999999
+      },
+      "eligible": false
+    },
+    {
+      "code": "sz.002261",
+      "date": "2019-09-30",
+      "stage": "pullback",
+      "score": 49.2002,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 15.5,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 17.4697,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 8.4,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 4.5349,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 3.2956,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [],
+      "preview": {
+        "signal_at": "2019-09-30",
+        "executable_from": "2019-10-08",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 5.55,
+        "native_open": 5.61,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "compatible",
+        "risk_per_share_before_cost": 0.0600000000000005
+      },
+      "eligible": false
+    },
+    {
+      "code": "sz.000807",
+      "date": "2019-09-20",
+      "stage": "pullback",
+      "score": 52.2491,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 18.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 20.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 6.0,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 4.8947,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 3.3544,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [],
+      "preview": {
+        "signal_at": "2019-09-20",
+        "executable_from": "2019-09-23",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 4.95,
+        "native_open": 4.88,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "blocked_entry_below_stop"
+      },
+      "eligible": false
+    },
+    {
+      "code": "sh.600546",
+      "date": "2019-07-24",
+      "stage": "confirmed",
+      "score": 76.6958,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 25.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 25.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 14.0,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 10.0,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 2.6958,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "sector_missing"
+      ],
+      "state_risks": [
+        "distribution_risk"
+      ],
+      "preview": {
+        "signal_at": "2019-07-24",
+        "executable_from": "2019-07-25",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 5.93,
+        "native_open": 6.71,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "compatible",
+        "risk_per_share_before_cost": 0.7800000000000002
+      },
+      "eligible": false,
+      "entry_risk": {
+        "price_risk_passed": false,
+        "execution_ready": false,
+        "gap_atr": 0.738023156342404,
+        "stop_distance_atr": 2.6166275543048907,
+        "gap_limit_atr": 0.5,
+        "stop_limit_atr": 2.5,
+        "reasons": [
+          "gap_exceeds_0.5_atr",
+          "stop_distance_exceeds_2.5_atr"
+        ]
+      }
+    },
+    {
+      "code": "sh.600546",
+      "date": "2019-07-23",
+      "stage": "observe",
+      "score": 68.6777,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 25.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 18.8115,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 14.4,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 7.8348,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 2.6314,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [
+        "distribution_risk"
+      ],
+      "preview": {
+        "signal_at": "2019-07-23",
+        "executable_from": "2019-07-24",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 5.93,
+        "native_open": 6.0,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "compatible",
+        "risk_per_share_before_cost": 0.07000000000000028
+      },
+      "eligible": false
+    },
+    {
+      "code": "sh.600546",
+      "date": "2019-07-19",
+      "stage": "pullback",
+      "score": 69.3961,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 25.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 19.6474,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 14.0,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 8.085,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 2.6637,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [
+        "distribution_risk"
+      ],
+      "preview": {
+        "signal_at": "2019-07-19",
+        "executable_from": "2019-07-22",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 5.93,
+        "native_open": 5.99,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "compatible",
+        "risk_per_share_before_cost": 0.0600000000000005
+      },
+      "eligible": false
+    },
+    {
+      "code": "sh.600521",
+      "date": "2019-04-19",
+      "stage": "pullback",
+      "score": 53.5534,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 16.5,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 19.3504,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 8.4,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 6.0463,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 3.2567,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [
+        "distribution_risk"
+      ],
+      "preview": {
+        "signal_at": "2019-04-19",
+        "executable_from": "2019-04-22",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 15.71,
+        "native_open": 15.77,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "compatible",
+        "risk_per_share_before_cost": 0.05999999999999872
+      },
+      "eligible": false
+    },
+    {
+      "code": "sh.600000",
+      "date": "2019-03-22",
+      "stage": "pullback",
+      "score": 64.517,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 23.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 20.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 8.4,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 8.117,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 5.0,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [],
+      "preview": {
+        "signal_at": "2019-03-22",
+        "executable_from": "2019-03-25",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 11.36,
+        "native_open": 11.28,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "blocked_entry_below_stop"
+      },
+      "eligible": false
+    },
+    {
+      "code": "sz.002414",
+      "date": "2019-01-18",
+      "stage": "pullback",
+      "score": 57.1559,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 25.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 19.508,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 2.4,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 7.5939,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 2.654,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [],
+      "preview": {
+        "signal_at": "2019-01-18",
+        "executable_from": "2019-01-21",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 19.53,
+        "native_open": 21.05,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "compatible",
+        "risk_per_share_before_cost": 1.5199999999999996
+      },
+      "eligible": false
+    },
+    {
+      "code": "sz.300059",
+      "date": "2018-12-24",
+      "stage": "observe",
+      "score": 59.8076,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 15.5,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 20.4702,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 12.0,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 6.8374,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 5.0,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [],
+      "preview": {
+        "signal_at": "2018-12-24",
+        "executable_from": "2018-12-25",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 12.58,
+        "native_open": 12.3,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "blocked_entry_below_stop"
+      },
+      "eligible": false
+    },
+    {
+      "code": "sz.300059",
+      "date": "2018-12-17",
+      "stage": "observe",
+      "score": 59.5815,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 18.5,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 15.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 13.3637,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 7.7178,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 5.0,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [],
+      "preview": {
+        "signal_at": "2018-12-17",
+        "executable_from": "2018-12-18",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 12.58,
+        "native_open": 12.78,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "compatible",
+        "risk_per_share_before_cost": 0.1999999999999993
+      },
+      "eligible": false
+    },
+    {
+      "code": "sz.002500",
+      "date": "2018-12-07",
+      "stage": "pullback",
+      "score": 47.9848,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 9.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 20.0,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 8.4,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 7.1685,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 3.4163,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed",
+        "weekly_trend_below_threshold"
+      ],
+      "state_risks": [
+        "distribution_risk"
+      ],
+      "preview": {
+        "signal_at": "2018-12-07",
+        "executable_from": "2018-12-10",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 6.35,
+        "native_open": 6.3,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "blocked_entry_below_stop"
+      },
+      "eligible": false
+    },
+    {
+      "code": "sz.300059",
+      "date": "2018-11-30",
+      "stage": "pullback",
+      "score": 52.8132,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 16.5,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "volume_price": {
+          "points": 16.6324,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 8.4,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 6.2808,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 5.0,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [],
+      "preview": {
+        "signal_at": "2018-11-30",
+        "executable_from": "2018-12-03",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 12.58,
+        "native_open": 13.5,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "compatible",
+        "risk_per_share_before_cost": 0.9199999999999999
+      },
+      "eligible": false
+    },
+    {
+      "code": "sh.600519",
+      "date": "2016-03-18",
+      "stage": "pullback",
+      "score": 60.3786,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 17.0,
+          "max": 25.0,
+          "status": "partial"
+        },
+        "volume_price": {
+          "points": 16.1615,
+          "max": 25.0,
+          "status": "ok"
+        },
+        "daily_entry": {
+          "points": 14.0,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 8.2171,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 5.0,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "indicator_unavailable",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed"
+      ],
+      "state_risks": [],
+      "preview": {
+        "signal_at": "2016-03-18",
+        "executable_from": "2016-03-21",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 225.5,
+        "native_open": 226.66,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "compatible",
+        "risk_per_share_before_cost": 1.1599999999999966
+      },
+      "eligible": false
+    },
+    {
+      "code": "sh.600765",
+      "date": "2015-06-19",
+      "stage": "pullback",
+      "score": 43.1948,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 5.5,
+          "max": 25.0,
+          "status": "partial"
+        },
+        "volume_price": {
+          "points": 20.0,
+          "max": 25.0,
+          "status": "partial"
+        },
+        "daily_entry": {
+          "points": 5.5872,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 7.1076,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 5.0,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "indicator_unavailable",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed",
+        "weekly_trend_below_threshold"
+      ],
+      "state_risks": [],
+      "preview": {
+        "signal_at": "2015-06-19",
+        "executable_from": "2015-06-23",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 28.0,
+        "native_open": 31.0,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "compatible",
+        "risk_per_share_before_cost": 3.0
+      },
+      "eligible": false
+    },
+    {
+      "code": "sh.600519",
+      "date": "2015-05-15",
+      "stage": "pullback",
+      "score": 48.8083,
+      "score_max": 85.0,
+      "components": {
+        "weekly_trend": {
+          "points": 7.0,
+          "max": 25.0,
+          "status": "partial"
+        },
+        "volume_price": {
+          "points": 20.0,
+          "max": 25.0,
+          "status": "partial"
+        },
+        "daily_entry": {
+          "points": 8.4,
+          "max": 20.0,
+          "status": "ok"
+        },
+        "sector": {
+          "points": null,
+          "max": 15.0,
+          "status": "unavailable"
+        },
+        "momentum": {
+          "points": 8.4083,
+          "max": 10.0,
+          "status": "ok"
+        },
+        "liquidity": {
+          "points": 5.0,
+          "max": 5.0,
+          "status": "ok"
+        }
+      },
+      "quality_flags": [
+        "data_incomplete",
+        "indicator_unavailable",
+        "market_missing",
+        "score_below_threshold",
+        "sector_missing",
+        "setup_not_confirmed",
+        "weekly_trend_below_threshold"
+      ],
+      "state_risks": [],
+      "preview": {
+        "signal_at": "2015-05-15",
+        "executable_from": "2015-05-18",
+        "signal_price_basis": "baostock_native_times_backfactor_v1",
+        "native_stop": 246.1,
+        "native_open": 245.0,
+        "execution_ready": false,
+        "remaining_checks": [
+          "historical_price_limits",
+          "corporate_action_ledger",
+          "market_and_sector_budget",
+          "asof_factor_availability"
+        ],
+        "mapping_status": "blocked_entry_below_stop"
+      },
+      "eligible": false
+    }
+  ],
+  "full_strategy_eligible": 0,
+  "source_sha256": {
+    "storage/stock_picker/research/stock-execution-inputs-20261025/native-weekly-research-v1.2/summary.json": "e8d429683912f4462075b03633f3637435ab026c4a0a8877652b74c2daceff93",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/native-weekly-research-v1.2/sh.600519.json": "ed991310c3b66bb69c51d085d5e315130ba2a4b00c40e43bb3baa2bec66d6b56",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/native-weekly-research-v1.2/sh.601318.json": "c0538e0ec8064a776ab08b4304041b1be0045bd9706c71f012f1ae597b5898f2",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/native-weekly-research-v1.2/sh.688981.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/native-weekly-research-v1.2/sz.000001.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/native-weekly-research-v1.2/sz.000977.json": "60548cdd23a24b0a7aff7933609c3bded6f522f3947fc05846fa6205b74671b0",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/native-weekly-research-v1.2/sz.300059.json": "f31b22a523f56a5209e1e3e29db7ba2f66b8faa99c75662e7ad8a0797c9a5f8f",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/native-weekly-research-v1.2/sz.300750.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/native-weekly-research-v1.2/sh.600000.json": "28f490cb9016381893ad8b9541e6e9a50f36f753e0d9ad3a56d43dd274ef75d8",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/expanded20-v1/native-weekly-research-v1.2/summary.json": "8cd01cc065b1e3328da88edda9c527c1fc1c8955963712888dfa49b7aa6ad31d",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/expanded20-v1/native-weekly-research-v1.2/sh.600060.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/expanded20-v1/native-weekly-research-v1.2/sh.600104.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/expanded20-v1/native-weekly-research-v1.2/sh.600188.json": "48a14aae302fb9e01d638c8b08fd9c1572caea8bd89468b7af1edd01f20539a8",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/expanded20-v1/native-weekly-research-v1.2/sh.600521.json": "dffd04357fded0f93282a5ba9ac9beced9c3b5ca52fd7de0266385239800da16",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/expanded20-v1/native-weekly-research-v1.2/sh.600546.json": "8947506c88f69e73168178e5194265847732b9eb9f3a68b8f68c2c61d0455fd7",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/expanded20-v1/native-weekly-research-v1.2/sh.600642.json": "562349a6ad5cfa9b4e09512709cef44e075d63eafb714dbebfeca31eb256dadc",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/expanded20-v1/native-weekly-research-v1.2/sh.600765.json": "33c579291c86e9114d2ca759359eb87e560c9f7954964044555c844f34d32944",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/expanded20-v1/native-weekly-research-v1.2/sh.600803.json": "8c356604accc0fd6fd2f08adc92715c3ae0596a47bcd99e59af9b24bafbc69ef",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/expanded20-v1/native-weekly-research-v1.2/sh.600901.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/expanded20-v1/native-weekly-research-v1.2/sz.000568.json": "c9cd8a5c9f6f0c980042a96c1461afa995c45c1ad05226944ac7cb2f6a6e72ac",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/expanded20-v1/native-weekly-research-v1.2/sz.000807.json": "74beae0bc313302790b4dd4bebe94a7eb73d96e7df17bc24d13a5817aa93f618",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/expanded20-v1/native-weekly-research-v1.2/sz.000858.json": "3b00463c398be01164d361dda60755cabacc18f7f7e9910c9b1d5fec4f23d9d8",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/expanded20-v1/native-weekly-research-v1.2/sz.000999.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/expanded20-v1/native-weekly-research-v1.2/sz.002261.json": "6c21daa3387de318f4c10a77070d2f9ab57a28fa5cde99424557e7f58e851042",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/expanded20-v1/native-weekly-research-v1.2/sz.002414.json": "1f6391cd54ce6bf5dd272b1675c2ff73fd5356b4f3953476ae1b3549e4b4112d",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/expanded20-v1/native-weekly-research-v1.2/sz.002465.json": "299aa977c5f833b9b2681cc19953cf8903b02cc987cf2fedebff505fcc1a2cbb",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/expanded20-v1/native-weekly-research-v1.2/sz.002500.json": "354a60f270535165419cf2a780d13a2e3023347e3b315389bb6edd6887cc3fac",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/expanded20-v1/native-weekly-research-v1.2/sz.002558.json": "699df61292168db4a3953e35ac789457ad3ec1baccf3f995ea44ec925f1dd9b4",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/expanded20-v1/native-weekly-research-v1.2/sz.300454.json": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "storage/stock_picker/research/stock-execution-inputs-20261025/expanded20-v1/native-weekly-research-v1.2/sz.300699.json": "3ed4ad5a2318f6494f3203d304e523c4a6ec1a83b4cf76691503ca29ea8d0238"
+  },
+  "limitations": [
+    "市场 M 与历史板块 B 尚未接入，完整策略资格为零。",
+    "当前股票样本存在幸存者偏差；不是历史全市场股票池。",
+    "历史涨跌停、公司行动现金流及组合动态仓位尚未完成联合验证。",
+    "指标使用同源价格及生效复权因子；因子发布时间未知，成交量未作拆股调整。",
+    "这是归档历史信号诊断，不是实时行情，也没有生成收益曲线。"
+  ]
+}
