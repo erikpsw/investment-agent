@@ -10,9 +10,31 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, ConfigDict, Field
 from investment.data.selected_momentum import entry_size, holding_action
 from investment.data.live_decision_quote import parse_quote
+from investment.data.stock_reanalysis import analyze, parse_bars
+from concurrent.futures import ThreadPoolExecutor
 
 router=APIRouter()
 REPORT=Path(__file__).resolve().parents[1]/'research_reports/momentum-selected.json'
+
+
+@router.get('/strategy/reanalyze/{ticker}')
+def reanalyze(ticker:str):
+    if not re.fullmatch(r'(?:sh(?:60|68)\d{4}|sz(?:00|30)\d{4})',ticker):raise HTTPException(422,'不支持的A股代码')
+    def fetch(item):
+        code,basis=item
+        response=requests.get('https://web.ifzq.gtimg.cn/appstock/app/fqkline/get',
+            params={'param':f'{code},day,,,600,{basis}'},timeout=10,verify=True)
+        response.raise_for_status()
+        return parse_bars(response.json(),code,basis)
+    try:
+        with ThreadPoolExecutor(max_workers=2) as pool:
+            stock,market=list(pool.map(fetch,[(ticker,'hfq'),('sh000300','')]))
+        result=analyze(stock,market,datetime.now(ZoneInfo('Asia/Shanghai')))
+        universe=json.loads(REPORT.with_name('momentum-universe.json').read_text(encoding='utf-8'))['universe']
+        result.update(name=universe.get(ticker,ticker),in_reference793=ticker in universe,
+                      eligibility='eligible' if re.fullmatch(r'(?:sh60|sz00)\d{4}',ticker) else 'excluded_board')
+        return result
+    except Exception as exc:raise HTTPException(503,'重新分析未取得足够的可验证行情；不能据此生成当前买点，请重试') from exc
 
 
 @router.get('/strategy/live-quote/{ticker}')
