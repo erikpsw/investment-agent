@@ -75,6 +75,10 @@ def test_public_routes_return_policy_and_reject_invalid_money():
     client=TestClient(app)
     r=client.get('/strategy/momentum-selected');assert r.status_code==200
     assert r.json()['version']==POLICY['version']
+    assert r.json()['scope']=='reference793'
+    assert r.json()['universe_size']==793
+    assert next(row for row in r.json()['backtest']['results'] if row['period']=='full')['total_return_pct']==527.879
+    assert client.get('/strategy/momentum-selected?scope=mainboard').json()['backtest']['results']==[]
     assert client.post('/strategy/momentum-selected/size',json={'equity':1000,'cash':2000,'native_price':10}).status_code==422
     assert client.post('/strategy/momentum-selected/size',json={'equity':100000,'cash':1100,'native_price':10}).json()['shares']==100
 

@@ -1,0 +1,36 @@
+"use client";
+import { useEffect,useRef,useState } from "react";
+import Link from "next/link";
+import {LiveDecisionMonitor} from "@/components/live-decision-monitor";
+import { createChart,CandlestickSeries,HistogramSeries,LineSeries,createSeriesMarkers,ColorType,Time,SeriesMarker } from "lightweight-charts";
+type Trade={entry_date:string;exit_date:string;entry_price:number;exit_price:number;exit_reason:string;ret_pct:number};
+type Payload={ticker:string;name:string;price_basis:string;bars:[string,number,number,number,number,number][];trades:Trade[];eligibility:string;in_reference793:boolean};
+type Gate={selected_rank:{rank:number;momentum_pct:number}|null;market:{as_of:string;close:number;ma:number};allow_new_by_snapshot:boolean};
+const reasons:Record<string,string>={stop:'12%止损',time:'持有到期',end_of_period:'回测期末统计清算'};
+
+export function MomentumDecisionChart({ticker,scope="reference793"}:{ticker:string;scope?:string}){
+ const [data,setData]=useState<Payload|null>(null),[error,setError]=useState(''),[selected,setSelected]=useState(-1);
+ const [rank,setRank]=useState<{rank:number;momentum_pct:number}|null>(null),[gate,setGate]=useState<Gate|null>(null);
+ const container=useRef<HTMLDivElement>(null);
+ useEffect(()=>{const abort=new AbortController();
+  async function load(){try{const r=await fetch(`/strategy/momentum/${encodeURIComponent(ticker)}.json.gz`,{signal:abort.signal});if(!r.ok)throw Error('该股票没有已核验图表；可能被排除、历史不足或不在当前目录中。');const bytes=new Uint8Array(await r.arrayBuffer());let text:string;if(bytes[0]===31&&bytes[1]===139){text=await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text();}else{text=new TextDecoder().decode(bytes);}const p=JSON.parse(text) as Payload;if(p.ticker!==ticker||p.price_basis!=='hfq')throw Error('图表身份或价格口径不匹配');setData(p);setSelected(p.trades.length-1);}catch(e){if(e instanceof Error&&e.name!=='AbortError')setError(e.message);}}
+  void load();
+  fetch(`/api/strategy/momentum-selected?scope=${scope}&ticker=${encodeURIComponent(ticker)}`,{signal:abort.signal}).then(r=>r.json()).then((g:Gate)=>{setGate(g);setRank(g.selected_rank);}).catch(()=>{});
+  return()=>abort.abort();
+ },[ticker,scope]);
+ useEffect(()=>{if(!data||!container.current)return;const host=container.current;
+  const chart=createChart(host,{width:host.clientWidth,height:440,layout:{background:{type:ColorType.Solid,color:'transparent'},textColor:'#8993a4'},grid:{vertLines:{color:'#8893a420'},horzLines:{color:'#8893a420'}}});
+  const candles=chart.addSeries(CandlestickSeries,{upColor:'#ef4444',downColor:'#10b981',borderVisible:false,wickUpColor:'#ef4444',wickDownColor:'#10b981'});
+  candles.setData(data.bars.map(b=>({time:b[0] as Time,open:b[1],high:b[2],low:b[3],close:b[4]})));
+  const vol=chart.addSeries(HistogramSeries,{priceScaleId:'',priceFormat:{type:'volume'}});vol.priceScale().applyOptions({scaleMargins:{top:.83,bottom:0}});vol.setData(data.bars.map(b=>({time:b[0] as Time,value:b[5],color:b[4]>=b[1]?'#ef444455':'#10b98155'})));
+  const markers:SeriesMarker<Time>[]=data.trades.flatMap(t=>[{time:t.entry_date as Time,position:'belowBar' as const,color:'#2563eb',shape:'arrowUp' as const,text:'回测买入'},{time:t.exit_date as Time,position:'aboveBar' as const,color:'#f97316',shape:'arrowDown' as const,text:reasons[t.exit_reason]??t.exit_reason}]);markers.sort((a,b)=>String(a.time).localeCompare(String(b.time)));createSeriesMarkers(candles,markers);
+  const trade=data.trades[selected];if(trade){const stop=chart.addSeries(LineSeries,{color:'#d946ef',lineWidth:2,priceLineVisible:false,lastValueVisible:false,title:'回测参考止损'});stop.setData(data.bars.filter(b=>b[0]>=trade.entry_date&&b[0]<=trade.exit_date).map(b=>({time:b[0] as Time,value:trade.entry_price*.88})));const first=data.bars.findIndex(b=>b[0]===trade.entry_date),last=data.bars.findIndex(b=>b[0]===trade.exit_date);chart.timeScale().setVisibleLogicalRange({from:Math.max(0,first-15),to:Math.min(data.bars.length-1,last+15)});}else chart.timeScale().setVisibleLogicalRange({from:Math.max(0,data.bars.length-180),to:data.bars.length-1});
+  const observer=new ResizeObserver(()=>chart.applyOptions({width:host.clientWidth}));observer.observe(host);return()=>{observer.disconnect();chart.remove();};
+ },[data,selected]);
+ return <div className="space-y-5"><Link className="text-sm underline" href="/strategy">← 返回策略</Link><h1 className="text-2xl font-bold">{data?.name??ticker} · 买卖决策图</h1>{error&&<p role="alert" className="rounded border p-4">{error}</p>}{!data&&!error&&<p>正在加载K线与决策点…</p>}
+ <LiveDecisionMonitor ticker={ticker}/>{data&&<><section className="grid gap-3 md:grid-cols-3"><div className="rounded-xl border p-4"><p className="text-sm text-muted-foreground">所选股票池候选判断</p><p className="mt-2 font-semibold">{scope==='reference793'&&!data.in_reference793?'不在原793只回测池':scope==='mainboard'&&data.eligibility==='excluded_board'?'自定义主板池已排除':rank?`排名 ${rank.rank} · 12周 ${rank.momentum_pct.toFixed(2)}%`:'未进入有效主板排名'}</p></div><div className="rounded-xl border p-4"><p className="text-sm text-muted-foreground">大盘门槛</p><p className="mt-2 font-semibold">{gate?gate.allow_new_by_snapshot?'大盘允许新增，仍须检查空位和时点':'停止新增':'数据待核验'}</p><p className="mt-2 text-xs">{gate?.market.as_of} 收盘 {gate?.market.close.toFixed(2)} / MA120 {gate?.market.ma.toFixed(2)}</p></div><div className="rounded-xl border p-4"><p className="text-sm text-muted-foreground">退出判断</p><p className="mt-2 text-sm">实际入场价×88%止损，原持有计数到期退出；排名下降不单独触发卖出。</p></div></section>
+ <section className="rounded-xl border p-4"><h2 className="font-semibold">历史后复权K线 · 回测模拟买卖</h2><p className="mt-2 text-sm text-muted-foreground">蓝色箭头=原793只回测买入；橙色箭头=回测卖出；紫线=所选交易约12%止损线。不是你的实际成交，也不是主板范围回测结果。图中价格不可直接用于下单。</p><div ref={container} className="mt-4 w-full" style={{height:440}}/><p className="mt-2 text-xs text-muted-foreground">图表归档截至 {data.bars.at(-1)?.[0]}。买卖点是事后执行记录，不能视为当时可知的未来预测。</p></section>
+ <section className="rounded-xl border p-4"><h2 className="font-semibold">交易记录 · 点击定位K线</h2>{data.trades.length===0?<p className="mt-3 text-sm">没有原793只回测的交易记录，不伪造买卖点。新主板池交易回测尚未计算。</p>:<div className="mt-3 max-h-72 overflow-auto"><table className="w-full min-w-[550px] text-left text-sm"><thead><tr><th>买入日期</th><th>卖出日期</th><th>原因</th><th>净收益率</th><th>定位</th></tr></thead><tbody>{data.trades.map((t,i)=><tr key={`${t.entry_date}-${i}`} className="border-b"><td className="py-3">{t.entry_date}</td><td>{t.exit_date}</td><td>{reasons[t.exit_reason]??t.exit_reason}</td><td>{t.ret_pct.toFixed(2)}%</td><td><button className="rounded border px-3 py-1" onClick={()=>setSelected(i)}>查看</button></td></tr>)}</tbody></table></div>}</section>
+ <p className="text-sm text-muted-foreground">介入需要：处于所选股票池、动量排序靠前、前日大盘高于MA120、周后首交易日、账户有空位及可用现金，且实际交易未受限制。当前未读取你的原始成交记录，不能自动标注个人买卖点。</p></>}
+ </div>;
+}

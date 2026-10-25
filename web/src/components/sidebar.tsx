@@ -41,7 +41,7 @@ const navigation = [
   { name: "投资组合", href: "/portfolio", icon: BriefcaseBusiness },
   { name: "板块分析", href: "/sectors", icon: Layers3 },
   { name: "AI 条件选股", href: "/stock-picker", icon: Target },
-  { name: "动量轮动策略", href: "/strategy", icon: Target },
+  { name: "动量策略与买卖图", href: "/strategy", icon: Target },
   { name: "财报数据", href: "/financials", icon: FileText },
 ];
 

@@ -1,0 +1,38 @@
+name: Refresh mainboard momentum strategy
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '25 10 * * 1-5'
+permissions:
+  contents: write
+concurrency:
+  group: mainboard-momentum-refresh
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pandas numpy requests pytest fastapi httpx
+      - run: python -m scripts.refresh_mainboard_momentum
+      - run: python -m pytest tests/test_full_cn_scope.py tests/test_selected_momentum.py -q
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mainboard-momentum-source-archive
+          path: storage/stock_picker/research/mainboard-momentum-refresh/
+          retention-days: 30
+      - run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add api/research_reports/momentum-mainboard.json
+          git diff --cached --quiet && exit 0
+          git commit -m 'chore: refresh mainboard momentum snapshot'
+          git pull --rebase origin main
+          git push origin main

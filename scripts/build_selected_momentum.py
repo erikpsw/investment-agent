@@ -87,7 +87,7 @@ def build(refresh=False):
     if not refresh:results={k:results[k] for k in ['stocks','costs','results']}
     report=dict(version=POLICY['version'],active_policy=True,mode='decision_support',automation_enabled=False,
                 generated_at=now.isoformat(),signal_as_of=signal_day,market=gate,policy=POLICY,
-                universe_size=len(universe),ranked_count=len(ranks),candidates=[dict(r,native_quote=quotes.get(r['ticker'])) for r in ranks[:40]],
+                universe_size=len(universe),ranked_count=len(ranks),_rankings=ranks,candidates=[dict(r,native_quote=quotes.get(r['ticker'])) for r in ranks[:40]],
                 backtest=results,provenance=provenance,
                 limitations=['793只当前成分样本有幸存者偏差，非历史时点股票池。',
                 '527.879%是已观察历史的研究收益，复权执行、历史限价、真实税费和公司行动仍有简化。',

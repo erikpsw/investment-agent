@@ -78,6 +78,7 @@ export default function StockDetailPage({ params, searchParams }: PageProps) {
   return (
     <>
       <Header onSearchClick={() => setSearchOpen(true)} />
+      {/^(sh60|sz00)/.test(decodedTicker) && <Link href={`/strategy/stock/${decodedTicker}`} className="mx-4 mt-3 block rounded-lg border p-3 text-sm">查看买卖决策图 →</Link>}
       <StockSearch open={searchOpen} onOpenChange={setSearchOpen} />
 
       <div className="flex-1 p-3 sm:p-6 space-y-6">

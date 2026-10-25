@@ -735,5 +735,6351 @@
     "市场弱时停止新增，不因跌破MA120自动清空已有持仓。",
     "原程序持有计数20在递增前检查，通常是买入后第21个有报价交易日收盘退出；不悄悄改成第20日。",
     "当前候选不是历史回测期末持仓；回测期末清算是统计处理，不是每周强制清仓。"
+  ],
+  "_rankings": [
+    {
+      "ticker": "sh688018",
+      "name": "乐鑫科技",
+      "momentum_pct": 49.28433299064636,
+      "signal_close_hfq": 424.49,
+      "price_basis": "hfq_not_executable",
+      "rank": 1
+    },
+    {
+      "ticker": "sh600316",
+      "name": "洪都航空",
+      "momentum_pct": 46.702197194099426,
+      "signal_close_hfq": 154.14,
+      "price_basis": "hfq_not_executable",
+      "rank": 2
+    },
+    {
+      "ticker": "sz300570",
+      "name": "太辰光",
+      "momentum_pct": 39.62060809135437,
+      "signal_close_hfq": 298.09,
+      "price_basis": "hfq_not_executable",
+      "rank": 3
+    },
+    {
+      "ticker": "sz300413",
+      "name": "300413",
+      "momentum_pct": 38.8073593378067,
+      "signal_close_hfq": 41.713,
+      "price_basis": "hfq_not_executable",
+      "rank": 4
+    },
+    {
+      "ticker": "sh688313",
+      "name": "仕佳光子",
+      "momentum_pct": 26.472213864326477,
+      "signal_close_hfq": 114.47,
+      "price_basis": "hfq_not_executable",
+      "rank": 5
+    },
+    {
+      "ticker": "sh688114",
+      "name": "华大智造",
+      "momentum_pct": 25.308889150619507,
+      "signal_close_hfq": 62.88,
+      "price_basis": "hfq_not_executable",
+      "rank": 6
+    },
+    {
+      "ticker": "sz002436",
+      "name": "兴森科技",
+      "momentum_pct": 24.422714114189148,
+      "signal_close_hfq": 422.44,
+      "price_basis": "hfq_not_executable",
+      "rank": 7
+    },
+    {
+      "ticker": "sh688192",
+      "name": "迪哲医药",
+      "momentum_pct": 24.074436724185944,
+      "signal_close_hfq": 63.34,
+      "price_basis": "hfq_not_executable",
+      "rank": 8
+    },
+    {
+      "ticker": "sh603119",
+      "name": "浙江荣泰",
+      "momentum_pct": 23.827223479747772,
+      "signal_close_hfq": 96.61,
+      "price_basis": "hfq_not_executable",
+      "rank": 9
+    },
+    {
+      "ticker": "sz301269",
+      "name": "301269",
+      "momentum_pct": 23.636363446712494,
+      "signal_close_hfq": 108.8,
+      "price_basis": "hfq_not_executable",
+      "rank": 10
+    },
+    {
+      "ticker": "sz300454",
+      "name": "深信服",
+      "momentum_pct": 22.424091398715973,
+      "signal_close_hfq": 147.57,
+      "price_basis": "hfq_not_executable",
+      "rank": 11
+    },
+    {
+      "ticker": "sh601118",
+      "name": "海南橡胶",
+      "momentum_pct": 22.24334627389908,
+      "signal_close_hfq": 6.43,
+      "price_basis": "hfq_not_executable",
+      "rank": 12
+    },
+    {
+      "ticker": "sz300623",
+      "name": "捷捷微电",
+      "momentum_pct": 22.135840356349945,
+      "signal_close_hfq": 202.66,
+      "price_basis": "hfq_not_executable",
+      "rank": 13
+    },
+    {
+      "ticker": "sz300620",
+      "name": "光库科技",
+      "momentum_pct": 22.070956230163574,
+      "signal_close_hfq": 566.69,
+      "price_basis": "hfq_not_executable",
+      "rank": 14
+    },
+    {
+      "ticker": "sh600562",
+      "name": "国睿科技",
+      "momentum_pct": 21.75278663635254,
+      "signal_close_hfq": 197.69,
+      "price_basis": "hfq_not_executable",
+      "rank": 15
+    },
+    {
+      "ticker": "sh603083",
+      "name": "剑桥科技",
+      "momentum_pct": 21.51283770799637,
+      "signal_close_hfq": 350.2,
+      "price_basis": "hfq_not_executable",
+      "rank": 16
+    },
+    {
+      "ticker": "sh603728",
+      "name": "鸣志电器",
+      "momentum_pct": 20.977942645549774,
+      "signal_close_hfq": 78.43,
+      "price_basis": "hfq_not_executable",
+      "rank": 17
+    },
+    {
+      "ticker": "sh600435",
+      "name": "北方导航",
+      "momentum_pct": 20.755252242088318,
+      "signal_close_hfq": 170.12,
+      "price_basis": "hfq_not_executable",
+      "rank": 18
+    },
+    {
+      "ticker": "sh603341",
+      "name": "龙旗科技",
+      "momentum_pct": 20.332278311252594,
+      "signal_close_hfq": 45.63,
+      "price_basis": "hfq_not_executable",
+      "rank": 19
+    },
+    {
+      "ticker": "sh688213",
+      "name": "思特威",
+      "momentum_pct": 19.42153126001358,
+      "signal_close_hfq": 111.48,
+      "price_basis": "hfq_not_executable",
+      "rank": 20
+    },
+    {
+      "ticker": "sz300548",
+      "name": "长芯博创",
+      "momentum_pct": 19.31595355272293,
+      "signal_close_hfq": 456.3,
+      "price_basis": "hfq_not_executable",
+      "rank": 21
+    },
+    {
+      "ticker": "sh601869",
+      "name": "长飞光纤",
+      "momentum_pct": 18.788962066173553,
+      "signal_close_hfq": 325.85,
+      "price_basis": "hfq_not_executable",
+      "rank": 22
+    },
+    {
+      "ticker": "sh600482",
+      "name": "中国动力",
+      "momentum_pct": 18.33006888628006,
+      "signal_close_hfq": 89.396,
+      "price_basis": "hfq_not_executable",
+      "rank": 23
+    },
+    {
+      "ticker": "sh600967",
+      "name": "内蒙一机",
+      "momentum_pct": 18.28899085521698,
+      "signal_close_hfq": 74.25,
+      "price_basis": "hfq_not_executable",
+      "rank": 24
+    },
+    {
+      "ticker": "sz003021",
+      "name": "兆威机电",
+      "momentum_pct": 17.88810044527054,
+      "signal_close_hfq": 209.44,
+      "price_basis": "hfq_not_executable",
+      "rank": 25
+    },
+    {
+      "ticker": "sh688617",
+      "name": "惠泰医疗",
+      "momentum_pct": 17.49769002199173,
+      "signal_close_hfq": 572.39,
+      "price_basis": "hfq_not_executable",
+      "rank": 26
+    },
+    {
+      "ticker": "sz300394",
+      "name": "300394",
+      "momentum_pct": 17.457863688468933,
+      "signal_close_hfq": 2517.27,
+      "price_basis": "hfq_not_executable",
+      "rank": 27
+    },
+    {
+      "ticker": "sh600977",
+      "name": "中国电影",
+      "momentum_pct": 16.485899686813354,
+      "signal_close_hfq": 16.11,
+      "price_basis": "hfq_not_executable",
+      "rank": 28
+    },
+    {
+      "ticker": "sz300832",
+      "name": "300832",
+      "momentum_pct": 16.282856464385986,
+      "signal_close_hfq": 119.269,
+      "price_basis": "hfq_not_executable",
+      "rank": 29
+    },
+    {
+      "ticker": "sh600256",
+      "name": "广汇能源",
+      "momentum_pct": 15.520362555980682,
+      "signal_close_hfq": 408.48,
+      "price_basis": "hfq_not_executable",
+      "rank": 30
+    },
+    {
+      "ticker": "sz301297",
+      "name": "富乐德",
+      "momentum_pct": 15.387183427810669,
+      "signal_close_hfq": 34.57,
+      "price_basis": "hfq_not_executable",
+      "rank": 31
+    },
+    {
+      "ticker": "sh603920",
+      "name": "世运电路",
+      "momentum_pct": 15.315507352352142,
+      "signal_close_hfq": 53.91,
+      "price_basis": "hfq_not_executable",
+      "rank": 32
+    },
+    {
+      "ticker": "sh600893",
+      "name": "航发动力",
+      "momentum_pct": 15.26193767786026,
+      "signal_close_hfq": 131.175,
+      "price_basis": "hfq_not_executable",
+      "rank": 33
+    },
+    {
+      "ticker": "sh688322",
+      "name": "奥比中光",
+      "momentum_pct": 15.064990520477295,
+      "signal_close_hfq": 108.0,
+      "price_basis": "hfq_not_executable",
+      "rank": 34
+    },
+    {
+      "ticker": "sh603893",
+      "name": "瑞芯微",
+      "momentum_pct": 14.235693216323853,
+      "signal_close_hfq": 218.59,
+      "price_basis": "hfq_not_executable",
+      "rank": 35
+    },
+    {
+      "ticker": "sh600601",
+      "name": "方正科技",
+      "momentum_pct": 13.730627298355103,
+      "signal_close_hfq": 113252.8,
+      "price_basis": "hfq_not_executable",
+      "rank": 36
+    },
+    {
+      "ticker": "sz302132",
+      "name": "302132",
+      "momentum_pct": 13.416807353496552,
+      "signal_close_hfq": 388.135,
+      "price_basis": "hfq_not_executable",
+      "rank": 37
+    },
+    {
+      "ticker": "sz300487",
+      "name": "蓝晓科技",
+      "momentum_pct": 12.740740180015564,
+      "signal_close_hfq": 388.11,
+      "price_basis": "hfq_not_executable",
+      "rank": 38
+    },
+    {
+      "ticker": "sh603259",
+      "name": "药明康德",
+      "momentum_pct": 12.45822012424469,
+      "signal_close_hfq": 356.65,
+      "price_basis": "hfq_not_executable",
+      "rank": 39
+    },
+    {
+      "ticker": "sh601857",
+      "name": "中国石油",
+      "momentum_pct": 11.9801364839077,
+      "signal_close_hfq": 18.04,
+      "price_basis": "hfq_not_executable",
+      "rank": 40
+    },
+    {
+      "ticker": "sh688248",
+      "name": "南网科技",
+      "momentum_pct": 11.663167923688889,
+      "signal_close_hfq": 47.87,
+      "price_basis": "hfq_not_executable",
+      "rank": 41
+    },
+    {
+      "ticker": "sh603939",
+      "name": "益丰药房",
+      "momentum_pct": 11.480556428432465,
+      "signal_close_hfq": 174.01,
+      "price_basis": "hfq_not_executable",
+      "rank": 42
+    },
+    {
+      "ticker": "sh688561",
+      "name": "奇安信",
+      "momentum_pct": 10.987791419029236,
+      "signal_close_hfq": 30.0,
+      "price_basis": "hfq_not_executable",
+      "rank": 43
+    },
+    {
+      "ticker": "sh688385",
+      "name": "复旦微电",
+      "momentum_pct": 10.979832708835602,
+      "signal_close_hfq": 54.48,
+      "price_basis": "hfq_not_executable",
+      "rank": 44
+    },
+    {
+      "ticker": "sz300012",
+      "name": "华测检测",
+      "momentum_pct": 10.75880154967308,
+      "signal_close_hfq": 303.9,
+      "price_basis": "hfq_not_executable",
+      "rank": 45
+    },
+    {
+      "ticker": "sz300760",
+      "name": "300760",
+      "momentum_pct": 10.418260097503662,
+      "signal_close_hfq": 209.321,
+      "price_basis": "hfq_not_executable",
+      "rank": 46
+    },
+    {
+      "ticker": "sh601728",
+      "name": "中国电信",
+      "momentum_pct": 9.421265125274658,
+      "signal_close_hfq": 8.13,
+      "price_basis": "hfq_not_executable",
+      "rank": 47
+    },
+    {
+      "ticker": "sh601988",
+      "name": "中国银行",
+      "momentum_pct": 9.356725215911865,
+      "signal_close_hfq": 11.22,
+      "price_basis": "hfq_not_executable",
+      "rank": 48
+    },
+    {
+      "ticker": "sz300498",
+      "name": "300498",
+      "momentum_pct": 9.213051944971085,
+      "signal_close_hfq": 35.847,
+      "price_basis": "hfq_not_executable",
+      "rank": 49
+    },
+    {
+      "ticker": "sz003816",
+      "name": "003816",
+      "momentum_pct": 9.08706709742546,
+      "signal_close_hfq": 5.162,
+      "price_basis": "hfq_not_executable",
+      "rank": 50
+    },
+    {
+      "ticker": "sh600312",
+      "name": "平高电气",
+      "momentum_pct": 8.803404867649078,
+      "signal_close_hfq": 130.39,
+      "price_basis": "hfq_not_executable",
+      "rank": 51
+    },
+    {
+      "ticker": "sh601998",
+      "name": "中信银行",
+      "momentum_pct": 8.744394779205322,
+      "signal_close_hfq": 14.55,
+      "price_basis": "hfq_not_executable",
+      "rank": 52
+    },
+    {
+      "ticker": "sh600760",
+      "name": "中航沈飞",
+      "momentum_pct": 8.722628653049469,
+      "signal_close_hfq": 488.02,
+      "price_basis": "hfq_not_executable",
+      "rank": 53
+    },
+    {
+      "ticker": "sh600026",
+      "name": "600026",
+      "momentum_pct": 8.616594970226288,
+      "signal_close_hfq": 29.27,
+      "price_basis": "hfq_not_executable",
+      "rank": 54
+    },
+    {
+      "ticker": "sh600803",
+      "name": "新奥股份",
+      "momentum_pct": 8.56073722243309,
+      "signal_close_hfq": 157.818,
+      "price_basis": "hfq_not_executable",
+      "rank": 55
+    },
+    {
+      "ticker": "sz000768",
+      "name": "000768",
+      "momentum_pct": 8.455521613359451,
+      "signal_close_hfq": 207.996,
+      "price_basis": "hfq_not_executable",
+      "rank": 56
+    },
+    {
+      "ticker": "sh688002",
+      "name": "睿创微纳",
+      "momentum_pct": 8.410429209470749,
+      "signal_close_hfq": 154.68,
+      "price_basis": "hfq_not_executable",
+      "rank": 57
+    },
+    {
+      "ticker": "sh688235",
+      "name": "百济神州",
+      "momentum_pct": 8.080139756202698,
+      "signal_close_hfq": 277.82,
+      "price_basis": "hfq_not_executable",
+      "rank": 58
+    },
+    {
+      "ticker": "sh600598",
+      "name": "北大荒",
+      "momentum_pct": 7.974068075418472,
+      "signal_close_hfq": 33.31,
+      "price_basis": "hfq_not_executable",
+      "rank": 59
+    },
+    {
+      "ticker": "sh688122",
+      "name": "西部超导",
+      "momentum_pct": 7.723423093557358,
+      "signal_close_hfq": 85.22,
+      "price_basis": "hfq_not_executable",
+      "rank": 60
+    },
+    {
+      "ticker": "sh600295",
+      "name": "鄂尔多斯",
+      "momentum_pct": 7.71121010184288,
+      "signal_close_hfq": 92.05,
+      "price_basis": "hfq_not_executable",
+      "rank": 61
+    },
+    {
+      "ticker": "sh600699",
+      "name": "均胜电子",
+      "momentum_pct": 7.546751946210861,
+      "signal_close_hfq": 97.19,
+      "price_basis": "hfq_not_executable",
+      "rank": 62
+    },
+    {
+      "ticker": "sh601328",
+      "name": "交通银行",
+      "momentum_pct": 7.472752034664154,
+      "signal_close_hfq": 15.777,
+      "price_basis": "hfq_not_executable",
+      "rank": 63
+    },
+    {
+      "ticker": "sh603160",
+      "name": "汇顶科技",
+      "momentum_pct": 7.241501659154892,
+      "signal_close_hfq": 60.57,
+      "price_basis": "hfq_not_executable",
+      "rank": 64
+    },
+    {
+      "ticker": "sz300115",
+      "name": "长盈精密",
+      "momentum_pct": 7.059644162654877,
+      "signal_close_hfq": 352.89,
+      "price_basis": "hfq_not_executable",
+      "rank": 65
+    },
+    {
+      "ticker": "sh600674",
+      "name": "川投能源",
+      "momentum_pct": 7.047587633132935,
+      "signal_close_hfq": 334.923,
+      "price_basis": "hfq_not_executable",
+      "rank": 66
+    },
+    {
+      "ticker": "sz002966",
+      "name": "苏州银行",
+      "momentum_pct": 7.014542073011398,
+      "signal_close_hfq": 12.51,
+      "price_basis": "hfq_not_executable",
+      "rank": 67
+    },
+    {
+      "ticker": "sh688052",
+      "name": "纳芯微",
+      "momentum_pct": 6.88537061214447,
+      "signal_close_hfq": 280.2,
+      "price_basis": "hfq_not_executable",
+      "rank": 68
+    },
+    {
+      "ticker": "sz002472",
+      "name": "双环传动",
+      "momentum_pct": 6.826193630695343,
+      "signal_close_hfq": 200.0,
+      "price_basis": "hfq_not_executable",
+      "rank": 69
+    },
+    {
+      "ticker": "sh601898",
+      "name": "中煤能源",
+      "momentum_pct": 6.744185835123062,
+      "signal_close_hfq": 18.36,
+      "price_basis": "hfq_not_executable",
+      "rank": 70
+    },
+    {
+      "ticker": "sh600583",
+      "name": "海油工程",
+      "momentum_pct": 6.601276993751526,
+      "signal_close_hfq": 136.94,
+      "price_basis": "hfq_not_executable",
+      "rank": 71
+    },
+    {
+      "ticker": "sh601088",
+      "name": "中国神华",
+      "momentum_pct": 6.36196956038475,
+      "signal_close_hfq": 75.4,
+      "price_basis": "hfq_not_executable",
+      "rank": 72
+    },
+    {
+      "ticker": "sh600737",
+      "name": "中粮糖业",
+      "momentum_pct": 6.027784198522568,
+      "signal_close_hfq": 180.12,
+      "price_basis": "hfq_not_executable",
+      "rank": 73
+    },
+    {
+      "ticker": "sz300017",
+      "name": "网宿科技",
+      "momentum_pct": 5.992233753204346,
+      "signal_close_hfq": 360.31,
+      "price_basis": "hfq_not_executable",
+      "rank": 74
+    },
+    {
+      "ticker": "sh600938",
+      "name": "中国海油",
+      "momentum_pct": 5.962749198079109,
+      "signal_close_hfq": 40.393,
+      "price_basis": "hfq_not_executable",
+      "rank": 75
+    },
+    {
+      "ticker": "sz300676",
+      "name": "华大基因",
+      "momentum_pct": 5.853418633341789,
+      "signal_close_hfq": 43.04,
+      "price_basis": "hfq_not_executable",
+      "rank": 76
+    },
+    {
+      "ticker": "sh601298",
+      "name": "青岛港",
+      "momentum_pct": 5.8243729174137115,
+      "signal_close_hfq": 11.81,
+      "price_basis": "hfq_not_executable",
+      "rank": 77
+    },
+    {
+      "ticker": "sz300395",
+      "name": "菲利华",
+      "momentum_pct": 5.678321793675423,
+      "signal_close_hfq": 528.92,
+      "price_basis": "hfq_not_executable",
+      "rank": 78
+    },
+    {
+      "ticker": "sh600329",
+      "name": "达仁堂",
+      "momentum_pct": 5.621953308582306,
+      "signal_close_hfq": 134.33,
+      "price_basis": "hfq_not_executable",
+      "rank": 79
+    },
+    {
+      "ticker": "sh600377",
+      "name": "宁沪高速",
+      "momentum_pct": 5.344070121645927,
+      "signal_close_hfq": 28.78,
+      "price_basis": "hfq_not_executable",
+      "rank": 80
+    },
+    {
+      "ticker": "sz002714",
+      "name": "002714",
+      "momentum_pct": 5.264003947377205,
+      "signal_close_hfq": 805.277,
+      "price_basis": "hfq_not_executable",
+      "rank": 81
+    },
+    {
+      "ticker": "sz002683",
+      "name": "广东宏大",
+      "momentum_pct": 5.217831954360008,
+      "signal_close_hfq": 83.08,
+      "price_basis": "hfq_not_executable",
+      "rank": 82
+    },
+    {
+      "ticker": "sh601155",
+      "name": "新城控股",
+      "momentum_pct": 5.215124040842056,
+      "signal_close_hfq": 24.21,
+      "price_basis": "hfq_not_executable",
+      "rank": 83
+    },
+    {
+      "ticker": "sh600901",
+      "name": "江苏金租",
+      "momentum_pct": 5.183946341276169,
+      "signal_close_hfq": 12.58,
+      "price_basis": "hfq_not_executable",
+      "rank": 84
+    },
+    {
+      "ticker": "sh600886",
+      "name": "国投电力",
+      "momentum_pct": 5.151139944791794,
+      "signal_close_hfq": 725.219,
+      "price_basis": "hfq_not_executable",
+      "rank": 85
+    },
+    {
+      "ticker": "sz001979",
+      "name": "001979",
+      "momentum_pct": 5.0539083778858185,
+      "signal_close_hfq": 12.472,
+      "price_basis": "hfq_not_executable",
+      "rank": 86
+    },
+    {
+      "ticker": "sz000738",
+      "name": "航发控制",
+      "momentum_pct": 4.943181946873665,
+      "signal_close_hfq": 36.94,
+      "price_basis": "hfq_not_executable",
+      "rank": 87
+    },
+    {
+      "ticker": "sh601766",
+      "name": "中国中车",
+      "momentum_pct": 4.86111119389534,
+      "signal_close_hfq": 9.06,
+      "price_basis": "hfq_not_executable",
+      "rank": 88
+    },
+    {
+      "ticker": "sz000831",
+      "name": "中国稀土",
+      "momentum_pct": 4.81477677822113,
+      "signal_close_hfq": 204.85,
+      "price_basis": "hfq_not_executable",
+      "rank": 89
+    },
+    {
+      "ticker": "sz002945",
+      "name": "华林证券",
+      "momentum_pct": 4.790419340133667,
+      "signal_close_hfq": 15.75,
+      "price_basis": "hfq_not_executable",
+      "rank": 90
+    },
+    {
+      "ticker": "sz002142",
+      "name": "002142",
+      "momentum_pct": 4.731371626257896,
+      "signal_close_hfq": 66.805,
+      "price_basis": "hfq_not_executable",
+      "rank": 91
+    },
+    {
+      "ticker": "sz002185",
+      "name": "华天科技",
+      "momentum_pct": 4.731084406375885,
+      "signal_close_hfq": 182.85,
+      "price_basis": "hfq_not_executable",
+      "rank": 92
+    },
+    {
+      "ticker": "sh603658",
+      "name": "安图生物",
+      "momentum_pct": 4.6877894550561905,
+      "signal_close_hfq": 56.5,
+      "price_basis": "hfq_not_executable",
+      "rank": 93
+    },
+    {
+      "ticker": "sh600183",
+      "name": "生益科技",
+      "momentum_pct": 4.606145620346069,
+      "signal_close_hfq": 861.009,
+      "price_basis": "hfq_not_executable",
+      "rank": 94
+    },
+    {
+      "ticker": "sh601225",
+      "name": "陕西煤业",
+      "momentum_pct": 4.544387012720108,
+      "signal_close_hfq": 35.612,
+      "price_basis": "hfq_not_executable",
+      "rank": 95
+    },
+    {
+      "ticker": "sh603087",
+      "name": "甘李药业",
+      "momentum_pct": 4.513649269938469,
+      "signal_close_hfq": 106.05,
+      "price_basis": "hfq_not_executable",
+      "rank": 96
+    },
+    {
+      "ticker": "sz002430",
+      "name": "杭氧股份",
+      "momentum_pct": 4.435994848608971,
+      "signal_close_hfq": 57.68,
+      "price_basis": "hfq_not_executable",
+      "rank": 97
+    },
+    {
+      "ticker": "sh601658",
+      "name": "邮储银行",
+      "momentum_pct": 4.38276119530201,
+      "signal_close_hfq": 7.145,
+      "price_basis": "hfq_not_executable",
+      "rank": 98
+    },
+    {
+      "ticker": "sh600663",
+      "name": "陆家嘴",
+      "momentum_pct": 4.339341074228287,
+      "signal_close_hfq": 90.89,
+      "price_basis": "hfq_not_executable",
+      "rank": 99
+    },
+    {
+      "ticker": "sh601288",
+      "name": "农业银行",
+      "momentum_pct": 4.282218590378761,
+      "signal_close_hfq": 10.228,
+      "price_basis": "hfq_not_executable",
+      "rank": 100
+    },
+    {
+      "ticker": "sh688469",
+      "name": "芯联集成",
+      "momentum_pct": 4.2307693511247635,
+      "signal_close_hfq": 8.13,
+      "price_basis": "hfq_not_executable",
+      "rank": 101
+    },
+    {
+      "ticker": "sh601156",
+      "name": "东航物流",
+      "momentum_pct": 4.110996797680855,
+      "signal_close_hfq": 20.26,
+      "price_basis": "hfq_not_executable",
+      "rank": 102
+    },
+    {
+      "ticker": "sh600027",
+      "name": "600027",
+      "momentum_pct": 4.099277779459953,
+      "signal_close_hfq": 10.234,
+      "price_basis": "hfq_not_executable",
+      "rank": 103
+    },
+    {
+      "ticker": "sh601077",
+      "name": "渝农商行",
+      "momentum_pct": 4.0462426841259,
+      "signal_close_hfq": 9.0,
+      "price_basis": "hfq_not_executable",
+      "rank": 104
+    },
+    {
+      "ticker": "sh603369",
+      "name": "今世缘",
+      "momentum_pct": 3.9828013628721237,
+      "signal_close_hfq": 91.9,
+      "price_basis": "hfq_not_executable",
+      "rank": 105
+    },
+    {
+      "ticker": "sh600036",
+      "name": "招商银行",
+      "momentum_pct": 3.875090926885605,
+      "signal_close_hfq": 223.802,
+      "price_basis": "hfq_not_executable",
+      "rank": 106
+    },
+    {
+      "ticker": "sh601398",
+      "name": "工商银行",
+      "momentum_pct": 3.8582496345043182,
+      "signal_close_hfq": 13.54,
+      "price_basis": "hfq_not_executable",
+      "rank": 107
+    },
+    {
+      "ticker": "sh600941",
+      "name": "中国移动",
+      "momentum_pct": 3.6189209669828415,
+      "signal_close_hfq": 121.402,
+      "price_basis": "hfq_not_executable",
+      "rank": 108
+    },
+    {
+      "ticker": "sh600764",
+      "name": "中国海防",
+      "momentum_pct": 3.6089617758989334,
+      "signal_close_hfq": 179.43,
+      "price_basis": "hfq_not_executable",
+      "rank": 109
+    },
+    {
+      "ticker": "sh603565",
+      "name": "中谷物流",
+      "momentum_pct": 3.41256782412529,
+      "signal_close_hfq": 43.94,
+      "price_basis": "hfq_not_executable",
+      "rank": 110
+    },
+    {
+      "ticker": "sh688099",
+      "name": "晶晨股份",
+      "momentum_pct": 3.3394422382116318,
+      "signal_close_hfq": 101.5,
+      "price_basis": "hfq_not_executable",
+      "rank": 111
+    },
+    {
+      "ticker": "sz300759",
+      "name": "康龙化成",
+      "momentum_pct": 3.2005608081817627,
+      "signal_close_hfq": 88.35,
+      "price_basis": "hfq_not_executable",
+      "rank": 112
+    },
+    {
+      "ticker": "sh601825",
+      "name": "沪农商行",
+      "momentum_pct": 3.165735676884651,
+      "signal_close_hfq": 11.08,
+      "price_basis": "hfq_not_executable",
+      "rank": 113
+    },
+    {
+      "ticker": "sh600177",
+      "name": "雅戈尔",
+      "momentum_pct": 3.153981640934944,
+      "signal_close_hfq": 269.17,
+      "price_basis": "hfq_not_executable",
+      "rank": 114
+    },
+    {
+      "ticker": "sz002463",
+      "name": "002463",
+      "momentum_pct": 3.110632486641407,
+      "signal_close_hfq": 291.999,
+      "price_basis": "hfq_not_executable",
+      "rank": 115
+    },
+    {
+      "ticker": "sh603766",
+      "name": "隆鑫通用",
+      "momentum_pct": 3.0310096219182014,
+      "signal_close_hfq": 44.19,
+      "price_basis": "hfq_not_executable",
+      "rank": 116
+    },
+    {
+      "ticker": "sz300142",
+      "name": "沃森生物",
+      "momentum_pct": 2.9791515320539474,
+      "signal_close_hfq": 184.24,
+      "price_basis": "hfq_not_executable",
+      "rank": 117
+    },
+    {
+      "ticker": "sh600887",
+      "name": "伊利股份",
+      "momentum_pct": 2.878403477370739,
+      "signal_close_hfq": 2360.832,
+      "price_basis": "hfq_not_executable",
+      "rank": 118
+    },
+    {
+      "ticker": "sh601985",
+      "name": "中国核电",
+      "momentum_pct": 2.8248587623238564,
+      "signal_close_hfq": 10.92,
+      "price_basis": "hfq_not_executable",
+      "rank": 119
+    },
+    {
+      "ticker": "sh600685",
+      "name": "中船防务",
+      "momentum_pct": 2.813943661749363,
+      "signal_close_hfq": 48.96,
+      "price_basis": "hfq_not_executable",
+      "rank": 120
+    },
+    {
+      "ticker": "sh601939",
+      "name": "建设银行",
+      "momentum_pct": 2.7955736964941025,
+      "signal_close_hfq": 17.65,
+      "price_basis": "hfq_not_executable",
+      "rank": 121
+    },
+    {
+      "ticker": "sz002508",
+      "name": "老板电器",
+      "momentum_pct": 2.7880100533366203,
+      "signal_close_hfq": 142.31,
+      "price_basis": "hfq_not_executable",
+      "rank": 122
+    },
+    {
+      "ticker": "sz002044",
+      "name": "美年健康",
+      "momentum_pct": 2.7406886219978333,
+      "signal_close_hfq": 43.86,
+      "price_basis": "hfq_not_executable",
+      "rank": 123
+    },
+    {
+      "ticker": "sh601919",
+      "name": "中远海控",
+      "momentum_pct": 2.7352653443813324,
+      "signal_close_hfq": 31.55,
+      "price_basis": "hfq_not_executable",
+      "rank": 124
+    },
+    {
+      "ticker": "sh600926",
+      "name": "杭州银行",
+      "momentum_pct": 2.6052506640553474,
+      "signal_close_hfq": 40.92,
+      "price_basis": "hfq_not_executable",
+      "rank": 125
+    },
+    {
+      "ticker": "sz000559",
+      "name": "万向钱潮",
+      "momentum_pct": 2.273338660597801,
+      "signal_close_hfq": 380.15,
+      "price_basis": "hfq_not_executable",
+      "rank": 126
+    },
+    {
+      "ticker": "sh601816",
+      "name": "京沪高铁",
+      "momentum_pct": 2.166065014898777,
+      "signal_close_hfq": 5.66,
+      "price_basis": "hfq_not_executable",
+      "rank": 127
+    },
+    {
+      "ticker": "sh601169",
+      "name": "北京银行",
+      "momentum_pct": 2.0896051079034805,
+      "signal_close_hfq": 23.06,
+      "price_basis": "hfq_not_executable",
+      "rank": 128
+    },
+    {
+      "ticker": "sh688318",
+      "name": "财富趋势",
+      "momentum_pct": 2.0587947219610214,
+      "signal_close_hfq": 415.91,
+      "price_basis": "hfq_not_executable",
+      "rank": 129
+    },
+    {
+      "ticker": "sh600028",
+      "name": "中国石化",
+      "momentum_pct": 2.028754912316799,
+      "signal_close_hfq": 17.954,
+      "price_basis": "hfq_not_executable",
+      "rank": 130
+    },
+    {
+      "ticker": "sh600023",
+      "name": "600023",
+      "momentum_pct": 1.9687026739120483,
+      "signal_close_hfq": 10.1,
+      "price_basis": "hfq_not_executable",
+      "rank": 131
+    },
+    {
+      "ticker": "sh688187",
+      "name": "时代电气",
+      "momentum_pct": 1.8842002376914024,
+      "signal_close_hfq": 51.91,
+      "price_basis": "hfq_not_executable",
+      "rank": 132
+    },
+    {
+      "ticker": "sh600801",
+      "name": "华新建材",
+      "momentum_pct": 1.8687950447201729,
+      "signal_close_hfq": 209.32,
+      "price_basis": "hfq_not_executable",
+      "rank": 133
+    },
+    {
+      "ticker": "sh603596",
+      "name": "伯特利",
+      "momentum_pct": 1.7955554649233818,
+      "signal_close_hfq": 57.26,
+      "price_basis": "hfq_not_executable",
+      "rank": 134
+    },
+    {
+      "ticker": "sz300679",
+      "name": "电连技术",
+      "momentum_pct": 1.7741935327649117,
+      "signal_close_hfq": 138.82,
+      "price_basis": "hfq_not_executable",
+      "rank": 135
+    },
+    {
+      "ticker": "sz003031",
+      "name": "中瓷电子",
+      "momentum_pct": 1.7043082043528557,
+      "signal_close_hfq": 267.94,
+      "price_basis": "hfq_not_executable",
+      "rank": 136
+    },
+    {
+      "ticker": "sh601665",
+      "name": "齐鲁银行",
+      "momentum_pct": 1.6971278935670853,
+      "signal_close_hfq": 7.79,
+      "price_basis": "hfq_not_executable",
+      "rank": 137
+    },
+    {
+      "ticker": "sz002841",
+      "name": "视源股份",
+      "momentum_pct": 1.6250448301434517,
+      "signal_close_hfq": 85.05,
+      "price_basis": "hfq_not_executable",
+      "rank": 138
+    },
+    {
+      "ticker": "sz300888",
+      "name": "稳健医疗",
+      "momentum_pct": 1.5621870756149292,
+      "signal_close_hfq": 50.71,
+      "price_basis": "hfq_not_executable",
+      "rank": 139
+    },
+    {
+      "ticker": "sh600642",
+      "name": "申能股份",
+      "momentum_pct": 1.434878632426262,
+      "signal_close_hfq": 45.95,
+      "price_basis": "hfq_not_executable",
+      "rank": 140
+    },
+    {
+      "ticker": "sh600018",
+      "name": "600018",
+      "momentum_pct": 1.3598714023828506,
+      "signal_close_hfq": 8.199,
+      "price_basis": "hfq_not_executable",
+      "rank": 141
+    },
+    {
+      "ticker": "sh601838",
+      "name": "成都银行",
+      "momentum_pct": 1.326699834316969,
+      "signal_close_hfq": 24.44,
+      "price_basis": "hfq_not_executable",
+      "rank": 142
+    },
+    {
+      "ticker": "sh600988",
+      "name": "赤峰黄金",
+      "momentum_pct": 1.3228360563516617,
+      "signal_close_hfq": 221.36,
+      "price_basis": "hfq_not_executable",
+      "rank": 143
+    },
+    {
+      "ticker": "sh600919",
+      "name": "江苏银行",
+      "momentum_pct": 1.1872991919517517,
+      "signal_close_hfq": 18.579,
+      "price_basis": "hfq_not_executable",
+      "rank": 144
+    },
+    {
+      "ticker": "sh600863",
+      "name": "华能蒙电",
+      "momentum_pct": 1.182105392217636,
+      "signal_close_hfq": 99.29,
+      "price_basis": "hfq_not_executable",
+      "rank": 145
+    },
+    {
+      "ticker": "sz300748",
+      "name": "金力永磁",
+      "momentum_pct": 1.1744236573576927,
+      "signal_close_hfq": 69.78,
+      "price_basis": "hfq_not_executable",
+      "rank": 146
+    },
+    {
+      "ticker": "sh688563",
+      "name": "航材股份",
+      "momentum_pct": 1.1698112823069096,
+      "signal_close_hfq": 53.62,
+      "price_basis": "hfq_not_executable",
+      "rank": 147
+    },
+    {
+      "ticker": "sh600637",
+      "name": "东方明珠",
+      "momentum_pct": 1.1010362766683102,
+      "signal_close_hfq": 31.22,
+      "price_basis": "hfq_not_executable",
+      "rank": 148
+    },
+    {
+      "ticker": "sz002299",
+      "name": "圣农发展",
+      "momentum_pct": 1.0890873149037361,
+      "signal_close_hfq": 46.41,
+      "price_basis": "hfq_not_executable",
+      "rank": 149
+    },
+    {
+      "ticker": "sz000887",
+      "name": "中鼎股份",
+      "momentum_pct": 1.0866141878068447,
+      "signal_close_hfq": 128.38,
+      "price_basis": "hfq_not_executable",
+      "rank": 150
+    },
+    {
+      "ticker": "sh601018",
+      "name": "宁波港",
+      "momentum_pct": 1.056338008493185,
+      "signal_close_hfq": 4.879,
+      "price_basis": "hfq_not_executable",
+      "rank": 151
+    },
+    {
+      "ticker": "sh600150",
+      "name": "中国船舶",
+      "momentum_pct": 1.0044218972325325,
+      "signal_close_hfq": 116.951,
+      "price_basis": "hfq_not_executable",
+      "rank": 152
+    },
+    {
+      "ticker": "sh688169",
+      "name": "石头科技",
+      "momentum_pct": 0.9792626835405827,
+      "signal_close_hfq": 455.78,
+      "price_basis": "hfq_not_executable",
+      "rank": 153
+    },
+    {
+      "ticker": "sz000301",
+      "name": "000301",
+      "momentum_pct": 0.9068278595805168,
+      "signal_close_hfq": 22.7,
+      "price_basis": "hfq_not_executable",
+      "rank": 154
+    },
+    {
+      "ticker": "sh600900",
+      "name": "长江电力",
+      "momentum_pct": 0.8979219943284988,
+      "signal_close_hfq": 70.792,
+      "price_basis": "hfq_not_executable",
+      "rank": 155
+    },
+    {
+      "ticker": "sz000400",
+      "name": "许继电气",
+      "momentum_pct": 0.8164653554558754,
+      "signal_close_hfq": 177.81,
+      "price_basis": "hfq_not_executable",
+      "rank": 156
+    },
+    {
+      "ticker": "sz000538",
+      "name": "000538",
+      "momentum_pct": 0.7989426143467426,
+      "signal_close_hfq": 1469.575,
+      "price_basis": "hfq_not_executable",
+      "rank": 157
+    },
+    {
+      "ticker": "sh601598",
+      "name": "中国外运",
+      "momentum_pct": 0.7352941203862429,
+      "signal_close_hfq": 8.22,
+      "price_basis": "hfq_not_executable",
+      "rank": 158
+    },
+    {
+      "ticker": "sh601577",
+      "name": "长沙银行",
+      "momentum_pct": 0.7269789930433035,
+      "signal_close_hfq": 12.47,
+      "price_basis": "hfq_not_executable",
+      "rank": 159
+    },
+    {
+      "ticker": "sh600038",
+      "name": "中直股份",
+      "momentum_pct": 0.6233303807675838,
+      "signal_close_hfq": 79.1,
+      "price_basis": "hfq_not_executable",
+      "rank": 160
+    },
+    {
+      "ticker": "sz301536",
+      "name": "星宸科技",
+      "momentum_pct": 0.5806281231343746,
+      "signal_close_hfq": 114.33,
+      "price_basis": "hfq_not_executable",
+      "rank": 161
+    },
+    {
+      "ticker": "sh600048",
+      "name": "保利发展",
+      "momentum_pct": 0.5512217991054058,
+      "signal_close_hfq": 173.112,
+      "price_basis": "hfq_not_executable",
+      "rank": 162
+    },
+    {
+      "ticker": "sz001965",
+      "name": "001965",
+      "momentum_pct": 0.5335365887731314,
+      "signal_close_hfq": 13.19,
+      "price_basis": "hfq_not_executable",
+      "rank": 163
+    },
+    {
+      "ticker": "sh600011",
+      "name": "600011",
+      "momentum_pct": 0.4867850337177515,
+      "signal_close_hfq": 32.203,
+      "price_basis": "hfq_not_executable",
+      "rank": 164
+    },
+    {
+      "ticker": "sh688772",
+      "name": "珠海冠宇",
+      "momentum_pct": 0.4435995128005743,
+      "signal_close_hfq": 15.85,
+      "price_basis": "hfq_not_executable",
+      "rank": 165
+    },
+    {
+      "ticker": "sh600968",
+      "name": "海油发展",
+      "momentum_pct": 0.4434589762240648,
+      "signal_close_hfq": 4.53,
+      "price_basis": "hfq_not_executable",
+      "rank": 166
+    },
+    {
+      "ticker": "sh600582",
+      "name": "天地科技",
+      "momentum_pct": 0.43506920337677,
+      "signal_close_hfq": 228.54,
+      "price_basis": "hfq_not_executable",
+      "rank": 167
+    },
+    {
+      "ticker": "sh600060",
+      "name": "海信视像",
+      "momentum_pct": 0.3504672786220908,
+      "signal_close_hfq": 163.21,
+      "price_basis": "hfq_not_executable",
+      "rank": 168
+    },
+    {
+      "ticker": "sz000975",
+      "name": "000975",
+      "momentum_pct": 0.2674663672223687,
+      "signal_close_hfq": 173.194,
+      "price_basis": "hfq_not_executable",
+      "rank": 169
+    },
+    {
+      "ticker": "sh600025",
+      "name": "600025",
+      "momentum_pct": 0.2594033721834421,
+      "signal_close_hfq": 11.595,
+      "price_basis": "hfq_not_executable",
+      "rank": 170
+    },
+    {
+      "ticker": "sz300757",
+      "name": "罗博特科",
+      "momentum_pct": 0.2508714562281966,
+      "signal_close_hfq": 759.26,
+      "price_basis": "hfq_not_executable",
+      "rank": 171
+    },
+    {
+      "ticker": "sz000002",
+      "name": "000002",
+      "momentum_pct": 0.24358229711651802,
+      "signal_close_hfq": 1223.505,
+      "price_basis": "hfq_not_executable",
+      "rank": 172
+    },
+    {
+      "ticker": "sz300628",
+      "name": "300628",
+      "momentum_pct": 0.2128897001966834,
+      "signal_close_hfq": 790.821,
+      "price_basis": "hfq_not_executable",
+      "rank": 173
+    },
+    {
+      "ticker": "sh688297",
+      "name": "中无人机",
+      "momentum_pct": 0.16871534753590822,
+      "signal_close_hfq": 41.56,
+      "price_basis": "hfq_not_executable",
+      "rank": 174
+    },
+    {
+      "ticker": "sz002265",
+      "name": "建设工业",
+      "momentum_pct": 0.15368852764368057,
+      "signal_close_hfq": 19.55,
+      "price_basis": "hfq_not_executable",
+      "rank": 175
+    },
+    {
+      "ticker": "sh600000",
+      "name": "600000",
+      "momentum_pct": 0.12916969135403633,
+      "signal_close_hfq": 132.555,
+      "price_basis": "hfq_not_executable",
+      "rank": 176
+    },
+    {
+      "ticker": "sh603179",
+      "name": "新泉股份",
+      "momentum_pct": 0.097349111456424,
+      "signal_close_hfq": 133.67,
+      "price_basis": "hfq_not_executable",
+      "rank": 177
+    },
+    {
+      "ticker": "sh688475",
+      "name": "萤石网络",
+      "momentum_pct": 0.09212344302795827,
+      "signal_close_hfq": 43.46,
+      "price_basis": "hfq_not_executable",
+      "rank": 178
+    },
+    {
+      "ticker": "sz000997",
+      "name": "新 大 陆",
+      "momentum_pct": 0.09105285862460732,
+      "signal_close_hfq": 208.86,
+      "price_basis": "hfq_not_executable",
+      "rank": 179
+    },
+    {
+      "ticker": "sh600521",
+      "name": "华海药业",
+      "momentum_pct": 0.05500360857695341,
+      "signal_close_hfq": 291.05,
+      "price_basis": "hfq_not_executable",
+      "rank": 180
+    },
+    {
+      "ticker": "sz002241",
+      "name": "002241",
+      "momentum_pct": 0.040080383769236505,
+      "signal_close_hfq": 539.133,
+      "price_basis": "hfq_not_executable",
+      "rank": 181
+    },
+    {
+      "ticker": "sh601608",
+      "name": "中信重工",
+      "momentum_pct": 0.0,
+      "signal_close_hfq": 7.46,
+      "price_basis": "hfq_not_executable",
+      "rank": 182
+    },
+    {
+      "ticker": "sh603000",
+      "name": "人民网",
+      "momentum_pct": -0.10826904326677322,
+      "signal_close_hfq": 73.81,
+      "price_basis": "hfq_not_executable",
+      "rank": 183
+    },
+    {
+      "ticker": "sh600196",
+      "name": "复星医药",
+      "momentum_pct": -0.17288564704358578,
+      "signal_close_hfq": 285.244,
+      "price_basis": "hfq_not_executable",
+      "rank": 184
+    },
+    {
+      "ticker": "sh601212",
+      "name": "白银有色",
+      "momentum_pct": -0.1988071482628584,
+      "signal_close_hfq": 5.02,
+      "price_basis": "hfq_not_executable",
+      "rank": 185
+    },
+    {
+      "ticker": "sz001696",
+      "name": "宗申动力",
+      "momentum_pct": -0.23012487217783928,
+      "signal_close_hfq": 325.16,
+      "price_basis": "hfq_not_executable",
+      "rank": 186
+    },
+    {
+      "ticker": "sz002244",
+      "name": "滨江集团",
+      "momentum_pct": -0.28198801446706057,
+      "signal_close_hfq": 56.58,
+      "price_basis": "hfq_not_executable",
+      "rank": 187
+    },
+    {
+      "ticker": "sh601808",
+      "name": "中海油服",
+      "momentum_pct": -0.30826141592115164,
+      "signal_close_hfq": 16.17,
+      "price_basis": "hfq_not_executable",
+      "rank": 188
+    },
+    {
+      "ticker": "sh600606",
+      "name": "绿地控股",
+      "momentum_pct": -0.3156079212203622,
+      "signal_close_hfq": 271.63,
+      "price_basis": "hfq_not_executable",
+      "rank": 189
+    },
+    {
+      "ticker": "sh601872",
+      "name": "招商轮船",
+      "momentum_pct": -0.408663647249341,
+      "signal_close_hfq": 24.37,
+      "price_basis": "hfq_not_executable",
+      "rank": 190
+    },
+    {
+      "ticker": "sh601006",
+      "name": "大秦铁路",
+      "momentum_pct": -0.47419583424925804,
+      "signal_close_hfq": 12.593,
+      "price_basis": "hfq_not_executable",
+      "rank": 191
+    },
+    {
+      "ticker": "sh600372",
+      "name": "中航机载",
+      "momentum_pct": -0.5581183359026909,
+      "signal_close_hfq": 34.922,
+      "price_basis": "hfq_not_executable",
+      "rank": 192
+    },
+    {
+      "ticker": "sz002831",
+      "name": "裕同科技",
+      "momentum_pct": -0.5683060269802809,
+      "signal_close_hfq": 90.98,
+      "price_basis": "hfq_not_executable",
+      "rank": 193
+    },
+    {
+      "ticker": "sz000088",
+      "name": "盐田港",
+      "momentum_pct": -0.5847953259944916,
+      "signal_close_hfq": 32.3,
+      "price_basis": "hfq_not_executable",
+      "rank": 194
+    },
+    {
+      "ticker": "sh600585",
+      "name": "海螺水泥",
+      "momentum_pct": -0.6468547973781824,
+      "signal_close_hfq": 105.98,
+      "price_basis": "hfq_not_executable",
+      "rank": 195
+    },
+    {
+      "ticker": "sz002465",
+      "name": "海格通信",
+      "momentum_pct": -0.6864007096737623,
+      "signal_close_hfq": 69.45,
+      "price_basis": "hfq_not_executable",
+      "rank": 196
+    },
+    {
+      "ticker": "sh601555",
+      "name": "东吴证券",
+      "momentum_pct": -0.844594556838274,
+      "signal_close_hfq": 11.74,
+      "price_basis": "hfq_not_executable",
+      "rank": 197
+    },
+    {
+      "ticker": "sh600016",
+      "name": "600016",
+      "momentum_pct": -0.8672643452882767,
+      "signal_close_hfq": 125.507,
+      "price_basis": "hfq_not_executable",
+      "rank": 198
+    },
+    {
+      "ticker": "sh688234",
+      "name": "天岳先进",
+      "momentum_pct": -0.8886324241757393,
+      "signal_close_hfq": 85.88,
+      "price_basis": "hfq_not_executable",
+      "rank": 199
+    },
+    {
+      "ticker": "sz000062",
+      "name": "深圳华强",
+      "momentum_pct": -0.897435937076807,
+      "signal_close_hfq": 154.6,
+      "price_basis": "hfq_not_executable",
+      "rank": 200
+    },
+    {
+      "ticker": "sh601319",
+      "name": "中国人保",
+      "momentum_pct": -0.9330534376204014,
+      "signal_close_hfq": 8.494,
+      "price_basis": "hfq_not_executable",
+      "rank": 201
+    },
+    {
+      "ticker": "sh600519",
+      "name": "贵州茅台",
+      "momentum_pct": -0.93355318531394,
+      "signal_close_hfq": 9316.385,
+      "price_basis": "hfq_not_executable",
+      "rank": 202
+    },
+    {
+      "ticker": "sh600019",
+      "name": "600019",
+      "momentum_pct": -0.9422394447028637,
+      "signal_close_hfq": 15.349,
+      "price_basis": "hfq_not_executable",
+      "rank": 203
+    },
+    {
+      "ticker": "sz300953",
+      "name": "震裕科技",
+      "momentum_pct": -0.9474102407693863,
+      "signal_close_hfq": 174.6,
+      "price_basis": "hfq_not_executable",
+      "rank": 204
+    },
+    {
+      "ticker": "sh601229",
+      "name": "上海银行",
+      "momentum_pct": -0.9742210619151592,
+      "signal_close_hfq": 31.307,
+      "price_basis": "hfq_not_executable",
+      "rank": 205
+    },
+    {
+      "ticker": "sh601666",
+      "name": "平煤股份",
+      "momentum_pct": -0.9830508381128311,
+      "signal_close_hfq": 29.21,
+      "price_basis": "hfq_not_executable",
+      "rank": 206
+    },
+    {
+      "ticker": "sz002157",
+      "name": "正邦科技",
+      "momentum_pct": -1.0019335895776749,
+      "signal_close_hfq": 56.32,
+      "price_basis": "hfq_not_executable",
+      "rank": 207
+    },
+    {
+      "ticker": "sh688520",
+      "name": "神州细胞",
+      "momentum_pct": -1.0044313035905361,
+      "signal_close_hfq": 33.51,
+      "price_basis": "hfq_not_executable",
+      "rank": 208
+    },
+    {
+      "ticker": "sz000039",
+      "name": "中集集团",
+      "momentum_pct": -1.031404733657837,
+      "signal_close_hfq": 363.67,
+      "price_basis": "hfq_not_executable",
+      "rank": 209
+    },
+    {
+      "ticker": "sz300122",
+      "name": "300122",
+      "momentum_pct": -1.0564474388957024,
+      "signal_close_hfq": 95.53,
+      "price_basis": "hfq_not_executable",
+      "rank": 210
+    },
+    {
+      "ticker": "sz300474",
+      "name": "景嘉微",
+      "momentum_pct": -1.1033536866307259,
+      "signal_close_hfq": 158.65,
+      "price_basis": "hfq_not_executable",
+      "rank": 211
+    },
+    {
+      "ticker": "sz002223",
+      "name": "鱼跃医疗",
+      "momentum_pct": -1.117582805454731,
+      "signal_close_hfq": 271.63,
+      "price_basis": "hfq_not_executable",
+      "rank": 212
+    },
+    {
+      "ticker": "sz002422",
+      "name": "002422",
+      "momentum_pct": -1.1627627536654472,
+      "signal_close_hfq": 287.647,
+      "price_basis": "hfq_not_executable",
+      "rank": 213
+    },
+    {
+      "ticker": "sz000001",
+      "name": "000001",
+      "momentum_pct": -1.1957497335970402,
+      "signal_close_hfq": 2251.407,
+      "price_basis": "hfq_not_executable",
+      "rank": 214
+    },
+    {
+      "ticker": "sh600566",
+      "name": "济川药业",
+      "momentum_pct": -1.1995953507721424,
+      "signal_close_hfq": 68.36,
+      "price_basis": "hfq_not_executable",
+      "rank": 215
+    },
+    {
+      "ticker": "sh601877",
+      "name": "正泰电器",
+      "momentum_pct": -1.2184315361082554,
+      "signal_close_hfq": 44.59,
+      "price_basis": "hfq_not_executable",
+      "rank": 216
+    },
+    {
+      "ticker": "sh603233",
+      "name": "大参林",
+      "momentum_pct": -1.2280989438295364,
+      "signal_close_hfq": 60.32,
+      "price_basis": "hfq_not_executable",
+      "rank": 217
+    },
+    {
+      "ticker": "sh600438",
+      "name": "通威股份",
+      "momentum_pct": -1.3051094487309456,
+      "signal_close_hfq": 160.016,
+      "price_basis": "hfq_not_executable",
+      "rank": 218
+    },
+    {
+      "ticker": "sh600062",
+      "name": "华润双鹤",
+      "momentum_pct": -1.3072357513010502,
+      "signal_close_hfq": 139.67,
+      "price_basis": "hfq_not_executable",
+      "rank": 219
+    },
+    {
+      "ticker": "sz002138",
+      "name": "顺络电子",
+      "momentum_pct": -1.332403440028429,
+      "signal_close_hfq": 268.81,
+      "price_basis": "hfq_not_executable",
+      "rank": 220
+    },
+    {
+      "ticker": "sh601098",
+      "name": "中南传媒",
+      "momentum_pct": -1.3355592265725136,
+      "signal_close_hfq": 17.73,
+      "price_basis": "hfq_not_executable",
+      "rank": 221
+    },
+    {
+      "ticker": "sh601009",
+      "name": "南京银行",
+      "momentum_pct": -1.3455740176141262,
+      "signal_close_hfq": 65.766,
+      "price_basis": "hfq_not_executable",
+      "rank": 222
+    },
+    {
+      "ticker": "sh600688",
+      "name": "上海石化",
+      "momentum_pct": -1.4018691144883633,
+      "signal_close_hfq": 10.55,
+      "price_basis": "hfq_not_executable",
+      "rank": 223
+    },
+    {
+      "ticker": "sh600004",
+      "name": "白云机场",
+      "momentum_pct": -1.4683544635772705,
+      "signal_close_hfq": 19.46,
+      "price_basis": "hfq_not_executable",
+      "rank": 224
+    },
+    {
+      "ticker": "sh600795",
+      "name": "国电电力",
+      "momentum_pct": -1.4999720267951488,
+      "signal_close_hfq": 1444.497,
+      "price_basis": "hfq_not_executable",
+      "rank": 225
+    },
+    {
+      "ticker": "sz000519",
+      "name": "中兵红箭",
+      "momentum_pct": -1.5186095610260963,
+      "signal_close_hfq": 112.19,
+      "price_basis": "hfq_not_executable",
+      "rank": 226
+    },
+    {
+      "ticker": "sz300251",
+      "name": "300251",
+      "momentum_pct": -1.522844284772873,
+      "signal_close_hfq": 310.723,
+      "price_basis": "hfq_not_executable",
+      "rank": 227
+    },
+    {
+      "ticker": "sh600104",
+      "name": "上汽集团",
+      "momentum_pct": -1.5781212598085403,
+      "signal_close_hfq": 137.331,
+      "price_basis": "hfq_not_executable",
+      "rank": 228
+    },
+    {
+      "ticker": "sh600098",
+      "name": "广州发展",
+      "momentum_pct": -1.6275346279144287,
+      "signal_close_hfq": 36.87,
+      "price_basis": "hfq_not_executable",
+      "rank": 229
+    },
+    {
+      "ticker": "sz300207",
+      "name": "欣旺达",
+      "momentum_pct": -1.6284909099340439,
+      "signal_close_hfq": 129.27,
+      "price_basis": "hfq_not_executable",
+      "rank": 230
+    },
+    {
+      "ticker": "sz002648",
+      "name": "002648",
+      "momentum_pct": -1.7694862559437752,
+      "signal_close_hfq": 298.441,
+      "price_basis": "hfq_not_executable",
+      "rank": 231
+    },
+    {
+      "ticker": "sh601000",
+      "name": "唐山港",
+      "momentum_pct": -1.773049682378769,
+      "signal_close_hfq": 27.7,
+      "price_basis": "hfq_not_executable",
+      "rank": 232
+    },
+    {
+      "ticker": "sz000739",
+      "name": "普洛药业",
+      "momentum_pct": -1.7739305272698402,
+      "signal_close_hfq": 253.05,
+      "price_basis": "hfq_not_executable",
+      "rank": 233
+    },
+    {
+      "ticker": "sz002262",
+      "name": "恩华药业",
+      "momentum_pct": -1.7838992178440094,
+      "signal_close_hfq": 193.25,
+      "price_basis": "hfq_not_executable",
+      "rank": 234
+    },
+    {
+      "ticker": "sz000528",
+      "name": "柳工",
+      "momentum_pct": -1.7878666520118713,
+      "signal_close_hfq": 97.78,
+      "price_basis": "hfq_not_executable",
+      "rank": 235
+    },
+    {
+      "ticker": "sh601166",
+      "name": "兴业银行",
+      "momentum_pct": -1.7899636179208755,
+      "signal_close_hfq": 94.097,
+      "price_basis": "hfq_not_executable",
+      "rank": 236
+    },
+    {
+      "ticker": "sz002583",
+      "name": "海能达",
+      "momentum_pct": -1.7938189208507538,
+      "signal_close_hfq": 45.44,
+      "price_basis": "hfq_not_executable",
+      "rank": 237
+    },
+    {
+      "ticker": "sz000333",
+      "name": "000333",
+      "momentum_pct": -1.8101263791322708,
+      "signal_close_hfq": 408.897,
+      "price_basis": "hfq_not_executable",
+      "rank": 238
+    },
+    {
+      "ticker": "sh600516",
+      "name": "方大炭素",
+      "momentum_pct": -1.8969831988215446,
+      "signal_close_hfq": 74.47,
+      "price_basis": "hfq_not_executable",
+      "rank": 239
+    },
+    {
+      "ticker": "sz000999",
+      "name": "000999",
+      "momentum_pct": -1.8971068784594536,
+      "signal_close_hfq": 90.806,
+      "price_basis": "hfq_not_executable",
+      "rank": 240
+    },
+    {
+      "ticker": "sh600522",
+      "name": "中天科技",
+      "momentum_pct": -1.9506847485899925,
+      "signal_close_hfq": 229.003,
+      "price_basis": "hfq_not_executable",
+      "rank": 241
+    },
+    {
+      "ticker": "sh601228",
+      "name": "广州港",
+      "momentum_pct": -1.9999999552965164,
+      "signal_close_hfq": 3.43,
+      "price_basis": "hfq_not_executable",
+      "rank": 242
+    },
+    {
+      "ticker": "sh600050",
+      "name": "中国联通",
+      "momentum_pct": -2.035142295062542,
+      "signal_close_hfq": 8.809,
+      "price_basis": "hfq_not_executable",
+      "rank": 243
+    },
+    {
+      "ticker": "sh688009",
+      "name": "中国通号",
+      "momentum_pct": -2.0440252497792244,
+      "signal_close_hfq": 6.23,
+      "price_basis": "hfq_not_executable",
+      "rank": 244
+    },
+    {
+      "ticker": "sh600655",
+      "name": "豫园股份",
+      "momentum_pct": -2.0524797961115837,
+      "signal_close_hfq": 1069.44,
+      "price_basis": "hfq_not_executable",
+      "rank": 245
+    },
+    {
+      "ticker": "sh688396",
+      "name": "华润微",
+      "momentum_pct": -2.2900763899087906,
+      "signal_close_hfq": 53.76,
+      "price_basis": "hfq_not_executable",
+      "rank": 246
+    },
+    {
+      "ticker": "sh600348",
+      "name": "华阳股份",
+      "momentum_pct": -2.3353688418865204,
+      "signal_close_hfq": 118.35,
+      "price_basis": "hfq_not_executable",
+      "rank": 247
+    },
+    {
+      "ticker": "sh600380",
+      "name": "健康元",
+      "momentum_pct": -2.3355118930339813,
+      "signal_close_hfq": 112.07,
+      "price_basis": "hfq_not_executable",
+      "rank": 248
+    },
+    {
+      "ticker": "sh688220",
+      "name": "翱捷科技",
+      "momentum_pct": -2.337495982646942,
+      "signal_close_hfq": 91.5,
+      "price_basis": "hfq_not_executable",
+      "rank": 249
+    },
+    {
+      "ticker": "sh600704",
+      "name": "物产中大",
+      "momentum_pct": -2.3711249232292175,
+      "signal_close_hfq": 111.17,
+      "price_basis": "hfq_not_executable",
+      "rank": 250
+    },
+    {
+      "ticker": "sh601001",
+      "name": "晋控煤业",
+      "momentum_pct": -2.423654869198799,
+      "signal_close_hfq": 40.26,
+      "price_basis": "hfq_not_executable",
+      "rank": 251
+    },
+    {
+      "ticker": "sh601236",
+      "name": "红塔证券",
+      "momentum_pct": -2.484472095966339,
+      "signal_close_hfq": 7.85,
+      "price_basis": "hfq_not_executable",
+      "rank": 252
+    },
+    {
+      "ticker": "sh601238",
+      "name": "广汽集团",
+      "momentum_pct": -2.489704266190529,
+      "signal_close_hfq": 10.418,
+      "price_basis": "hfq_not_executable",
+      "rank": 253
+    },
+    {
+      "ticker": "sh600546",
+      "name": "山煤国际",
+      "momentum_pct": -2.540532685816288,
+      "signal_close_hfq": 134.65,
+      "price_basis": "hfq_not_executable",
+      "rank": 254
+    },
+    {
+      "ticker": "sh600398",
+      "name": "海澜之家",
+      "momentum_pct": -2.5933468714356422,
+      "signal_close_hfq": 71.74,
+      "price_basis": "hfq_not_executable",
+      "rank": 255
+    },
+    {
+      "ticker": "sh600536",
+      "name": "中国软件",
+      "momentum_pct": -2.5998450815677643,
+      "signal_close_hfq": 264.12,
+      "price_basis": "hfq_not_executable",
+      "rank": 256
+    },
+    {
+      "ticker": "sz000898",
+      "name": "鞍钢股份",
+      "momentum_pct": -2.6422765105962753,
+      "signal_close_hfq": 4.79,
+      "price_basis": "hfq_not_executable",
+      "rank": 257
+    },
+    {
+      "ticker": "sh601607",
+      "name": "上海医药",
+      "momentum_pct": -2.6699528098106384,
+      "signal_close_hfq": 155.986,
+      "price_basis": "hfq_not_executable",
+      "rank": 258
+    },
+    {
+      "ticker": "sh600517",
+      "name": "国网英大",
+      "momentum_pct": -2.673063799738884,
+      "signal_close_hfq": 113.6,
+      "price_basis": "hfq_not_executable",
+      "rank": 259
+    },
+    {
+      "ticker": "sh600511",
+      "name": "国药股份",
+      "momentum_pct": -2.679797075688839,
+      "signal_close_hfq": 163.06,
+      "price_basis": "hfq_not_executable",
+      "rank": 260
+    },
+    {
+      "ticker": "sh601668",
+      "name": "中国建筑",
+      "momentum_pct": -2.6819923892617226,
+      "signal_close_hfq": 10.16,
+      "price_basis": "hfq_not_executable",
+      "rank": 261
+    },
+    {
+      "ticker": "sh601318",
+      "name": "中国平安",
+      "momentum_pct": -2.755594067275524,
+      "signal_close_hfq": 152.452,
+      "price_basis": "hfq_not_executable",
+      "rank": 262
+    },
+    {
+      "ticker": "sh688271",
+      "name": "联影医疗",
+      "momentum_pct": -2.7558378875255585,
+      "signal_close_hfq": 113.27,
+      "price_basis": "hfq_not_executable",
+      "rank": 263
+    },
+    {
+      "ticker": "sz002032",
+      "name": "苏泊尔",
+      "momentum_pct": -2.757670544087887,
+      "signal_close_hfq": 416.45,
+      "price_basis": "hfq_not_executable",
+      "rank": 264
+    },
+    {
+      "ticker": "sh600406",
+      "name": "国电南瑞",
+      "momentum_pct": -2.761157415807247,
+      "signal_close_hfq": 1098.127,
+      "price_basis": "hfq_not_executable",
+      "rank": 265
+    },
+    {
+      "ticker": "sz000983",
+      "name": "山西焦煤",
+      "momentum_pct": -2.7622098103165627,
+      "signal_close_hfq": 72.87,
+      "price_basis": "hfq_not_executable",
+      "rank": 266
+    },
+    {
+      "ticker": "sh601216",
+      "name": "君正集团",
+      "momentum_pct": -2.7788352221250534,
+      "signal_close_hfq": 76.62,
+      "price_basis": "hfq_not_executable",
+      "rank": 267
+    },
+    {
+      "ticker": "sh601800",
+      "name": "中国交建",
+      "momentum_pct": -2.9380902647972107,
+      "signal_close_hfq": 9.25,
+      "price_basis": "hfq_not_executable",
+      "rank": 268
+    },
+    {
+      "ticker": "sh688166",
+      "name": "博瑞医药",
+      "momentum_pct": -2.950819581747055,
+      "signal_close_hfq": 32.56,
+      "price_basis": "hfq_not_executable",
+      "rank": 269
+    },
+    {
+      "ticker": "sh600350",
+      "name": "山东高速",
+      "momentum_pct": -2.9789185151457787,
+      "signal_close_hfq": 21.17,
+      "price_basis": "hfq_not_executable",
+      "rank": 270
+    },
+    {
+      "ticker": "sz001286",
+      "name": "陕西能源",
+      "momentum_pct": -2.9999999329447746,
+      "signal_close_hfq": 11.64,
+      "price_basis": "hfq_not_executable",
+      "rank": 271
+    },
+    {
+      "ticker": "sh601233",
+      "name": "桐昆股份",
+      "momentum_pct": -3.024490922689438,
+      "signal_close_hfq": 65.73,
+      "price_basis": "hfq_not_executable",
+      "rank": 272
+    },
+    {
+      "ticker": "sz002423",
+      "name": "中粮资本",
+      "momentum_pct": -3.0392156913876534,
+      "signal_close_hfq": 9.89,
+      "price_basis": "hfq_not_executable",
+      "rank": 273
+    },
+    {
+      "ticker": "sh600219",
+      "name": "南山铝业",
+      "momentum_pct": -3.0489755794405937,
+      "signal_close_hfq": 36.345,
+      "price_basis": "hfq_not_executable",
+      "rank": 274
+    },
+    {
+      "ticker": "sh601818",
+      "name": "光大银行",
+      "momentum_pct": -3.103448264300823,
+      "signal_close_hfq": 5.62,
+      "price_basis": "hfq_not_executable",
+      "rank": 275
+    },
+    {
+      "ticker": "sz002007",
+      "name": "华兰生物",
+      "momentum_pct": -3.1661923974752426,
+      "signal_close_hfq": 592.1,
+      "price_basis": "hfq_not_executable",
+      "rank": 276
+    },
+    {
+      "ticker": "sh600153",
+      "name": "建发股份",
+      "momentum_pct": -3.2224349677562714,
+      "signal_close_hfq": 166.68,
+      "price_basis": "hfq_not_executable",
+      "rank": 277
+    },
+    {
+      "ticker": "sh601880",
+      "name": "辽港股份",
+      "momentum_pct": -3.2407406717538834,
+      "signal_close_hfq": 4.18,
+      "price_basis": "hfq_not_executable",
+      "rank": 278
+    },
+    {
+      "ticker": "sh601997",
+      "name": "贵阳银行",
+      "momentum_pct": -3.2472938299179077,
+      "signal_close_hfq": 11.62,
+      "price_basis": "hfq_not_executable",
+      "rank": 279
+    },
+    {
+      "ticker": "sh601916",
+      "name": "浙商银行",
+      "momentum_pct": -3.3259425312280655,
+      "signal_close_hfq": 4.36,
+      "price_basis": "hfq_not_executable",
+      "rank": 280
+    },
+    {
+      "ticker": "sh600985",
+      "name": "淮北矿业",
+      "momentum_pct": -3.3570043742656708,
+      "signal_close_hfq": 59.88,
+      "price_basis": "hfq_not_executable",
+      "rank": 281
+    },
+    {
+      "ticker": "sh603858",
+      "name": "步长制药",
+      "momentum_pct": -3.428421914577484,
+      "signal_close_hfq": 36.9,
+      "price_basis": "hfq_not_executable",
+      "rank": 282
+    },
+    {
+      "ticker": "sh600906",
+      "name": "财达证券",
+      "momentum_pct": -3.448275849223137,
+      "signal_close_hfq": 6.72,
+      "price_basis": "hfq_not_executable",
+      "rank": 283
+    },
+    {
+      "ticker": "sz000429",
+      "name": "粤高速A",
+      "momentum_pct": -3.46580408513546,
+      "signal_close_hfq": 41.78,
+      "price_basis": "hfq_not_executable",
+      "rank": 284
+    },
+    {
+      "ticker": "sh600131",
+      "name": "国网信通",
+      "momentum_pct": -3.4728944301605225,
+      "signal_close_hfq": 79.77,
+      "price_basis": "hfq_not_executable",
+      "rank": 285
+    },
+    {
+      "ticker": "sh688608",
+      "name": "恒玄科技",
+      "momentum_pct": -3.4792460501194,
+      "signal_close_hfq": 238.58,
+      "price_basis": "hfq_not_executable",
+      "rank": 286
+    },
+    {
+      "ticker": "sh600483",
+      "name": "福能股份",
+      "momentum_pct": -3.5028938204050064,
+      "signal_close_hfq": 31.68,
+      "price_basis": "hfq_not_executable",
+      "rank": 287
+    },
+    {
+      "ticker": "sh601699",
+      "name": "潞安环能",
+      "momentum_pct": -3.5092417150735855,
+      "signal_close_hfq": 108.06,
+      "price_basis": "hfq_not_executable",
+      "rank": 288
+    },
+    {
+      "ticker": "sh600161",
+      "name": "天坛生物",
+      "momentum_pct": -3.5136789083480835,
+      "signal_close_hfq": 220.78,
+      "price_basis": "hfq_not_executable",
+      "rank": 289
+    },
+    {
+      "ticker": "sz300476",
+      "name": "300476",
+      "momentum_pct": -3.5629820078611374,
+      "signal_close_hfq": 842.847,
+      "price_basis": "hfq_not_executable",
+      "rank": 290
+    },
+    {
+      "ticker": "sh688425",
+      "name": "铁建重工",
+      "momentum_pct": -3.632478788495064,
+      "signal_close_hfq": 4.51,
+      "price_basis": "hfq_not_executable",
+      "rank": 291
+    },
+    {
+      "ticker": "sz000858",
+      "name": "000858",
+      "momentum_pct": -3.66169810295105,
+      "signal_close_hfq": 1511.731,
+      "price_basis": "hfq_not_executable",
+      "rank": 292
+    },
+    {
+      "ticker": "sh688188",
+      "name": "柏楚电子",
+      "momentum_pct": -3.724144399166107,
+      "signal_close_hfq": 408.2,
+      "price_basis": "hfq_not_executable",
+      "rank": 293
+    },
+    {
+      "ticker": "sz000709",
+      "name": "河钢股份",
+      "momentum_pct": -3.7288136780261993,
+      "signal_close_hfq": 22.72,
+      "price_basis": "hfq_not_executable",
+      "rank": 294
+    },
+    {
+      "ticker": "sh600032",
+      "name": "浙江新能",
+      "momentum_pct": -3.7859007716178894,
+      "signal_close_hfq": 7.37,
+      "price_basis": "hfq_not_executable",
+      "rank": 295
+    },
+    {
+      "ticker": "sh601689",
+      "name": "拓普集团",
+      "momentum_pct": -3.8074780255556107,
+      "signal_close_hfq": 99.869,
+      "price_basis": "hfq_not_executable",
+      "rank": 296
+    },
+    {
+      "ticker": "sz300999",
+      "name": "300999",
+      "momentum_pct": -3.8285117596387863,
+      "signal_close_hfq": 26.627,
+      "price_basis": "hfq_not_executable",
+      "rank": 297
+    },
+    {
+      "ticker": "sh600208",
+      "name": "衢州发展",
+      "momentum_pct": -3.8330908864736557,
+      "signal_close_hfq": 19.82,
+      "price_basis": "hfq_not_executable",
+      "rank": 298
+    },
+    {
+      "ticker": "sz002739",
+      "name": "儒意电影",
+      "momentum_pct": -3.8475241512060165,
+      "signal_close_hfq": 26.99,
+      "price_basis": "hfq_not_executable",
+      "rank": 299
+    },
+    {
+      "ticker": "sz300003",
+      "name": "乐普医疗",
+      "momentum_pct": -3.8605812937021255,
+      "signal_close_hfq": 61.51,
+      "price_basis": "hfq_not_executable",
+      "rank": 300
+    },
+    {
+      "ticker": "sh603156",
+      "name": "养元饮品",
+      "momentum_pct": -3.90939861536026,
+      "signal_close_hfq": 119.21,
+      "price_basis": "hfq_not_executable",
+      "rank": 301
+    },
+    {
+      "ticker": "sh601866",
+      "name": "中远海发",
+      "momentum_pct": -3.9215687662363052,
+      "signal_close_hfq": 2.94,
+      "price_basis": "hfq_not_executable",
+      "rank": 302
+    },
+    {
+      "ticker": "sh600862",
+      "name": "中航高科",
+      "momentum_pct": -3.964034467935562,
+      "signal_close_hfq": 122.83,
+      "price_basis": "hfq_not_executable",
+      "rank": 303
+    },
+    {
+      "ticker": "sz002821",
+      "name": "凯莱英",
+      "momentum_pct": -4.004001617431641,
+      "signal_close_hfq": 431.79,
+      "price_basis": "hfq_not_executable",
+      "rank": 304
+    },
+    {
+      "ticker": "sh601099",
+      "name": "太平洋",
+      "momentum_pct": -4.008438810706139,
+      "signal_close_hfq": 9.1,
+      "price_basis": "hfq_not_executable",
+      "rank": 305
+    },
+    {
+      "ticker": "sh601186",
+      "name": "中国铁建",
+      "momentum_pct": -4.050222784280777,
+      "signal_close_hfq": 9.476,
+      "price_basis": "hfq_not_executable",
+      "rank": 306
+    },
+    {
+      "ticker": "sh600998",
+      "name": "九州通",
+      "momentum_pct": -4.055619984865189,
+      "signal_close_hfq": 16.56,
+      "price_basis": "hfq_not_executable",
+      "rank": 307
+    },
+    {
+      "ticker": "sh600845",
+      "name": "宝信软件",
+      "momentum_pct": -4.059772565960884,
+      "signal_close_hfq": 260.731,
+      "price_basis": "hfq_not_executable",
+      "rank": 308
+    },
+    {
+      "ticker": "sz000728",
+      "name": "国元证券",
+      "momentum_pct": -4.243792220950127,
+      "signal_close_hfq": 21.21,
+      "price_basis": "hfq_not_executable",
+      "rank": 309
+    },
+    {
+      "ticker": "sh601136",
+      "name": "首创证券",
+      "momentum_pct": -4.332698881626129,
+      "signal_close_hfq": 14.573,
+      "price_basis": "hfq_not_executable",
+      "rank": 310
+    },
+    {
+      "ticker": "sh601128",
+      "name": "常熟银行",
+      "momentum_pct": -4.351851716637611,
+      "signal_close_hfq": 10.33,
+      "price_basis": "hfq_not_executable",
+      "rank": 311
+    },
+    {
+      "ticker": "sz000100",
+      "name": "000100",
+      "momentum_pct": -4.439890757203102,
+      "signal_close_hfq": 15.389,
+      "price_basis": "hfq_not_executable",
+      "rank": 312
+    },
+    {
+      "ticker": "sz300100",
+      "name": "双林股份",
+      "momentum_pct": -4.470165818929672,
+      "signal_close_hfq": 95.74,
+      "price_basis": "hfq_not_executable",
+      "rank": 313
+    },
+    {
+      "ticker": "sh600707",
+      "name": "彩虹股份",
+      "momentum_pct": -4.471808299422264,
+      "signal_close_hfq": 14.74,
+      "price_basis": "hfq_not_executable",
+      "rank": 314
+    },
+    {
+      "ticker": "sh688017",
+      "name": "绿的谐波",
+      "momentum_pct": -4.475409910082817,
+      "signal_close_hfq": 407.89,
+      "price_basis": "hfq_not_executable",
+      "rank": 315
+    },
+    {
+      "ticker": "sz000651",
+      "name": "000651",
+      "momentum_pct": -4.55300472676754,
+      "signal_close_hfq": 5925.024,
+      "price_basis": "hfq_not_executable",
+      "rank": 316
+    },
+    {
+      "ticker": "sz300496",
+      "name": "中科创达",
+      "momentum_pct": -4.587231203913689,
+      "signal_close_hfq": 232.54,
+      "price_basis": "hfq_not_executable",
+      "rank": 317
+    },
+    {
+      "ticker": "sh603605",
+      "name": "珀莱雅",
+      "momentum_pct": -4.609715566039085,
+      "signal_close_hfq": 126.85,
+      "price_basis": "hfq_not_executable",
+      "rank": 318
+    },
+    {
+      "ticker": "sz000027",
+      "name": "深圳能源",
+      "momentum_pct": -4.61643673479557,
+      "signal_close_hfq": 83.68,
+      "price_basis": "hfq_not_executable",
+      "rank": 319
+    },
+    {
+      "ticker": "sh600299",
+      "name": "安迪苏",
+      "momentum_pct": -4.641813039779663,
+      "signal_close_hfq": 26.09,
+      "price_basis": "hfq_not_executable",
+      "rank": 320
+    },
+    {
+      "ticker": "sz000166",
+      "name": "000166",
+      "momentum_pct": -4.662510007619858,
+      "signal_close_hfq": 7.034,
+      "price_basis": "hfq_not_executable",
+      "rank": 321
+    },
+    {
+      "ticker": "sh600918",
+      "name": "中泰证券",
+      "momentum_pct": -4.7035109251737595,
+      "signal_close_hfq": 5.673,
+      "price_basis": "hfq_not_executable",
+      "rank": 322
+    },
+    {
+      "ticker": "sh603129",
+      "name": "春风动力",
+      "momentum_pct": -4.75313663482666,
+      "signal_close_hfq": 305.19,
+      "price_basis": "hfq_not_executable",
+      "rank": 323
+    },
+    {
+      "ticker": "sh601106",
+      "name": "中国一重",
+      "momentum_pct": -4.807692393660545,
+      "signal_close_hfq": 2.97,
+      "price_basis": "hfq_not_executable",
+      "rank": 324
+    },
+    {
+      "ticker": "sz002120",
+      "name": "韵达股份",
+      "momentum_pct": -4.833164811134338,
+      "signal_close_hfq": 47.06,
+      "price_basis": "hfq_not_executable",
+      "rank": 325
+    },
+    {
+      "ticker": "sh600765",
+      "name": "中航重机",
+      "momentum_pct": -4.833802208304405,
+      "signal_close_hfq": 165.77,
+      "price_basis": "hfq_not_executable",
+      "rank": 326
+    },
+    {
+      "ticker": "sz000895",
+      "name": "000895",
+      "momentum_pct": -4.845249280333519,
+      "signal_close_hfq": 492.128,
+      "price_basis": "hfq_not_executable",
+      "rank": 327
+    },
+    {
+      "ticker": "sh600339",
+      "name": "中油工程",
+      "momentum_pct": -4.8686739057302475,
+      "signal_close_hfq": 14.85,
+      "price_basis": "hfq_not_executable",
+      "rank": 328
+    },
+    {
+      "ticker": "sh600820",
+      "name": "隧道股份",
+      "momentum_pct": -4.9269214272499084,
+      "signal_close_hfq": 161.32,
+      "price_basis": "hfq_not_executable",
+      "rank": 329
+    },
+    {
+      "ticker": "sz002179",
+      "name": "002179",
+      "momentum_pct": -4.929587244987488,
+      "signal_close_hfq": 478.844,
+      "price_basis": "hfq_not_executable",
+      "rank": 330
+    },
+    {
+      "ticker": "sh600486",
+      "name": "扬农化工",
+      "momentum_pct": -4.9376558512449265,
+      "signal_close_hfq": 247.78,
+      "price_basis": "hfq_not_executable",
+      "rank": 331
+    },
+    {
+      "ticker": "sz000785",
+      "name": "居然智家",
+      "momentum_pct": -4.950495064258575,
+      "signal_close_hfq": 18.24,
+      "price_basis": "hfq_not_executable",
+      "rank": 332
+    },
+    {
+      "ticker": "sh601600",
+      "name": "中国铝业",
+      "momentum_pct": -4.952581599354744,
+      "signal_close_hfq": 9.922,
+      "price_basis": "hfq_not_executable",
+      "rank": 333
+    },
+    {
+      "ticker": "sz002673",
+      "name": "西部证券",
+      "momentum_pct": -4.955223947763443,
+      "signal_close_hfq": 15.92,
+      "price_basis": "hfq_not_executable",
+      "rank": 334
+    },
+    {
+      "ticker": "sz000807",
+      "name": "000807",
+      "momentum_pct": -4.970171675086021,
+      "signal_close_hfq": 132.215,
+      "price_basis": "hfq_not_executable",
+      "rank": 335
+    },
+    {
+      "ticker": "sh600390",
+      "name": "五矿资本",
+      "momentum_pct": -5.010315403342247,
+      "signal_close_hfq": 32.23,
+      "price_basis": "hfq_not_executable",
+      "rank": 336
+    },
+    {
+      "ticker": "sh603345",
+      "name": "安井食品",
+      "momentum_pct": -5.041934922337532,
+      "signal_close_hfq": 97.37,
+      "price_basis": "hfq_not_executable",
+      "rank": 337
+    },
+    {
+      "ticker": "sh600009",
+      "name": "600009",
+      "momentum_pct": -5.053479224443436,
+      "signal_close_hfq": 69.329,
+      "price_basis": "hfq_not_executable",
+      "rank": 338
+    },
+    {
+      "ticker": "sz300866",
+      "name": "300866",
+      "momentum_pct": -5.053673684597015,
+      "signal_close_hfq": 160.709,
+      "price_basis": "hfq_not_executable",
+      "rank": 339
+    },
+    {
+      "ticker": "sz002027",
+      "name": "002027",
+      "momentum_pct": -5.077485367655754,
+      "signal_close_hfq": 90.408,
+      "price_basis": "hfq_not_executable",
+      "rank": 340
+    },
+    {
+      "ticker": "sh601139",
+      "name": "深圳燃气",
+      "momentum_pct": -5.103857442736626,
+      "signal_close_hfq": 15.99,
+      "price_basis": "hfq_not_executable",
+      "rank": 341
+    },
+    {
+      "ticker": "sz002736",
+      "name": "002736",
+      "momentum_pct": -5.1226552575826645,
+      "signal_close_hfq": 13.15,
+      "price_basis": "hfq_not_executable",
+      "rank": 342
+    },
+    {
+      "ticker": "sh601390",
+      "name": "中国中铁",
+      "momentum_pct": -5.1734451204538345,
+      "signal_close_hfq": 6.342,
+      "price_basis": "hfq_not_executable",
+      "rank": 343
+    },
+    {
+      "ticker": "sz000937",
+      "name": "冀中能源",
+      "momentum_pct": -5.17810583114624,
+      "signal_close_hfq": 54.57,
+      "price_basis": "hfq_not_executable",
+      "rank": 344
+    },
+    {
+      "ticker": "sz301236",
+      "name": "301236",
+      "momentum_pct": -5.180372670292854,
+      "signal_close_hfq": 83.19,
+      "price_basis": "hfq_not_executable",
+      "rank": 345
+    },
+    {
+      "ticker": "sh600008",
+      "name": "首创环保",
+      "momentum_pct": -5.199858546257019,
+      "signal_close_hfq": 26.8,
+      "price_basis": "hfq_not_executable",
+      "rank": 346
+    },
+    {
+      "ticker": "sh600085",
+      "name": "同仁堂",
+      "momentum_pct": -5.20671084523201,
+      "signal_close_hfq": 248.894,
+      "price_basis": "hfq_not_executable",
+      "rank": 347
+    },
+    {
+      "ticker": "sh600095",
+      "name": "湘财股份",
+      "momentum_pct": -5.2147239446640015,
+      "signal_close_hfq": 27.81,
+      "price_basis": "hfq_not_executable",
+      "rank": 348
+    },
+    {
+      "ticker": "sh601990",
+      "name": "南京证券",
+      "momentum_pct": -5.223068594932556,
+      "signal_close_hfq": 8.71,
+      "price_basis": "hfq_not_executable",
+      "rank": 349
+    },
+    {
+      "ticker": "sz002493",
+      "name": "002493",
+      "momentum_pct": -5.27767688035965,
+      "signal_close_hfq": 172.029,
+      "price_basis": "hfq_not_executable",
+      "rank": 350
+    },
+    {
+      "ticker": "sz000825",
+      "name": "太钢不锈",
+      "momentum_pct": -5.320512875914574,
+      "signal_close_hfq": 29.54,
+      "price_basis": "hfq_not_executable",
+      "rank": 351
+    },
+    {
+      "ticker": "sh688343",
+      "name": "云天励飞",
+      "momentum_pct": -5.343645811080933,
+      "signal_close_hfq": 53.85,
+      "price_basis": "hfq_not_executable",
+      "rank": 352
+    },
+    {
+      "ticker": "sz002608",
+      "name": "江苏国信",
+      "momentum_pct": -5.5847253650426865,
+      "signal_close_hfq": 19.78,
+      "price_basis": "hfq_not_executable",
+      "rank": 353
+    },
+    {
+      "ticker": "sz300002",
+      "name": "神州泰岳",
+      "momentum_pct": -5.5932581424713135,
+      "signal_close_hfq": 126.59,
+      "price_basis": "hfq_not_executable",
+      "rank": 354
+    },
+    {
+      "ticker": "sz000598",
+      "name": "兴蓉环境",
+      "momentum_pct": -5.639157816767693,
+      "signal_close_hfq": 235.77,
+      "price_basis": "hfq_not_executable",
+      "rank": 355
+    },
+    {
+      "ticker": "sh600039",
+      "name": "四川路桥",
+      "momentum_pct": -5.643674731254578,
+      "signal_close_hfq": 109.041,
+      "price_basis": "hfq_not_executable",
+      "rank": 356
+    },
+    {
+      "ticker": "sh688568",
+      "name": "中科星图",
+      "momentum_pct": -5.664585158228874,
+      "signal_close_hfq": 105.75,
+      "price_basis": "hfq_not_executable",
+      "rank": 357
+    },
+    {
+      "ticker": "sh600188",
+      "name": "兖矿能源",
+      "momentum_pct": -5.745843797922134,
+      "signal_close_hfq": 108.118,
+      "price_basis": "hfq_not_executable",
+      "rank": 358
+    },
+    {
+      "ticker": "sz000623",
+      "name": "吉林敖东",
+      "momentum_pct": -5.748629942536354,
+      "signal_close_hfq": 417.92,
+      "price_basis": "hfq_not_executable",
+      "rank": 359
+    },
+    {
+      "ticker": "sz002050",
+      "name": "002050",
+      "momentum_pct": -5.768416449427605,
+      "signal_close_hfq": 433.911,
+      "price_basis": "hfq_not_executable",
+      "rank": 360
+    },
+    {
+      "ticker": "sh601901",
+      "name": "方正证券",
+      "momentum_pct": -5.789473652839661,
+      "signal_close_hfq": 7.16,
+      "price_basis": "hfq_not_executable",
+      "rank": 361
+    },
+    {
+      "ticker": "sz002500",
+      "name": "山西证券",
+      "momentum_pct": -5.8091286569833755,
+      "signal_close_hfq": 6.81,
+      "price_basis": "hfq_not_executable",
+      "rank": 362
+    },
+    {
+      "ticker": "sh600970",
+      "name": "中材国际",
+      "momentum_pct": -5.816403776407242,
+      "signal_close_hfq": 111.73,
+      "price_basis": "hfq_not_executable",
+      "rank": 363
+    },
+    {
+      "ticker": "sh600989",
+      "name": "宝丰能源",
+      "momentum_pct": -5.90490810573101,
+      "signal_close_hfq": 24.54,
+      "price_basis": "hfq_not_executable",
+      "rank": 364
+    },
+    {
+      "ticker": "sh600061",
+      "name": "国投资本",
+      "momentum_pct": -5.917540192604065,
+      "signal_close_hfq": 58.508,
+      "price_basis": "hfq_not_executable",
+      "rank": 365
+    },
+    {
+      "ticker": "sh688036",
+      "name": "传音控股",
+      "momentum_pct": -5.922150239348412,
+      "signal_close_hfq": 101.51,
+      "price_basis": "hfq_not_executable",
+      "rank": 366
+    },
+    {
+      "ticker": "sh600369",
+      "name": "西南证券",
+      "momentum_pct": -5.927256494760513,
+      "signal_close_hfq": 20.95,
+      "price_basis": "hfq_not_executable",
+      "rank": 367
+    },
+    {
+      "ticker": "sh600754",
+      "name": "锦江酒店",
+      "momentum_pct": -5.949455872178078,
+      "signal_close_hfq": 53.59,
+      "price_basis": "hfq_not_executable",
+      "rank": 368
+    },
+    {
+      "ticker": "sz300957",
+      "name": "贝泰妮",
+      "momentum_pct": -5.954557284712791,
+      "signal_close_hfq": 36.01,
+      "price_basis": "hfq_not_executable",
+      "rank": 369
+    },
+    {
+      "ticker": "sz300699",
+      "name": "光威复材",
+      "momentum_pct": -5.961686000227928,
+      "signal_close_hfq": 61.36,
+      "price_basis": "hfq_not_executable",
+      "rank": 370
+    },
+    {
+      "ticker": "sh600346",
+      "name": "恒力石化",
+      "momentum_pct": -6.056545302271843,
+      "signal_close_hfq": 172.452,
+      "price_basis": "hfq_not_executable",
+      "rank": 371
+    },
+    {
+      "ticker": "sh600999",
+      "name": "招商证券",
+      "momentum_pct": -6.060606241226196,
+      "signal_close_hfq": 33.294,
+      "price_basis": "hfq_not_executable",
+      "rank": 372
+    },
+    {
+      "ticker": "sh600741",
+      "name": "华域汽车",
+      "momentum_pct": -6.101270765066147,
+      "signal_close_hfq": 826.029,
+      "price_basis": "hfq_not_executable",
+      "rank": 373
+    },
+    {
+      "ticker": "sz002294",
+      "name": "002294",
+      "momentum_pct": -6.133991852402687,
+      "signal_close_hfq": 351.164,
+      "price_basis": "hfq_not_executable",
+      "rank": 374
+    },
+    {
+      "ticker": "sh600170",
+      "name": "上海建工",
+      "momentum_pct": -6.142506003379822,
+      "signal_close_hfq": 38.2,
+      "price_basis": "hfq_not_executable",
+      "rank": 375
+    },
+    {
+      "ticker": "sh601618",
+      "name": "中国中冶",
+      "momentum_pct": -6.167647987604141,
+      "signal_close_hfq": 3.347,
+      "price_basis": "hfq_not_executable",
+      "rank": 376
+    },
+    {
+      "ticker": "sh603899",
+      "name": "晨光股份",
+      "momentum_pct": -6.173676997423172,
+      "signal_close_hfq": 55.32,
+      "price_basis": "hfq_not_executable",
+      "rank": 377
+    },
+    {
+      "ticker": "sz002603",
+      "name": "以岭药业",
+      "momentum_pct": -6.17469884455204,
+      "signal_close_hfq": 68.53,
+      "price_basis": "hfq_not_executable",
+      "rank": 378
+    },
+    {
+      "ticker": "sh601788",
+      "name": "光大证券",
+      "momentum_pct": -6.174777448177338,
+      "signal_close_hfq": 17.93,
+      "price_basis": "hfq_not_executable",
+      "rank": 379
+    },
+    {
+      "ticker": "sh600816",
+      "name": "建元信托",
+      "momentum_pct": -6.1921995133161545,
+      "signal_close_hfq": 93.32,
+      "price_basis": "hfq_not_executable",
+      "rank": 380
+    },
+    {
+      "ticker": "sz002410",
+      "name": "广联达",
+      "momentum_pct": -6.205250695347786,
+      "signal_close_hfq": 172.92,
+      "price_basis": "hfq_not_executable",
+      "rank": 381
+    },
+    {
+      "ticker": "sz002085",
+      "name": "万丰奥威",
+      "momentum_pct": -6.207180023193359,
+      "signal_close_hfq": 68.45,
+      "price_basis": "hfq_not_executable",
+      "rank": 382
+    },
+    {
+      "ticker": "sz002926",
+      "name": "华西证券",
+      "momentum_pct": -6.209150329232216,
+      "signal_close_hfq": 8.61,
+      "price_basis": "hfq_not_executable",
+      "rank": 383
+    },
+    {
+      "ticker": "sz300803",
+      "name": "300803",
+      "momentum_pct": -6.223227828741074,
+      "signal_close_hfq": 112.308,
+      "price_basis": "hfq_not_executable",
+      "rank": 384
+    },
+    {
+      "ticker": "sh603816",
+      "name": "顾家家居",
+      "momentum_pct": -6.241021677851677,
+      "signal_close_hfq": 58.74,
+      "price_basis": "hfq_not_executable",
+      "rank": 385
+    },
+    {
+      "ticker": "sh600873",
+      "name": "梅花生物",
+      "momentum_pct": -6.249016150832176,
+      "signal_close_hfq": 59.56,
+      "price_basis": "hfq_not_executable",
+      "rank": 386
+    },
+    {
+      "ticker": "sh688349",
+      "name": "三一重能",
+      "momentum_pct": -6.2586285173892975,
+      "signal_close_hfq": 20.37,
+      "price_basis": "hfq_not_executable",
+      "rank": 387
+    },
+    {
+      "ticker": "sh603019",
+      "name": "中科曙光",
+      "momentum_pct": -6.276550889015198,
+      "signal_close_hfq": 313.28,
+      "price_basis": "hfq_not_executable",
+      "rank": 388
+    },
+    {
+      "ticker": "sz300146",
+      "name": "汤臣倍健",
+      "momentum_pct": -6.300671398639679,
+      "signal_close_hfq": 364.05,
+      "price_basis": "hfq_not_executable",
+      "rank": 389
+    },
+    {
+      "ticker": "sh600171",
+      "name": "上海贝岭",
+      "momentum_pct": -6.3194118440151215,
+      "signal_close_hfq": 59.89,
+      "price_basis": "hfq_not_executable",
+      "rank": 390
+    },
+    {
+      "ticker": "sh601878",
+      "name": "浙商证券",
+      "momentum_pct": -6.35514035820961,
+      "signal_close_hfq": 10.02,
+      "price_basis": "hfq_not_executable",
+      "rank": 391
+    },
+    {
+      "ticker": "sh600010",
+      "name": "600010",
+      "momentum_pct": -6.360965222120285,
+      "signal_close_hfq": 15.295,
+      "price_basis": "hfq_not_executable",
+      "rank": 392
+    },
+    {
+      "ticker": "sz002600",
+      "name": "002600",
+      "momentum_pct": -6.379830837249756,
+      "signal_close_hfq": 48.719,
+      "price_basis": "hfq_not_executable",
+      "rank": 393
+    },
+    {
+      "ticker": "sh605358",
+      "name": "立昂微",
+      "momentum_pct": -6.384859979152679,
+      "signal_close_hfq": 52.93,
+      "price_basis": "hfq_not_executable",
+      "rank": 394
+    },
+    {
+      "ticker": "sz002837",
+      "name": "002837",
+      "momentum_pct": -6.388574838638306,
+      "signal_close_hfq": 616.757,
+      "price_basis": "hfq_not_executable",
+      "rank": 395
+    },
+    {
+      "ticker": "sh601360",
+      "name": "三六零",
+      "momentum_pct": -6.41695111989975,
+      "signal_close_hfq": 18.638,
+      "price_basis": "hfq_not_executable",
+      "rank": 396
+    },
+    {
+      "ticker": "sh688303",
+      "name": "大全能源",
+      "momentum_pct": -6.417582184076309,
+      "signal_close_hfq": 21.29,
+      "price_basis": "hfq_not_executable",
+      "rank": 397
+    },
+    {
+      "ticker": "sh600015",
+      "name": "600015",
+      "momentum_pct": -6.444399058818817,
+      "signal_close_hfq": 32.214,
+      "price_basis": "hfq_not_executable",
+      "rank": 398
+    },
+    {
+      "ticker": "sz000776",
+      "name": "000776",
+      "momentum_pct": -6.446711719036102,
+      "signal_close_hfq": 118.213,
+      "price_basis": "hfq_not_executable",
+      "rank": 399
+    },
+    {
+      "ticker": "sz300418",
+      "name": "300418",
+      "momentum_pct": -6.451331824064255,
+      "signal_close_hfq": 161.059,
+      "price_basis": "hfq_not_executable",
+      "rank": 400
+    },
+    {
+      "ticker": "sz300751",
+      "name": "迈为股份",
+      "momentum_pct": -6.456746160984039,
+      "signal_close_hfq": 664.26,
+      "price_basis": "hfq_not_executable",
+      "rank": 401
+    },
+    {
+      "ticker": "sz002236",
+      "name": "002236",
+      "momentum_pct": -6.465039402246475,
+      "signal_close_hfq": 754.641,
+      "price_basis": "hfq_not_executable",
+      "rank": 402
+    },
+    {
+      "ticker": "sz002773",
+      "name": "康弘药业",
+      "momentum_pct": -6.489428877830505,
+      "signal_close_hfq": 44.67,
+      "price_basis": "hfq_not_executable",
+      "rank": 403
+    },
+    {
+      "ticker": "sh600808",
+      "name": "马钢股份",
+      "momentum_pct": -6.529209762811661,
+      "signal_close_hfq": 5.44,
+      "price_basis": "hfq_not_executable",
+      "rank": 404
+    },
+    {
+      "ticker": "sh601601",
+      "name": "中国太保",
+      "momentum_pct": -6.561961770057678,
+      "signal_close_hfq": 43.43,
+      "price_basis": "hfq_not_executable",
+      "rank": 405
+    },
+    {
+      "ticker": "sz300373",
+      "name": "扬杰科技",
+      "momentum_pct": -6.589297205209732,
+      "signal_close_hfq": 409.69,
+      "price_basis": "hfq_not_executable",
+      "rank": 406
+    },
+    {
+      "ticker": "sz000050",
+      "name": "深天马A",
+      "momentum_pct": -6.6019415855407715,
+      "signal_close_hfq": 52.91,
+      "price_basis": "hfq_not_executable",
+      "rank": 407
+    },
+    {
+      "ticker": "sh600848",
+      "name": "上海临港",
+      "momentum_pct": -6.603773683309555,
+      "signal_close_hfq": 26.73,
+      "price_basis": "hfq_not_executable",
+      "rank": 408
+    },
+    {
+      "ticker": "sh601399",
+      "name": "国机重装",
+      "momentum_pct": -6.6066063940525055,
+      "signal_close_hfq": 3.11,
+      "price_basis": "hfq_not_executable",
+      "rank": 409
+    },
+    {
+      "ticker": "sh601928",
+      "name": "凤凰传媒",
+      "momentum_pct": -6.703910976648331,
+      "signal_close_hfq": 13.36,
+      "price_basis": "hfq_not_executable",
+      "rank": 410
+    },
+    {
+      "ticker": "sz000723",
+      "name": "美锦能源",
+      "momentum_pct": -6.7325979471206665,
+      "signal_close_hfq": 24.52,
+      "price_basis": "hfq_not_executable",
+      "rank": 411
+    },
+    {
+      "ticker": "sh601669",
+      "name": "中国电建",
+      "momentum_pct": -6.7503921687603,
+      "signal_close_hfq": 5.94,
+      "price_basis": "hfq_not_executable",
+      "rank": 412
+    },
+    {
+      "ticker": "sh601881",
+      "name": "中国银河",
+      "momentum_pct": -6.775067746639252,
+      "signal_close_hfq": 13.76,
+      "price_basis": "hfq_not_executable",
+      "rank": 413
+    },
+    {
+      "ticker": "sh603260",
+      "name": "合盛硅业",
+      "momentum_pct": -6.7768290638923645,
+      "signal_close_hfq": 50.21,
+      "price_basis": "hfq_not_executable",
+      "rank": 414
+    },
+    {
+      "ticker": "sz002624",
+      "name": "完美世界",
+      "momentum_pct": -6.7974768579006195,
+      "signal_close_hfq": 39.9,
+      "price_basis": "hfq_not_executable",
+      "rank": 415
+    },
+    {
+      "ticker": "sz000963",
+      "name": "000963",
+      "momentum_pct": -6.8360306322574615,
+      "signal_close_hfq": 333.459,
+      "price_basis": "hfq_not_executable",
+      "rank": 416
+    },
+    {
+      "ticker": "sh600233",
+      "name": "圆通速递",
+      "momentum_pct": -6.853021681308746,
+      "signal_close_hfq": 80.207,
+      "price_basis": "hfq_not_executable",
+      "rank": 417
+    },
+    {
+      "ticker": "sh600460",
+      "name": "士兰微",
+      "momentum_pct": -6.855736672878265,
+      "signal_close_hfq": 380.485,
+      "price_basis": "hfq_not_executable",
+      "rank": 418
+    },
+    {
+      "ticker": "sz000539",
+      "name": "粤电力A",
+      "momentum_pct": -6.909137964248657,
+      "signal_close_hfq": 71.41,
+      "price_basis": "hfq_not_executable",
+      "rank": 419
+    },
+    {
+      "ticker": "sz000596",
+      "name": "000596",
+      "momentum_pct": -6.909160315990448,
+      "signal_close_hfq": 321.802,
+      "price_basis": "hfq_not_executable",
+      "rank": 420
+    },
+    {
+      "ticker": "sz002304",
+      "name": "002304",
+      "momentum_pct": -6.935504823923111,
+      "signal_close_hfq": 255.637,
+      "price_basis": "hfq_not_executable",
+      "rank": 421
+    },
+    {
+      "ticker": "sz002461",
+      "name": "珠江啤酒",
+      "momentum_pct": -6.9539666175842285,
+      "signal_close_hfq": 19.0,
+      "price_basis": "hfq_not_executable",
+      "rank": 422
+    },
+    {
+      "ticker": "sh600489",
+      "name": "中金黄金",
+      "momentum_pct": -7.023663818836212,
+      "signal_close_hfq": 259.589,
+      "price_basis": "hfq_not_executable",
+      "rank": 423
+    },
+    {
+      "ticker": "sh600547",
+      "name": "山东黄金",
+      "momentum_pct": -7.028940320014954,
+      "signal_close_hfq": 544.419,
+      "price_basis": "hfq_not_executable",
+      "rank": 424
+    },
+    {
+      "ticker": "sz002335",
+      "name": "科华数据",
+      "momentum_pct": -7.062160223722458,
+      "signal_close_hfq": 199.9,
+      "price_basis": "hfq_not_executable",
+      "rank": 425
+    },
+    {
+      "ticker": "sz300140",
+      "name": "节能环境",
+      "momentum_pct": -7.062600553035736,
+      "signal_close_hfq": 23.16,
+      "price_basis": "hfq_not_executable",
+      "rank": 426
+    },
+    {
+      "ticker": "sz000830",
+      "name": "鲁西化工",
+      "momentum_pct": -7.115058600902557,
+      "signal_close_hfq": 93.08,
+      "price_basis": "hfq_not_executable",
+      "rank": 427
+    },
+    {
+      "ticker": "sh601688",
+      "name": "华泰证券",
+      "momentum_pct": -7.154276221990585,
+      "signal_close_hfq": 23.23,
+      "price_basis": "hfq_not_executable",
+      "rank": 428
+    },
+    {
+      "ticker": "sh603501",
+      "name": "豪威集团",
+      "momentum_pct": -7.164447009563446,
+      "signal_close_hfq": 113.64,
+      "price_basis": "hfq_not_executable",
+      "rank": 429
+    },
+    {
+      "ticker": "sz000513",
+      "name": "丽珠集团",
+      "momentum_pct": -7.1928732097148895,
+      "signal_close_hfq": 267.73,
+      "price_basis": "hfq_not_executable",
+      "rank": 430
+    },
+    {
+      "ticker": "sz002252",
+      "name": "上海莱士",
+      "momentum_pct": -7.218717783689499,
+      "signal_close_hfq": 116.19,
+      "price_basis": "hfq_not_executable",
+      "rank": 431
+    },
+    {
+      "ticker": "sz002415",
+      "name": "002415",
+      "momentum_pct": -7.253871113061905,
+      "signal_close_hfq": 764.076,
+      "price_basis": "hfq_not_executable",
+      "rank": 432
+    },
+    {
+      "ticker": "sz000987",
+      "name": "越秀资本",
+      "momentum_pct": -7.264351844787598,
+      "signal_close_hfq": 52.34,
+      "price_basis": "hfq_not_executable",
+      "rank": 433
+    },
+    {
+      "ticker": "sh601019",
+      "name": "山东出版",
+      "momentum_pct": -7.29166641831398,
+      "signal_close_hfq": 9.79,
+      "price_basis": "hfq_not_executable",
+      "rank": 434
+    },
+    {
+      "ticker": "sh600309",
+      "name": "万华化学",
+      "momentum_pct": -7.345806807279587,
+      "signal_close_hfq": 2151.372,
+      "price_basis": "hfq_not_executable",
+      "rank": 435
+    },
+    {
+      "ticker": "sz002352",
+      "name": "002352",
+      "momentum_pct": -7.393442839384079,
+      "signal_close_hfq": 113.719,
+      "price_basis": "hfq_not_executable",
+      "rank": 436
+    },
+    {
+      "ticker": "sh600930",
+      "name": "华电新能",
+      "momentum_pct": -7.4245937168598175,
+      "signal_close_hfq": 3.99,
+      "price_basis": "hfq_not_executable",
+      "rank": 437
+    },
+    {
+      "ticker": "sz002065",
+      "name": "东华软件",
+      "momentum_pct": -7.4284471571445465,
+      "signal_close_hfq": 213.47,
+      "price_basis": "hfq_not_executable",
+      "rank": 438
+    },
+    {
+      "ticker": "sz000733",
+      "name": "振华科技",
+      "momentum_pct": -7.439480721950531,
+      "signal_close_hfq": 94.06,
+      "price_basis": "hfq_not_executable",
+      "rank": 439
+    },
+    {
+      "ticker": "sz000537",
+      "name": "绿发电力",
+      "momentum_pct": -7.463303953409195,
+      "signal_close_hfq": 44.76,
+      "price_basis": "hfq_not_executable",
+      "rank": 440
+    },
+    {
+      "ticker": "sh603737",
+      "name": "三棵树",
+      "momentum_pct": -7.478436827659607,
+      "signal_close_hfq": 192.01,
+      "price_basis": "hfq_not_executable",
+      "rank": 441
+    },
+    {
+      "ticker": "sh688183",
+      "name": "生益电子",
+      "momentum_pct": -7.4981823563575745,
+      "signal_close_hfq": 89.07,
+      "price_basis": "hfq_not_executable",
+      "rank": 442
+    },
+    {
+      "ticker": "sh688111",
+      "name": "金山办公",
+      "momentum_pct": -7.499818503856659,
+      "signal_close_hfq": 254.32,
+      "price_basis": "hfq_not_executable",
+      "rank": 443
+    },
+    {
+      "ticker": "sz000625",
+      "name": "000625",
+      "momentum_pct": -7.516750693321228,
+      "signal_close_hfq": 102.969,
+      "price_basis": "hfq_not_executable",
+      "rank": 444
+    },
+    {
+      "ticker": "sz002271",
+      "name": "东方雨虹",
+      "momentum_pct": -7.521681487560272,
+      "signal_close_hfq": 462.78,
+      "price_basis": "hfq_not_executable",
+      "rank": 445
+    },
+    {
+      "ticker": "sz300339",
+      "name": "润和软件",
+      "momentum_pct": -7.553067058324814,
+      "signal_close_hfq": 212.97,
+      "price_basis": "hfq_not_executable",
+      "rank": 446
+    },
+    {
+      "ticker": "sz300896",
+      "name": "300896",
+      "momentum_pct": -7.561440020799637,
+      "signal_close_hfq": 285.258,
+      "price_basis": "hfq_not_executable",
+      "rank": 447
+    },
+    {
+      "ticker": "sh600498",
+      "name": "烽火通信",
+      "momentum_pct": -7.566424459218979,
+      "signal_close_hfq": 100.54,
+      "price_basis": "hfq_not_executable",
+      "rank": 448
+    },
+    {
+      "ticker": "sh688582",
+      "name": "芯动联科",
+      "momentum_pct": -7.5722090899944305,
+      "signal_close_hfq": 35.52,
+      "price_basis": "hfq_not_executable",
+      "rank": 449
+    },
+    {
+      "ticker": "sz002601",
+      "name": "龙佰集团",
+      "momentum_pct": -7.575418055057526,
+      "signal_close_hfq": 164.83,
+      "price_basis": "hfq_not_executable",
+      "rank": 450
+    },
+    {
+      "ticker": "sz002797",
+      "name": "第一创业",
+      "momentum_pct": -7.582515478134155,
+      "signal_close_hfq": 10.36,
+      "price_basis": "hfq_not_executable",
+      "rank": 451
+    },
+    {
+      "ticker": "sh601456",
+      "name": "国联民生",
+      "momentum_pct": -7.588532567024231,
+      "signal_close_hfq": 8.768,
+      "price_basis": "hfq_not_executable",
+      "rank": 452
+    },
+    {
+      "ticker": "sh600600",
+      "name": "青岛啤酒",
+      "momentum_pct": -7.615385204553604,
+      "signal_close_hfq": 78.805,
+      "price_basis": "hfq_not_executable",
+      "rank": 453
+    },
+    {
+      "ticker": "sh603833",
+      "name": "欧派家居",
+      "momentum_pct": -7.619738578796387,
+      "signal_close_hfq": 63.65,
+      "price_basis": "hfq_not_executable",
+      "rank": 454
+    },
+    {
+      "ticker": "sz301606",
+      "name": "绿联科技",
+      "momentum_pct": -7.630521804094315,
+      "signal_close_hfq": 50.6,
+      "price_basis": "hfq_not_executable",
+      "rank": 455
+    },
+    {
+      "ticker": "sh600111",
+      "name": "北方稀土",
+      "momentum_pct": -7.6879628002643585,
+      "signal_close_hfq": 701.121,
+      "price_basis": "hfq_not_executable",
+      "rank": 456
+    },
+    {
+      "ticker": "sz000959",
+      "name": "首钢股份",
+      "momentum_pct": -7.720144838094711,
+      "signal_close_hfq": 7.65,
+      "price_basis": "hfq_not_executable",
+      "rank": 457
+    },
+    {
+      "ticker": "sh688301",
+      "name": "奕瑞科技",
+      "momentum_pct": -7.728232443332672,
+      "signal_close_hfq": 310.19,
+      "price_basis": "hfq_not_executable",
+      "rank": 458
+    },
+    {
+      "ticker": "sz300059",
+      "name": "300059",
+      "momentum_pct": -7.867208868265152,
+      "signal_close_hfq": 1480.105,
+      "price_basis": "hfq_not_executable",
+      "rank": 459
+    },
+    {
+      "ticker": "sz300661",
+      "name": "300661",
+      "momentum_pct": -7.898513972759247,
+      "signal_close_hfq": 859.865,
+      "price_basis": "hfq_not_executable",
+      "rank": 460
+    },
+    {
+      "ticker": "sh601865",
+      "name": "福莱特",
+      "momentum_pct": -7.913043349981308,
+      "signal_close_hfq": 10.59,
+      "price_basis": "hfq_not_executable",
+      "rank": 461
+    },
+    {
+      "ticker": "sz002916",
+      "name": "002916",
+      "momentum_pct": -7.925646007061005,
+      "signal_close_hfq": 634.814,
+      "price_basis": "hfq_not_executable",
+      "rank": 462
+    },
+    {
+      "ticker": "sz000800",
+      "name": "一汽解放",
+      "momentum_pct": -7.9659320414066315,
+      "signal_close_hfq": 18.37,
+      "price_basis": "hfq_not_executable",
+      "rank": 463
+    },
+    {
+      "ticker": "sh600660",
+      "name": "福耀玻璃",
+      "momentum_pct": -8.001810312271118,
+      "signal_close_hfq": 2416.993,
+      "price_basis": "hfq_not_executable",
+      "rank": 464
+    },
+    {
+      "ticker": "sz000883",
+      "name": "湖北能源",
+      "momentum_pct": -8.013293892145157,
+      "signal_close_hfq": 24.91,
+      "price_basis": "hfq_not_executable",
+      "rank": 465
+    },
+    {
+      "ticker": "sz300442",
+      "name": "300442",
+      "momentum_pct": -8.026327937841415,
+      "signal_close_hfq": 108.574,
+      "price_basis": "hfq_not_executable",
+      "rank": 466
+    },
+    {
+      "ticker": "sh600332",
+      "name": "白云山",
+      "momentum_pct": -8.032955974340439,
+      "signal_close_hfq": 35.72,
+      "price_basis": "hfq_not_executable",
+      "rank": 467
+    },
+    {
+      "ticker": "sz000878",
+      "name": "云南铜业",
+      "momentum_pct": -8.094831556081772,
+      "signal_close_hfq": 43.03,
+      "price_basis": "hfq_not_executable",
+      "rank": 468
+    },
+    {
+      "ticker": "sh600871",
+      "name": "石化油服",
+      "momentum_pct": -8.122743666172028,
+      "signal_close_hfq": 5.09,
+      "price_basis": "hfq_not_executable",
+      "rank": 469
+    },
+    {
+      "ticker": "sh600958",
+      "name": "东方证券",
+      "momentum_pct": -8.154010772705078,
+      "signal_close_hfq": 11.14,
+      "price_basis": "hfq_not_executable",
+      "rank": 470
+    },
+    {
+      "ticker": "sz000932",
+      "name": "华菱钢铁",
+      "momentum_pct": -8.190476149320602,
+      "signal_close_hfq": 9.64,
+      "price_basis": "hfq_not_executable",
+      "rank": 471
+    },
+    {
+      "ticker": "sz002266",
+      "name": "浙富控股",
+      "momentum_pct": -8.194885402917862,
+      "signal_close_hfq": 49.18,
+      "price_basis": "hfq_not_executable",
+      "rank": 472
+    },
+    {
+      "ticker": "sh600588",
+      "name": "用友网络",
+      "momentum_pct": -8.277107030153275,
+      "signal_close_hfq": 506.658,
+      "price_basis": "hfq_not_executable",
+      "rank": 473
+    },
+    {
+      "ticker": "sh600109",
+      "name": "国金证券",
+      "momentum_pct": -8.302370458841324,
+      "signal_close_hfq": 71.57,
+      "price_basis": "hfq_not_executable",
+      "rank": 474
+    },
+    {
+      "ticker": "sh600282",
+      "name": "南钢股份",
+      "momentum_pct": -8.321325480937958,
+      "signal_close_hfq": 25.45,
+      "price_basis": "hfq_not_executable",
+      "rank": 475
+    },
+    {
+      "ticker": "sh601696",
+      "name": "中银证券",
+      "momentum_pct": -8.340214937925339,
+      "signal_close_hfq": 11.1,
+      "price_basis": "hfq_not_executable",
+      "rank": 476
+    },
+    {
+      "ticker": "sz300033",
+      "name": "300033",
+      "momentum_pct": -8.39015319943428,
+      "signal_close_hfq": 2557.08,
+      "price_basis": "hfq_not_executable",
+      "rank": 477
+    },
+    {
+      "ticker": "sz002152",
+      "name": "广电运通",
+      "momentum_pct": -8.425560593605042,
+      "signal_close_hfq": 164.66,
+      "price_basis": "hfq_not_executable",
+      "rank": 478
+    },
+    {
+      "ticker": "sh600578",
+      "name": "京能电力",
+      "momentum_pct": -8.442776650190353,
+      "signal_close_hfq": 24.4,
+      "price_basis": "hfq_not_executable",
+      "rank": 479
+    },
+    {
+      "ticker": "sh603806",
+      "name": "福斯特",
+      "momentum_pct": -8.475097268819809,
+      "signal_close_hfq": 89.31,
+      "price_basis": "hfq_not_executable",
+      "rank": 480
+    },
+    {
+      "ticker": "sh601211",
+      "name": "国泰海通",
+      "momentum_pct": -8.499426394701004,
+      "signal_close_hfq": 21.531,
+      "price_basis": "hfq_not_executable",
+      "rank": 481
+    },
+    {
+      "ticker": "sz001309",
+      "name": "德明利",
+      "momentum_pct": -8.535236120223999,
+      "signal_close_hfq": 901.12,
+      "price_basis": "hfq_not_executable",
+      "rank": 482
+    },
+    {
+      "ticker": "sz002429",
+      "name": "兆驰股份",
+      "momentum_pct": -8.541666716337204,
+      "signal_close_hfq": 61.46,
+      "price_basis": "hfq_not_executable",
+      "rank": 483
+    },
+    {
+      "ticker": "sh600100",
+      "name": "同方股份",
+      "momentum_pct": -8.548479527235031,
+      "signal_close_hfq": 127.52,
+      "price_basis": "hfq_not_executable",
+      "rank": 484
+    },
+    {
+      "ticker": "sh601117",
+      "name": "中国化学",
+      "momentum_pct": -8.565595000982285,
+      "signal_close_hfq": 8.956,
+      "price_basis": "hfq_not_executable",
+      "rank": 485
+    },
+    {
+      "ticker": "sz002273",
+      "name": "水晶光电",
+      "momentum_pct": -8.574917167425156,
+      "signal_close_hfq": 321.99,
+      "price_basis": "hfq_not_executable",
+      "rank": 486
+    },
+    {
+      "ticker": "sh603288",
+      "name": "海天味业",
+      "momentum_pct": -8.611573278903961,
+      "signal_close_hfq": 307.65,
+      "price_basis": "hfq_not_executable",
+      "rank": 487
+    },
+    {
+      "ticker": "sh600426",
+      "name": "华鲁恒升",
+      "momentum_pct": -8.63208919763565,
+      "signal_close_hfq": 293.111,
+      "price_basis": "hfq_not_executable",
+      "rank": 488
+    },
+    {
+      "ticker": "sz000617",
+      "name": "000617",
+      "momentum_pct": -8.673478662967682,
+      "signal_close_hfq": 50.857,
+      "price_basis": "hfq_not_executable",
+      "rank": 489
+    },
+    {
+      "ticker": "sh600763",
+      "name": "通策医疗",
+      "momentum_pct": -8.68331864476204,
+      "signal_close_hfq": 115.89,
+      "price_basis": "hfq_not_executable",
+      "rank": 490
+    },
+    {
+      "ticker": "sh601111",
+      "name": "中国国航",
+      "momentum_pct": -8.704061806201935,
+      "signal_close_hfq": 6.608,
+      "price_basis": "hfq_not_executable",
+      "rank": 491
+    },
+    {
+      "ticker": "sh600126",
+      "name": "杭钢股份",
+      "momentum_pct": -8.747579157352448,
+      "signal_close_hfq": 28.27,
+      "price_basis": "hfq_not_executable",
+      "rank": 492
+    },
+    {
+      "ticker": "sh601108",
+      "name": "财通证券",
+      "momentum_pct": -8.758421242237091,
+      "signal_close_hfq": 9.48,
+      "price_basis": "hfq_not_executable",
+      "rank": 493
+    },
+    {
+      "ticker": "sh688387",
+      "name": "信科移动",
+      "momentum_pct": -8.78378376364708,
+      "signal_close_hfq": 10.8,
+      "price_basis": "hfq_not_executable",
+      "rank": 494
+    },
+    {
+      "ticker": "sh601611",
+      "name": "中国核建",
+      "momentum_pct": -8.807829022407532,
+      "signal_close_hfq": 10.25,
+      "price_basis": "hfq_not_executable",
+      "rank": 495
+    },
+    {
+      "ticker": "sh600030",
+      "name": "中信证券",
+      "momentum_pct": -8.816122263669968,
+      "signal_close_hfq": 143.021,
+      "price_basis": "hfq_not_executable",
+      "rank": 496
+    },
+    {
+      "ticker": "sh600584",
+      "name": "长电科技",
+      "momentum_pct": -8.894943445920944,
+      "signal_close_hfq": 291.241,
+      "price_basis": "hfq_not_executable",
+      "rank": 497
+    },
+    {
+      "ticker": "sz000423",
+      "name": "东阿阿胶",
+      "momentum_pct": -8.90025794506073,
+      "signal_close_hfq": 592.95,
+      "price_basis": "hfq_not_executable",
+      "rank": 498
+    },
+    {
+      "ticker": "sz002318",
+      "name": "久立特材",
+      "momentum_pct": -9.04742255806923,
+      "signal_close_hfq": 110.28,
+      "price_basis": "hfq_not_executable",
+      "rank": 499
+    },
+    {
+      "ticker": "sh600909",
+      "name": "华安证券",
+      "momentum_pct": -9.054326266050339,
+      "signal_close_hfq": 9.04,
+      "price_basis": "hfq_not_executable",
+      "rank": 500
+    },
+    {
+      "ticker": "sh600031",
+      "name": "三一重工",
+      "momentum_pct": -9.055241197347641,
+      "signal_close_hfq": 857.178,
+      "price_basis": "hfq_not_executable",
+      "rank": 501
+    },
+    {
+      "ticker": "sz300724",
+      "name": "捷佳伟创",
+      "momentum_pct": -9.126276522874832,
+      "signal_close_hfq": 56.06,
+      "price_basis": "hfq_not_executable",
+      "rank": 502
+    },
+    {
+      "ticker": "sz000783",
+      "name": "长江证券",
+      "momentum_pct": -9.146947413682938,
+      "signal_close_hfq": 45.69,
+      "price_basis": "hfq_not_executable",
+      "rank": 503
+    },
+    {
+      "ticker": "sh600690",
+      "name": "海尔智家",
+      "momentum_pct": -9.164738655090332,
+      "signal_close_hfq": 695.254,
+      "price_basis": "hfq_not_executable",
+      "rank": 504
+    },
+    {
+      "ticker": "sz000415",
+      "name": "渤海租赁",
+      "momentum_pct": -9.16985422372818,
+      "signal_close_hfq": 87.86,
+      "price_basis": "hfq_not_executable",
+      "rank": 505
+    },
+    {
+      "ticker": "sh600066",
+      "name": "宇通客车",
+      "momentum_pct": -9.182652086019516,
+      "signal_close_hfq": 1048.133,
+      "price_basis": "hfq_not_executable",
+      "rank": 506
+    },
+    {
+      "ticker": "sh688223",
+      "name": "晶科能源",
+      "momentum_pct": -9.188034385442734,
+      "signal_close_hfq": 4.25,
+      "price_basis": "hfq_not_executable",
+      "rank": 507
+    },
+    {
+      "ticker": "sz002230",
+      "name": "002230",
+      "momentum_pct": -9.226972609758377,
+      "signal_close_hfq": 510.542,
+      "price_basis": "hfq_not_executable",
+      "rank": 508
+    },
+    {
+      "ticker": "sh603650",
+      "name": "彤程新材",
+      "momentum_pct": -9.248251467943192,
+      "signal_close_hfq": 51.91,
+      "price_basis": "hfq_not_executable",
+      "rank": 509
+    },
+    {
+      "ticker": "sz300432",
+      "name": "富临精工",
+      "momentum_pct": -9.282578527927399,
+      "signal_close_hfq": 157.05,
+      "price_basis": "hfq_not_executable",
+      "rank": 510
+    },
+    {
+      "ticker": "sh688037",
+      "name": "芯源微",
+      "momentum_pct": -9.300519526004791,
+      "signal_close_hfq": 572.35,
+      "price_basis": "hfq_not_executable",
+      "rank": 511
+    },
+    {
+      "ticker": "sh600875",
+      "name": "东方电气",
+      "momentum_pct": -9.327316284179688,
+      "signal_close_hfq": 66.911,
+      "price_basis": "hfq_not_executable",
+      "rank": 512
+    },
+    {
+      "ticker": "sz000725",
+      "name": "000725",
+      "momentum_pct": -9.344354271888733,
+      "signal_close_hfq": 25.884,
+      "price_basis": "hfq_not_executable",
+      "rank": 513
+    },
+    {
+      "ticker": "sz300015",
+      "name": "300015",
+      "momentum_pct": -9.357109665870667,
+      "signal_close_hfq": 544.965,
+      "price_basis": "hfq_not_executable",
+      "rank": 514
+    },
+    {
+      "ticker": "sh600602",
+      "name": "云赛智联",
+      "momentum_pct": -9.372645616531372,
+      "signal_close_hfq": 9335.27,
+      "price_basis": "hfq_not_executable",
+      "rank": 515
+    },
+    {
+      "ticker": "sz000683",
+      "name": "博源化工",
+      "momentum_pct": -9.407665580511093,
+      "signal_close_hfq": 49.4,
+      "price_basis": "hfq_not_executable",
+      "rank": 516
+    },
+    {
+      "ticker": "sz002812",
+      "name": "恩捷股份",
+      "momentum_pct": -9.418267756700516,
+      "signal_close_hfq": 172.06,
+      "price_basis": "hfq_not_executable",
+      "rank": 517
+    },
+    {
+      "ticker": "sz002131",
+      "name": "利欧股份",
+      "momentum_pct": -9.442632645368576,
+      "signal_close_hfq": 183.27,
+      "price_basis": "hfq_not_executable",
+      "rank": 518
+    },
+    {
+      "ticker": "sz000951",
+      "name": "中国重汽",
+      "momentum_pct": -9.467851370573044,
+      "signal_close_hfq": 94.76,
+      "price_basis": "hfq_not_executable",
+      "rank": 519
+    },
+    {
+      "ticker": "sz002074",
+      "name": "002074",
+      "momentum_pct": -9.472867101430893,
+      "signal_close_hfq": 114.238,
+      "price_basis": "hfq_not_executable",
+      "rank": 520
+    },
+    {
+      "ticker": "sh600029",
+      "name": "南方航空",
+      "momentum_pct": -9.47546511888504,
+      "signal_close_hfq": 8.025,
+      "price_basis": "hfq_not_executable",
+      "rank": 521
+    },
+    {
+      "ticker": "sh603290",
+      "name": "斯达半导",
+      "momentum_pct": -9.484066814184189,
+      "signal_close_hfq": 107.37,
+      "price_basis": "hfq_not_executable",
+      "rank": 522
+    },
+    {
+      "ticker": "sh601066",
+      "name": "中信建投",
+      "momentum_pct": -9.492430835962296,
+      "signal_close_hfq": 25.41,
+      "price_basis": "hfq_not_executable",
+      "rank": 523
+    },
+    {
+      "ticker": "sz300450",
+      "name": "300450",
+      "momentum_pct": -9.527020156383514,
+      "signal_close_hfq": 628.058,
+      "price_basis": "hfq_not_executable",
+      "rank": 524
+    },
+    {
+      "ticker": "sh600809",
+      "name": "山西汾酒",
+      "momentum_pct": -9.527864307165146,
+      "signal_close_hfq": 599.282,
+      "price_basis": "hfq_not_executable",
+      "rank": 525
+    },
+    {
+      "ticker": "sz000921",
+      "name": "海信家电",
+      "momentum_pct": -9.535586833953857,
+      "signal_close_hfq": 32.92,
+      "price_basis": "hfq_not_executable",
+      "rank": 526
+    },
+    {
+      "ticker": "sh601727",
+      "name": "上海电气",
+      "momentum_pct": -9.54248383641243,
+      "signal_close_hfq": 6.92,
+      "price_basis": "hfq_not_executable",
+      "rank": 527
+    },
+    {
+      "ticker": "sz002155",
+      "name": "湖南黄金",
+      "momentum_pct": -9.544603526592255,
+      "signal_close_hfq": 72.5,
+      "price_basis": "hfq_not_executable",
+      "rank": 528
+    },
+    {
+      "ticker": "sh600415",
+      "name": "小商品城",
+      "momentum_pct": -9.582904726266861,
+      "signal_close_hfq": 458.204,
+      "price_basis": "hfq_not_executable",
+      "rank": 529
+    },
+    {
+      "ticker": "sh600570",
+      "name": "恒生电子",
+      "momentum_pct": -9.631489962339401,
+      "signal_close_hfq": 870.8,
+      "price_basis": "hfq_not_executable",
+      "rank": 530
+    },
+    {
+      "ticker": "sz002939",
+      "name": "长城证券",
+      "momentum_pct": -9.660296887159348,
+      "signal_close_hfq": 8.51,
+      "price_basis": "hfq_not_executable",
+      "rank": 531
+    },
+    {
+      "ticker": "sh601628",
+      "name": "中国人寿",
+      "momentum_pct": -9.683047235012054,
+      "signal_close_hfq": 43.484,
+      "price_basis": "hfq_not_executable",
+      "rank": 532
+    },
+    {
+      "ticker": "sh605589",
+      "name": "圣泉集团",
+      "momentum_pct": -9.683631360530853,
+      "signal_close_hfq": 32.83,
+      "price_basis": "hfq_not_executable",
+      "rank": 533
+    },
+    {
+      "ticker": "sh603589",
+      "name": "口子窖",
+      "momentum_pct": -9.704898297786713,
+      "signal_close_hfq": 29.68,
+      "price_basis": "hfq_not_executable",
+      "rank": 534
+    },
+    {
+      "ticker": "sh600535",
+      "name": "天士力",
+      "momentum_pct": -9.708375483751297,
+      "signal_close_hfq": 169.36,
+      "price_basis": "hfq_not_executable",
+      "rank": 535
+    },
+    {
+      "ticker": "sz300857",
+      "name": "协创数据",
+      "momentum_pct": -9.718718379735947,
+      "signal_close_hfq": 382.91,
+      "price_basis": "hfq_not_executable",
+      "rank": 536
+    },
+    {
+      "ticker": "sz000629",
+      "name": "钒钛股份",
+      "momentum_pct": -9.791122376918793,
+      "signal_close_hfq": 13.82,
+      "price_basis": "hfq_not_executable",
+      "rank": 537
+    },
+    {
+      "ticker": "sh601162",
+      "name": "天风证券",
+      "momentum_pct": -9.814323484897614,
+      "signal_close_hfq": 3.4,
+      "price_basis": "hfq_not_executable",
+      "rank": 538
+    },
+    {
+      "ticker": "sz002312",
+      "name": "川发龙蟒",
+      "momentum_pct": -9.846515953540802,
+      "signal_close_hfq": 145.67,
+      "price_basis": "hfq_not_executable",
+      "rank": 539
+    },
+    {
+      "ticker": "sh601377",
+      "name": "兴业证券",
+      "momentum_pct": -9.884729981422424,
+      "signal_close_hfq": 14.541,
+      "price_basis": "hfq_not_executable",
+      "rank": 540
+    },
+    {
+      "ticker": "sh600436",
+      "name": "片仔癀",
+      "momentum_pct": -9.893503785133362,
+      "signal_close_hfq": 764.623,
+      "price_basis": "hfq_not_executable",
+      "rank": 541
+    },
+    {
+      "ticker": "sh601991",
+      "name": "大唐发电",
+      "momentum_pct": -9.900332242250443,
+      "signal_close_hfq": 13.56,
+      "price_basis": "hfq_not_executable",
+      "rank": 542
+    },
+    {
+      "ticker": "sz002078",
+      "name": "太阳纸业",
+      "momentum_pct": -9.904074668884277,
+      "signal_close_hfq": 109.89,
+      "price_basis": "hfq_not_executable",
+      "rank": 543
+    },
+    {
+      "ticker": "sh601966",
+      "name": "玲珑轮胎",
+      "momentum_pct": -9.92366448044777,
+      "signal_close_hfq": 12.98,
+      "price_basis": "hfq_not_executable",
+      "rank": 544
+    },
+    {
+      "ticker": "sz000750",
+      "name": "国海证券",
+      "momentum_pct": -9.931258857250214,
+      "signal_close_hfq": 49.79,
+      "price_basis": "hfq_not_executable",
+      "rank": 545
+    },
+    {
+      "ticker": "sz000591",
+      "name": "太阳能",
+      "momentum_pct": -9.947414696216583,
+      "signal_close_hfq": 61.65,
+      "price_basis": "hfq_not_executable",
+      "rank": 546
+    },
+    {
+      "ticker": "sh601868",
+      "name": "中国能建",
+      "momentum_pct": -9.963099658489227,
+      "signal_close_hfq": 2.44,
+      "price_basis": "hfq_not_executable",
+      "rank": 547
+    },
+    {
+      "ticker": "sh601995",
+      "name": "中金公司",
+      "momentum_pct": -9.964314848184586,
+      "signal_close_hfq": 32.8,
+      "price_basis": "hfq_not_executable",
+      "rank": 548
+    },
+    {
+      "ticker": "sz300458",
+      "name": "全志科技",
+      "momentum_pct": -9.980078786611557,
+      "signal_close_hfq": 185.27,
+      "price_basis": "hfq_not_executable",
+      "rank": 549
+    },
+    {
+      "ticker": "sh603529",
+      "name": "爱玛科技",
+      "momentum_pct": -10.01657173037529,
+      "signal_close_hfq": 48.87,
+      "price_basis": "hfq_not_executable",
+      "rank": 550
+    },
+    {
+      "ticker": "sh600298",
+      "name": "安琪酵母",
+      "momentum_pct": -10.017326474189758,
+      "signal_close_hfq": 280.44,
+      "price_basis": "hfq_not_executable",
+      "rank": 551
+    },
+    {
+      "ticker": "sz000729",
+      "name": "燕京啤酒",
+      "momentum_pct": -10.131026804447174,
+      "signal_close_hfq": 104.94,
+      "price_basis": "hfq_not_executable",
+      "rank": 552
+    },
+    {
+      "ticker": "sz000034",
+      "name": "神州数码",
+      "momentum_pct": -10.147243738174438,
+      "signal_close_hfq": 78.72,
+      "price_basis": "hfq_not_executable",
+      "rank": 553
+    },
+    {
+      "ticker": "sz002153",
+      "name": "石基信息",
+      "momentum_pct": -10.164320468902588,
+      "signal_close_hfq": 335.68,
+      "price_basis": "hfq_not_executable",
+      "rank": 554
+    },
+    {
+      "ticker": "sz000661",
+      "name": "长春高新",
+      "momentum_pct": -10.173185914754868,
+      "signal_close_hfq": 688.28,
+      "price_basis": "hfq_not_executable",
+      "rank": 555
+    },
+    {
+      "ticker": "sh688506",
+      "name": "百利天恒",
+      "momentum_pct": -10.234899073839188,
+      "signal_close_hfq": 267.5,
+      "price_basis": "hfq_not_executable",
+      "rank": 556
+    },
+    {
+      "ticker": "sz300001",
+      "name": "特锐德",
+      "momentum_pct": -10.280806571245193,
+      "signal_close_hfq": 213.11,
+      "price_basis": "hfq_not_executable",
+      "rank": 557
+    },
+    {
+      "ticker": "sz002532",
+      "name": "002532",
+      "momentum_pct": -10.286971926689148,
+      "signal_close_hfq": 90.097,
+      "price_basis": "hfq_not_executable",
+      "rank": 558
+    },
+    {
+      "ticker": "sz003035",
+      "name": "南网能源",
+      "momentum_pct": -10.301953554153442,
+      "signal_close_hfq": 5.05,
+      "price_basis": "hfq_not_executable",
+      "rank": 559
+    },
+    {
+      "ticker": "sh600378",
+      "name": "昊华科技",
+      "momentum_pct": -10.337945073843002,
+      "signal_close_hfq": 130.27,
+      "price_basis": "hfq_not_executable",
+      "rank": 560
+    },
+    {
+      "ticker": "sh600927",
+      "name": "永安期货",
+      "momentum_pct": -10.361959040164948,
+      "signal_close_hfq": 12.63,
+      "price_basis": "hfq_not_executable",
+      "rank": 561
+    },
+    {
+      "ticker": "sh600157",
+      "name": "永泰能源",
+      "momentum_pct": -10.36684438586235,
+      "signal_close_hfq": 77.21,
+      "price_basis": "hfq_not_executable",
+      "rank": 562
+    },
+    {
+      "ticker": "sh688819",
+      "name": "天能股份",
+      "momentum_pct": -10.423076897859573,
+      "signal_close_hfq": 23.29,
+      "price_basis": "hfq_not_executable",
+      "rank": 563
+    },
+    {
+      "ticker": "sh601899",
+      "name": "紫金矿业",
+      "momentum_pct": -10.466417670249939,
+      "signal_close_hfq": 47.99,
+      "price_basis": "hfq_not_executable",
+      "rank": 564
+    },
+    {
+      "ticker": "sh688331",
+      "name": "荣昌生物",
+      "momentum_pct": -10.508624464273453,
+      "signal_close_hfq": 101.17,
+      "price_basis": "hfq_not_executable",
+      "rank": 565
+    },
+    {
+      "ticker": "sh600515",
+      "name": "海南机场",
+      "momentum_pct": -10.514285415410995,
+      "signal_close_hfq": 8.613,
+      "price_basis": "hfq_not_executable",
+      "rank": 566
+    },
+    {
+      "ticker": "sh600118",
+      "name": "中国卫星",
+      "momentum_pct": -10.643210262060165,
+      "signal_close_hfq": 995.801,
+      "price_basis": "hfq_not_executable",
+      "rank": 567
+    },
+    {
+      "ticker": "sz002444",
+      "name": "巨星科技",
+      "momentum_pct": -10.648255050182343,
+      "signal_close_hfq": 116.47,
+      "price_basis": "hfq_not_executable",
+      "rank": 568
+    },
+    {
+      "ticker": "sz300024",
+      "name": "机器人",
+      "momentum_pct": -10.673802345991135,
+      "signal_close_hfq": 325.46,
+      "price_basis": "hfq_not_executable",
+      "rank": 569
+    },
+    {
+      "ticker": "sh688047",
+      "name": "龙芯中科",
+      "momentum_pct": -10.680706799030304,
+      "signal_close_hfq": 95.0,
+      "price_basis": "hfq_not_executable",
+      "rank": 570
+    },
+    {
+      "ticker": "sh603296",
+      "name": "华勤技术",
+      "momentum_pct": -10.732872039079666,
+      "signal_close_hfq": 145.8,
+      "price_basis": "hfq_not_executable",
+      "rank": 571
+    },
+    {
+      "ticker": "sz300433",
+      "name": "300433",
+      "momentum_pct": -10.747095942497253,
+      "signal_close_hfq": 164.577,
+      "price_basis": "hfq_not_executable",
+      "rank": 572
+    },
+    {
+      "ticker": "sz000786",
+      "name": "北新建材",
+      "momentum_pct": -10.750524699687958,
+      "signal_close_hfq": 204.06,
+      "price_basis": "hfq_not_executable",
+      "rank": 573
+    },
+    {
+      "ticker": "sz002340",
+      "name": "格林美",
+      "momentum_pct": -10.796041041612625,
+      "signal_close_hfq": 146.91,
+      "price_basis": "hfq_not_executable",
+      "rank": 574
+    },
+    {
+      "ticker": "sh601698",
+      "name": "中国卫通",
+      "momentum_pct": -10.893075168132782,
+      "signal_close_hfq": 22.659,
+      "price_basis": "hfq_not_executable",
+      "rank": 575
+    },
+    {
+      "ticker": "sh600879",
+      "name": "航天电子",
+      "momentum_pct": -10.980142652988434,
+      "signal_close_hfq": 560.38,
+      "price_basis": "hfq_not_executable",
+      "rank": 576
+    },
+    {
+      "ticker": "sh688281",
+      "name": "华秦科技",
+      "momentum_pct": -10.984551906585693,
+      "signal_close_hfq": 250.08,
+      "price_basis": "hfq_not_executable",
+      "rank": 577
+    },
+    {
+      "ticker": "sz002130",
+      "name": "沃尔核材",
+      "momentum_pct": -10.984574258327484,
+      "signal_close_hfq": 319.69,
+      "price_basis": "hfq_not_executable",
+      "rank": 578
+    },
+    {
+      "ticker": "sz002568",
+      "name": "百润股份",
+      "momentum_pct": -10.986730456352234,
+      "signal_close_hfq": 163.01,
+      "price_basis": "hfq_not_executable",
+      "rank": 579
+    },
+    {
+      "ticker": "sh600221",
+      "name": "海航控股",
+      "momentum_pct": -10.994552820920944,
+      "signal_close_hfq": 4.412,
+      "price_basis": "hfq_not_executable",
+      "rank": 580
+    },
+    {
+      "ticker": "sz300735",
+      "name": "光弘科技",
+      "momentum_pct": -11.051645874977112,
+      "signal_close_hfq": 33.24,
+      "price_basis": "hfq_not_executable",
+      "rank": 581
+    },
+    {
+      "ticker": "sh603077",
+      "name": "和邦生物",
+      "momentum_pct": -11.091072857379913,
+      "signal_close_hfq": 29.58,
+      "price_basis": "hfq_not_executable",
+      "rank": 582
+    },
+    {
+      "ticker": "sh603786",
+      "name": "科博达",
+      "momentum_pct": -11.12556904554367,
+      "signal_close_hfq": 40.98,
+      "price_basis": "hfq_not_executable",
+      "rank": 583
+    },
+    {
+      "ticker": "sh600995",
+      "name": "南网储能",
+      "momentum_pct": -11.181434243917465,
+      "signal_close_hfq": 92.62,
+      "price_basis": "hfq_not_executable",
+      "rank": 584
+    },
+    {
+      "ticker": "sz000967",
+      "name": "盈峰环境",
+      "momentum_pct": -11.235170811414719,
+      "signal_close_hfq": 38.16,
+      "price_basis": "hfq_not_executable",
+      "rank": 585
+    },
+    {
+      "ticker": "sh600176",
+      "name": "中国巨石",
+      "momentum_pct": -11.259306967258453,
+      "signal_close_hfq": 481.972,
+      "price_basis": "hfq_not_executable",
+      "rank": 586
+    },
+    {
+      "ticker": "sh603338",
+      "name": "浙江鼎力",
+      "momentum_pct": -11.263398081064224,
+      "signal_close_hfq": 389.11,
+      "price_basis": "hfq_not_executable",
+      "rank": 587
+    },
+    {
+      "ticker": "sh688363",
+      "name": "华熙生物",
+      "momentum_pct": -11.317210644483566,
+      "signal_close_hfq": 37.77,
+      "price_basis": "hfq_not_executable",
+      "rank": 588
+    },
+    {
+      "ticker": "sh601717",
+      "name": "中创智领",
+      "momentum_pct": -11.448276042938232,
+      "signal_close_hfq": 38.52,
+      "price_basis": "hfq_not_executable",
+      "rank": 589
+    },
+    {
+      "ticker": "sh601058",
+      "name": "赛轮轮胎",
+      "momentum_pct": -11.475643515586853,
+      "signal_close_hfq": 62.114,
+      "price_basis": "hfq_not_executable",
+      "rank": 590
+    },
+    {
+      "ticker": "sh688728",
+      "name": "格科微",
+      "momentum_pct": -11.481975764036179,
+      "signal_close_hfq": 13.26,
+      "price_basis": "hfq_not_executable",
+      "rank": 591
+    },
+    {
+      "ticker": "sh605117",
+      "name": "德业股份",
+      "momentum_pct": -11.564445495605469,
+      "signal_close_hfq": 534.08,
+      "price_basis": "hfq_not_executable",
+      "rank": 592
+    },
+    {
+      "ticker": "sz001391",
+      "name": "001391",
+      "momentum_pct": -11.746454238891602,
+      "signal_close_hfq": 3.982,
+      "price_basis": "hfq_not_executable",
+      "rank": 593
+    },
+    {
+      "ticker": "sz002001",
+      "name": "002001",
+      "momentum_pct": -11.757521331310272,
+      "signal_close_hfq": 926.231,
+      "price_basis": "hfq_not_executable",
+      "rank": 594
+    },
+    {
+      "ticker": "sz300144",
+      "name": "宋城演艺",
+      "momentum_pct": -11.76745519042015,
+      "signal_close_hfq": 94.4,
+      "price_basis": "hfq_not_executable",
+      "rank": 595
+    },
+    {
+      "ticker": "sh601888",
+      "name": "中国中免",
+      "momentum_pct": -11.77249625325203,
+      "signal_close_hfq": 119.91,
+      "price_basis": "hfq_not_executable",
+      "rank": 596
+    },
+    {
+      "ticker": "sz003022",
+      "name": "联泓新科",
+      "momentum_pct": -11.776290088891983,
+      "signal_close_hfq": 22.4,
+      "price_basis": "hfq_not_executable",
+      "rank": 597
+    },
+    {
+      "ticker": "sz002475",
+      "name": "002475",
+      "momentum_pct": -11.807958036661148,
+      "signal_close_hfq": 1697.434,
+      "price_basis": "hfq_not_executable",
+      "rank": 598
+    },
+    {
+      "ticker": "sz300677",
+      "name": "英科医疗",
+      "momentum_pct": -11.86317577958107,
+      "signal_close_hfq": 254.83,
+      "price_basis": "hfq_not_executable",
+      "rank": 599
+    },
+    {
+      "ticker": "sh603444",
+      "name": "吉比特",
+      "momentum_pct": -11.879479140043259,
+      "signal_close_hfq": 434.02,
+      "price_basis": "hfq_not_executable",
+      "rank": 600
+    },
+    {
+      "ticker": "sz002402",
+      "name": "和而泰",
+      "momentum_pct": -11.905261874198914,
+      "signal_close_hfq": 209.78,
+      "price_basis": "hfq_not_executable",
+      "rank": 601
+    },
+    {
+      "ticker": "sh688008",
+      "name": "澜起科技",
+      "momentum_pct": -11.911077052354813,
+      "signal_close_hfq": 182.67,
+      "price_basis": "hfq_not_executable",
+      "rank": 602
+    },
+    {
+      "ticker": "sz300073",
+      "name": "当升科技",
+      "momentum_pct": -11.943991482257843,
+      "signal_close_hfq": 156.59,
+      "price_basis": "hfq_not_executable",
+      "rank": 603
+    },
+    {
+      "ticker": "sz002517",
+      "name": "恺英网络",
+      "momentum_pct": -11.944185942411423,
+      "signal_close_hfq": 94.66,
+      "price_basis": "hfq_not_executable",
+      "rank": 604
+    },
+    {
+      "ticker": "sh603688",
+      "name": "石英股份",
+      "momentum_pct": -12.013614177703857,
+      "signal_close_hfq": 95.65,
+      "price_basis": "hfq_not_executable",
+      "rank": 605
+    },
+    {
+      "ticker": "sh601138",
+      "name": "工业富联",
+      "momentum_pct": -12.02465072274208,
+      "signal_close_hfq": 52.677,
+      "price_basis": "hfq_not_executable",
+      "rank": 606
+    },
+    {
+      "ticker": "sh688375",
+      "name": "国博电子",
+      "momentum_pct": -12.132121622562408,
+      "signal_close_hfq": 97.63,
+      "price_basis": "hfq_not_executable",
+      "rank": 607
+    },
+    {
+      "ticker": "sz000408",
+      "name": "000408",
+      "momentum_pct": -12.140978872776031,
+      "signal_close_hfq": 511.828,
+      "price_basis": "hfq_not_executable",
+      "rank": 608
+    },
+    {
+      "ticker": "sz002851",
+      "name": "麦格米特",
+      "momentum_pct": -12.261106818914413,
+      "signal_close_hfq": 212.1,
+      "price_basis": "hfq_not_executable",
+      "rank": 609
+    },
+    {
+      "ticker": "sz300037",
+      "name": "新宙邦",
+      "momentum_pct": -12.290429323911667,
+      "signal_close_hfq": 333.77,
+      "price_basis": "hfq_not_executable",
+      "rank": 610
+    },
+    {
+      "ticker": "sh601012",
+      "name": "隆基绿能",
+      "momentum_pct": -12.346194684505463,
+      "signal_close_hfq": 230.881,
+      "price_basis": "hfq_not_executable",
+      "rank": 611
+    },
+    {
+      "ticker": "sh600352",
+      "name": "浙江龙盛",
+      "momentum_pct": -12.379241734743118,
+      "signal_close_hfq": 219.49,
+      "price_basis": "hfq_not_executable",
+      "rank": 612
+    },
+    {
+      "ticker": "sz000708",
+      "name": "000708",
+      "momentum_pct": -12.417589873075485,
+      "signal_close_hfq": 50.747,
+      "price_basis": "hfq_not_executable",
+      "rank": 613
+    },
+    {
+      "ticker": "sz002938",
+      "name": "002938",
+      "momentum_pct": -12.491637468338013,
+      "signal_close_hfq": 75.868,
+      "price_basis": "hfq_not_executable",
+      "rank": 614
+    },
+    {
+      "ticker": "sh600362",
+      "name": "江西铜业",
+      "momentum_pct": -12.50564157962799,
+      "signal_close_hfq": 54.285,
+      "price_basis": "hfq_not_executable",
+      "rank": 615
+    },
+    {
+      "ticker": "sh600105",
+      "name": "永鼎股份",
+      "momentum_pct": -12.522050738334656,
+      "signal_close_hfq": 282.65,
+      "price_basis": "hfq_not_executable",
+      "rank": 616
+    },
+    {
+      "ticker": "sh603606",
+      "name": "东方电缆",
+      "momentum_pct": -12.653306126594543,
+      "signal_close_hfq": 175.2,
+      "price_basis": "hfq_not_executable",
+      "rank": 617
+    },
+    {
+      "ticker": "sh600276",
+      "name": "恒瑞医药",
+      "momentum_pct": -12.666521966457367,
+      "signal_close_hfq": 2864.387,
+      "price_basis": "hfq_not_executable",
+      "rank": 618
+    },
+    {
+      "ticker": "sz300346",
+      "name": "南大光电",
+      "momentum_pct": -12.689940631389618,
+      "signal_close_hfq": 544.71,
+      "price_basis": "hfq_not_executable",
+      "rank": 619
+    },
+    {
+      "ticker": "sz002195",
+      "name": "岩山科技",
+      "momentum_pct": -12.737584114074707,
+      "signal_close_hfq": 170.79,
+      "price_basis": "hfq_not_executable",
+      "rank": 620
+    },
+    {
+      "ticker": "sh600143",
+      "name": "金发科技",
+      "momentum_pct": -12.840031087398529,
+      "signal_close_hfq": 241.59,
+      "price_basis": "hfq_not_executable",
+      "rank": 621
+    },
+    {
+      "ticker": "sh601179",
+      "name": "中国西电",
+      "momentum_pct": -12.858140468597412,
+      "signal_close_hfq": 12.47,
+      "price_basis": "hfq_not_executable",
+      "rank": 622
+    },
+    {
+      "ticker": "sz301301",
+      "name": "川宁生物",
+      "momentum_pct": -12.869198620319366,
+      "signal_close_hfq": 8.26,
+      "price_basis": "hfq_not_executable",
+      "rank": 623
+    },
+    {
+      "ticker": "sz000060",
+      "name": "中金岭南",
+      "momentum_pct": -12.873262166976929,
+      "signal_close_hfq": 292.65,
+      "price_basis": "hfq_not_executable",
+      "rank": 624
+    },
+    {
+      "ticker": "sz300058",
+      "name": "蓝色光标",
+      "momentum_pct": -12.918557226657867,
+      "signal_close_hfq": 322.48,
+      "price_basis": "hfq_not_executable",
+      "rank": 625
+    },
+    {
+      "ticker": "sz000568",
+      "name": "000568",
+      "momentum_pct": -12.937791645526886,
+      "signal_close_hfq": 2239.758,
+      "price_basis": "hfq_not_executable",
+      "rank": 626
+    },
+    {
+      "ticker": "sz002049",
+      "name": "002049",
+      "momentum_pct": -13.00271600484848,
+      "signal_close_hfq": 331.183,
+      "price_basis": "hfq_not_executable",
+      "rank": 627
+    },
+    {
+      "ticker": "sh601958",
+      "name": "金钼股份",
+      "momentum_pct": -13.021013140678406,
+      "signal_close_hfq": 25.25,
+      "price_basis": "hfq_not_executable",
+      "rank": 628
+    },
+    {
+      "ticker": "sh603885",
+      "name": "吉祥航空",
+      "momentum_pct": -13.099315762519836,
+      "signal_close_hfq": 30.45,
+      "price_basis": "hfq_not_executable",
+      "rank": 629
+    },
+    {
+      "ticker": "sz002056",
+      "name": "横店东磁",
+      "momentum_pct": -13.14941793680191,
+      "signal_close_hfq": 167.17,
+      "price_basis": "hfq_not_executable",
+      "rank": 630
+    },
+    {
+      "ticker": "sh688180",
+      "name": "君实生物",
+      "momentum_pct": -13.201862573623657,
+      "signal_close_hfq": 31.69,
+      "price_basis": "hfq_not_executable",
+      "rank": 631
+    },
+    {
+      "ticker": "sh600497",
+      "name": "驰宏锌锗",
+      "momentum_pct": -13.245195150375366,
+      "signal_close_hfq": 177.83,
+      "price_basis": "hfq_not_executable",
+      "rank": 632
+    },
+    {
+      "ticker": "sh600905",
+      "name": "三峡能源",
+      "momentum_pct": -13.266998529434204,
+      "signal_close_hfq": 3.661,
+      "price_basis": "hfq_not_executable",
+      "rank": 633
+    },
+    {
+      "ticker": "sz000737",
+      "name": "北方铜业",
+      "momentum_pct": -13.303521275520325,
+      "signal_close_hfq": 46.53,
+      "price_basis": "hfq_not_executable",
+      "rank": 634
+    },
+    {
+      "ticker": "sz002414",
+      "name": "高德红外",
+      "momentum_pct": -13.303691148757935,
+      "signal_close_hfq": 148.19,
+      "price_basis": "hfq_not_executable",
+      "rank": 635
+    },
+    {
+      "ticker": "sh688082",
+      "name": "盛美上海",
+      "momentum_pct": -13.309745490550995,
+      "signal_close_hfq": 237.67,
+      "price_basis": "hfq_not_executable",
+      "rank": 636
+    },
+    {
+      "ticker": "sh601336",
+      "name": "新华保险",
+      "momentum_pct": -13.380944728851318,
+      "signal_close_hfq": 65.251,
+      "price_basis": "hfq_not_executable",
+      "rank": 637
+    },
+    {
+      "ticker": "sh689009",
+      "name": "九号公司",
+      "momentum_pct": -13.426026701927185,
+      "signal_close_hfq": 39.85,
+      "price_basis": "hfq_not_executable",
+      "rank": 638
+    },
+    {
+      "ticker": "sz300316",
+      "name": "300316",
+      "momentum_pct": -13.498733937740326,
+      "signal_close_hfq": 306.256,
+      "price_basis": "hfq_not_executable",
+      "rank": 639
+    },
+    {
+      "ticker": "sh600141",
+      "name": "兴发集团",
+      "momentum_pct": -13.519613444805145,
+      "signal_close_hfq": 80.47,
+      "price_basis": "hfq_not_executable",
+      "rank": 640
+    },
+    {
+      "ticker": "sh601016",
+      "name": "节能风电",
+      "momentum_pct": -13.522355258464813,
+      "signal_close_hfq": 7.93,
+      "price_basis": "hfq_not_executable",
+      "rank": 641
+    },
+    {
+      "ticker": "sz002311",
+      "name": "002311",
+      "momentum_pct": -13.58698159456253,
+      "signal_close_hfq": 293.825,
+      "price_basis": "hfq_not_executable",
+      "rank": 642
+    },
+    {
+      "ticker": "sh600132",
+      "name": "重庆啤酒",
+      "momentum_pct": -13.594898581504822,
+      "signal_close_hfq": 214.06,
+      "price_basis": "hfq_not_executable",
+      "rank": 643
+    },
+    {
+      "ticker": "sh600885",
+      "name": "宏发股份",
+      "momentum_pct": -13.614135980606079,
+      "signal_close_hfq": 242.01,
+      "price_basis": "hfq_not_executable",
+      "rank": 644
+    },
+    {
+      "ticker": "sz002670",
+      "name": "国盛证券",
+      "momentum_pct": -13.624288141727448,
+      "signal_close_hfq": 22.76,
+      "price_basis": "hfq_not_executable",
+      "rank": 645
+    },
+    {
+      "ticker": "sh600711",
+      "name": "盛屯矿业",
+      "momentum_pct": -13.630777597427368,
+      "signal_close_hfq": 91.37,
+      "price_basis": "hfq_not_executable",
+      "rank": 646
+    },
+    {
+      "ticker": "sz002261",
+      "name": "拓维信息",
+      "momentum_pct": -13.70914876461029,
+      "signal_close_hfq": 223.64,
+      "price_basis": "hfq_not_executable",
+      "rank": 647
+    },
+    {
+      "ticker": "sh600115",
+      "name": "中国东航",
+      "momentum_pct": -13.797035813331604,
+      "signal_close_hfq": 4.536,
+      "price_basis": "hfq_not_executable",
+      "rank": 648
+    },
+    {
+      "ticker": "sz300054",
+      "name": "鼎龙股份",
+      "momentum_pct": -13.817499577999115,
+      "signal_close_hfq": 726.01,
+      "price_basis": "hfq_not_executable",
+      "rank": 649
+    },
+    {
+      "ticker": "sh601633",
+      "name": "长城汽车",
+      "momentum_pct": -13.841763138771057,
+      "signal_close_hfq": 54.34,
+      "price_basis": "hfq_not_executable",
+      "rank": 650
+    },
+    {
+      "ticker": "sh688709",
+      "name": "成都华微",
+      "momentum_pct": -13.921020925045013,
+      "signal_close_hfq": 21.58,
+      "price_basis": "hfq_not_executable",
+      "rank": 651
+    },
+    {
+      "ticker": "sh688538",
+      "name": "和辉光电",
+      "momentum_pct": -14.049586653709412,
+      "signal_close_hfq": 2.08,
+      "price_basis": "hfq_not_executable",
+      "rank": 652
+    },
+    {
+      "ticker": "sz002850",
+      "name": "科达利",
+      "momentum_pct": -14.067105948925018,
+      "signal_close_hfq": 244.84,
+      "price_basis": "hfq_not_executable",
+      "rank": 653
+    },
+    {
+      "ticker": "sz002602",
+      "name": "002602",
+      "momentum_pct": -14.333364367485046,
+      "signal_close_hfq": 107.868,
+      "price_basis": "hfq_not_executable",
+      "rank": 654
+    },
+    {
+      "ticker": "sh600021",
+      "name": "上海电力",
+      "momentum_pct": -14.346742630004883,
+      "signal_close_hfq": 24.06,
+      "price_basis": "hfq_not_executable",
+      "rank": 655
+    },
+    {
+      "ticker": "sz002594",
+      "name": "002594",
+      "momentum_pct": -14.45353478193283,
+      "signal_close_hfq": 254.801,
+      "price_basis": "hfq_not_executable",
+      "rank": 656
+    },
+    {
+      "ticker": "sh600089",
+      "name": "特变电工",
+      "momentum_pct": -14.472787082195282,
+      "signal_close_hfq": 1098.16,
+      "price_basis": "hfq_not_executable",
+      "rank": 657
+    },
+    {
+      "ticker": "sz000657",
+      "name": "000657",
+      "momentum_pct": -14.489704370498657,
+      "signal_close_hfq": 259.717,
+      "price_basis": "hfq_not_executable",
+      "rank": 658
+    },
+    {
+      "ticker": "sz000032",
+      "name": "深桑达A",
+      "momentum_pct": -14.582087099552155,
+      "signal_close_hfq": 42.82,
+      "price_basis": "hfq_not_executable",
+      "rank": 659
+    },
+    {
+      "ticker": "sh688295",
+      "name": "中复神鹰",
+      "momentum_pct": -14.6536186337471,
+      "signal_close_hfq": 33.14,
+      "price_basis": "hfq_not_executable",
+      "rank": 660
+    },
+    {
+      "ticker": "sz002025",
+      "name": "航天电器",
+      "momentum_pct": -14.686664938926697,
+      "signal_close_hfq": 322.51,
+      "price_basis": "hfq_not_executable",
+      "rank": 661
+    },
+    {
+      "ticker": "sz000157",
+      "name": "000157",
+      "momentum_pct": -14.770475029945374,
+      "signal_close_hfq": 472.146,
+      "price_basis": "hfq_not_executable",
+      "rank": 662
+    },
+    {
+      "ticker": "sz000703",
+      "name": "恒逸石化",
+      "momentum_pct": -14.790043234825134,
+      "signal_close_hfq": 123.58,
+      "price_basis": "hfq_not_executable",
+      "rank": 663
+    },
+    {
+      "ticker": "sh688065",
+      "name": "凯赛生物",
+      "momentum_pct": -14.898724853992462,
+      "signal_close_hfq": 56.72,
+      "price_basis": "hfq_not_executable",
+      "rank": 664
+    },
+    {
+      "ticker": "sz000063",
+      "name": "000063",
+      "momentum_pct": -14.899523556232452,
+      "signal_close_hfq": 453.126,
+      "price_basis": "hfq_not_executable",
+      "rank": 665
+    },
+    {
+      "ticker": "sh688266",
+      "name": "泽璟制药",
+      "momentum_pct": -15.028664469718933,
+      "signal_close_hfq": 103.75,
+      "price_basis": "hfq_not_executable",
+      "rank": 666
+    },
+    {
+      "ticker": "sh603568",
+      "name": "伟明环保",
+      "momentum_pct": -15.150661766529083,
+      "signal_close_hfq": 60.26,
+      "price_basis": "hfq_not_executable",
+      "rank": 667
+    },
+    {
+      "ticker": "sh688676",
+      "name": "金盘科技",
+      "momentum_pct": -15.169720351696014,
+      "signal_close_hfq": 56.48,
+      "price_basis": "hfq_not_executable",
+      "rank": 668
+    },
+    {
+      "ticker": "sh688498",
+      "name": "源杰科技",
+      "momentum_pct": -15.178889036178589,
+      "signal_close_hfq": 1880.73,
+      "price_basis": "hfq_not_executable",
+      "rank": 669
+    },
+    {
+      "ticker": "sh600884",
+      "name": "杉杉股份",
+      "momentum_pct": -15.224942564964294,
+      "signal_close_hfq": 305.08,
+      "price_basis": "hfq_not_executable",
+      "rank": 670
+    },
+    {
+      "ticker": "sz002984",
+      "name": "森麒麟",
+      "momentum_pct": -15.367582440376282,
+      "signal_close_hfq": 19.11,
+      "price_basis": "hfq_not_executable",
+      "rank": 671
+    },
+    {
+      "ticker": "sz300408",
+      "name": "300408",
+      "momentum_pct": -15.41508138179779,
+      "signal_close_hfq": 388.271,
+      "price_basis": "hfq_not_executable",
+      "rank": 672
+    },
+    {
+      "ticker": "sz000009",
+      "name": "中国宝安",
+      "momentum_pct": -15.473276376724243,
+      "signal_close_hfq": 82.87,
+      "price_basis": "hfq_not_executable",
+      "rank": 673
+    },
+    {
+      "ticker": "sz002920",
+      "name": "002920",
+      "momentum_pct": -15.511490404605865,
+      "signal_close_hfq": 82.574,
+      "price_basis": "hfq_not_executable",
+      "rank": 674
+    },
+    {
+      "ticker": "sh688777",
+      "name": "中控技术",
+      "momentum_pct": -15.58740884065628,
+      "signal_close_hfq": 117.19,
+      "price_basis": "hfq_not_executable",
+      "rank": 675
+    },
+    {
+      "ticker": "sz300124",
+      "name": "300124",
+      "momentum_pct": -15.605933964252472,
+      "signal_close_hfq": 1229.565,
+      "price_basis": "hfq_not_executable",
+      "rank": 676
+    },
+    {
+      "ticker": "sz000155",
+      "name": "川能动力",
+      "momentum_pct": -15.65459668636322,
+      "signal_close_hfq": 15.14,
+      "price_basis": "hfq_not_executable",
+      "rank": 677
+    },
+    {
+      "ticker": "sh688256",
+      "name": "寒武纪",
+      "momentum_pct": -15.699873864650726,
+      "signal_close_hfq": 1390.48,
+      "price_basis": "hfq_not_executable",
+      "rank": 678
+    },
+    {
+      "ticker": "sh603225",
+      "name": "新凤鸣",
+      "momentum_pct": -15.704894065856934,
+      "signal_close_hfq": 34.62,
+      "price_basis": "hfq_not_executable",
+      "rank": 679
+    },
+    {
+      "ticker": "sh603392",
+      "name": "万泰生物",
+      "momentum_pct": -15.739409625530243,
+      "signal_close_hfq": 76.18,
+      "price_basis": "hfq_not_executable",
+      "rank": 680
+    },
+    {
+      "ticker": "sz300919",
+      "name": "中伟新材",
+      "momentum_pct": -15.865384042263031,
+      "signal_close_hfq": 50.75,
+      "price_basis": "hfq_not_executable",
+      "rank": 681
+    },
+    {
+      "ticker": "sz000792",
+      "name": "000792",
+      "momentum_pct": -15.866482257843018,
+      "signal_close_hfq": 149.618,
+      "price_basis": "hfq_not_executable",
+      "rank": 682
+    },
+    {
+      "ticker": "sz002756",
+      "name": "永兴材料",
+      "momentum_pct": -15.870967507362366,
+      "signal_close_hfq": 110.84,
+      "price_basis": "hfq_not_executable",
+      "rank": 683
+    },
+    {
+      "ticker": "sh603659",
+      "name": "璞泰来",
+      "momentum_pct": -15.949837863445282,
+      "signal_close_hfq": 85.79,
+      "price_basis": "hfq_not_executable",
+      "rank": 684
+    },
+    {
+      "ticker": "sz002487",
+      "name": "大金重工",
+      "momentum_pct": -15.971797704696655,
+      "signal_close_hfq": 151.36,
+      "price_basis": "hfq_not_executable",
+      "rank": 685
+    },
+    {
+      "ticker": "sh688981",
+      "name": "中芯国际",
+      "momentum_pct": -16.04161560535431,
+      "signal_close_hfq": 104.1,
+      "price_basis": "hfq_not_executable",
+      "rank": 686
+    },
+    {
+      "ticker": "sz000630",
+      "name": "000630",
+      "momentum_pct": -16.31641685962677,
+      "signal_close_hfq": 177.482,
+      "price_basis": "hfq_not_executable",
+      "rank": 687
+    },
+    {
+      "ticker": "sz002126",
+      "name": "银轮股份",
+      "momentum_pct": -16.323241591453552,
+      "signal_close_hfq": 171.37,
+      "price_basis": "hfq_not_executable",
+      "rank": 688
+    },
+    {
+      "ticker": "sz002202",
+      "name": "002202",
+      "momentum_pct": -16.354714334011078,
+      "signal_close_hfq": 116.415,
+      "price_basis": "hfq_not_executable",
+      "rank": 689
+    },
+    {
+      "ticker": "sh601100",
+      "name": "恒立液压",
+      "momentum_pct": -16.405756771564484,
+      "signal_close_hfq": 295.351,
+      "price_basis": "hfq_not_executable",
+      "rank": 690
+    },
+    {
+      "ticker": "sz002064",
+      "name": "华峰化学",
+      "momentum_pct": -16.46645814180374,
+      "signal_close_hfq": 107.09,
+      "price_basis": "hfq_not_executable",
+      "rank": 691
+    },
+    {
+      "ticker": "sz300223",
+      "name": "君正股份",
+      "momentum_pct": -16.702616214752197,
+      "signal_close_hfq": 266.46,
+      "price_basis": "hfq_not_executable",
+      "rank": 692
+    },
+    {
+      "ticker": "sh600292",
+      "name": "电投水电",
+      "momentum_pct": -16.888242959976196,
+      "signal_close_hfq": 40.01,
+      "price_basis": "hfq_not_executable",
+      "rank": 693
+    },
+    {
+      "ticker": "sh688615",
+      "name": "合合信息",
+      "momentum_pct": -16.96082204580307,
+      "signal_close_hfq": 190.55,
+      "price_basis": "hfq_not_executable",
+      "rank": 694
+    },
+    {
+      "ticker": "sz301498",
+      "name": "乖宝宠物",
+      "momentum_pct": -16.962525248527527,
+      "signal_close_hfq": 37.89,
+      "price_basis": "hfq_not_executable",
+      "rank": 695
+    },
+    {
+      "ticker": "sh601021",
+      "name": "春秋航空",
+      "momentum_pct": -17.032675445079803,
+      "signal_close_hfq": 83.003,
+      "price_basis": "hfq_not_executable",
+      "rank": 696
+    },
+    {
+      "ticker": "sh688336",
+      "name": "三生国健",
+      "momentum_pct": -17.067870497703552,
+      "signal_close_hfq": 49.61,
+      "price_basis": "hfq_not_executable",
+      "rank": 697
+    },
+    {
+      "ticker": "sz000338",
+      "name": "000338",
+      "momentum_pct": -17.198781669139862,
+      "signal_close_hfq": 411.816,
+      "price_basis": "hfq_not_executable",
+      "rank": 698
+    },
+    {
+      "ticker": "sz300014",
+      "name": "300014",
+      "momentum_pct": -17.218497395515442,
+      "signal_close_hfq": 796.166,
+      "price_basis": "hfq_not_executable",
+      "rank": 699
+    },
+    {
+      "ticker": "sz000425",
+      "name": "000425",
+      "momentum_pct": -17.22957044839859,
+      "signal_close_hfq": 306.95,
+      "price_basis": "hfq_not_executable",
+      "rank": 700
+    },
+    {
+      "ticker": "sh688126",
+      "name": "沪硅产业",
+      "momentum_pct": -17.431972920894623,
+      "signal_close_hfq": 19.42,
+      "price_basis": "hfq_not_executable",
+      "rank": 701
+    },
+    {
+      "ticker": "sh688778",
+      "name": "厦钨新能",
+      "momentum_pct": -17.568403482437134,
+      "signal_close_hfq": 66.58,
+      "price_basis": "hfq_not_executable",
+      "rank": 702
+    },
+    {
+      "ticker": "sz300666",
+      "name": "江丰电子",
+      "momentum_pct": -17.59711056947708,
+      "signal_close_hfq": 168.86,
+      "price_basis": "hfq_not_executable",
+      "rank": 703
+    },
+    {
+      "ticker": "sh603049",
+      "name": "中策橡胶",
+      "momentum_pct": -17.632481455802917,
+      "signal_close_hfq": 43.21,
+      "price_basis": "hfq_not_executable",
+      "rank": 704
+    },
+    {
+      "ticker": "sz001389",
+      "name": "广合科技",
+      "momentum_pct": -17.821228504180908,
+      "signal_close_hfq": 117.68,
+      "price_basis": "hfq_not_executable",
+      "rank": 705
+    },
+    {
+      "ticker": "sz300627",
+      "name": "华测导航",
+      "momentum_pct": -17.87635236978531,
+      "signal_close_hfq": 135.89,
+      "price_basis": "hfq_not_executable",
+      "rank": 706
+    },
+    {
+      "ticker": "sz002203",
+      "name": "海亮股份",
+      "momentum_pct": -17.8962841629982,
+      "signal_close_hfq": 61.43,
+      "price_basis": "hfq_not_executable",
+      "rank": 707
+    },
+    {
+      "ticker": "sz300718",
+      "name": "长盛轴承",
+      "momentum_pct": -17.901915311813354,
+      "signal_close_hfq": 163.72,
+      "price_basis": "hfq_not_executable",
+      "rank": 708
+    },
+    {
+      "ticker": "sh603699",
+      "name": "纽威股份",
+      "momentum_pct": -18.052391707897186,
+      "signal_close_hfq": 43.17,
+      "price_basis": "hfq_not_executable",
+      "rank": 709
+    },
+    {
+      "ticker": "sh603298",
+      "name": "杭叉集团",
+      "momentum_pct": -18.12952011823654,
+      "signal_close_hfq": 49.81,
+      "price_basis": "hfq_not_executable",
+      "rank": 710
+    },
+    {
+      "ticker": "sh603799",
+      "name": "华友钴业",
+      "momentum_pct": -18.164756894111633,
+      "signal_close_hfq": 82.85,
+      "price_basis": "hfq_not_executable",
+      "rank": 711
+    },
+    {
+      "ticker": "sh600166",
+      "name": "福田汽车",
+      "momentum_pct": -18.34588348865509,
+      "signal_close_hfq": 62.89,
+      "price_basis": "hfq_not_executable",
+      "rank": 712
+    },
+    {
+      "ticker": "sz300763",
+      "name": "锦浪科技",
+      "momentum_pct": -18.45376193523407,
+      "signal_close_hfq": 217.81,
+      "price_basis": "hfq_not_executable",
+      "rank": 713
+    },
+    {
+      "ticker": "sh688708",
+      "name": "佳驰科技",
+      "momentum_pct": -18.67280751466751,
+      "signal_close_hfq": 38.85,
+      "price_basis": "hfq_not_executable",
+      "rank": 714
+    },
+    {
+      "ticker": "sh601615",
+      "name": "明阳智能",
+      "momentum_pct": -18.784530460834503,
+      "signal_close_hfq": 10.29,
+      "price_basis": "hfq_not_executable",
+      "rank": 715
+    },
+    {
+      "ticker": "sh601567",
+      "name": "三星电气",
+      "momentum_pct": -18.815331161022186,
+      "signal_close_hfq": 65.24,
+      "price_basis": "hfq_not_executable",
+      "rank": 716
+    },
+    {
+      "ticker": "sh688599",
+      "name": "天合光能",
+      "momentum_pct": -19.02567446231842,
+      "signal_close_hfq": 12.3,
+      "price_basis": "hfq_not_executable",
+      "rank": 717
+    },
+    {
+      "ticker": "sz000977",
+      "name": "000977",
+      "momentum_pct": -19.17002499103546,
+      "signal_close_hfq": 430.574,
+      "price_basis": "hfq_not_executable",
+      "rank": 718
+    },
+    {
+      "ticker": "sh605499",
+      "name": "东鹏饮料",
+      "momentum_pct": -19.27672177553177,
+      "signal_close_hfq": 201.34,
+      "price_basis": "hfq_not_executable",
+      "rank": 719
+    },
+    {
+      "ticker": "sz002432",
+      "name": "九安医疗",
+      "momentum_pct": -19.59560364484787,
+      "signal_close_hfq": 177.75,
+      "price_basis": "hfq_not_executable",
+      "rank": 720
+    },
+    {
+      "ticker": "sh603979",
+      "name": "金诚信",
+      "momentum_pct": -19.643157720565796,
+      "signal_close_hfq": 95.48,
+      "price_basis": "hfq_not_executable",
+      "rank": 721
+    },
+    {
+      "ticker": "sh688578",
+      "name": "艾力斯",
+      "momentum_pct": -19.84988898038864,
+      "signal_close_hfq": 90.77,
+      "price_basis": "hfq_not_executable",
+      "rank": 722
+    },
+    {
+      "ticker": "sz002466",
+      "name": "002466",
+      "momentum_pct": -19.862915575504303,
+      "signal_close_hfq": 319.767,
+      "price_basis": "hfq_not_executable",
+      "rank": 723
+    },
+    {
+      "ticker": "sh600392",
+      "name": "盛和资源",
+      "momentum_pct": -20.021314918994904,
+      "signal_close_hfq": 165.1,
+      "price_basis": "hfq_not_executable",
+      "rank": 724
+    },
+    {
+      "ticker": "sz002281",
+      "name": "光迅科技",
+      "momentum_pct": -20.12351155281067,
+      "signal_close_hfq": 393.2,
+      "price_basis": "hfq_not_executable",
+      "rank": 725
+    },
+    {
+      "ticker": "sh600563",
+      "name": "法拉电子",
+      "momentum_pct": -20.136645436286926,
+      "signal_close_hfq": 237.29,
+      "price_basis": "hfq_not_executable",
+      "rank": 726
+    },
+    {
+      "ticker": "sz301611",
+      "name": "珂玛科技",
+      "momentum_pct": -20.176678895950317,
+      "signal_close_hfq": 67.77,
+      "price_basis": "hfq_not_executable",
+      "rank": 727
+    },
+    {
+      "ticker": "sz000021",
+      "name": "深科技",
+      "momentum_pct": -20.218822360038757,
+      "signal_close_hfq": 358.76,
+      "price_basis": "hfq_not_executable",
+      "rank": 728
+    },
+    {
+      "ticker": "sh600549",
+      "name": "厦门钨业",
+      "momentum_pct": -20.272265374660492,
+      "signal_close_hfq": 460.564,
+      "price_basis": "hfq_not_executable",
+      "rank": 729
+    },
+    {
+      "ticker": "sh688027",
+      "name": "国盾量子",
+      "momentum_pct": -20.419391989707947,
+      "signal_close_hfq": 306.64,
+      "price_basis": "hfq_not_executable",
+      "rank": 730
+    },
+    {
+      "ticker": "sz300136",
+      "name": "信维通信",
+      "momentum_pct": -20.44709622859955,
+      "signal_close_hfq": 592.16,
+      "price_basis": "hfq_not_executable",
+      "rank": 731
+    },
+    {
+      "ticker": "sh688120",
+      "name": "华海清科",
+      "momentum_pct": -20.561853051185608,
+      "signal_close_hfq": 946.72,
+      "price_basis": "hfq_not_executable",
+      "rank": 732
+    },
+    {
+      "ticker": "sh603486",
+      "name": "科沃斯",
+      "momentum_pct": -20.642755925655365,
+      "signal_close_hfq": 72.35,
+      "price_basis": "hfq_not_executable",
+      "rank": 733
+    },
+    {
+      "ticker": "sh603308",
+      "name": "应流股份",
+      "momentum_pct": -20.895765721797943,
+      "signal_close_hfq": 48.57,
+      "price_basis": "hfq_not_executable",
+      "rank": 734
+    },
+    {
+      "ticker": "sz300475",
+      "name": "香农芯创",
+      "momentum_pct": -21.35165184736252,
+      "signal_close_hfq": 262.19,
+      "price_basis": "hfq_not_executable",
+      "rank": 735
+    },
+    {
+      "ticker": "sz000988",
+      "name": "000988",
+      "momentum_pct": -21.61400318145752,
+      "signal_close_hfq": 780.342,
+      "price_basis": "hfq_not_executable",
+      "rank": 736
+    },
+    {
+      "ticker": "sz002371",
+      "name": "002371",
+      "momentum_pct": -21.66876792907715,
+      "signal_close_hfq": 3414.684,
+      "price_basis": "hfq_not_executable",
+      "rank": 737
+    },
+    {
+      "ticker": "sz300383",
+      "name": "光环新网",
+      "momentum_pct": -21.687611937522888,
+      "signal_close_hfq": 218.1,
+      "price_basis": "hfq_not_executable",
+      "rank": 738
+    },
+    {
+      "ticker": "sh688019",
+      "name": "安集科技",
+      "momentum_pct": -21.95444256067276,
+      "signal_close_hfq": 744.18,
+      "price_basis": "hfq_not_executable",
+      "rank": 739
+    },
+    {
+      "ticker": "sh688692",
+      "name": "达梦数据",
+      "momentum_pct": -22.120992839336395,
+      "signal_close_hfq": 280.38,
+      "price_basis": "hfq_not_executable",
+      "rank": 740
+    },
+    {
+      "ticker": "sz300604",
+      "name": "长川科技",
+      "momentum_pct": -22.148586809635162,
+      "signal_close_hfq": 1389.71,
+      "price_basis": "hfq_not_executable",
+      "rank": 741
+    },
+    {
+      "ticker": "sz002709",
+      "name": "002709",
+      "momentum_pct": -22.248801589012146,
+      "signal_close_hfq": 396.867,
+      "price_basis": "hfq_not_executable",
+      "rank": 742
+    },
+    {
+      "ticker": "sz002625",
+      "name": "002625",
+      "momentum_pct": -22.268886864185333,
+      "signal_close_hfq": 158.43,
+      "price_basis": "hfq_not_executable",
+      "rank": 743
+    },
+    {
+      "ticker": "sz002407",
+      "name": "多氟多",
+      "momentum_pct": -22.39190936088562,
+      "signal_close_hfq": 189.55,
+      "price_basis": "hfq_not_executable",
+      "rank": 744
+    },
+    {
+      "ticker": "sh688012",
+      "name": "中微公司",
+      "momentum_pct": -22.421211004257202,
+      "signal_close_hfq": 398.53,
+      "price_basis": "hfq_not_executable",
+      "rank": 745
+    },
+    {
+      "ticker": "sh688072",
+      "name": "拓荆科技",
+      "momentum_pct": -22.64827936887741,
+      "signal_close_hfq": 1127.44,
+      "price_basis": "hfq_not_executable",
+      "rank": 746
+    },
+    {
+      "ticker": "sh603986",
+      "name": "兆易创新",
+      "momentum_pct": -22.64944016933441,
+      "signal_close_hfq": 1623.07,
+      "price_basis": "hfq_not_executable",
+      "rank": 747
+    },
+    {
+      "ticker": "sh688200",
+      "name": "华峰测控",
+      "momentum_pct": -22.73092120885849,
+      "signal_close_hfq": 904.79,
+      "price_basis": "hfq_not_executable",
+      "rank": 748
+    },
+    {
+      "ticker": "sh688472",
+      "name": "阿特斯",
+      "momentum_pct": -23.055554926395416,
+      "signal_close_hfq": 8.31,
+      "price_basis": "hfq_not_executable",
+      "rank": 749
+    },
+    {
+      "ticker": "sz002738",
+      "name": "中矿资源",
+      "momentum_pct": -23.65613281726837,
+      "signal_close_hfq": 112.34,
+      "price_basis": "hfq_not_executable",
+      "rank": 750
+    },
+    {
+      "ticker": "sh600160",
+      "name": "巨化股份",
+      "momentum_pct": -24.145668745040894,
+      "signal_close_hfq": 290.736,
+      "price_basis": "hfq_not_executable",
+      "rank": 751
+    },
+    {
+      "ticker": "sh688278",
+      "name": "特宝生物",
+      "momentum_pct": -24.147067964076996,
+      "signal_close_hfq": 45.8,
+      "price_basis": "hfq_not_executable",
+      "rank": 752
+    },
+    {
+      "ticker": "sz300285",
+      "name": "国瓷材料",
+      "momentum_pct": -24.255762994289398,
+      "signal_close_hfq": 572.99,
+      "price_basis": "hfq_not_executable",
+      "rank": 753
+    },
+    {
+      "ticker": "sz002460",
+      "name": "002460",
+      "momentum_pct": -24.53734129667282,
+      "signal_close_hfq": 504.529,
+      "price_basis": "hfq_not_executable",
+      "rank": 754
+    },
+    {
+      "ticker": "sz000938",
+      "name": "000938",
+      "momentum_pct": -24.772652983665466,
+      "signal_close_hfq": 178.185,
+      "price_basis": "hfq_not_executable",
+      "rank": 755
+    },
+    {
+      "ticker": "sh603993",
+      "name": "洛阳钼业",
+      "momentum_pct": -24.904152750968933,
+      "signal_close_hfq": 47.01,
+      "price_basis": "hfq_not_executable",
+      "rank": 756
+    },
+    {
+      "ticker": "sz300558",
+      "name": "贝达药业",
+      "momentum_pct": -25.084346532821655,
+      "signal_close_hfq": 44.41,
+      "price_basis": "hfq_not_executable",
+      "rank": 757
+    },
+    {
+      "ticker": "sz000582",
+      "name": "北部湾港",
+      "momentum_pct": -25.10794699192047,
+      "signal_close_hfq": 46.83,
+      "price_basis": "hfq_not_executable",
+      "rank": 758
+    },
+    {
+      "ticker": "sh688361",
+      "name": "中科飞测",
+      "momentum_pct": -25.390782952308655,
+      "signal_close_hfq": 258.7,
+      "price_basis": "hfq_not_executable",
+      "rank": 759
+    },
+    {
+      "ticker": "sz002008",
+      "name": "大族激光",
+      "momentum_pct": -25.633984804153442,
+      "signal_close_hfq": 717.58,
+      "price_basis": "hfq_not_executable",
+      "rank": 760
+    },
+    {
+      "ticker": "sz002558",
+      "name": "002558",
+      "momentum_pct": -25.78088641166687,
+      "signal_close_hfq": 92.146,
+      "price_basis": "hfq_not_executable",
+      "rank": 761
+    },
+    {
+      "ticker": "sz000960",
+      "name": "锡业股份",
+      "momentum_pct": -25.795277953147888,
+      "signal_close_hfq": 81.41,
+      "price_basis": "hfq_not_executable",
+      "rank": 762
+    },
+    {
+      "ticker": "sh603379",
+      "name": "三美股份",
+      "momentum_pct": -26.34190320968628,
+      "signal_close_hfq": 65.32,
+      "price_basis": "hfq_not_executable",
+      "rank": 763
+    },
+    {
+      "ticker": "sz300390",
+      "name": "天华新能",
+      "momentum_pct": -26.9420325756073,
+      "signal_close_hfq": 330.58,
+      "price_basis": "hfq_not_executable",
+      "rank": 764
+    },
+    {
+      "ticker": "sz301358",
+      "name": "湖南裕能",
+      "momentum_pct": -27.168703079223633,
+      "signal_close_hfq": 47.1,
+      "price_basis": "hfq_not_executable",
+      "rank": 765
+    },
+    {
+      "ticker": "sh688041",
+      "name": "海光信息",
+      "momentum_pct": -27.345439791679382,
+      "signal_close_hfq": 201.66,
+      "price_basis": "hfq_not_executable",
+      "rank": 766
+    },
+    {
+      "ticker": "sz301200",
+      "name": "大族数控",
+      "momentum_pct": -28.14752459526062,
+      "signal_close_hfq": 170.47,
+      "price_basis": "hfq_not_executable",
+      "rank": 767
+    },
+    {
+      "ticker": "sh603256",
+      "name": "宏和科技",
+      "momentum_pct": -28.332555294036865,
+      "signal_close_hfq": 92.15,
+      "price_basis": "hfq_not_executable",
+      "rank": 768
+    },
+    {
+      "ticker": "sh601799",
+      "name": "星宇股份",
+      "momentum_pct": -28.347280621528625,
+      "signal_close_hfq": 82.2,
+      "price_basis": "hfq_not_executable",
+      "rank": 769
+    },
+    {
+      "ticker": "sz001203",
+      "name": "大中矿业",
+      "momentum_pct": -28.392329812049866,
+      "signal_close_hfq": 19.42,
+      "price_basis": "hfq_not_executable",
+      "rank": 770
+    },
+    {
+      "ticker": "sz300274",
+      "name": "300274",
+      "momentum_pct": -28.434616327285767,
+      "signal_close_hfq": 695.184,
+      "price_basis": "hfq_not_executable",
+      "rank": 771
+    },
+    {
+      "ticker": "sz002409",
+      "name": "雅克科技",
+      "momentum_pct": -28.518474102020264,
+      "signal_close_hfq": 293.11,
+      "price_basis": "hfq_not_executable",
+      "rank": 772
+    },
+    {
+      "ticker": "sz300567",
+      "name": "精测电子",
+      "momentum_pct": -29.236608743667603,
+      "signal_close_hfq": 410.18,
+      "price_basis": "hfq_not_executable",
+      "rank": 773
+    },
+    {
+      "ticker": "sz301377",
+      "name": "鼎泰高科",
+      "momentum_pct": -29.314756393432617,
+      "signal_close_hfq": 248.6,
+      "price_basis": "hfq_not_executable",
+      "rank": 774
+    },
+    {
+      "ticker": "sz002028",
+      "name": "002028",
+      "momentum_pct": -29.336774349212646,
+      "signal_close_hfq": 1902.495,
+      "price_basis": "hfq_not_executable",
+      "rank": 775
+    },
+    {
+      "ticker": "sz301308",
+      "name": "301308",
+      "momentum_pct": -29.33948040008545,
+      "signal_close_hfq": 246.401,
+      "price_basis": "hfq_not_executable",
+      "rank": 776
+    },
+    {
+      "ticker": "sh601127",
+      "name": "赛力斯",
+      "momentum_pct": -30.18937110900879,
+      "signal_close_hfq": 45.601,
+      "price_basis": "hfq_not_executable",
+      "rank": 777
+    },
+    {
+      "ticker": "sz000893",
+      "name": "亚钾国际",
+      "momentum_pct": -30.386900901794434,
+      "signal_close_hfq": 71.43,
+      "price_basis": "hfq_not_executable",
+      "rank": 778
+    },
+    {
+      "ticker": "sh688347",
+      "name": "华虹宏力",
+      "momentum_pct": -30.413779616355896,
+      "signal_close_hfq": 165.65,
+      "price_basis": "hfq_not_executable",
+      "rank": 779
+    },
+    {
+      "ticker": "sz002353",
+      "name": "002353",
+      "momentum_pct": -30.863314867019653,
+      "signal_close_hfq": 748.191,
+      "price_basis": "hfq_not_executable",
+      "rank": 780
+    },
+    {
+      "ticker": "sh600499",
+      "name": "科达制造",
+      "momentum_pct": -31.559905409812927,
+      "signal_close_hfq": 314.01,
+      "price_basis": "hfq_not_executable",
+      "rank": 781
+    },
+    {
+      "ticker": "sz300308",
+      "name": "300308",
+      "momentum_pct": -31.84998333454132,
+      "signal_close_hfq": 3893.024,
+      "price_basis": "hfq_not_executable",
+      "rank": 782
+    },
+    {
+      "ticker": "sh688411",
+      "name": "海博思创",
+      "momentum_pct": -33.064088225364685,
+      "signal_close_hfq": 138.39,
+      "price_basis": "hfq_not_executable",
+      "rank": 783
+    },
+    {
+      "ticker": "sz002384",
+      "name": "002384",
+      "momentum_pct": -33.21147859096527,
+      "signal_close_hfq": 829.082,
+      "price_basis": "hfq_not_executable",
+      "rank": 784
+    },
+    {
+      "ticker": "sh688172",
+      "name": "燕东微",
+      "momentum_pct": -33.88545215129852,
+      "signal_close_hfq": 33.13,
+      "price_basis": "hfq_not_executable",
+      "rank": 785
+    },
+    {
+      "ticker": "sz300502",
+      "name": "300502",
+      "momentum_pct": -33.98270010948181,
+      "signal_close_hfq": 4231.81,
+      "price_basis": "hfq_not_executable",
+      "rank": 786
+    },
+    {
+      "ticker": "sz301165",
+      "name": "301165",
+      "momentum_pct": -34.34467017650604,
+      "signal_close_hfq": 153.621,
+      "price_basis": "hfq_not_executable",
+      "rank": 787
+    },
+    {
+      "ticker": "sz301526",
+      "name": "国际复材",
+      "momentum_pct": -34.800249338150024,
+      "signal_close_hfq": 20.89,
+      "price_basis": "hfq_not_executable",
+      "rank": 788
+    },
+    {
+      "ticker": "sh688521",
+      "name": "芯原股份",
+      "momentum_pct": -35.3419691324234,
+      "signal_close_hfq": 124.79,
+      "price_basis": "hfq_not_executable",
+      "rank": 789
+    },
+    {
+      "ticker": "sz300972",
+      "name": "万辰集团",
+      "momentum_pct": -36.11728847026825,
+      "signal_close_hfq": 140.74,
+      "price_basis": "hfq_not_executable",
+      "rank": 790
+    },
+    {
+      "ticker": "sh688702",
+      "name": "盛科通信",
+      "momentum_pct": -37.39519119262695,
+      "signal_close_hfq": 214.29,
+      "price_basis": "hfq_not_executable",
+      "rank": 791
+    },
+    {
+      "ticker": "sz300750",
+      "name": "300750",
+      "momentum_pct": -37.56415545940399,
+      "signal_close_hfq": 467.612,
+      "price_basis": "hfq_not_executable",
+      "rank": 792
+    },
+    {
+      "ticker": "sh688629",
+      "name": "华丰科技",
+      "momentum_pct": -43.93620789051056,
+      "signal_close_hfq": 77.34,
+      "price_basis": "hfq_not_executable",
+      "rank": 793
+    }
   ]
 }
