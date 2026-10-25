@@ -1,73 +1,39 @@
 "use client";
-
 import { useEffect, useState } from "react";
-import Image from "next/image";
+import Link from "next/link";
 import { Header } from "@/components/header";
+import { api } from "@/lib/api";
 
-type EventRow = {
-  code: string; date: string; stage: string; score: number; score_max: number;
-  eligible: boolean; state_risks: string[]; quality_flags: string[];
-  components: Record<string, { points: number | null; max: number; status: string }>;
-  preview: { mapping_status: string; native_open?: number; native_stop?: number; executable_from?: string };
-  entry_risk?: { gap_atr: number; stop_distance_atr: number; reasons: string[] };
-};
-type Report = {
-  version: string; report_date: string; stocks: number; native_rows: number;
-  factor_records: number; events: EventRow[]; limitations: string[]; universe: string[];
-};
-const stageNames: Record<string, string> = { pullback: "缩量回撤", observe: "介入观察", confirmed: "突破确认" };
-const componentNames: Record<string, string> = { weekly_trend: "周线趋势", volume_price: "量价结构", daily_entry: "日线介入", sector: "板块加持", momentum: "动量", liquidity: "流动性" };
+type Candidate={ticker:string;name:string;rank:number;momentum_pct:number;native_quote:{price:number;as_of:string}|null};
+type Snapshot={version:string;signal_as_of:string;generated_at:string;snapshot_fresh:boolean;allow_new_by_snapshot:boolean;universe_size:number;ranked_count:number;market:{as_of:string;close:number;ma:number;allow_open:boolean};candidates:Candidate[];limitations:string[];backtest:{results:{period:string;total_return_pct:number;cagr_pct:number;max_drawdown_pct:number;trades:number}[]}};
+type Size={shares:number;target_amount:number;estimated_cost:number;reference_stop:number};
+type Position={ticker:string;name?:string;quantity:number;avg_cost:number;current_price?:number|null};
+const inputClass="mt-1 block rounded border bg-background p-2";
 
-export default function StrategyPage() {
-  const [report, setReport] = useState<Report | null>(null);
-  const [error, setError] = useState(false);
-  const [symbol, setSymbol] = useState("all");
-  const [selected, setSelected] = useState<EventRow | null>(null);
-  useEffect(() => {
-    const controller = new AbortController();
-    fetch("/strategy/weekly-v1.2.json", { signal: controller.signal }).then(r => {
-      if (!r.ok) throw new Error("report_unavailable");
-      return r.json();
-    }).then((r: Report) => {
-      setReport(r); setSelected(r.events.find(e => e.stage === "confirmed") ?? r.events[0]);
-    }).catch(e => { if (e.name !== "AbortError") setError(true); });
-    return () => controller.abort();
-  }, []);
-  return <><Header /><main className="mx-auto w-full max-w-7xl space-y-6 p-4 lg:p-8">
-    <div className="flex flex-wrap items-start justify-between gap-3">
-      <div><p className="text-sm text-muted-foreground">周线趋势 · 缩量洗盘 · 日线确认</p><h1 className="text-3xl font-bold">策略评分 v1.2</h1><p className="mt-2 text-sm text-muted-foreground">历史研究报告 · 2026-10-25 发布 · 自动交易关闭</p></div>
-      <a className="rounded-lg border px-4 py-2 text-sm" href="/strategy/weekly-v1.2.json" download>下载诊断数据</a>
-    </div>
-    <div className="rounded-xl border border-amber-300 bg-amber-50 p-5 text-amber-950 dark:bg-amber-950/30 dark:text-amber-100">
-      <h2 className="font-semibold">收益回测待验证</h2><p className="mt-2 text-sm leading-6">当前版本完成了指标、形态和价格风险诊断，尚未完成大盘、板块与动态仓位的组合收益回测。此前 527.88% 属于另一套动量研究，不能视为本策略收益。评分表示规则匹配程度，不是上涨概率。</p>
-    </div>
-    {error && <p role="alert">报告加载失败，请刷新重试。</p>}
-    {!report && !error && <p role="status">正在加载已核验的历史报告…</p>}
-    {report && <>
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">{[
-        ["样本股票", `${report.stocks} 只`], ["原始日线", report.native_rows.toLocaleString()],
-        ["历史候选信号", `${report.events.length} 个`], ["完整策略可执行", "0 个"],
-      ].map(([label, value]) => <div key={label} className="rounded-xl border p-5"><p className="text-sm text-muted-foreground">{label}</p><p className="mt-2 text-2xl font-semibold">{value}</p></div>)}</div>
-      <section className="rounded-xl border p-5"><h2 className="text-lg font-semibold">评分与介入流程</h2>
-        <p className="mt-3 text-sm leading-7">周线趋势 25 + 量价结构 25 + 日线介入 20 + 板块 15 + 动量 10 + 流动性 5 = 100 分。当前缺少历史板块评分，显示已获分 / 可评 85 分，不折算到 100 分。VW-MACD、布林带、CCI、一目均衡表作为特征；PE/PB 不作为追逐题材行情的核心评分。</p>
-        <p className="mt-3 text-sm leading-7">周线趋势 → 放量上涨 → 缩量回撤且支撑有效 → 日线十字星进入观察 → 放量突破确认 → 下一交易日检查价格风险。观察点不等于买点。开盘绝对跳空超过 0.5 ATR，或入场到止损超过 2.5 ATR，跳过。通过价格检查后仍需大盘、板块、账户风险预算及交易可执行性全部通过。</p>
-        <p className="mt-3 text-sm leading-7">撤出框架：有效跌破冻结支撑时退出；板块或大盘走弱时降低仓位预算。动态减仓、分批止盈和 ATR 跟踪止损仍需联合回测，不将这些待验证规则计入已有收益。</p>
-      </section>
-      <section className="rounded-xl border p-5"><h2 className="text-lg font-semibold">历史信号：32 次回撤 → 4 次观察 → 1 次确认</h2>
-        <p className="mt-2 text-sm text-muted-foreground">以下是各日期当时的归档评分，不是当前买入建议。覆盖 28 只股票，其中部分没有候选信号。</p>
-        <label className="mt-4 block text-sm">股票筛选 <select aria-label="股票筛选" value={symbol} onChange={e => setSymbol(e.target.value)} className="ml-2 rounded border bg-background p-2"><option value="all">全部样本</option>{report.universe.map(code => <option key={code}>{code}</option>)}</select></label>
-        <div className="mt-4 max-h-96 overflow-auto"><table className="w-full min-w-[600px] text-left text-sm"><thead className="sticky top-0 bg-background"><tr>{["股票", "信号日期", "阶段", "评分 / 可评", "次日价格映射", "详情"].map(h => <th key={h} className="border-b p-3">{h}</th>)}</tr></thead><tbody>
-          {report.events.filter(e => symbol === "all" || e.code === symbol).map(e => <tr key={`${e.code}-${e.stage}-${e.date}`} className="border-b"><td className="p-3">{e.code}</td><td>{e.date}</td><td>{stageNames[e.stage]}</td><td>{e.score.toFixed(2)} / {e.score_max}</td><td>{e.preview.mapping_status === "compatible" ? "映射可用 · 仍需风控" : "拒绝 / 数据不足"}</td><td><button className="rounded border px-3 py-1" onClick={() => setSelected(e)}>查看</button></td></tr>)}
-        </tbody></table>{!report.events.some(e => symbol === "all" || e.code === symbol) && <p className="p-4 text-sm">该样本没有产生候选信号。</p>}</div>
-      </section>
-      {selected && <section className="rounded-xl border p-5" aria-live="polite"><h2 className="text-lg font-semibold">{selected.code} · {selected.date} · {stageNames[selected.stage]}</h2>
-        <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-3">{Object.entries(selected.components).map(([key, c]) => <div key={key} className="rounded-lg bg-muted p-3"><p className="text-sm">{componentNames[key] ?? key}</p><p className="mt-1 font-semibold">{c.points == null ? "缺少数据" : c.points.toFixed(2)} / {c.max}</p></div>)}</div>
-        <p className="mt-4 text-sm">完整策略资格：未通过。市场 M、历史板块 B 与实际交易风控不完整；次日原始开盘 {selected.preview.native_open?.toFixed(2) ?? "未知"}，参考支撑 {selected.preview.native_stop?.toFixed(2) ?? "未知"}。价格映射成功不等于允许成交。</p>
-        {selected.entry_risk && <div className="mt-4 rounded-lg border border-red-300 p-4"><p className="font-semibold">山煤国际：形态确认，但价格风险拒绝介入</p><p className="mt-2 text-sm leading-7">2019-07-23 观察，07-24 放量确认；07-25 开盘 6.71 元。确认收盘 6.49 元，ATR 0.2981 元，支撑 5.93 元。跳空 {selected.entry_risk.gap_atr.toFixed(3)} ATR ＞ 0.5；止损距离 {selected.entry_risk.stop_distance_atr.toFixed(3)} ATR ＞ 2.5。评分较高仍跳过，不放宽阈值追买。</p></div>}
-        {selected.state_risks.length > 0 && <p className="mt-3 text-sm text-amber-700">结构风险标记：{selected.state_risks.join("、")}</p>}
-      </section>}
-      <section className="rounded-xl border p-5"><h2 className="text-lg font-semibold">K 线决策点：唯一突破确认案例</h2><p className="mb-4 mt-2 text-sm text-muted-foreground">山煤国际历史案例，图上标注观察与确认；未产生订单或收益。</p><Image src="/strategy/weekly-v1.2-confirmed.png" alt="山煤国际历史K线、成交量、观察及突破确认决策点，缺少市场和板块评分，不构成订单" width={1800} height={1100} unoptimized className="h-auto w-full rounded-lg" /></section>
-      <section className="rounded-xl border p-5"><h2 className="font-semibold">本次验证的边界</h2><ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-muted-foreground">{report.limitations.map(t => <li key={t}>{t}</li>)}</ul><p className="mt-4 text-xs text-muted-foreground">版本：{report.version} · 复权因子记录 {report.factor_records} 条 · 原始研究文件 SHA256 包含在下载报告中。</p></section>
-    </>}
-  </main></>;
+export default function StrategyPage(){
+ const [data,setData]=useState<Snapshot|null>(null),[error,setError]=useState("");
+ const [equity,setEquity]=useState("100000"),[cash,setCash]=useState("100000"),[price,setPrice]=useState("");
+ const [size,setSize]=useState<Size|null>(null),[positions,setPositions]=useState<Position[]>([]),[portfolioNote,setPortfolioNote]=useState("");
+ const [entry,setEntry]=useState(""),[mark,setMark]=useState(""),[sessions,setSessions]=useState(""),[today,setToday]=useState(false),[exitNote,setExitNote]=useState("");
+ useEffect(()=>{const c=new AbortController();fetch('/api/strategy/momentum-selected',{signal:c.signal}).then(async r=>{if(!r.ok)throw Error('策略数据暂不可用');setData(await r.json());}).catch(e=>{if(e.name!=='AbortError')setError(e.message);});return()=>c.abort();},[]);
+ async function calculate(){setSize(null);setError('');try{const r=await fetch('/api/strategy/momentum-selected/size',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({equity:Number(equity),cash:Number(cash),native_price:Number(price)})});if(!r.ok)throw Error('请填写有效权益、现金和未复权价格；现金不能超过权益。');setSize(await r.json());}catch(e){setError(e instanceof Error?e.message:'计算失败');}}
+ async function loadHoldings(){setPortfolioNote('正在读取持仓…');try{const r=await api.getPortfolioPositions(false,false);setPositions(r.result.positions.filter(p=>p.market!=='CASH'&&(p.ticker.startsWith('sh')||p.ticker.startsWith('sz'))));setPortfolioNote('仅只读载入A股持仓。账面均价不自动替代原始成交价，买入日期需另行核验。');}catch{setPortfolioNote('读取失败，请先登录并确认持仓访问权限。');}}
+ async function checkExit(){setExitNote('');try{const r=await fetch('/api/strategy/momentum-selected/holding-check',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({entry_price:Number(entry),native_price:Number(mark),quote_verified:Number(mark)>0,elapsed_sessions:sessions===''?null:Number(sessions),entered_today:today})});if(!r.ok)throw Error('请填写有效价格与非负整数交易日数。');const result=await r.json();const labels:Record<string,string>={verify:'信息不足：核验原始成交价、报价和持有交易日后再判断。',t1_blocked:'当日买入受T+1限制，不生成当日卖出建议。',stop:'触发12%止损监测。跳空跌破按真实可成交价格处理，不保证止损价成交。',time_at_close:'触发原回测到期计数：计划收盘退出，仍需检查实际成交能力。',hold:'当前输入未触发止损或到期；排名下降不单独触发卖出。'};setExitNote(labels[result.action]??'请核验输入');}catch(e){setExitNote(e instanceof Error?e.message:'检查失败');}}
+ const full=data?.backtest.results.find(r=>r.period==='full');
+ return <><Header/><main className="mx-auto w-full max-w-7xl space-y-6 p-4 lg:p-8">
+  <div className="flex flex-wrap justify-between gap-4"><div><p className="text-sm text-muted-foreground">当前主策略 · A股 · 决策辅助</p><h1 className="text-3xl font-bold">动量轮动＋MA120</h1><p className="mt-2 text-sm text-muted-foreground">12周动量排名 · 最多20仓 · 每周补空位 · 12%止损</p></div><Link className="h-fit rounded-lg border px-4 py-2 text-sm" href="/strategy/weekly">周线回撤评分研究版</Link></div>
+  {error&&<p role="alert" className="rounded-lg border border-red-300 p-4 text-sm">{error}</p>}{!data&&!error&&<p role="status">正在加载策略及候选…</p>}
+  {data&&<>
+   <section className="rounded-xl border p-5"><h2 className="text-lg font-semibold">已启用：{data.version}</h2><p className="mt-3 text-sm leading-7">使用你指定的527.879%历史研究对应参数，候选取同一793只固定股票池的后复权12周收益排名，不用60日涨幅替代。启用选股与决策工具，自动下单关闭，不修改你的持仓。</p></section>
+   <div className="grid grid-cols-2 gap-3 md:grid-cols-4">{[['历史总收益',`${full?.total_return_pct.toFixed(3)}%`],['历史年化',`${full?.cagr_pct.toFixed(3)}%`],['历史最大回撤幅度',`${Math.abs(full?.max_drawdown_pct??0).toFixed(3)}%`],['全期回测交易数',`${full?.trades}`]].map(([label,value])=><div key={label} className="rounded-xl border p-5"><p className="text-sm text-muted-foreground">{label}</p><p className="mt-2 text-2xl font-semibold">{value}</p></div>)}</div>
+   <p className="text-sm text-muted-foreground">2015—2026已观察历史研究，含当前股票池偏差和执行简化，尚未独立逐价验收为真实可成交收益；不是未来收益目标。</p>
+   <section className={`rounded-xl border p-5 ${data.allow_new_by_snapshot?'border-emerald-400':'border-amber-400'}`}><h2 className="text-lg font-semibold">{!data.snapshot_fresh?'数据过期：暂停新增':data.market.allow_open?'大盘门控允许新增，仍须等周后首交易日并核验执行':'停止新增，只处理退出'}</h2><p className="mt-3 text-sm leading-7">大盘收盘 {data.market.close.toFixed(2)} / MA120 {data.market.ma.toFixed(2)}，截至 {data.market.as_of}。前一交易日收盘严格高于MA120才新增；跌破均线不自动清空已有持仓。每日收盘后计划更新，取数失败保留旧版并检查时效。</p></section>
+   <section className="rounded-xl border p-5"><h2 className="text-lg font-semibold">候选排名 · 信号截至 {data.signal_as_of}</h2><p className="mt-2 text-sm text-muted-foreground">固定池{data.universe_size}只，本期可排名{data.ranked_count}只。前40名是备用池，不是同时买40只。保留未退出持仓，依次补至20仓；周中不补位，不因掉出前20强制卖出。</p><div className="mt-4 max-h-[480px] overflow-auto"><table className="w-full min-w-[640px] text-left text-sm"><thead className="sticky top-0 bg-background"><tr>{['排名','股票','12周动量','未复权参考收盘','用途'].map(h=><th className="border-b p-3" key={h}>{h}</th>)}</tr></thead><tbody>{data.candidates.map(c=><tr className="border-b" key={c.ticker}><td className="p-3">{c.rank}</td><td><Link className="underline" href={`/stock/${c.ticker}`}>{c.name} · {c.ticker}</Link></td><td>{c.momentum_pct.toFixed(2)}%</td><td>{c.native_quote?`${c.native_quote.price.toFixed(2)} (${c.native_quote.as_of})`:'缺报价，不估数量'}</td><td><button className="rounded border px-3 py-1 disabled:opacity-40" disabled={!c.native_quote} onClick={()=>{setPrice(String(c.native_quote?.price??''));setSize(null);}}>带入试算</button></td></tr>)}</tbody></table></div></section>
+   <section className="rounded-xl border p-5"><h2 className="text-lg font-semibold">仓位与买入数量试算</h2><p className="mt-2 text-sm leading-7">单次目标=策略权益/20，资金不足按现金缩减，100股向下取整。已有仓位会漂移，不是每天再平衡到5%。仅为研究费用下的单只试算，实际下单前需核验价格、最低费用、T+1及涨跌停；多只股票须依次扣减现金并检查空位。</p><div className="mt-4 flex flex-wrap items-end gap-3"><label className="text-sm">策略权益（元）<input aria-label="策略权益" type="number" className={inputClass} value={equity} onChange={e=>{setEquity(e.target.value);setSize(null);}}/></label><label className="text-sm">可用现金（元）<input aria-label="可用现金" type="number" className={inputClass} value={cash} onChange={e=>{setCash(e.target.value);setSize(null);}}/></label><label className="text-sm">未复权参考价<input aria-label="未复权参考价" type="number" className={inputClass} value={price} onChange={e=>{setPrice(e.target.value);setSize(null);}}/></label><button className="rounded-lg bg-primary px-4 py-2 text-primary-foreground" onClick={calculate}>计算数量情景</button></div>{size&&<p className="mt-4 rounded-lg bg-muted p-4 text-sm">目标 {size.target_amount.toFixed(2)} 元 · 参考 {size.shares} 股 · 假设含费 {size.estimated_cost.toFixed(2)} 元 · 参考止损 {size.reference_stop.toFixed(3)} 元。{data.allow_new_by_snapshot?'仍需周期开仓时点与真实报价核验。':'当前门控禁止据此新增。'}</p>}</section>
+   <section className="rounded-xl border p-5"><div className="flex flex-wrap justify-between gap-3"><h2 className="text-lg font-semibold">持仓与退出检查</h2><button className="rounded border px-3 py-2 text-sm" onClick={loadHoldings}>只读载入我的A股持仓</button></div>{portfolioNote&&<p className="mt-3 text-sm">{portfolioNote}</p>}{positions.length>0&&<div className="mt-3 overflow-auto"><table className="w-full min-w-[500px] text-left text-sm"><thead><tr><th>股票</th><th>股数</th><th>账面均价</th><th>报价</th></tr></thead><tbody>{positions.map(p=><tr className="border-b" key={p.ticker}><td className="py-3">{p.name} {p.ticker}</td><td>{p.quantity}</td><td>{p.avg_cost}</td><td>{p.current_price??'缺失'}</td></tr>)}</tbody></table></div>}
+    <p className="mt-3 text-sm leading-7">止损监测价=原始入场成交价×88%。原程序持有计数通常在买入后第21个有报价交易日收盘到期；今天新买受T+1限制。缺少买入日期或真实报价时先核验。</p><div className="mt-4 flex flex-wrap items-end gap-3"><label className="text-sm">原始入场成交价<input aria-label="原始入场成交价" className={inputClass} type="number" value={entry} onChange={e=>{setEntry(e.target.value);setExitNote('');}}/></label><label className="text-sm">当前未复权价<input aria-label="当前未复权价" className={inputClass} type="number" value={mark} onChange={e=>{setMark(e.target.value);setExitNote('');}}/></label><label className="text-sm">买入后有报价交易日数<input aria-label="持有交易日数" className={inputClass} type="number" value={sessions} onChange={e=>{setSessions(e.target.value);setExitNote('');}}/></label><label className="py-2 text-sm"><input type="checkbox" checked={today} onChange={e=>{setToday(e.target.checked);setExitNote('');}}/> 今天买入</label><button className="rounded border px-4 py-2" onClick={checkExit}>检查退出条件</button></div>{exitNote&&<p role="status" className="mt-4 rounded-lg bg-muted p-4 text-sm">{exitNote}</p>}
+   </section>
+   <section className="rounded-xl border p-5"><h2 className="font-semibold">规则与回测口径</h2><p className="mt-3 text-sm leading-7">每周最后交易日收盘排名，次一交易日开盘补空位。无动量下限，无额外低波筛选。止损优先于到期；开盘退出资金才可用于当次开盘买入，日内和收盘卖出资金不倒流。佣金0.025%/边、卖出印花税0.05%、滑点0.05%/边为回测假设。</p><ul className="mt-4 list-disc space-y-2 pl-5 text-sm text-muted-foreground">{data.limitations.map(t=><li key={t}>{t}</li>)}</ul><p className="mt-4 text-xs text-muted-foreground">快照生成 {data.generated_at} · 历史收益不是未来收益保证。</p></section>
+  </>}
+ </main></>;
 }

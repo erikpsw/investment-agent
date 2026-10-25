@@ -1,0 +1,44 @@
+name: Refresh selected momentum strategy
+on:
+  workflow_dispatch:
+  schedule:
+    # 18:20 Shanghai. Refresh daily MA120, retain latest completed Friday ranking.
+    - cron: '20 10 * * 1-5'
+permissions:
+  contents: write
+concurrency:
+  group: selected-momentum-refresh
+  cancel-in-progress: false
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install pandas numpy requests pytest fastapi httpx
+      - name: Collect same-source fixed-universe histories and native quote references
+        run: python -m scripts.build_selected_momentum --refresh
+      - name: Verify policy rules
+        run: python -m pytest tests/test_selected_momentum.py -q
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: selected-momentum-source-archive
+          path: |
+            storage/stock_picker/research/selected-momentum-refresh/
+            storage/stock_picker/research/selected-momentum-quotes/
+          retention-days: 30
+      - name: Publish successful snapshot only
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add api/research_reports/momentum-selected.json
+          git diff --cached --quiet && exit 0
+          git commit -m 'chore: refresh selected momentum strategy snapshot'
+          git pull --rebase origin main
+          git push origin main

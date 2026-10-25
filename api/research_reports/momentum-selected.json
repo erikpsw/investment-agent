@@ -1,0 +1,739 @@
+{
+  "version": "momentum-ma120-selected-r2",
+  "active_policy": true,
+  "mode": "decision_support",
+  "automation_enabled": false,
+  "generated_at": "2026-10-25T22:36:50.139704+08:00",
+  "signal_as_of": "2026-10-23",
+  "market": {
+    "ready": true,
+    "allow_open": false,
+    "close": 4105.33,
+    "ma": 4671.3370833333365,
+    "as_of": "2026-10-23"
+  },
+  "policy": {
+    "version": "momentum-ma120-selected-r2",
+    "max_positions": 20,
+    "hold_days": 20,
+    "stop_pct": 0.12,
+    "ma_period": 120,
+    "momentum_weeks": 12,
+    "rebalance_weeks": 1,
+    "daily_refill": false,
+    "stop_cooldown": 0,
+    "momentum_rank": 0.0,
+    "vol_rank_min": 0.0,
+    "vol_rank_max": 1.0,
+    "rank_by": "momentum_desc",
+    "lot_size": 100,
+    "commission": 0.00025,
+    "stamp": 0.0005,
+    "slippage": 0.0005
+  },
+  "universe_size": 793,
+  "ranked_count": 793,
+  "candidates": [
+    {
+      "ticker": "sh688018",
+      "name": "乐鑫科技",
+      "momentum_pct": 49.28433299064636,
+      "signal_close_hfq": 424.49,
+      "price_basis": "hfq_not_executable",
+      "rank": 1,
+      "native_quote": {
+        "price": 154.36,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "b6b4a85e010d483ca240a3b3b8e3fb1eb33d62b2fa9bdec8f96271cee3f5d16d"
+      }
+    },
+    {
+      "ticker": "sh600316",
+      "name": "洪都航空",
+      "momentum_pct": 46.702197194099426,
+      "signal_close_hfq": 154.14,
+      "price_basis": "hfq_not_executable",
+      "rank": 2,
+      "native_quote": {
+        "price": 37.28,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "55b5943687c32f00f15681b000c0f75646461d17d4215d79764c1b81cc051a76"
+      }
+    },
+    {
+      "ticker": "sz300570",
+      "name": "太辰光",
+      "momentum_pct": 39.62060809135437,
+      "signal_close_hfq": 298.09,
+      "price_basis": "hfq_not_executable",
+      "rank": 3,
+      "native_quote": {
+        "price": 160.99,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "205d15106f635a38e7f339f96a78caa4e124625dc8505045c0af5908d64589db"
+      }
+    },
+    {
+      "ticker": "sz300413",
+      "name": "300413",
+      "momentum_pct": 38.8073593378067,
+      "signal_close_hfq": 41.713,
+      "price_basis": "hfq_not_executable",
+      "rank": 4,
+      "native_quote": {
+        "price": 23.23,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "dd36aa975b0eb94b1ea407968caf0b28b6e987f24bbda363aa942c4ca647c779"
+      }
+    },
+    {
+      "ticker": "sh688313",
+      "name": "仕佳光子",
+      "momentum_pct": 26.472213864326477,
+      "signal_close_hfq": 114.47,
+      "price_basis": "hfq_not_executable",
+      "rank": 5,
+      "native_quote": {
+        "price": 114.0,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "ef40634a0234519de0d6c6e50ac91d2b034ebbe03615e51fe3f60529bbb6363a"
+      }
+    },
+    {
+      "ticker": "sh688114",
+      "name": "华大智造",
+      "momentum_pct": 25.308889150619507,
+      "signal_close_hfq": 62.88,
+      "price_basis": "hfq_not_executable",
+      "rank": 6,
+      "native_quote": {
+        "price": 62.52,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "58bb2c65fc8e498eddb6881f679205b0756cb23ed2a42e69906b5a51f648c93b"
+      }
+    },
+    {
+      "ticker": "sz002436",
+      "name": "兴森科技",
+      "momentum_pct": 24.422714114189148,
+      "signal_close_hfq": 422.44,
+      "price_basis": "hfq_not_executable",
+      "rank": 7,
+      "native_quote": {
+        "price": 34.42,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "c6374b7efb4133ea3f1d6faff05d94906de647067671b71b5acc4a58fa65192a"
+      }
+    },
+    {
+      "ticker": "sh688192",
+      "name": "迪哲医药",
+      "momentum_pct": 24.074436724185944,
+      "signal_close_hfq": 63.34,
+      "price_basis": "hfq_not_executable",
+      "rank": 8,
+      "native_quote": {
+        "price": 63.34,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "29d02ddbaa3de4ec847c08a120e792405c8024ee873b2590ab505464642f752d"
+      }
+    },
+    {
+      "ticker": "sh603119",
+      "name": "浙江荣泰",
+      "momentum_pct": 23.827223479747772,
+      "signal_close_hfq": 96.61,
+      "price_basis": "hfq_not_executable",
+      "rank": 9,
+      "native_quote": {
+        "price": 56.77,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "86721c9ea6ca7952bbbd1a38e8d763e6bcb95c1bca8480c49b3c39623f7452cf"
+      }
+    },
+    {
+      "ticker": "sz301269",
+      "name": "301269",
+      "momentum_pct": 23.636363446712494,
+      "signal_close_hfq": 108.8,
+      "price_basis": "hfq_not_executable",
+      "rank": 10,
+      "native_quote": {
+        "price": 108.2,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "cbb62d2ca0cbc7214d4ff67865d677cb9f272dc331f4c11a8aee4855f0f603ae"
+      }
+    },
+    {
+      "ticker": "sz300454",
+      "name": "深信服",
+      "momentum_pct": 22.424091398715973,
+      "signal_close_hfq": 147.57,
+      "price_basis": "hfq_not_executable",
+      "rank": 11,
+      "native_quote": {
+        "price": 146.74,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "0eb611a022603a4cde58002c74bbc515576f96061089a099cfa44801f5cedbb6"
+      }
+    },
+    {
+      "ticker": "sh601118",
+      "name": "海南橡胶",
+      "momentum_pct": 22.24334627389908,
+      "signal_close_hfq": 6.43,
+      "price_basis": "hfq_not_executable",
+      "rank": 12,
+      "native_quote": {
+        "price": 6.14,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "d829da7425297533a573459bbb71a5c6305cdda63dfebcae97dafe873766b563"
+      }
+    },
+    {
+      "ticker": "sz300623",
+      "name": "捷捷微电",
+      "momentum_pct": 22.135840356349945,
+      "signal_close_hfq": 202.66,
+      "price_basis": "hfq_not_executable",
+      "rank": 13,
+      "native_quote": {
+        "price": 28.66,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "d32c3b6e68c5643fb86cac293a0f693a46b0864875d30e6398efb49505f1e097"
+      }
+    },
+    {
+      "ticker": "sz300620",
+      "name": "光库科技",
+      "momentum_pct": 22.070956230163574,
+      "signal_close_hfq": 566.69,
+      "price_basis": "hfq_not_executable",
+      "rank": 14,
+      "native_quote": {
+        "price": 250.84,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "8765c23dfe6ac13d1dcb3b0719e666fbf2d47261979ed4d414640d3d3e37e42c"
+      }
+    },
+    {
+      "ticker": "sh600562",
+      "name": "国睿科技",
+      "momentum_pct": 21.75278663635254,
+      "signal_close_hfq": 197.69,
+      "price_basis": "hfq_not_executable",
+      "rank": 15,
+      "native_quote": {
+        "price": 29.79,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "57c4295d47abc286bcec49ee8094bce2eb4faabb312e7bf425c95628a23bd700"
+      }
+    },
+    {
+      "ticker": "sh603083",
+      "name": "剑桥科技",
+      "momentum_pct": 21.51283770799637,
+      "signal_close_hfq": 350.2,
+      "price_basis": "hfq_not_executable",
+      "rank": 16,
+      "native_quote": {
+        "price": 158.38,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "48de6b4c4b3bea6f15300d48aa4db3faebd3453e85a23f8055925bccb7e19733"
+      }
+    },
+    {
+      "ticker": "sh603728",
+      "name": "鸣志电器",
+      "momentum_pct": 20.977942645549774,
+      "signal_close_hfq": 78.43,
+      "price_basis": "hfq_not_executable",
+      "rank": 17,
+      "native_quote": {
+        "price": 59.9,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "9b20ce369566dc4c1e1b42de9adedce001d9bd490ca7fd8ecc625b41e659e63d"
+      }
+    },
+    {
+      "ticker": "sh600435",
+      "name": "北方导航",
+      "momentum_pct": 20.755252242088318,
+      "signal_close_hfq": 170.12,
+      "price_basis": "hfq_not_executable",
+      "rank": 18,
+      "native_quote": {
+        "price": 12.89,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "c9bd0f46be85bb8e23b1da97cedaeb6891637ce8e9aade5557a90373d9b08492"
+      }
+    },
+    {
+      "ticker": "sh603341",
+      "name": "龙旗科技",
+      "momentum_pct": 20.332278311252594,
+      "signal_close_hfq": 45.63,
+      "price_basis": "hfq_not_executable",
+      "rank": 19,
+      "native_quote": {
+        "price": 44.14,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "cbc9dfda5b394d5045674341d155820485b5e4f0e6077d71bed37e64db349a66"
+      }
+    },
+    {
+      "ticker": "sh688213",
+      "name": "思特威",
+      "momentum_pct": 19.42153126001358,
+      "signal_close_hfq": 111.48,
+      "price_basis": "hfq_not_executable",
+      "rank": 20,
+      "native_quote": {
+        "price": 110.16,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "b2d789d4bab800459c5d52a9437fe6c7cb2c998274826b23a00a52c031ebe5d9"
+      }
+    },
+    {
+      "ticker": "sz300548",
+      "name": "长芯博创",
+      "momentum_pct": 19.31595355272293,
+      "signal_close_hfq": 456.3,
+      "price_basis": "hfq_not_executable",
+      "rank": 21,
+      "native_quote": {
+        "price": 167.86,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "6990825aad29f2c87a77a22be97bf4efaef0d446d84df065ca82a10d3c56351e"
+      }
+    },
+    {
+      "ticker": "sh601869",
+      "name": "长飞光纤",
+      "momentum_pct": 18.788962066173553,
+      "signal_close_hfq": 325.85,
+      "price_basis": "hfq_not_executable",
+      "rank": 22,
+      "native_quote": {
+        "price": 322.75,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "67cfb4da3ab971f7f5755f49bb635375fecff7bd62c2f03b55091f4bc8a80d03"
+      }
+    },
+    {
+      "ticker": "sh600482",
+      "name": "中国动力",
+      "momentum_pct": 18.33006888628006,
+      "signal_close_hfq": 89.396,
+      "price_basis": "hfq_not_executable",
+      "rank": 23,
+      "native_quote": {
+        "price": 31.85,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "3b0f772cec83d3d82685e4dc8e0a2bed39fbccb1fc19578e603fc7ff6866bb69"
+      }
+    },
+    {
+      "ticker": "sh600967",
+      "name": "内蒙一机",
+      "momentum_pct": 18.28899085521698,
+      "signal_close_hfq": 74.25,
+      "price_basis": "hfq_not_executable",
+      "rank": 24,
+      "native_quote": {
+        "price": 13.98,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "a5e5cbf2f87a85af9d46aea3ba643b4dc35ceb4871c0ef24b6b8f061c2e03ef6"
+      }
+    },
+    {
+      "ticker": "sz003021",
+      "name": "兆威机电",
+      "momentum_pct": 17.88810044527054,
+      "signal_close_hfq": 209.44,
+      "price_basis": "hfq_not_executable",
+      "rank": 25,
+      "native_quote": {
+        "price": 91.73,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "2cd55912e4fb206d1442433859c1ca6b08dbed26c5ad740963a0919d33f81c20"
+      }
+    },
+    {
+      "ticker": "sh688617",
+      "name": "惠泰医疗",
+      "momentum_pct": 17.49769002199173,
+      "signal_close_hfq": 572.39,
+      "price_basis": "hfq_not_executable",
+      "rank": 26,
+      "native_quote": {
+        "price": 268.0,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "6624c8fc773fbfd18f96f4d228de24808e1fd5290f245aeccbe2af4997fd13d6"
+      }
+    },
+    {
+      "ticker": "sz300394",
+      "name": "300394",
+      "momentum_pct": 17.457863688468933,
+      "signal_close_hfq": 2517.27,
+      "price_basis": "hfq_not_executable",
+      "rank": 27,
+      "native_quote": {
+        "price": 200.81,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "cb47624a7d9c5b32197a0d42f9c11659163434ef4d69cf81889b5d1365ab437f"
+      }
+    },
+    {
+      "ticker": "sh600977",
+      "name": "中国电影",
+      "momentum_pct": 16.485899686813354,
+      "signal_close_hfq": 16.11,
+      "price_basis": "hfq_not_executable",
+      "rank": 28,
+      "native_quote": {
+        "price": 14.78,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "441483079543b97db4c6808ebf41c87593e9db1fd2f4f64de62a2b04404f3168"
+      }
+    },
+    {
+      "ticker": "sz300832",
+      "name": "300832",
+      "momentum_pct": 16.282856464385986,
+      "signal_close_hfq": 119.269,
+      "price_basis": "hfq_not_executable",
+      "rank": 29,
+      "native_quote": {
+        "price": 56.66,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "963a4fdbc2cdcf5d6a30ef445f50718fd48d6ceff1efded6477e3ff6c96c5290"
+      }
+    },
+    {
+      "ticker": "sh600256",
+      "name": "广汇能源",
+      "momentum_pct": 15.520362555980682,
+      "signal_close_hfq": 408.48,
+      "price_basis": "hfq_not_executable",
+      "rank": 30,
+      "native_quote": {
+        "price": 6.65,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "9c8911bb77b4870de3204984f9df30538440a382d370a66022e5d2253b30b8af"
+      }
+    },
+    {
+      "ticker": "sz301297",
+      "name": "富乐德",
+      "momentum_pct": 15.387183427810669,
+      "signal_close_hfq": 34.57,
+      "price_basis": "hfq_not_executable",
+      "rank": 31,
+      "native_quote": {
+        "price": 34.18,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "549a6a7e4e8f82de42741d5a0e517ef10c9cb970a64965af6b15ab27b562bef8"
+      }
+    },
+    {
+      "ticker": "sh603920",
+      "name": "世运电路",
+      "momentum_pct": 15.315507352352142,
+      "signal_close_hfq": 53.91,
+      "price_basis": "hfq_not_executable",
+      "rank": 32,
+      "native_quote": {
+        "price": 37.03,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "07dc317dd2263617f8b82a0b3214a332287fd2f044e79f62351d4ce55e181d0a"
+      }
+    },
+    {
+      "ticker": "sh600893",
+      "name": "航发动力",
+      "momentum_pct": 15.26193767786026,
+      "signal_close_hfq": 131.175,
+      "price_basis": "hfq_not_executable",
+      "rank": 33,
+      "native_quote": {
+        "price": 40.3,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "0353337fbb2c486510a75d7588423774e120aba4d0b0b3c1697810228cf72178"
+      }
+    },
+    {
+      "ticker": "sh688322",
+      "name": "奥比中光",
+      "momentum_pct": 15.064990520477295,
+      "signal_close_hfq": 108.0,
+      "price_basis": "hfq_not_executable",
+      "rank": 34,
+      "native_quote": {
+        "price": 108.0,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "35958452a1414c6b55c0b49cf0c11c63fd659988527ce38de5ca0f6dbd7beba0"
+      }
+    },
+    {
+      "ticker": "sh603893",
+      "name": "瑞芯微",
+      "momentum_pct": 14.235693216323853,
+      "signal_close_hfq": 218.59,
+      "price_basis": "hfq_not_executable",
+      "rank": 35,
+      "native_quote": {
+        "price": 214.04,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "b9934f4781f75ffe386603a4ac241fa7b33e0a055c9b6cd0b500ead2818a24b2"
+      }
+    },
+    {
+      "ticker": "sh600601",
+      "name": "方正科技",
+      "momentum_pct": 13.730627298355103,
+      "signal_close_hfq": 113252.8,
+      "price_basis": "hfq_not_executable",
+      "rank": 36,
+      "native_quote": {
+        "price": 10.31,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "2d58402f588d68eaa0bfa2da38916e0b7ec1727706f03d5697a1ee0d71ce5e0a"
+      }
+    },
+    {
+      "ticker": "sz302132",
+      "name": "302132",
+      "momentum_pct": 13.416807353496552,
+      "signal_close_hfq": 388.135,
+      "price_basis": "hfq_not_executable",
+      "rank": 37,
+      "native_quote": {
+        "price": 66.57,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "c00c25945da1ac7c3b8e46242604605ea57870d7b5948cd985146506ca98e581"
+      }
+    },
+    {
+      "ticker": "sz300487",
+      "name": "蓝晓科技",
+      "momentum_pct": 12.740740180015564,
+      "signal_close_hfq": 388.11,
+      "price_basis": "hfq_not_executable",
+      "rank": 38,
+      "native_quote": {
+        "price": 66.25,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "0bec5880e0d8b6aca911d2f5900e0e961238eca63ef4c1f7e6087ab31d411323"
+      }
+    },
+    {
+      "ticker": "sh603259",
+      "name": "药明康德",
+      "momentum_pct": 12.45822012424469,
+      "signal_close_hfq": 356.65,
+      "price_basis": "hfq_not_executable",
+      "rank": 39,
+      "native_quote": {
+        "price": 144.72,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "c73655e9a6daf290eaaec25369f559b44da329e7c0ab316a9df9eedaad7885e5"
+      }
+    },
+    {
+      "ticker": "sh601857",
+      "name": "中国石油",
+      "momentum_pct": 11.9801364839077,
+      "signal_close_hfq": 18.04,
+      "price_basis": "hfq_not_executable",
+      "rank": 40,
+      "native_quote": {
+        "price": 12.75,
+        "as_of": "2026-10-23",
+        "price_basis": "unadjusted",
+        "source_sha256": "7c853b8d11fc4382641cd8c53ff4da0df6ffb53d65f8ac2bb749929b999143e3"
+      }
+    }
+  ],
+  "backtest": {
+    "stocks": 793,
+    "costs": {
+      "commission": 0.00025,
+      "stamp": 0.0005,
+      "slippage": 0.0005
+    },
+    "results": [
+      {
+        "period": "in_sample",
+        "market_filter": true,
+        "vol_rank_min": 0.0,
+        "vol_rank_max": 1.0,
+        "low_vol_rank": 1.0,
+        "momentum_rank": 0.0,
+        "max_positions": 20,
+        "stop_pct": 0.12,
+        "hold_days": 20,
+        "rebalance_weeks": 1,
+        "rank_by": "momentum_desc",
+        "daily_refill": false,
+        "stop_cooldown": 0,
+        "days": 1706,
+        "total_return_pct": 137.718,
+        "cagr_pct": 13.653,
+        "max_drawdown_pct": -26.326,
+        "sharpe": 0.744,
+        "trades": 975,
+        "hit_rate_pct": 44.41,
+        "avg_win_pct": 18.694,
+        "avg_loss_pct": -10.438,
+        "profit_factor": 1.405,
+        "net_pnl": 1377180.47,
+        "exposure_pct": 42.96,
+        "median_holding_days": 20,
+        "exit_reasons": {
+          "stop": 401,
+          "time": 562,
+          "end_of_period": 12
+        },
+        "skipped": {
+          "market_filter": 93944,
+          "position_limit": 104928,
+          "too_small": 116,
+          "limit_up_open": 10,
+          "suspended": 6
+        }
+      },
+      {
+        "period": "out_of_sample",
+        "market_filter": true,
+        "vol_rank_min": 0.0,
+        "vol_rank_max": 1.0,
+        "low_vol_rank": 1.0,
+        "momentum_rank": 0.0,
+        "max_positions": 20,
+        "stop_pct": 0.12,
+        "hold_days": 20,
+        "rebalance_weeks": 1,
+        "rank_by": "momentum_desc",
+        "daily_refill": false,
+        "stop_cooldown": 0,
+        "days": 1162,
+        "total_return_pct": 134.354,
+        "cagr_pct": 20.305,
+        "max_drawdown_pct": -25.751,
+        "sharpe": 0.879,
+        "trades": 714,
+        "hit_rate_pct": 42.02,
+        "avg_win_pct": 22.982,
+        "avg_loss_pct": -11.049,
+        "profit_factor": 1.429,
+        "net_pnl": 1343539.2,
+        "exposure_pct": 41.29,
+        "median_holding_days": 20.0,
+        "exit_reasons": {
+          "stop": 332,
+          "time": 382
+        },
+        "skipped": {
+          "position_limit": 92560,
+          "market_filter": 95428,
+          "too_small": 170,
+          "limit_up_open": 16,
+          "suspended": 3
+        }
+      },
+      {
+        "period": "full",
+        "market_filter": true,
+        "vol_rank_min": 0.0,
+        "vol_rank_max": 1.0,
+        "low_vol_rank": 1.0,
+        "momentum_rank": 0.0,
+        "max_positions": 20,
+        "stop_pct": 0.12,
+        "hold_days": 20,
+        "rebalance_weeks": 1,
+        "rank_by": "momentum_desc",
+        "daily_refill": false,
+        "stop_cooldown": 0,
+        "days": 2868,
+        "total_return_pct": 527.879,
+        "cagr_pct": 17.525,
+        "max_drawdown_pct": -26.326,
+        "sharpe": 0.82,
+        "trades": 1672,
+        "hit_rate_pct": 43.24,
+        "avg_win_pct": 21.012,
+        "avg_loss_pct": -10.623,
+        "profit_factor": 1.472,
+        "net_pnl": 5278793.57,
+        "exposure_pct": 42.98,
+        "median_holding_days": 20.0,
+        "exit_reasons": {
+          "stop": 725,
+          "time": 947
+        },
+        "skipped": {
+          "market_filter": 189376,
+          "position_limit": 197634,
+          "too_small": 162,
+          "limit_up_open": 25,
+          "suspended": 9
+        }
+      }
+    ]
+  },
+  "provenance": {
+    "dataset.json": "b824b373ca2f159ec8cfdb791306840e8b87e2ea6696e2a610b60b20a864addc",
+    "training/panel.parquet": "a9722a9dcd1382f2cf5d2500e993d5fbc3e8903b18e7a55a85f3449ac0df20ec",
+    "cs-signal-separation-r2.json": "f836568b136c2b7299eb711f90c15db668d4f1977ec0c7adc5537df09bddb036"
+  },
+  "limitations": [
+    "793只当前成分样本有幸存者偏差，非历史时点股票池。",
+    "527.879%是已观察历史的研究收益，复权执行、历史限价、真实税费和公司行动仍有简化。",
+    "每周信号仅补空位，不按排名淘汰未到期持仓，不在周中补位。",
+    "市场弱时停止新增，不因跌破MA120自动清空已有持仓。",
+    "原程序持有计数20在递增前检查，通常是买入后第21个有报价交易日收盘退出；不悄悄改成第20日。",
+    "当前候选不是历史回测期末持仓；回测期末清算是统计处理，不是每周强制清仓。"
+  ]
+}

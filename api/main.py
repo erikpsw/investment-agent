@@ -59,6 +59,8 @@ app.add_middleware(
 )
 
 app.include_router(quotes.router, prefix="/api", tags=["quotes"])
+from investment.api.routes import selected_momentum
+app.include_router(selected_momentum.router, prefix="/api", tags=["selected-momentum"])
 app.include_router(search.router, prefix="/api", tags=["search"])
 app.include_router(history.router, prefix="/api", tags=["history"])
 app.include_router(hot_stocks.router, prefix="/api", tags=["hot-stocks"])
