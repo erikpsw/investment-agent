@@ -1,7 +1,14 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { api, MarketOverview, FinancialMetrics, FinancialHistoryResponse, type DisclosureResponse } from "@/lib/api";
+import {
+  api,
+  MarketOverview,
+  MarketSentimentResult,
+  FinancialMetrics,
+  FinancialHistoryResponse,
+  type DisclosureResponse,
+} from "@/lib/api";
 
 export function useMarketOverview() {
   return useQuery<MarketOverview>({
@@ -9,6 +16,15 @@ export function useMarketOverview() {
     queryFn: () => api.getMarketOverview(),
     refetchInterval: 60000,
     staleTime: 30000,
+  });
+}
+
+export function useMarketSentiment() {
+  return useQuery<{ status: string; result: MarketSentimentResult }>({
+    queryKey: ["market-sentiment"],
+    queryFn: () => api.getMarketSentiment(false),
+    refetchInterval: 15 * 60 * 1000,
+    staleTime: 10 * 60 * 1000,
   });
 }
 

@@ -10,7 +10,10 @@
       "src": "api/index.py",
       "use": "@vercel/python",
       "config": {
-        "includeFiles": ["storage/market/instrument-catalog.json"]
+        "includeFiles": [
+          "storage/market/instrument-catalog.json",
+          "storage/market/sentiment.json"
+        ]
       }
     }
   ],

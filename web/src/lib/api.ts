@@ -75,6 +75,79 @@ export interface MarketOverview {
   timestamp: string;
 }
 
+export interface SentimentFactor {
+  key: string;
+  name: string;
+  weight: number;
+  score: number;
+  value: string;
+  detail: string;
+}
+
+export interface SentimentSubMetric {
+  key: string;
+  name: string;
+  score: number;
+  rating: string;
+  value: number | null;
+}
+
+export interface SentimentHistoryPoint {
+  date: string;
+  score: number;
+}
+
+export interface SentimentResonance {
+  signal: "bottom" | "right_turn" | "top" | "watch_bottom" | "watch_top" | "none";
+  stage?: string;
+  label: string;
+  trigger_count: number;
+  triggers: string[];
+}
+
+export interface SentimentTrendFilter {
+  regime: "bull" | "bear";
+  label: string;
+  ma200: number;
+  above_ma200: boolean;
+}
+
+export interface MarketSentimentItem {
+  market: "CN" | "HK" | "US";
+  name: string;
+  benchmark: {
+    ticker: string;
+    name: string;
+    price: number | null;
+    change_percent: number | null;
+  };
+  score: number;
+  smoothed_score?: number;
+  trend_filter?: SentimentTrendFilter | null;
+  regime: "extreme_fear" | "fear" | "neutral" | "greed" | "extreme_greed";
+  label: string;
+  position_min: number;
+  position_max: number;
+  position_range: string;
+  action: string;
+  delta_1d: number | null;
+  delta_1w: number | null;
+  resonance: SentimentResonance;
+  factors: SentimentFactor[];
+  sub_metrics: SentimentSubMetric[];
+  history: SentimentHistoryPoint[];
+  as_of: string | null;
+  source: string;
+  stale: boolean;
+}
+
+export interface MarketSentimentResult {
+  generated_at: string;
+  stale: boolean;
+  live_markets?: number;
+  markets: MarketSentimentItem[];
+}
+
 export type HotStockMarket = "CN" | "HK" | "US";
 export type HotStockMode = "hot" | "amount" | "gainers";
 
@@ -633,6 +706,15 @@ class ApiClient {
 
   async getMarketOverview(): Promise<MarketOverview> {
     return this.fetch<MarketOverview>("/api/market/overview");
+  }
+
+  async getMarketSentiment(
+    refresh = false,
+  ): Promise<{ status: string; result: MarketSentimentResult }> {
+    const suffix = refresh ? "?refresh=true" : "";
+    return this.fetch<{ status: string; result: MarketSentimentResult }>(
+      `/api/market/sentiment${suffix}`,
+    );
   }
 
   async getHotStocks(

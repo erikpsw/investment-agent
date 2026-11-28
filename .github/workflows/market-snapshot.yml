@@ -24,6 +24,15 @@ jobs:
           node-version: 22
       - name: Fetch market snapshots
         run: node scripts/update_market_snapshot.mjs
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install sentiment snapshot dependencies
+        run: pip install --quiet requests akshare pandas
+      - name: Fetch market sentiment snapshot
+        continue-on-error: true
+        run: python scripts/update_sentiment_snapshot.py
       - name: Commit updated snapshots
         run: |
           git config user.name "github-actions[bot]"

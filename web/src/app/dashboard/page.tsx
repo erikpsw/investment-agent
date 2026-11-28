@@ -6,6 +6,7 @@ import { Search, TrendingUp } from "lucide-react";
 import { Header } from "@/components/header";
 import { HotStockSection } from "@/components/hot-stock-section";
 import { MarketOverview } from "@/components/market-overview";
+import { MarketSentimentPanel } from "@/components/market-sentiment";
 import { StockSearch } from "@/components/stock-search";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -37,6 +38,8 @@ export default function DashboardPage() {
         </div>
 
         <MarketOverview />
+
+        <MarketSentimentPanel />
 
         <Card>
           <CardContent className="flex flex-wrap items-center justify-between gap-3 py-4">
